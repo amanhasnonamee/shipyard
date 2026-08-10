@@ -1,0 +1,138 @@
+// generated from docker-curriculum.html - do not hand-edit
+window.SHIPYARD_DATA={
+meta:{tech:"docker",title:"The Container Shipyard - Docker: A First-Principles Curriculum",brand:"THE CONTAINER SHIPYARD",tagline:"Docker - first-principles curriculum",storageKey:"shipyard-v1"},
+parts:[
+ {id:"p0",num:"00",title:"How to Use This Curriculum",tag:null},
+ {id:"p1",num:"01",title:"The Problem Docker Solves",tag:"DEEP"},
+ {id:"p2",num:"02",title:"The Core Mental Model",tag:"DEEP"},
+ {id:"p3",num:"03",title:"Containers in Practice",tag:"DEEP"},
+ {id:"p4",num:"04",title:"Images & Dockerfiles",tag:"DEEP"},
+ {id:"p5",num:"05",title:"Storage",tag:"DEEP"},
+ {id:"p6",num:"06",title:"Networking",tag:"DEEP"},
+ {id:"p7",num:"07",title:"Docker Compose",tag:"DEEP"},
+ {id:"p8",num:"08",title:"Real Project: Django+Postgres+Redis+Nginx",tag:"DEEP"},
+ {id:"p9",num:"09",title:"The Debugging Playbook",tag:"DEEP"},
+ {id:"p10",num:"10",title:"Internals: What's Actually Happening",tag:"ADVANCED"},
+ {id:"p11",num:"11",title:"Production & Security",tag:"DEEP"},
+ {id:"p12",num:"12",title:"When Docker Is and Isn't the Right Tool",tag:"DEEP"},
+ {id:"p13",num:"13",title:"Interview Preparation",tag:"DEEP"},
+ {id:"p14",num:"14",title:"Milestones & Self-Assessment",tag:"DEEP"}
+],
+quiz:{
+p1:[
+ {q:"An application is never just your code. Which of these is NOT part of \"the app\" per the curriculum?",o:["The language runtime (Python 3.11, Node 20)","The system libraries (libpq, openssl, glibc)","OS-level config (env vars, locales, file paths)","The GPU model installed on the machine"],a:3,e:"The ingredients: code + runtime + system libraries + OS config + external services + exact versions of ALL of the above. GPU model is hardware, not part of the app's environment."},
+ {q:"At the core: why is a container lighter than a VM?",o:["It runs a compressed guest OS","It's just an isolated process on the shared host kernel","It ships without libraries","It only packages your code"],a:1,e:"No guest OS, no hardware virtualization. The kernel is already running — the container is one more process it starts. Milliseconds, not minutes."},
+ {q:"Which of these does Docker NOT solve?",o:["Reproducible environments","Dependency conflicts on shared machines","VM-grade security isolation","Shipping identical environments everywhere"],a:2,e:"Containers share the host kernel — isolation is weaker than VMs. Docker is not a security boundary for hostile workloads."},
+ {q:"Typical density per host — VMs vs containers?",o:["About equal","Handfuls of VMs vs hundreds of containers","Containers are 2x denser","One VM per container"],a:1,e:"VMs boot a full guest OS each (GBs, minutes); containers are processes (MBs, milliseconds) — hence hundreds per host."}
+],
+p2:[
+ {q:"A container is best described as…",o:["A small virtual machine","A normal process wrapped in namespaces, cgroups and a layered filesystem","A lightweight operating system","A kernel module"],a:1,e:"There is no 'container' object in the kernel. Run ps aux on the host — the container's process is listed like any other."},
+ {q:"Which kernel feature controls what a process can USE (CPU, memory, I/O)?",o:["Namespaces","Cgroups","OverlayFS","iptables"],a:1,e:"Namespaces = what it can SEE. Cgroups = what it can USE. One sentence; interview gold."},
+ {q:"The main process inside a container (PID 1) exits. What happens?",o:["The container restarts automatically","The container stops — alive exactly as long as its process","It pauses until restarted","Nothing — other processes keep it alive"],a:1,e:"This one fact explains 80% of 'my container keeps exiting' confusion."},
+ {q:"You write a file inside a running container, then docker rm it. Where did the file go?",o:["Saved to the registry","It was in the writable layer — gone forever","Moved to a volume automatically","Cached on the host"],a:1,e:"All writes land in the container's writable layer, which rm deletes. This is exactly why volumes exist (Part 5)."},
+ {q:"Which component actually makes the syscalls that create the isolated process?",o:["The docker CLI","dockerd","runc","The registry"],a:2,e:"runc is the tiny binary that calls clone() with namespace flags. dockerd delegates to containerd, which hands off to runc."}
+],
+p3:[
+ {q:"You run `docker run ubuntu` and it exits instantly. Why?",o:["The image is corrupt","Its default command is bash — no TTY attached, so bash exits and the container dies with its process","You need -d for it to stay up","Ubuntu images are invalid"],a:1,e:"Containers run a process, not 'an OS'. Give it one: docker run -it ubuntu bash."},
+ {q:"docker stop X sends…",o:["SIGKILL immediately","SIGTERM, waits 10s, then SIGKILL","SIGINT then detaches","A pause signal"],a:1,e:"A 10-second graceful window — your app should handle SIGTERM and shut down cleanly."},
+ {q:"After docker stop, the container is…",o:["Gone forever","Stopped but restorable, data intact","Automatically deleted","Paused"],a:1,e:"Stopped = process dead, writable layer still there (can restart). Removed = gone forever. The whole lifecycle is that difference."},
+ {q:"Which opens a shell inside a RUNNING container?",o:["docker attach","docker exec -it web bash","docker start -it web","docker run --init"],a:1,e:"exec starts an ADDITIONAL process inside the container's existing namespaces — that's also why you can't exec into a stopped one."},
+ {q:"Your app writes logs to /var/log/app.log inside the container, but docker logs shows nothing. Why?",o:["docker logs only captures stdout/stderr — and the file dies with the container","The file is encrypted","docker logs requires -a","app.log is a reserved name"],a:0,e:"Container convention: log to stdout/stderr. Docker captures that stream; a log file inside the container dies with it."}
+],
+p4:[
+ {q:"RUN vs CMD — the correct mental model:",o:["They're the same thing","RUN executes once at build time and bakes results; CMD runs at every container start and bakes nothing","CMD is build-time, RUN is run-time","Neither matters much"],a:1,e:"RUN pip install ✔ (once, baked into a layer). CMD pip install ✘ (would reinstall on every start)."},
+ {q:"During a build, the FIRST cache miss…",o:["Only that layer rebuilds; following layers stay cached","Invalidates every layer after it","Restarts the build from scratch","Is silently ignored"],a:1,e:"A layer is reused only if the instruction is unchanged AND all previous layers were hits. First miss kills the tail."},
+ {q:"Why does the canonical Dockerfile COPY requirements.txt before the source code?",o:["Smaller build context","So the pip layer stays cached when you edit code — rebuilds take seconds, not minutes","It's required syntax","Faster downloads"],a:1,e:"Order instructions least→most frequently-changing. Code edits then only re-run the cheap final COPY."},
+ {q:"CMD [\"python\",\"app.py\"] — you run `docker run img bash`. What runs?",o:["bash — CMD is fully overridable","python app.py with bash as an argument","An error is raised","python, then bash"],a:0,e:"CMD is fully overridable. ENTRYPOINT is fixed — and with ENTRYPOINT+CMD, args after the image name replace only CMD."},
+ {q:"EXPOSE 8000 in a Dockerfile…",o:["Publishes port 8000 on the host","Is documentation only — publishes nothing","Opens the host firewall","Mounts the port"],a:1,e:"The famous gotcha: publishing happens at run time with -p (or compose ports:). EXPOSE only documents."}
+],
+p5:[
+ {q:"Which mount type survives docker rm?",o:["tmpfs","A named volume","The writable layer","A bind mount to a file you deleted"],a:1,e:"Named volumes live outside the layer stack, managed by Docker — they survive rm. tmpfs dies at stop; the writable layer dies at rm."},
+ {q:"In -v pgdata:/var/lib/postgresql/data, pgdata is…",o:["A host path (bind mount)","A named volume, created on first use","A container name","A network alias"],a:1,e:"Left side bare name = volume. Left side with a / or . = host path = bind mount."},
+ {q:"Why do databases live on volumes for PERFORMANCE too, not just persistence?",o:["Volumes bypass OverlayFS copy-on-write","Volumes sit on faster disks","Cgroups prioritize volumes","SSD vs HDD"],a:0,e:"Copy-on-write copies the whole file before editing — heavy DB writes on the overlay would crawl. Volumes bypass the overlay entirely."},
+ {q:"In dev you bind-mount $(pwd) over /app. The image's COPY'd code is…",o:["Merged with your host files","Shadowed by the mount — the host's copy wins","Deleted","Immutable"],a:1,e:"A mount shadows the image content at that path. That's the point in dev; a disaster in prod if you expected image code to run."}
+],
+p6:[
+ {q:"Inside a container, localhost refers to…",o:["Your machine","That container itself","The bridge network","The registry"],a:1,e:"The #1 networking bug. Each container has its own network namespace — its own interfaces, IP, and localhost."},
+ {q:"To be reachable from outside, an app inside a container must listen on…",o:["127.0.0.1","0.0.0.0","localhost","The container ID"],a:1,e:"Bug #2: 127.0.0.1 binds only inside the container. 0.0.0.0 binds all interfaces so the published port can reach it."},
+ {q:"Two containers on the SAME user-defined network need -p to talk to each other?",o:["Yes — always","No — -p is only for reaching containers from the host/outside world","Only during startup","Only if they use DNS"],a:1,e:"Container↔container traffic on a shared network is direct. -p punches a hole from the outside world."},
+ {q:"Name-based DNS (container names become hostnames) works on…",o:["The default bridge network","User-defined networks (compose creates one automatically)","The host network","No network"],a:1,e:"Classic gotcha: DNS by name works only on user-defined networks — but compose gives you one for free."}
+],
+p7:[
+ {q:"Plain depends_on: [db] waits for…",o:["Postgres to accept connections","The db CONTAINER to start — not readiness","The healthcheck to pass","Nothing at all"],a:1,e:"The trap: container start ≠ service ready. Your app boots in 1s, Postgres initializes in 5s → 'connection refused'."},
+ {q:"The best fix for the depends_on trap:",o:["healthcheck + condition: service_healthy","retries: 10","Delay startup by 5 seconds","depends_on: started"],a:0,e:"Best-first: (1) healthcheck + service_healthy, (2) retry logic in the app, (3) wait-for-it scripts (legacy)."},
+ {q:"docker compose down — your named volumes…",o:["Are deleted","Survive — deleted only with down -v","Are backed up","Are ignored"],a:1,e:"down removes containers + network, volumes survive. down -v ALSO deletes volumes — and your database."},
+ {q:"Compose is best understood as…",o:["A different container runtime","Orchestration sugar over the same Docker API — every key maps to a docker run flag","A replacement for Kubernetes","A registry client"],a:1,e:"That mapping is how you should read every compose file."}
+],
+p8:[
+ {q:"Why does Nginx sit in front of gunicorn?",o:["Nginx is faster at Python","An app server shouldn't serve static files, terminate TLS, or absorb slow clients","Django can't bind ports","DNS requires it"],a:1,e:"The split is itself an interview question — 'why not just gunicorn?'. Each tier does what it's actually for."},
+ {q:"Why does the web service have NO ports: in the Part 8 compose file?",o:["Only nginx faces the outside world","Memory limits","Compose forbids ports with depends_on","The browser blocks it"],a:0,e:"web is reachable by name on the compose network; only nginx publishes :80. No -p needed between containers (Part 6)."},
+ {q:"ENV PYTHONUNBUFFERED=1 does what inside a container?",o:["Speeds up Python imports","Makes logs appear in docker logs in real time","Disables the pip cache","Forces .pyc generation"],a:1,e:"Buffered output sits in the process buffer — unbuffered means docker logs streams live."}
+],
+p9:[
+ {q:"Exit code 137 means…",o:["Normal completion","SIGKILL — OOM-killed or docker kill","Command not found","Wrong architecture"],a:1,e:"137 = 128+9 (SIGKILL). Check docker inspect → OOMKilled: true. 126/127 = command not executable/not found."},
+ {q:"The debugging habit — always run these three first:",o:["docker ps -a, docker logs, docker inspect","docker version, docker info, docker stats","docker pull, docker run, docker tag","docker exec, docker stop, docker rm"],a:0,e:"State + exit code → why → config reality vs your assumption. Most bugs are five known causes; you now know all five."},
+ {q:"4 times out of 5, the browser can't reach the app because…",o:["The base image is wrong","The app binds 127.0.0.1 instead of 0.0.0.0","SSH keys are missing","The registry is down"],a:1,e:"Then: published port mismatch; then curl from inside the container to split app-vs-wiring."}
+],
+p10:[
+ {q:"Namespaces vs cgroups in one sentence:",o:["Namespaces control what a process SEES; cgroups control what it USES","Namespaces limit CPU; cgroups hide processes","They're the same thing","Namespaces are for files; cgroups for networks"],a:0,e:"That one sentence is Tier-3 interview gold."},
+ {q:"docker exec works via the ___ syscall.",o:["clone","setns — joining the container's existing namespaces","pivot_root","execve"],a:1,e:"exec literally means 'start a process and join these namespaces' — the setns syscall."},
+ {q:"Copy-on-write: you modify a file from a lower (image) layer. What happens first?",o:["The whole file is copied up to the writable layer, then edited","The file is edited in place in the lower layer","A whiteout marker is created","The layer is rebuilt"],a:0,e:"That's why heavy writers belong on volumes — they bypass the copy entirely (performance, not just persistence)."},
+ {q:"runc implements the ___ spec — why images work on Docker, Podman and K8s alike.",o:["OCI runtime","ISO 27001","POSIX","Docker API"],a:0,e:"OCI runtime + OCI image specs = portability across every container runtime."}
+],
+p11:[
+ {q:"The single most-asked Docker security question:",o:["Don't run as root — a container escape then means root-adjacent on the host","Use alpine for everything","Disable cgroups","Never use the bridge network"],a:0,e:"Shared kernel: container root is dangerously close to host root. The USER appuser lines in Part 8 are the fix."},
+ {q:"Why must secrets never be baked into images?",o:["Layers are readable by anyone with the image — docker history shows all","ENV vars are stripped at runtime","The registry deletes them","It slows the build"],a:0,e:"Inject at runtime: env vars / env_file at minimum; secret managers in real prod."},
+ {q:"Why is the latest tag dangerous in production?",o:["It's a movable pointer, not a version — unpinned means unreproducible","It's always outdated","It can't be pulled","It's slower to download"],a:0,e:"Tags move like Git branches (Part 4.5). Production pins specific tags — or digests."}
+],
+p12:[
+ {q:"Which is a legitimate reason to SKIP Docker?",o:["A multi-service dev environment","Two conflicting stacks on one machine","A simple Go binary or cron script","Onboarding new developers"],a:2,e:"Also: GUI/desktop apps, extreme performance/hardware coupling, hostile multi-tenant isolation, native Windows/macOS targets, tiny solo apps with no deployment story."},
+ {q:"You need multi-host scheduling, autoscaling, rolling deploys. Docker/Compose alone…",o:["Handles that fine","Is single-host — this is orchestrator (Kubernetes) territory","Just needs more volumes","Switches backends"],a:1,e:"Docker is the packaging + runtime; K8s is fleet management of the same containers."},
+ {q:"Docker Desktop on macOS actually runs…",o:["Containers natively on macOS","A hidden Linux VM — which is why file-heavy bind mounts are slow on Mac","WASM","Windows containers transparently"],a:1,e:"Linux containers only run natively on Linux. The hidden VM is also the cause of slow bind mounts on Mac."}
+]
+},
+cards:[
+{t:"TIER 1 — EXPECTED OF EVERYONE",q:"1 · Container vs VM — and WHY containers are lighter.",a:"VM = full guest OS on virtualized hardware (GBs, minutes, handfuls per host). Container = a process on the shared host kernel wrapped in namespaces + cgroups (MBs, milliseconds, hundreds per host). The word 'kernel' must appear. (Parts 1, 2-Idea-1)"},
+{t:"TIER 1",q:"2 · Image vs container.",a:"Image = read-only layered filesystem + metadata (a class). Container = running instance with its own writable layer (an object). One image → many containers, cheaply, no copying. (Part 2-Idea-2)"},
+{t:"TIER 1",q:"3 · What happens when you run docker run?",a:"Mid-level: CLI → daemon → pull if missing → writable layer on image layers → bridge IP → -p NAT → process starts in its own namespaces/cgroups. Senior: overlay mount prep, veth pair, runc clone + pivot_root, shim holds stdio, exit code when PID 1 exits. (Parts 3.1, 10.5)"},
+{t:"TIER 1",q:"4 · RUN vs CMD vs ENTRYPOINT.",a:"RUN = build-time, baked in once. CMD = run-time default, fully overridable. ENTRYPOINT = fixed executable; CMD becomes its default args. Prefer JSON/exec form — shell form wraps in /bin/sh -c, which becomes PID 1 and swallows SIGTERM. (Part 4.2)"},
+{t:"TIER 1",q:"5 · How do containers persist data?",a:"The writable layer dies with the container. Volumes (Docker-managed) and bind mounts (host path) live outside the layer stack and survive rm. tmpfs = RAM only. (Part 5)"},
+{t:"TIER 1",q:"6 · How do two containers talk?",a:"Same user-defined network + container name as hostname (embedded DNS). No -p needed between containers — -p is only host/outside → container. Names work only on user networks; compose gives you one free. (Part 6)"},
+{t:"TIER 1",q:"7 · What is Docker Compose and why?",a:"Declare the whole stack (services, networks, volumes, env, order) in one YAML; one command brings it up or down. Orchestration sugar over the same API — every key maps to a docker run flag. (Part 7.1)"},
+{t:"TIER 2 — DIFFERENTIATORS",q:"8 · How does layer caching work; structure a Dockerfile for fast builds?",a:"A layer is reused only if the instruction is unchanged AND all previous layers were hits; the first miss invalidates everything after it. Order instructions least→most frequently-changing: requirements.txt before code. (Part 4.3)"},
+{t:"TIER 2",q:"9 · Multi-stage builds — problem and mechanism.",a:"Build-time deps ≠ run-time deps. Stage 1 compiles with heavy tooling; the final stage COPY --from=build only the artifacts. The 1GB of node_modules never ships. (Part 4.4)"},
+{t:"TIER 2",q:"10 · Why is latest dangerous?",a:"A tag is a movable pointer, like a Git branch — not a version. latest moves; unpinned = unreproducible deployments. Pin specific tags or digests. (Parts 4.5, 11-3)"},
+{t:"TIER 2",q:"11 · depends_on doesn't do what people think — explain and fix.",a:"Plain depends_on waits for the container to START, not readiness. App boots in 1s, DB needs 5s → connection refused. Fix: healthcheck + condition: service_healthy; app-side retry; wait-for-it scripts (legacy). (Part 7.4)"},
+{t:"TIER 2",q:"12 · Exit code 137 — walk the diagnosis.",a:"137 = SIGKILL (128+9). Either OOM-killed (docker inspect → OOMKilled: true; cgroup memory limit; kernel OOM-killer) or docker kill. Contrast: 126/127 = bad command, 0 = normal exit. (Parts 9, 10.2)"},
+{t:"TIER 2",q:"13 · Docker security concerns?",a:"Running as root (escape → root-adjacent on a shared kernel), secrets baked into readable layers (docker history), unpinned tags, no resource limits, no healthchecks/restart. Fixes: USER, secrets at runtime, pinning, --memory/--cpus, HEALTHCHECK. (Part 11)"},
+{t:"TIER 3 — SENIOR SIGNAL",q:"14 · Namespaces vs cgroups — one sentence each.",a:"'Namespaces control what a process SEES; cgroups control what it USES.' (Parts 10.1–10.2)"},
+{t:"TIER 3",q:"15 · How does OverlayFS / copy-on-write work; one practical consequence.",a:"lowerdir (image layers, read-only) + upperdir (writable) presented merged. Reads fall through top-down. Writes copy the whole file up first (CoW). Consequence: heavy DB writers go on volumes; deleting in a later layer just whiteouts — it doesn't shrink the image. (Part 10.3)"},
+{t:"TIER 3",q:"16 · dockerd vs containerd vs runc; what 'Kubernetes dropped Docker' actually meant.",a:"dockerd = API server + high-level features. containerd = lifecycle supervisor — what K8s actually talks to now. runc = the tiny CLI making the real syscalls (OCI runtime spec). K8s dropped dockerd as the middleman; your Docker-built images run unchanged. (Part 10.4)"},
+{t:"TIER 3",q:"17 · When would you NOT use Docker?",a:"Simple scripts/static binaries; GUI apps; extreme perf or hardware coupling (HFT, GPU quirks, kernel modules); hostile multi-tenant isolation (VMs, gVisor/Firecracker); native Windows/macOS targets; a tiny solo app with no deployment story. Compose is single-host; orchestrators do fleets. (Part 12)"},
+{t:"TIER 3",q:"18 · Why must PID 1 handle SIGTERM; shell vs exec form.",a:"docker stop = SIGTERM, then SIGKILL after 10s. Shell form (/bin/sh -c) makes sh PID 1, which swallows SIGTERM — your app never sees it and gets SIGKILL'd. Exec form makes YOUR app PID 1, so it can shut down gracefully. (Parts 3.2, 4.2)"}
+],
+miles:[
+ {id:"m1",title:"Milestone 1 · Mental model",pass:"Pass: the three checkpoint questions in Part 2, plus run/inspect/exec/logs on a container without notes. <b>(Parts 1–3; ~days 1–3)</b>"},
+ {id:"m2",title:"Milestone 2 · Images",pass:"Pass: write a Dockerfile for a toy app from a blank editor; predict which layers rebuild after a given edit. <b>(Part 4; ~days 4–6)</b>"},
+ {id:"m3",title:"Milestone 3 · State & wiring",pass:"Pass: the Postgres-survives-rm exercise; diagnose a 'connection refused' between two containers in under 5 minutes. <b>(Parts 5–6; ~days 7–9)</b>"},
+ {id:"m4",title:"Milestone 4 · Compose & the real stack",pass:"Pass: Django+Postgres+Redis+Nginx up from scratch; destroy/recreate with data intact; explain every line of your compose file. <b>(Parts 7–8; ~days 10–15)</b>"},
+ {id:"m5",title:"Milestone 5 · Depth",pass:"Pass: debug an unseen broken container using only the Part 9 tree; deliver the Part 10.5 narration; give two honest 'don't use Docker' cases. <b>(Parts 9–12; ~days 16–20)</b>"},
+ {id:"m6",title:"Milestone 6 · Interview-ready",pass:"Pass: all Tier 1–2 aloud without notes; Tier 3 with at most a glance. <b>(Part 13; ongoing review)</b>"}
+],
+sim:[
+ {t:900,l:'<span class="a">cli</span> POST /containers/create {"Image":"nginx:latest","name":"web"}'},
+ {t:1300,l:'<span class="a">daemon</span> image "nginx:latest" not in local cache → pulling from Docker Hub'},
+ {t:1150,l:'<span class="a">daemon</span> pulling: ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿ 100% · 4/4 layers downloaded (one bar per layer)'},
+ {t:1000,l:'<span class="a">daemon</span> container created: writable layer + bridge interface + IP 172.17.0.2'},
+ {t:950,l:'<span class="a">daemon</span> port mapping: host 8080 → container 80 (iptables NAT)'},
+ {t:1100,l:'<span class="a">runc</span> starting "nginx" as PID 1 in new namespaces + cgroups'},
+ {t:900,l:'<span class="a">cli</span> -d → detached. container id: a1b2c3d4e5f6'},
+ {t:400,l:'<span class="ok">STATUS</span> running · web listening 0.0.0.0:80 · published on host :8080'}
+],
+stackInfo:{
+    w:"<b>WRITABLE LAYER</b> — created only when the container starts. ALL writes land here, invisible to other containers. When you <b>docker rm</b> the container, this layer — and everything in it — is destroyed. That's why volumes exist (Part 5).",
+    app:"<b>LAYER 3 · your app code</b> — the files you COPY into the image. Read-only at runtime: the running container cannot modify it (to change it, rebuild the image). Shared with every container from this image.",
+    deps:"<b>LAYER 2 · pip install deps</b> — one Dockerfile instruction = one layer. Cached on disk: ten images built on python:3.12 share this layer once (Part 4's cache rules).",
+    base:"<b>LAYER 1 · Ubuntu base files</b> — the bottom. Everything builds on FROM. Read-only and shared, so starting a container costs nothing: no copying, just an empty writable layer on top."
+}
+};

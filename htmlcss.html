@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en" data-render="img">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The HTML/CSS Shipyard - HTML &amp; CSS: A First-Principles Curriculum">
+<meta property="og:description" content="HTML &amp; CSS · the document tree · the cascade · layout — a first-principles interactive curriculum, one portable HTML file, runs offline.">
+<meta property="og:image" content="assets/og/htmlcss.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%23ff6b6b%22 d=%22M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z%22/%3E%3C/svg%3E">
+<meta name="contract" content="shipyard-htmlcss@1">
+<title>The HTML/CSS Shipyard - HTML &amp; CSS: A First-Principles Curriculum</title>
+<link rel="stylesheet" href="assets/shipyard.css">
+</head>
+<body>
+<div id="scanlines"></div><div id="vignette"></div>
+<button id="burger">&#9776; MAP</button><div id="backdrop"></div>
+<div id="app">
+<aside id="dock">
+  <div class="brand">
+    <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="var(--accent)" d="M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z"/>
+      <rect x="7" y="11" width="2" height="2" fill="var(--bg)"/><rect x="12" y="11" width="2" height="2" fill="var(--bg)"/><rect x="17" y="11" width="2" height="2" fill="var(--bg)"/>
+    </svg>
+    <div><div class="bname">THE HTML/CSS SHIPYARD</div><div class="bsub">HTML &amp; CSS · the document tree · the cascade · layout</div></div>
+  </div>
+
+  <div class="rankbox">
+    <div class="rk" id="rankNow">SWABBIE</div>
+    <div class="rkxp" id="rankXp"></div>
+    <div class="prbar"><i id="rankBar"></i></div>
+  </div>
+
+  <div class="stackbox">
+    <div class="st"><span>THE STACK — your container</span><span id="stackCount">0/14</span></div>
+    <div id="stackMini"></div>
+    <div id="psRow"><b>$ docker ps</b><br><span id="psRow2">—</span></div>
+  </div>
+
+  <nav class="docknav" id="docknav"></nav>
+
+  <div class="legend">
+    <div class="lt">Depth legend</div>
+    <div class="lg"><span class="sw" style="background:var(--deep);box-shadow:0 0 6px rgba(255,93,93,.6)"></span><span><b style="color:var(--deep)">DEEP</b> — core mental model. Prove it out loud.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--recog)"></span><span><b style="color:var(--recog)">RECOGNIZE</b> — read fluently; write with docs open.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--ref)"></span><span><b style="color:var(--ref)">REFERENCE</b> — know it exists. Never memorize.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--adv)"></span><span><b style="color:var(--adv)">ADVANCED</b> — return after Part 8.</span></div>
+  </div>
+
+  <div class="dockfoot" id="dockfoot"></div>
+</aside>
+
+<main>
+<section class="hero" id="part0">
+  <div class="boot"><div class="bl">$ shipyard boot --curriculum htmlcss-first-principles</div>
+    <div class="bl">STAGE 1: LOADING PARTS 0–14 ......... <span style="color:var(--ok)">OK</span></div>
+    <div class="bl">STAGE 2: MOUNTING DEPTH TAGS .......... <span style="color:var(--ok)">OK</span></div>
+    <div class="bl"><span class="warn">WARNING: the cascade decides who wins — and it has a fixed order, every time.</span></div>
+    <div class="bl">AWAITING CREW — 14 waypoints ahead. <span class="cursor" style="color:var(--accent)">▮</span></div>
+  </div>
+  <h1>HTML & CSS, UNDERSTOOD.<br><span class="wh">NOT JUST PLACED.</span></h1>
+  <p class="sub">This is a first-principles curriculum rebuilt as a mission. Learn the core mental model <b>deeply</b> — the document is a tree, everything is a box, and the cascade settles every argument in a fixed order — reference the rest, and physically <b>build the shipyard&#39;s container</b> in the sidebar as you complete parts. Quizzes earn XP. Ranks go from <b>Swabbie</b> to <b>Harbor Master</b>. Finish all 14 parts and the shipyard ships your container.</p>
+  <div class="hstatus">
+    <div class="hchip">RANK <b id="hRank">SWABBIE</b></div>
+    <div class="hchip">XP <b id="hXp">0</b></div>
+    <div class="hchip">LAYERS <b id="hLayers">0/14</b></div>
+    <div class="hchip">QUIZZES CLEARED <b class="ok" id="hQuizzes">0</b></div>
+  </div>
+  <div id="voyageHead">THE VOYAGE — 14 WAYPOINTS</div>
+  <div class="voyage" id="voyage"></div>
+</section>
+
+<section class="part" id="p0">
+  <div class="phead"><div class="pnum">00</div>
+    <div><div class="ptitle">How to Use This Curriculum</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p0">MARK COMPLETE</button></div>
+  </div>
+
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>Part 1   Where HTML &amp; CSS came from        [DEEP — read, don't skip]
+Part 2   The core mental model             [DEEP — most important part]
+Part 3   HTML as meaning, not appearance
+Part 4   CSS fundamentals: cascade &amp; values
+Part 5   Layout: flow, flexbox, grid, positioning
+Part 6   Responsive &amp; modern CSS
+Part 7   Visual craft: type, color, motion
+Part 8   Real project: a full responsive page
+Part 9   Debugging playbook (DevTools)
+Part 10  Internals: the rendering pipeline
+Part 11  Production: performance, architecture, a11y
+Part 12  When to hand-write CSS and when not to
+Part 13  Interview preparation
+Part 14  Milestones</code></pre></div>
+
+  <div class="breadcrumb"><a class="next" href="#p1">01 · WHERE HTML &amp; CSS CAME FROM &rarr;</a></div>
+</section>
+
+<section class="part" id="p1">
+  <div class="phead"><div class="pnum">01</div>
+    <div><div class="ptitle">Where HTML &amp; CSS Came From</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p1">MARK COMPLETE</button></div>
+  </div>
+
+  <p>You cannot understand why CSS behaves so strangely without knowing what it was designed for. Almost every "weird" behaviour is a deliberate decision made for a document, not an app.</p>
+
+<h2>The lineage</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Year</th><th>What happened</th><th>Why it still affects you</th></tr></thead><tbody><tr><td>1989–91</td><td>Tim Berners-Lee, at CERN, invents HTML to share <b>physics papers</b> between researchers</td><td>HTML's native shape is a *document*: headings, paragraphs, lists, links. Not screens, not components. Every fight you have with CSS layout is a fight against a document format doing app work</td></tr><tr><td>1993–95</td><td>Mosaic, then Netscape. Browsers compete by inventing <b>presentational tags</b>: <code class="inline">&lt;font&gt;</code>, <code class="inline">&lt;center&gt;</code>, <code class="inline">&lt;blink&gt;</code>, plus layout-by-<code class="inline">&lt;table&gt;</code></td><td>Presentation and content got tangled. Changing a site's font meant editing every page. This pain is *the reason CSS exists*</td></tr><tr><td>1994</td><td>Håkon Wium Lie proposes <b>Cascading Style Sheets</b>; CSS1 ships 1996</td><td>The word "cascading" is the core idea: many sources of style (browser default, author, user) merge by rules, rather than one winning outright</td></tr><tr><td>1998–2005</td><td>CSS2, then the <b>browser wars</b> and IE6's near-monopoly. Standards support is inconsistent for a decade</td><td>Why the "hacks era" existed, and why <code class="inline">float</code>-based layout — a property invented for *wrapping text around an image* — became the layout system for 15 years</td></tr><tr><td>2004–08</td><td>Mozilla, Opera, Apple form <b>WHATWG</b> because W3C was pushing XHTML2 (a clean break that ignored real-world pages). WHATWG writes HTML5 instead</td><td>The decisive principle of the web: <b>don't break existing pages</b>. Browsers must render 1996 HTML forever. This is why HTML is famously forgiving and why nothing is ever removed</td></tr><tr><td>2014</td><td>HTML5 finalized; semantic elements, forms, media, canvas</td><td>The "living standard" model — HTML has no versions now, it just evolves</td></tr><tr><td>2012–2017</td><td><b>Flexbox</b> and <b>Grid</b> ship: the first layout systems actually designed for layout</td><td>The single biggest change in CSS history. Everything you read pre-2017 (float grids, clearfix, 12-column frameworks) is obsolete</td></tr><tr><td>2016–now</td><td>Custom properties, <code class="inline">clamp()</code>, <code class="inline">:has()</code>, container queries, cascade layers, <code class="inline">:is()</code>, subgrid</td><td>"Modern CSS" isn't a style — it's that the platform now natively does what needed JS or preprocessors for a decade</td></tr></tbody></table></div>
+
+<h2>The three ideas actually invented here</h2>
+
+<ol><li><b>Separation of content from presentation.</b> HTML says what a thing *is*; CSS says how it *looks*. This is why an <code class="inline">&lt;h1&gt;</code> styled to look small is still a heading to Google and to a screen reader — and why "make it look like X" is never a reason to pick a tag.</li></ol>
+
+<ol><li><b>The cascade.</b> Style comes from multiple stakeholders (browser defaults, the author, the user's own preferences and accessibility settings) and merges predictably. CSS is not a rendering command list; it's a *negotiation*, and specificity is the negotiation's arithmetic.</li></ol>
+
+<ol><li><b>Graceful degradation as a design axiom.</b> An unknown tag renders as inline text; an unknown CSS property is silently dropped. Nothing errors. This is why the web scales across 30 years of browsers — and why your typo fails *silently* instead of shouting, which is the single most annoying thing about learning CSS.</li></ol>
+
+<h2>The thing worth saying in an interview</h2>
+
+<p>CSS is often called badly designed. The more accurate claim: <b>CSS was correctly designed for a problem that changed.</b> It was built to style flowing documents on unknown screen sizes with unknown fonts, where the author does not control the viewport. That constraint — *the author cannot know the canvas* — is why CSS is declarative, why boxes size themselves from content, and why "vertical centering was hard" for 20 years. Flexbox and Grid didn't fix a broken language; they added the missing primitive for a use case (application layout) that didn't exist in 1996.</p>
+
+<div class="quiz" data-part="p1"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p0">&larr; 00 · HOW TO USE THIS CURRICULUM</a><a class="next" href="#p2">02 · THE CORE MENTAL MODEL &rarr;</a></div>
+</section>
+
+<section class="part" id="p2">
+  <div class="phead"><div class="pnum">02</div>
+    <div><div class="ptitle">The Core Mental Model</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p2">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Four ideas. Everything else in this document is detail on top of these.</p>
+
+<h2>Idea 1: The document is a tree, and the browser builds it before it styles it</h2>
+
+<p>Your HTML text is parsed into the <b>DOM</b> — a tree of nodes. Your CSS is parsed into the <b>CSSOM</b>. The browser combines them into a <b>render tree</b> of only the visible boxes, then computes <b>layout</b> (where every box goes), then <b>paints</b> pixels, then <b>composites</b> layers.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>HTML text ──parse──▶ DOM  ┐
+                          ├──▶ Render tree ──▶ Layout ──▶ Paint ──▶ Composite
+CSS text  ──parse──▶ CSSOM ┘                    (geometry)  (pixels)  (GPU)</code></pre></div>
+
+<p>Consequences you will rely on constantly:</p>
+
+<ul><li>CSS selectors match against the <b>tree</b>, which is why you can only style descendants and (now, with <code class="inline">:has()</code>) limited ancestors — not "the element before this one."</li></ul>
+
+<ul><li><code class="inline">display: none</code> removes a box from the render tree entirely (no geometry, no paint). <code class="inline">visibility: hidden</code> keeps the box in layout. <code class="inline">opacity: 0</code> keeps it in layout *and* paint. Three ways to "hide" with three different costs and three different accessibility outcomes.</li></ul>
+
+<ul><li>Changing geometry (width, top, font-size) forces <b>layout</b> recalculation — expensive. Changing only <code class="inline">transform</code>/<code class="inline">opacity</code> can skip to compositing — cheap. This one fact drives all CSS animation performance advice (Part 10).</li></ul>
+
+<h2>Idea 2: Everything is a box, and the box model is the arithmetic</h2>
+
+<p>Every element generates at least one rectangular box: <b>content → padding → border → margin</b>, inside-out.</p>
+
+<p>The historical trap: by default, <code class="inline">width</code> sets the *content* width, so padding and border are *added on top*. Set <code class="inline">width: 200px; padding: 20px</code> and you occupy 240px. This surprised everyone for a decade, so:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>*, *::before, *::after { box-sizing: border-box; }</code></pre></div>
+
+<p><code class="inline">border-box</code> makes <code class="inline">width</code> mean the *border-box* width — padding and border included. This single line goes at the top of every stylesheet you will ever write. Understand *why* it exists; that's the [DEEP] part. [RECOGNIZE] the syntax.</p>
+
+<p>The other half of Idea 2: boxes are either <b>block</b> (take full available width, stack vertically) or <b>inline</b> (flow with text, ignore width/height and vertical margins). <code class="inline">display</code> changes which. Nearly all "why won't this element take a height?" confusion is an inline box being asked to behave like a block one.</p>
+
+<h2>Idea 3: Normal flow is a layout system, and it's usually right</h2>
+
+<p>Before you position anything, the browser already lays out your document: blocks stack top to bottom filling their parent's width, inline content flows left to right and wraps. This is <b>normal flow</b>, and it is *responsive by default* — that's what a document format buys you.</p>
+
+<p>The mental discipline: <b>fight flow only when you have a reason.</b> Most beginner CSS is a pile of <code class="inline">position: absolute</code>, fixed pixel widths, and <code class="inline">float</code> fixing problems created by the previous fix. The professional move is to stay in flow, and reach for flexbox/grid to arrange *within* flow.</p>
+
+<p>Corollary that explains a lot of pain: <b>height and width are not symmetric.</b> A block box's width is given by its parent (fill available); its height is given by its content (fit content). That asymmetry is deliberate — pages scroll vertically, so vertical space is unbounded and horizontal space is fixed. It's why <code class="inline">width: 50%</code> always works and <code class="inline">height: 50%</code> often silently does nothing (percentage heights need a definite parent height to resolve against).</p>
+
+<h2>Idea 4: The cascade decides who wins, in a fixed order</h2>
+
+<p>When several rules set the same property on the same element, the winner is decided by walking these in order and stopping at the first tiebreak:</p>
+
+<ol><li><b>Origin &amp; importance</b> — browser defaults &lt; author styles &lt; author <code class="inline">!important</code> &lt; user <code class="inline">!important</code></li></ol>
+
+<ol><li><b>Cascade layers</b> (<code class="inline">@layer</code>) — later layers beat earlier ones [ADVANCED]</li></ol>
+
+<ol><li><b>Specificity</b> — counted as three numbers: <code class="inline">(IDs, classes/attributes/pseudo-classes, elements)</code>. <code class="inline">#nav .item a</code> = (1,1,1). Compared left to right; a single ID beats any number of classes</li></ol>
+
+<ol><li><b>Source order</b> — last one wins</li></ol>
+
+<p>Then, separately: <b>inheritance.</b> Some properties (<code class="inline">color</code>, <code class="inline">font-*</code>, <code class="inline">line-height</code>) inherit to descendants; most (<code class="inline">border</code>, <code class="inline">padding</code>, <code class="inline">background</code>) don't. An element with no matching rule for an inheritable property takes its parent's *computed* value.</p>
+
+<p>Why the design matters: this is what "cascading" means. The browser's defaults, your stylesheet, and the user's accessibility overrides all coexist, and specificity is the referee. Understanding this is what separates "I add <code class="inline">!important</code> until it works" from "I know exactly which rule is winning and why."</p>
+
+<h2>Checkpoint — before Part 3</h2>
+
+<p>Answer without looking:</p>
+
+<ol><li>You set <code class="inline">height: 100%</code> on a <code class="inline">&lt;div&gt;</code> and nothing happens. Give the mechanical reason.</li></ol>
+
+<ol><li><code class="inline">#sidebar p { color: red }</code> and <code class="inline">.warning.big.urgent.critical { color: blue }</code> both match a paragraph. Which wins, and why is that arguably a bad design in your codebase?</li></ol>
+
+<ol><li>Why does <code class="inline">display: none</code> cost less to animate away from than <code class="inline">opacity: 0</code>? (Trick question — answer in terms of the pipeline.)</li></ol>
+
+<ol><li>Why is HTML forgiving of a missing closing tag but CSS silent about a misspelled property?</li></ol>
+
+<div class="quiz" data-part="p2"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p1">&larr; 01 · WHERE HTML &amp; CSS CAME FROM</a><a class="next" href="#p3">03 · HTML AS MEANING, NOT APPEARANCE &rarr;</a></div>
+</section>
+
+<section class="part" id="p3">
+  <div class="phead"><div class="pnum">03</div>
+    <div><div class="ptitle">HTML as Meaning, Not Appearance</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p3">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>3.1 The one rule [DEEP]</h2>
+
+<p>**Choose tags by what the content *is*, never by how it looks.** Appearance is CSS's job entirely. This isn't purity — it has four concrete payoffs: screen readers navigate by structure, search engines rank by structure, browsers give you free behaviour (a <code class="inline">&lt;button&gt;</code> is focusable, keyboard-activatable, and announced as a button; a styled <code class="inline">&lt;div&gt;</code> is none of those and you'd have to reimplement all three), and future restyling doesn't require re-tagging.</p>
+
+<h2>3.2 The set that matters [RECOGNIZE, with [DEEP] on the concept]</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Category</th><th>Elements</th><th>The point</th></tr></thead><tbody><tr><td>Document structure</td><td><code class="inline">header</code>, <code class="inline">nav</code>, <code class="inline">main</code>, <code class="inline">section</code>, <code class="inline">article</code>, <code class="inline">aside</code>, <code class="inline">footer</code></td><td>These are <b>landmarks</b>; assistive tech jumps between them. Exactly one <code class="inline">&lt;main&gt;</code> per page</td></tr><tr><td>Headings</td><td><code class="inline">h1</code>–<code class="inline">h6</code></td><td>An <b>outline</b>, not sizes. Never skip levels for visual reasons. A screen-reader user's primary navigation is the heading list</td></tr><tr><td>Text</td><td><code class="inline">p</code>, <code class="inline">ul</code>/<code class="inline">ol</code>/<code class="inline">li</code>, <code class="inline">strong</code>, <code class="inline">em</code>, <code class="inline">blockquote</code>, <code class="inline">code</code>, <code class="inline">time</code></td><td><code class="inline">strong</code>/<code class="inline">em</code> carry *meaning* (importance/stress); <code class="inline">b</code>/<code class="inline">i</code> are purely visual and mostly legacy</td></tr><tr><td>Links vs buttons</td><td><code class="inline">a[href]</code> navigates; <code class="inline">button</code> acts</td><td>Getting this wrong is the most common accessibility bug on the web</td></tr><tr><td>Media</td><td><code class="inline">img[alt]</code>, <code class="inline">picture</code>, <code class="inline">video</code>, <code class="inline">svg</code></td><td><code class="inline">alt</code> is mandatory. Empty <code class="inline">alt=""</code> is correct for purely decorative images — that's a real distinction, not a cop-out</td></tr><tr><td>Forms</td><td><code class="inline">form</code>, <code class="inline">label[for]</code>, <code class="inline">input</code>, <code class="inline">select</code>, <code class="inline">textarea</code>, <code class="inline">fieldset</code>, <code class="inline">button</code></td><td>See below</td></tr><tr><td>Tables</td><td><code class="inline">table</code>, <code class="inline">thead</code>, <code class="inline">tbody</code>, <code class="inline">th[scope]</code>, <code class="inline">caption</code></td><td>Still correct — for *tabular data*. Never for layout</td></tr><tr><td>Generic</td><td><code class="inline">div</code> (block), <code class="inline">span</code> (inline)</td><td>Legitimate when there is genuinely no semantic meaning, only a styling hook. Not a sin — just not a default</td></tr></tbody></table></div>
+
+<h2>3.3 Forms deserve their own section [DEEP]</h2>
+
+<p>Forms are where HTML gives you the most for free and where most hand-rolled UIs regress:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">html</span><button class="copybtn">COPY</button></div><pre><code>&lt;form&gt;
+  &lt;label for="email"&gt;Work email&lt;/label&gt;
+  &lt;input id="email" name="email" type="email" required
+         autocomplete="email" inputmode="email"&gt;
+
+  &lt;label for="qty"&gt;Quantity&lt;/label&gt;
+  &lt;input id="qty" name="qty" type="number" min="1" max="99"&gt;
+
+  &lt;button type="submit"&gt;Create account&lt;/button&gt;
+&lt;/form&gt;</code></pre></div>
+
+<p>What you got without writing JS: keyboard support, browser autofill, mobile keyboards matched to the input type, native validation, password-manager integration, and a label that both describes the field to a screen reader *and* expands its click target. The <code class="inline">for</code>/<code class="inline">id</code> pairing is the single highest-value line in the snippet.</p>
+
+<p>Common mistakes: <code class="inline">&lt;div onclick&gt;</code> instead of <code class="inline">&lt;button&gt;</code>; placeholder used *as* a label (it disappears on typing and fails contrast); <code class="inline">type="submit"</code> omitted so Enter doesn't submit; and inputs with no <code class="inline">name</code>, which silently submit nothing.</p>
+
+<h2>3.4 Accessibility is mostly a byproduct [DEEP as principle]</h2>
+
+<p>If you use correct elements, label your inputs, keep a sane heading outline, write real <code class="inline">alt</code> text, and never remove focus outlines without replacing them, you have most of WCAG for free. ARIA attributes are for the cases where no native element expresses what you're building — and <b>the first rule of ARIA is not to use ARIA if a native element exists.</b> Bad ARIA is worse than none.</p>
+
+<h2>3.5 Exercise</h2>
+
+<p>Take a page you've shipped in one of your React projects. Strip every class attribute and view it with CSS disabled. If the resulting bare document doesn't read as a sensible outline — heading levels in order, nav distinguishable from content, forms labelled — your HTML is doing no semantic work, and everything downstream (SEO, a11y, and your own ability to style it) is harder than it needs to be.</p>
+
+<div class="quiz" data-part="p3"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p2">&larr; 02 · THE CORE MENTAL MODEL</a><a class="next" href="#p4">04 · CSS FUNDAMENTALS: CASCADE &amp; VALUES &rarr;</a></div>
+</section>
+
+<section class="part" id="p4">
+  <div class="phead"><div class="pnum">04</div>
+    <div><div class="ptitle">CSS Fundamentals: Cascade &amp; Values</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p4">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>4.1 Selectors [RECOGNIZE the list, DEEP on strategy]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>.card                    /* class — your default tool, 99% of styling */
+<span class="c">#checkout                /* id — high specificity, avoid for styling */</span>
+button[type="submit"]    /* attribute */
+.card &gt; .title           /* direct child */
+.card .title             /* any descendant */
+li + li                  /* next sibling — great for "all but first" spacing */
+:hover :focus-visible    /* state. focus-visible ≈ keyboard-only focus ring */
+:nth-child(2n)           /* structural */
+::before ::after         /* generated content (needs `content:`) */
+:is(h1,h2,h3)            /* grouping, takes the highest specificity inside */
+:where(h1,h2,h3)         /* grouping with ZERO specificity — ideal for resets */
+.card:has(img)           /* parent selector — genuinely new power, 2023+ */</code></pre></div>
+
+<p>The strategy that matters more than the syntax: <b>keep specificity low and flat.</b> Prefer a single class. Deep selectors (<code class="inline">.page .sidebar ul li a span</code>) are brittle — they encode your HTML structure into your CSS, so a markup change breaks styling in a distant file. This is exactly the problem BEM, CSS Modules, and Tailwind each solve differently (Part 11).</p>
+
+<h2>4.2 Custom properties [DEEP — this is where modern CSS starts]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>:root {
+  --space: 8px;
+  --brand: oklch(65% 0.18 250);
+  --radius: 6px;
+}
+.card { padding: calc(var(--space) * 2); border-radius: var(--radius); }</code></pre></div>
+
+<p>Not just variables — they <b>inherit and are live</b>. A custom property set on a parent cascades to descendants, can be overridden per-component or per-media-query, and can be read and written from JS. That's why theming (dark mode, per-tenant brands) is now a CSS problem, not a build problem:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>:root { --bg: white; --fg: #111; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0d1117; --fg: #e6edf3; } }
+body { background: var(--bg); color: var(--fg); }</code></pre></div>
+
+<p>Sass variables cannot do this — they're compiled away before the browser sees them. Understanding *that* difference is the [DEEP] part.</p>
+
+<h2>4.3 Values and units [DEEP on the model, REFERENCE the list]</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Unit</th><th>Relative to</th><th>Use for</th></tr></thead><tbody><tr><td><code class="inline">px</code></td><td>Nothing (absolute-ish)</td><td>Borders, tiny fixed details</td></tr><tr><td><code class="inline">rem</code></td><td>Root font size</td><td><b>Almost everything</b>: type, spacing, radii. Respects user font-size preference</td></tr><tr><td><code class="inline">em</code></td><td>*This element's* font size</td><td>Spacing that should scale with local text (e.g. padding inside a button)</td></tr><tr><td><code class="inline">%</code></td><td>Depends on property — width→parent width, but padding/margin *always* → parent <b>width</b>, even vertically</td><td>Fluid widths. The vertical-percentage-uses-width quirk is a classic gotcha</td></tr><tr><td><code class="inline">ch</code></td><td>Width of "0"</td><td>Max line length for readability (~60–75ch)</td></tr><tr><td><code class="inline">vw</code>/<code class="inline">vh</code></td><td>Viewport</td><td>Full-screen sections. Use <code class="inline">dvh</code>/<code class="inline">svh</code> on mobile — <code class="inline">100vh</code> is broken by mobile browser chrome, a bug that plagued the web for years</td></tr><tr><td><code class="inline">fr</code></td><td>Free space in a grid</td><td>Grid tracks only</td></tr></tbody></table></div>
+
+<p>The reason to default to <code class="inline">rem</code> rather than <code class="inline">px</code>: a user who sets a larger browser font for legibility gets a proportionally larger UI. Hardcoded <code class="inline">px</code> type ignores them. That is an accessibility decision disguised as a unit choice.</p>
+
+<p>Modern functions you'll actually use [RECOGNIZE]: <code class="inline">calc()</code>, <code class="inline">min()</code>, <code class="inline">max()</code>, and above all <code class="inline">clamp(min, preferred, max)</code> — which replaces most media queries for sizing:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>h1 { font-size: clamp(1.75rem, 5vw, 3.5rem); }   /* fluid, bounded, no breakpoints */</code></pre></div>
+
+<h2>4.4 Common mistakes at this level</h2>
+
+<ul><li><code class="inline">!important</code> used as a tool rather than an emergency. It's a signal your specificity is out of control; fix the cause.</li></ul>
+
+<ul><li>Styling by ID, then being unable to override it anywhere.</li></ul>
+
+<ul><li>Removing <code class="inline">outline</code> on focus with nothing to replace it — instantly makes a site unusable by keyboard.</li></ul>
+
+<ul><li>Reaching for a preprocessor for nesting and variables, both of which are now native.</li></ul>
+
+<div class="quiz" data-part="p4"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p3">&larr; 03 · HTML AS MEANING, NOT APPEARANCE</a><a class="next" href="#p5">05 · LAYOUT: FLOW, FLEXBOX, GRID, POSITIONING &rarr;</a></div>
+</section>
+
+<section class="part" id="p5">
+  <div class="phead"><div class="pnum">05</div>
+    <div><div class="ptitle">Layout: Flow, Flexbox, Grid, Positioning</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p5">MARK COMPLETE</button></div>
+  </div>
+
+  <p>This part is the one that changes your working life. Post-2017 CSS has exactly <b>two</b> layout systems, and picking the right one makes most layout problems evaporate.</p>
+
+<h2>5.1 The choice [DEEP]</h2>
+
+<div class="tblwrap"><table><thead><tr><th></th><th>Flexbox</th><th>Grid</th></tr></thead><tbody><tr><td>Dimensions</td><td><b>One axis</b> at a time (a row *or* a column)</td><td><b>Two axes</b> simultaneously</td></tr><tr><td>Sizing driven by</td><td>Content — items size themselves, then distribute leftover space</td><td>The container — you define the tracks, items fill them</td></tr><tr><td>Use when</td><td>Distributing a variable number of items along a line: nav bars, toolbars, button rows, card internals, centering</td><td>You need alignment in *both* directions: page shells, dashboards, card galleries, forms</td></tr><tr><td>Mental image</td><td>Beads on a wire</td><td>Graph paper</td></tr></tbody></table></div>
+
+<p>The heuristic that resolves 90% of cases: <b>is the number of items unknown and their arrangement essentially one-dimensional? Flex. Do you want rows AND columns to line up? Grid.</b> They nest freely — a grid page shell whose cells contain flex rows is the most common real structure on the web.</p>
+
+<h2>5.2 Flexbox mental model [DEEP]</h2>
+
+<p>One container, one <b>main axis</b> (set by <code class="inline">flex-direction</code>), one perpendicular <b>cross axis</b>. Then:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>.bar {
+  display: flex;
+  flex-direction: row;      /* main axis = horizontal */
+  justify-content: space-between;  /* distribute along MAIN */
+  align-items: center;      /* align along CROSS */
+  gap: 1rem;                /* spacing — never use margins for this anymore */
+  flex-wrap: wrap;          /* allow a second line */
+}</code></pre></div>
+
+<p>The one rule everybody gets backwards: **<code class="inline">justify-*</code> works on the main axis, <code class="inline">align-*</code> on the cross axis.** Flip <code class="inline">flex-direction</code> to <code class="inline">column</code> and they swap meaning. Internalize *that*, not the property names.</p>
+
+<p>On children, the shorthand worth understanding rather than copying: <code class="inline">flex: &lt;grow&gt; &lt;shrink&gt; &lt;basis&gt;</code>.</p>
+
+<ul><li><code class="inline">flex: 1</code> → "grow to share leftover space equally, and let me shrink" — the everyday value.</li></ul>
+
+<ul><li><code class="inline">flex: 0 0 auto</code> → "don't grow, don't shrink, size to content" — for things like icons that must keep their size.</li></ul>
+
+<ul><li><code class="inline">min-width: 0</code> on a flex child is the fix for the notorious "long text refuses to shrink and overflows my layout" bug — flex items won't shrink below their content's minimum size unless you tell them they may.</li></ul>
+
+<p>Centering, since it's the historical punchline: <code class="inline">display:flex; align-items:center; justify-content:center</code> — and it now works for any content, any size, both axes. Twenty years of hacks, replaced by three lines.</p>
+
+<h2>5.3 Grid mental model [DEEP]</h2>
+
+<p>You define tracks; items land in cells.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+}</code></pre></div>
+
+<p>Read that middle line closely, because it is the single most useful line in modern CSS: *make as many columns as fit, each at least 240px, sharing space equally.* That is a fully responsive card grid — <b>with no media queries at all.</b> Understanding <code class="inline">minmax()</code> + <code class="inline">auto-fill</code> + <code class="inline">1fr</code> gives you more responsive power than any framework's grid classes.</p>
+
+<p>For page shells, named areas make the intent readable:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>.shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-areas: "sidebar header" "sidebar main";
+  min-height: 100dvh;
+}
+.shell &gt; nav    { grid-area: sidebar; }
+.shell &gt; header { grid-area: header; }
+.shell &gt; main   { grid-area: main; }</code></pre></div>
+
+<p><code class="inline">fr</code> is the concept to actually understand: it's a share of *leftover* space after fixed tracks and gaps are subtracted — which is why <code class="inline">1fr</code> behaves better than <code class="inline">%</code> (percentages don't account for <code class="inline">gap</code> and cause the classic 1px overflow).</p>
+
+<h2>5.4 Positioning [RECOGNIZE, with two [DEEP] traps]</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Value</th><th>Behaviour</th></tr></thead><tbody><tr><td><code class="inline">static</code></td><td>Default; in flow</td></tr><tr><td><code class="inline">relative</code></td><td>In flow, offset visually, <b>and becomes a positioning context for absolute children</b></td></tr><tr><td><code class="inline">absolute</code></td><td>Removed from flow; positioned against nearest positioned ancestor</td></tr><tr><td><code class="inline">fixed</code></td><td>Against the viewport</td></tr><tr><td><code class="inline">sticky</code></td><td>In flow until it hits a scroll threshold, then pins. Needs a threshold (<code class="inline">top: 0</code>) and an ancestor that isn't clipping overflow</td></tr></tbody></table></div>
+
+<p>Trap 1: <code class="inline">position: absolute</code> with no positioned ancestor anchors to the page, not the component you meant. <code class="inline">position: relative</code> on the parent is the fix, and this pairing is one of the most-used idioms in CSS.</p>
+
+<p>Trap 2: <b><code class="inline">z-index</code> only works on positioned (or flex/grid) items, and only within its stacking context.</b> A child with <code class="inline">z-index: 9999</code> can never escape above a sibling whose parent has a lower <code class="inline">z-index</code>. When z-index "doesn't work," the answer is almost always a stacking context you didn't know you created (<code class="inline">transform</code>, <code class="inline">opacity &lt; 1</code>, <code class="inline">filter</code>, and <code class="inline">will-change</code> all create one). Part 10 explains the mechanism.</p>
+
+<h2>5.5 Exercises</h2>
+
+<ol><li>Build a nav bar: logo left, links centre, button right — with flex only, no margins for spacing.</li></ol>
+
+<ol><li>Build a responsive card grid with the <code class="inline">auto-fill</code>/<code class="inline">minmax</code> line above, then resize the window and watch the column count change without a single media query.</li></ol>
+
+<ol><li>Build a dashboard shell with a fixed sidebar and scrollable main using grid + <code class="inline">100dvh</code>.</li></ol>
+
+<ol><li>Deliberately break z-index: nest a <code class="inline">z-index: 9999</code> element inside a <code class="inline">transform</code>ed parent and explain why it's still behind its uncle element.</li></ol>
+
+<div class="quiz" data-part="p5"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p4">&larr; 04 · CSS FUNDAMENTALS: CASCADE &amp; VALUES</a><a class="next" href="#p6">06 · RESPONSIVE &amp; MODERN CSS &rarr;</a></div>
+</section>
+
+<section class="part" id="p6">
+  <div class="phead"><div class="pnum">06</div>
+    <div><div class="ptitle">Responsive &amp; Modern CSS</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p6">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>6.1 The premise [DEEP]</h2>
+
+<p>Responsive design isn't a technique, it's an acknowledgement: <b>you do not know the canvas.</b> Screen size, font size, input type, colour scheme, connection speed, and language are all decided by the user. CSS was designed for exactly this uncertainty (Part 1), so the modern approach is to *let content dictate layout* rather than enumerating device sizes.</p>
+
+<p>Practical consequence: <b>breakpoints should come from your content, not from device names.</b> "iPhone width" is a moving target and there are hundreds of devices. Resize until the layout looks wrong; put a breakpoint there.</p>
+
+<h2>6.2 The toolkit, best-first</h2>
+
+<ol><li><b>Intrinsic sizing, no queries at all</b> — <code class="inline">auto-fill</code>/<code class="inline">minmax</code>, <code class="inline">flex-wrap</code>, <code class="inline">clamp()</code>, <code class="inline">min()</code>/<code class="inline">max()</code>, <code class="inline">max-width</code> on text containers. Most responsiveness should come from here. [DEEP]</li></ol>
+
+<ol><li><b>Container queries</b> — respond to the *component's* width, not the viewport's. This is the correct model for component-based codebases like yours: a card in a sidebar and the same card in a main column should style themselves, not depend on page context. [DEEP concept, RECOGNIZE syntax]</li></ol>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>.card-wrap { container-type: inline-size; }
+@container (min-width: 400px) { .card { grid-template-columns: 120px 1fr; } }</code></pre></div>
+
+<ol><li><b>Media queries</b> — still right for genuinely page-level shifts and for user preferences: [RECOGNIZE]</li></ol>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>@media (min-width: 48rem) { ... }              /* mobile-first: add complexity upward */
+@media (prefers-color-scheme: dark) { ... }    /* respect the OS setting */
+@media (prefers-reduced-motion: reduce) { ... }/* an accessibility obligation, not a nicety */</code></pre></div>
+
+<p>Mobile-first (<code class="inline">min-width</code>) rather than desktop-first is the default because the mobile layout is usually the simpler base, so you're *adding* rules as space allows rather than undoing them.</p>
+
+<h2>6.3 Common mistakes</h2>
+
+<ul><li>Fixed heights on anything containing text — text reflows at every screen size and in every language (German words are long, and your bilingual EN/HI work makes this concrete).</li></ul>
+
+<ul><li><code class="inline">100vh</code> on mobile (use <code class="inline">dvh</code>), and pixel media queries that ignore user font scaling (use <code class="inline">rem</code>).</li></ul>
+
+<ul><li>Hiding content on mobile with <code class="inline">display: none</code> and calling it responsive — it's still downloaded, and you've removed information rather than adapting it.</li></ul>
+
+<ul><li>Testing only by resizing a desktop window: that never tests touch targets (min ~44px), hover-less interaction, or real device font rendering.</li></ul>
+
+<div class="quiz" data-part="p6"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p5">&larr; 05 · LAYOUT: FLOW, FLEXBOX, GRID, POSITIONING</a><a class="next" href="#p7">07 · VISUAL CRAFT: TYPE, COLOUR, MOTION &rarr;</a></div>
+</section>
+
+<section class="part" id="p7">
+  <div class="phead"><div class="pnum">07</div>
+    <div><div class="ptitle">Visual Craft: Type, Colour, Motion</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p7">MARK COMPLETE</button></div>
+  </div>
+
+  <p>This part is where "technically correct" becomes "looks professional." It's mostly a small number of decisions made *systematically* instead of ad hoc.</p>
+
+<h2>7.1 Systems beat one-offs [DEEP as principle]</h2>
+
+<p>Amateur CSS picks values per element (13px here, 17px there, #4a90d9 in one place and #4b91da in another). Professional CSS defines <b>scales</b> once and only uses values from them:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>:root {
+  /* spacing: one 4px-based scale, nothing off-scale */
+  --s1:.25rem; --s2:.5rem; --s3:.75rem; --s4:1rem; --s6:1.5rem; --s8:2rem; --s12:3rem;
+  /* type: a ratio-based ramp, not arbitrary sizes */
+  --t-sm:.875rem; --t-base:1rem; --t-lg:1.25rem; --t-xl:1.75rem; --t-2xl:2.5rem;
+}</code></pre></div>
+
+<p>This is exactly what Tailwind's <code class="inline">p-4</code>/<code class="inline">text-lg</code> classes are — a design-token scale with a naming convention. Knowing that lets you read Tailwind as CSS rather than as magic, and lets you build the same discipline without it.</p>
+
+<h2>7.2 Typography [DEEP — highest visual ROI]</h2>
+
+<p>Four decisions carry most of the result: a <b>line length</b> of 60–75 characters (<code class="inline">max-width: 65ch</code>), a <b>line height</b> near 1.5 for body and ~1.1 for large headings, a <b>type scale</b> with clear jumps (not 16/17/18px), and <b>font loading</b> that doesn't cause invisible text (<code class="inline">font-display: swap</code>) or layout shift.</p>
+
+<h2>7.3 Colour [RECOGNIZE, one [DEEP] rule]</h2>
+
+<p>The [DEEP] rule is <b>contrast</b>: 4.5:1 for body text, 3:1 for large text and UI boundaries. Not optional, and trivially checkable in DevTools. Beyond that: define semantic tokens (<code class="inline">--surface</code>, <code class="inline">--text</code>, <code class="inline">--border</code>, <code class="inline">--accent</code>) rather than raw colours at call sites, so dark mode is a token swap. Modern colour spaces (<code class="inline">oklch()</code>) give perceptually even lightness steps, which is why palettes built in them look consistent while HSL ramps don't. [ADVANCED]</p>
+
+<h2>7.4 Motion [RECOGNIZE]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>.btn { transition: background-color .15s ease, transform .15s ease; }
+.btn:active { transform: translateY(1px); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }</code></pre></div>
+
+<p>Rules: animate <b>only <code class="inline">transform</code> and <code class="inline">opacity</code></b> (Part 10 explains why — everything else forces layout or paint); 150–250ms for UI feedback; motion should explain a change (where did this come from?), never decorate. And always honour <code class="inline">prefers-reduced-motion</code> — for some users motion causes actual nausea.</p>
+
+<div class="quiz" data-part="p7"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p6">&larr; 06 · RESPONSIVE &amp; MODERN CSS</a><a class="next" href="#p8">08 · REAL PROJECT: A FULL RESPONSIVE PAGE &rarr;</a></div>
+</section>
+
+<section class="part" id="p8">
+  <div class="phead"><div class="pnum">08</div>
+    <div><div class="ptitle">Real Project: A Full Responsive Page</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p8">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Build this by hand, no framework, no utility classes. The point is that afterwards you'll know precisely what Tailwind or a component library is doing for you.</p>
+
+<p><b>Spec:</b> a product landing page with</p>
+
+<ol><li>A sticky header: logo, nav, CTA (flex)</li></ol>
+
+<ol><li>A hero with fluid type (<code class="inline">clamp</code>) and a two-column layout that stacks on narrow screens (grid + one breakpoint)</li></ol>
+
+<ol><li>A feature card grid, responsive with <b>no media query</b> (<code class="inline">auto-fill</code>/<code class="inline">minmax</code>)</li></ol>
+
+<ol><li>A pricing table with a highlighted tier (grid, <code class="inline">:has()</code> or a class for the highlight)</li></ol>
+
+<ol><li>A real form: labelled inputs, native validation, visible focus states, error styling via <code class="inline">:invalid</code> / <code class="inline">:user-invalid</code></li></ol>
+
+<ol><li>A footer with grouped link columns</li></ol>
+
+<ol><li>Dark mode via custom properties + <code class="inline">prefers-color-scheme</code>, plus a manual toggle using a <code class="inline">data-theme</code> attribute on <code class="inline">&lt;html&gt;</code></li></ol>
+
+<ol><li>Zero fixed heights, zero <code class="inline">!important</code>, zero IDs used for styling</li></ol>
+
+<p><b>Definition of done:</b> it works from 320px to 2560px; the whole page is navigable and operable by keyboard alone with a visible focus ring at every step; the heading outline is sensible with CSS disabled; every colour pair passes contrast; and there is exactly one media query and one breakpoint value in the whole file.</p>
+
+<p>Then the reflection step that matters most: rebuild the *same* page with Tailwind and write down, honestly, which parts got faster and which parts got harder to reason about. You'll be making that trade-off for the rest of your career; make it with evidence.</p>
+
+<div class="quiz" data-part="p8"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p7">&larr; 07 · VISUAL CRAFT: TYPE, COLOUR, MOTION</a><a class="next" href="#p9">09 · DEBUGGING PLAYBOOK &rarr;</a></div>
+</section>
+
+<section class="part" id="p9">
+  <div class="phead"><div class="pnum">09</div>
+    <div><div class="ptitle">Debugging Playbook</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p9">MARK COMPLETE</button></div>
+  </div>
+
+  <p>CSS debugging is systematic. Nearly every bug is one of six things, and DevTools tells you which within seconds.</p>
+
+<h2>The four DevTools panels that matter</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Panel</th><th>Answers</th></tr></thead><tbody><tr><td><b>Elements → Styles</b></td><td>Which rules match, in cascade order, with overridden values struck through. This is where "why isn't my rule applying" is *always* answered</td></tr><tr><td><b>Elements → Computed</b></td><td>The final value after cascade, inheritance, and unit resolution — plus which rule won. When Styles is a mess, Computed is the truth</td></tr><tr><td><b>Box model diagram</b></td><td>Actual content/padding/border/margin numbers. Ends all "why is there a gap" arguments</td></tr><tr><td><b>Layout tab</b></td><td>Overlays grid/flex lines, track sizes, and gaps directly on the page. Turn this on whenever a grid misbehaves</td></tr></tbody></table></div>
+
+<h2>The decision tree</h2>
+
+<p><b>My rule isn't applying.</b> In order: (1) does the selector actually match? — check Styles; if the rule isn't listed at all, your selector is wrong, not your property. (2) Is it struck through? Something more specific won — read the winner. (3) Is it listed and not struck but still no effect? Then either the property doesn't apply to that display type (e.g. <code class="inline">height</code> on an inline element, <code class="inline">justify-content</code> on a non-flex parent) or you misspelled the value, which CSS drops silently.</p>
+
+<p><b>There's an unexplained gap.</b> Candidates: default <code class="inline">margin</code> on <code class="inline">h1</code>/<code class="inline">p</code>/<code class="inline">ul</code> (browser defaults, see Computed); <b>margin collapsing</b> between adjacent/parent-child block margins; inline-block whitespace between elements; or a <code class="inline">line-height</code> taller than the content. Flex/grid <code class="inline">gap</code> avoids most of this by design.</p>
+
+<p><b>Something overflows horizontally.</b> A fixed-width child, a long unbreakable string (fix: <code class="inline">min-width: 0</code> on flex children, <code class="inline">overflow-wrap: anywhere</code> on text), an image without <code class="inline">max-width: 100%</code>, or <code class="inline">100%</code> + padding without <code class="inline">border-box</code>.</p>
+
+<p><b>z-index isn't working.</b> Is the element positioned? Is it in the same stacking context as the thing you want to beat? Walk up the ancestors looking for <code class="inline">transform</code>, <code class="inline">opacity &lt; 1</code>, <code class="inline">filter</code>, <code class="inline">will-change</code>, or a lower <code class="inline">z-index</code> — the culprit is one of those (Part 10.3).</p>
+
+<p><b><code class="inline">position: sticky</code> isn't sticking.</b> No threshold set, or an ancestor has <code class="inline">overflow: hidden/auto</code>, or the parent is shorter than the sticky element's travel.</p>
+
+<p><b>It works on desktop, breaks on mobile.</b> <code class="inline">100vh</code>, hover-only interactions, touch targets under 44px, or a viewport meta tag missing entirely.</p>
+
+<h2>The habit</h2>
+
+<p>Before searching: read <b>Styles</b> (what matched), read <b>Computed</b> (what won), read the <b>box model</b> (actual geometry). If you can't reproduce a bug in a minimal isolated snippet, you don't yet understand it — and reducing it is usually what reveals the cause.</p>
+
+<div class="quiz" data-part="p9"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p8">&larr; 08 · REAL PROJECT: A FULL RESPONSIVE PAGE</a><a class="next" href="#p10">10 · INTERNALS: THE RENDERING PIPELINE &rarr;</a></div>
+</section>
+
+<section class="part" id="p10">
+  <div class="phead"><div class="pnum">10</div>
+    <div><div class="ptitle">Internals: The Rendering Pipeline</div>
+    <div class="pmeta"><span class="m">TAG <b>ADVANCED</b></span><span class="m">★ <b>INTERVIEW GOLD</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p10">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Return here after Part 8. This upgrades Part 2's model to mechanism.</p>
+
+<h2>10.1 The pipeline, precisely</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>Parse HTML → DOM
+Parse CSS  → CSSOM
+DOM + CSSOM → Style (compute every property for every element)
+            → Layout / "reflow" (geometry: size and position of every box)
+            → Paint (fill pixels into layers: text, colours, shadows, borders)
+            → Composite (assemble layers, often on the GPU)</code></pre></div>
+
+<p>The performance rule falls straight out of this: <b>the later in the pipeline your change starts, the cheaper it is.</b> Changing <code class="inline">width</code> or <code class="inline">font-size</code> invalidates Layout and everything after it. Changing <code class="inline">background-color</code> skips Layout but repaints. Changing <code class="inline">transform</code> or <code class="inline">opacity</code> on a composited layer can skip both and only recomposite. That is the entire reason "animate transform and opacity, not top/left/width" is universal advice — not superstition, pipeline arithmetic.</p>
+
+<h2>10.2 Layout thrash [ADVANCED]</h2>
+
+<p>Layout is normally batched until the frame ends. But reading a geometry property (<code class="inline">offsetHeight</code>, <code class="inline">getBoundingClientRect()</code>, <code class="inline">scrollTop</code>) forces the browser to flush pending layout *now* so it can answer you. Alternating write → read → write → read in a JS loop forces a synchronous layout every iteration — "layout thrashing," a classic cause of jank. Fix: batch all reads, then all writes.</p>
+
+<p>This is the highest-value CSS internals fact for a JS developer, and it's the bridge to the JavaScript curriculum's performance section.</p>
+
+<h2>10.3 Stacking contexts and containing blocks [ADVANCED, explains two big mysteries]</h2>
+
+<ul><li>A <b>stacking context</b> is a self-contained z-ordering scope. Created by the root element, any positioned element with a <code class="inline">z-index</code>, and — surprisingly — <code class="inline">opacity &lt; 1</code>, <code class="inline">transform</code>, <code class="inline">filter</code>, <code class="inline">will-change</code>, <code class="inline">isolation: isolate</code>. Children can only order *within* their context, never across it. This is the mechanical answer to every "z-index: 9999 doesn't work" question.</li></ul>
+
+<ul><li>A <b>containing block</b> is the rectangle an element's percentages and offsets resolve against: normally the parent's content box, but for <code class="inline">absolute</code> it's the nearest positioned ancestor's padding box, and for <code class="inline">fixed</code> it's the viewport — *unless* an ancestor has <code class="inline">transform</code>/<code class="inline">filter</code>/<code class="inline">will-change</code>, which makes *it* the containing block instead. That last exception is why "my fixed header stopped being fixed" happens.</li></ul>
+
+<h2>10.4 Why the parser blocks [ADVANCED]</h2>
+
+<p>CSS is <b>render-blocking</b> by design: rendering with unstyled content then restyling would flash. Classic <code class="inline">&lt;script&gt;</code> is <b>parser-blocking</b> because it might <code class="inline">document.write</code>. Hence: stylesheets in <code class="inline">&lt;head&gt;</code>, scripts with <code class="inline">defer</code> (or at the end of body), and critical CSS inlined for first paint. Every "put your scripts at the bottom" rule is downstream of this one design decision.</p>
+
+<h2>10.5 The interview-grade narration</h2>
+
+<p>*"The browser streams HTML into a DOM while fetching and parsing CSS into a CSSOM. Those combine to compute styles for every element, which feeds layout — computing the geometry of every box — then paint, then composite. Style and layout are the expensive phases, so cheap animations are the ones that only touch compositing: transform and opacity. Reading layout properties from JS mid-mutation forces an early synchronous layout, which is where jank usually comes from."*</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">simulator — click RUN</span></div><pre id="simOut"><span cl/></pre><div class="stack-controls" style="margin:0;padding:10px 16px;border-top:1px solid var(--line)"><button class="btn sm" id="simRun">&#9654; RUN</button><button class="btn sm ok" id="simReset">RESET</button></div></div>
+
+<div class="quiz" data-part="p10"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p9">&larr; 09 · DEBUGGING PLAYBOOK</a><a class="next" href="#p11">11 · PRODUCTION: PERFORMANCE, ARCHITECTURE, ACCESSIBILITY &rarr;</a></div>
+</section>
+
+<section class="part" id="p11">
+  <div class="phead"><div class="pnum">11</div>
+    <div><div class="ptitle">Production: Performance, Architecture, Accessibility</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p11">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>11.1 The metrics that are actually graded [DEEP]</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Metric</th><th>Means</th><th>CSS levers</th></tr></thead><tbody><tr><td><b>LCP</b> (Largest Contentful Paint)</td><td>When the main content appears</td><td>Inline critical CSS, preload hero image and fonts, avoid render-blocking imports</td></tr><tr><td><b>CLS</b> (Cumulative Layout Shift)</td><td>How much content jumps around</td><td>Always set <code class="inline">width</code>/<code class="inline">height</code> (or <code class="inline">aspect-ratio</code>) on images, reserve space for ads/embeds, <code class="inline">font-display: optional</code>/<code class="inline">swap</code> with matched fallback metrics</td></tr><tr><td><b>INP</b> (Interaction to Next Paint)</td><td>Responsiveness to input</td><td>Mostly JS, but heavy CSS (huge selectors, giant layout trees) contributes</td></tr></tbody></table></div>
+
+<p><code class="inline">@import</code> in CSS is the one thing to actively avoid: it serializes downloads and delays first paint.</p>
+
+<h2>11.2 Architecture: the real trade-off [DEEP — this is a senior conversation]</h2>
+
+<p>Every CSS methodology exists to solve <b>one</b> problem: CSS is globally scoped, so names collide and nobody can safely delete anything.</p>
+
+<div class="tblwrap"><table><thead><tr><th>Approach</th><th>How it scopes</th><th>Cost</th></tr></thead><tbody><tr><td><b>BEM</b> naming</td><td>Convention (<code class="inline">.card__title--large</code>)</td><td>Discipline-only; verbose; nothing enforces it</td></tr><tr><td><b>CSS Modules / scoped styles</b></td><td>Build-time unique class names</td><td>Needs a build step; styles live per-component</td></tr><tr><td><b>Utility CSS (Tailwind)</b></td><td>No custom names at all — compose primitives in markup</td><td>Markup gets noisy; your design system becomes config; refactoring is find-and-replace in HTML</td></tr><tr><td><b>CSS-in-JS</b></td><td>Runtime/compile-time scoping in JS</td><td>Runtime cost, SSR complexity; largely losing ground</td></tr><tr><td><b>Native <code class="inline">@layer</code> + <code class="inline">:where()</code> + nesting</b></td><td>The platform doing it natively</td><td>Newest, least tooling — increasingly the default answer</td></tr></tbody></table></div>
+
+<p>The honest summary for an interview: utility CSS won mainstream adoption because <b>naming things is the expensive part</b> and it eliminates the naming step while guaranteeing your values come from a scale. It trades readable markup for deletable styles. There is no universally correct choice; there is a correct choice per team size and per lifespan of the code.</p>
+
+<h2>11.3 Accessibility checks that catch most issues [RECOGNIZE]</h2>
+
+<p>Tab through the entire page (every interactive element reachable, visible focus ring, logical order); check contrast; verify with CSS off that the outline reads; confirm every image has considered <code class="inline">alt</code>; confirm no information is conveyed by colour alone; run Lighthouse/axe — knowing that automated tools catch maybe a third of real issues.</p>
+
+<div class="quiz" data-part="p11"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p10">&larr; 10 · INTERNALS: THE RENDERING PIPELINE</a><a class="next" href="#p12">12 · WHEN TO HAND-WRITE CSS AND WHEN NOT TO &rarr;</a></div>
+</section>
+
+<section class="part" id="p12">
+  <div class="phead"><div class="pnum">12</div>
+    <div><div class="ptitle">When to Hand-Write CSS and When Not To</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p12">MARK COMPLETE</button></div>
+  </div>
+
+  <p><b>Hand-write / own the CSS when:</b> it's a marketing or landing page where visual distinctiveness is the product; you're building a design system others consume; performance budget is tight; or the site is small enough that a build step is overhead.</p>
+
+<p><b>Reach for a utility framework when:</b> an app UI with many similar components, a team that needs consistency without a design-system owner, and you value velocity over markup readability. (This is your situation on most of your side projects, and it's a defensible default — as long as you can read the CSS underneath, which is what this curriculum is for.)</p>
+
+<p><b>Reach for a component library (shadcn/ui, Radix, Mantine) when:</b> you need accessible interactive primitives — combobox, dialog, date picker, menu. Building an accessible dialog or listbox correctly from scratch is genuinely hard (focus trapping, ARIA state, keyboard model, screen-reader announcements) and is almost never worth doing yourself.</p>
+
+<p><b>Don't write CSS at all when:</b> the deliverable is a document (use Markdown), an email (a different, hostile subset of CSS — use a tested template), or a PDF/report where a document tool is the right output.</p>
+
+<p>And the honest limitations: CSS still has no proper parent selector for arbitrary conditions (<code class="inline">:has()</code> is close but not complete), no native masonry (in progress), and styling native form controls (<code class="inline">select</code>, date inputs, file inputs) remains inconsistent — those are the three places where you'll legitimately need JS or a library rather than CSS skill.</p>
+
+<div class="quiz" data-part="p12"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p11">&larr; 11 · PRODUCTION: PERFORMANCE, ARCHITECTURE, ACCESSIBILITY</a><a class="next" href="#p13">13 · INTERVIEW PREPARATION &rarr;</a></div>
+</section>
+
+<section class="part" id="p13">
+  <div class="phead"><div class="pnum">13</div>
+    <div><div class="ptitle">Interview Preparation</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p13">MARK COMPLETE</button></div>
+  </div>
+
+  <p><b>Tier 1 — expected:</b></p>
+
+<ol><li>Box model, and what <code class="inline">box-sizing: border-box</code> changes and why it exists. (Part 2)</li></ol>
+
+<ol><li>How the cascade resolves conflicts; how specificity is calculated. (Part 2, 4)</li></ol>
+
+<ol><li>Inline vs block vs inline-block. (Part 2)</li></ol>
+
+<ol><li>Flexbox vs Grid — when each, in one sentence each. (Part 5.1)</li></ol>
+
+<ol><li>How would you centre a div, horizontally and vertically? (Part 5.2 — and mention it was hard for 20 years and why.)</li></ol>
+
+<ol><li>Semantic HTML: why it matters beyond aesthetics. (Part 3.1)</li></ol>
+
+<ol><li><code class="inline">position</code> values, and what <code class="inline">relative</code> does that people forget. (Part 5.4)</li></ol>
+
+<p><b>Tier 2 — differentiators:</b></p>
+
+<ol><li>What is a stacking context and why does <code class="inline">z-index: 9999</code> sometimes fail? (Part 10.3)</li></ol>
+
+<ol><li>Explain margin collapsing. (Part 9)</li></ol>
+
+<ol><li><code class="inline">rem</code> vs <code class="inline">em</code> vs <code class="inline">px</code> — and the accessibility argument. (Part 4.3)</li></ol>
+
+<ol><li>How do you build a responsive card grid with no media queries? (Part 5.3)</li></ol>
+
+<ol><li>Custom properties vs Sass variables — the meaningful difference. (Part 4.2)</li></ol>
+
+<ol><li>Mobile-first: what it means mechanically, not just conceptually. (Part 6.2)</li></ol>
+
+<ol><li>How do you make a site keyboard accessible? (Parts 3, 11.3)</li></ol>
+
+<p><b>Tier 3 — senior signal:</b></p>
+
+<ol><li>Walk me through the browser rendering pipeline. (Part 10.1, 10.5)</li></ol>
+
+<ol><li>Why animate <code class="inline">transform</code> instead of <code class="inline">left</code>? (Part 10.1)</li></ol>
+
+<ol><li>What is layout thrashing and how do you avoid it? (Part 10.2)</li></ol>
+
+<ol><li>Why is CSS render-blocking, and what do you do about it? (Part 10.4)</li></ol>
+
+<ol><li>Compare BEM, CSS Modules, and utility CSS — what problem are they all solving? (Part 11.2)</li></ol>
+
+<ol><li>What was CSS designed for, and which of its quirks are consequences of that design? (Part 1)</li></ol>
+
+<p>Answer shape that reads senior: <b>what it is → why it exists → one concrete consequence you've hit.</b></p>
+
+<p>If you can deliver these aloud — WHAT → WHY IT EXISTS → ONE CONCRETE CONSEQUENCE — you are interview-ready. Answer before flipping; nailed cards dim.</p>
+<div class="deck" id="deck"><!-- cards injected by JS --></div>
+
+  <div class="breadcrumb"><a href="#p12">&larr; 12 · WHEN TO HAND-WRITE CSS AND WHEN NOT TO</a><a class="next" href="#p14">14 · MILESTONES &rarr;</a></div>
+</section>
+
+<section class="part" id="p14">
+  <div class="phead"><div class="pnum">14</div>
+    <div><div class="ptitle">Milestones</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p14">MARK COMPLETE</button></div>
+  </div>
+
+  <p><b>M1 — Model (Parts 1–2).</b> Pass: the four checkpoint questions in Part 2, unaided.</p>
+
+<p><b>M2 — Markup (Part 3).</b> Pass: an existing page of yours re-marked-up semantically, readable with CSS disabled, forms fully labelled.</p>
+
+<p><b>M3 — Cascade &amp; values (Part 4).</b> Pass: given three competing selectors, predict the winner and the computed value; theme a component entirely with custom properties.</p>
+
+<p><b>M4 — Layout (Part 5).</b> Pass: build nav / card grid / dashboard shell from scratch with no reference; correctly diagnose a z-index and an overflow bug.</p>
+
+<p><b>M5 — The page (Parts 6–8).</b> Pass: the Part 8 landing page meeting every "definition of done" criterion, plus the Tailwind comparison written out.</p>
+
+<p><b>M6 — Depth (Parts 9–12).</b> Pass: debug an unfamiliar broken layout using only the Part 9 tree; deliver the Part 10.5 narration; argue both sides of the utility-CSS question.</p>
+
+<p>Pace at ~1 hour/day: M1 days 1–2, M2 days 3–4, M3 days 5–7, M4 days 8–12, M5 days 13–18, M6 days 19–24. The exercises are the curriculum; reading Part 5 without building the three layouts teaches you nothing durable.</p>
+
+<p>Six milestones = six layers of proof. When all six drop, the shipyard ships your container.</p>
+<div class="mlist" id="mlist"><!-- milestones injected by JS --></div>
+
+  <div class="breadcrumb"><a href="#p13">&larr; 13 · INTERVIEW PREPARATION</a></div>
+</section><footer>
+  <b>ABOUT THIS BUILD:</b> The HTML/CSS Shipyard is a faithful interactive conversion of the first-principles HTML & CSS curriculum — every concept, table, code block and exercise preserved. Progress lives in your browser (localStorage). Built as a single file — copy it anywhere, it runs offline.<br>
+  <b>THE ONE RULE:</b> everything is a box, and the cascade settles every argument in a fixed order.
+</footer>
+</main>
+</div>
+<div id="grad"><div class="gterm"><div class="ghead">&#9650; SHIPYARD DEPLOYMENT — ALL MILESTONES CROSSED</div><div class="gbody"></div></div></div>
+<script src="data/htmlcss.js"></script>
+<script src="assets/shipyard.js"></script>
+</body>
+</html>

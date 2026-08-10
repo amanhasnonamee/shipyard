@@ -1,0 +1,2444 @@
+<!DOCTYPE html>
+<html lang="en" data-render="img">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The Python Shipyard - Python: A First-Principles Curriculum">
+<meta property="og:description" content="Python · object model · mutability · protocols — a first-principles interactive curriculum, one portable HTML file, runs offline.">
+<meta property="og:image" content="assets/og/python.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%2316b981%22 d=%22M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z%22/%3E%3C/svg%3E">
+<meta name="contract" content="shipyard-python@1">
+<title>The Python Shipyard - Python: A First-Principles Curriculum</title>
+<style>
+
+:root{
+  --bg:#0b0e14; --bg2:#0e1119; --panel:#10141d; --panel2:#141927;
+  --line:#232c3d; --line2:#2e3a52;
+  --fg:#d6dee8; --dim:#8b96a8; --faint:#5b6577;
+  --accent:#ffb000; --accent-soft:#b37b00;
+  --ok:#39d98a; --ok-dim:#1e7a4d;
+  --deep:#ff5d5d; --recog:#57d9ff; --ref:#9aa4b2; --adv:#c792ea;
+  --display:'VT323', 'Courier New', monospace;
+  --body:'Space Mono', 'Consolas', monospace;
+  --mono:'IBM Plex Mono', 'Consolas', monospace;
+  --radius:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--body); font-size:15px; line-height:1.65;
+  background-image:
+    radial-gradient(1200px 600px at 80% -10%, rgba(255,176,0,.05), transparent 60%),
+    radial-gradient(900px 500px at -10% 30%, rgba(87,217,255,.04), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+::selection{background:var(--accent);color:#0b0e14}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-shadow:0 0 8px rgba(255,176,0,.6)}
+#scanlines{position:fixed;inset:0;pointer-events:none;z-index:9990;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px);opacity:.5}
+#vignette{position:fixed;inset:0;pointer-events:none;z-index:9989;
+  background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.45) 100%)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+
+/* ---------- layout ---------- */
+#app{display:grid;grid-template-columns:310px 1fr;min-height:100vh}
+main{padding:0 48px 120px;max-width:1060px;min-width:0}
+#backdrop{position:fixed;inset:0;background:rgba(5,7,11,.7);z-index:49;display:none}
+#backdrop.open{display:block}
+
+/* ---------- sidebar dock ---------- */
+#dock{position:sticky;top:0;height:100vh;overflow-y:auto;overflow-x:hidden;
+  background:linear-gradient(180deg,var(--panel) 0%, #0d1119 100%);
+  border-right:1px solid var(--line);padding:22px 18px 30px;z-index:50}
+.brand{display:flex;align-items:center;gap:10px;padding-bottom:16px;border-bottom:1px dashed var(--line2)}
+.brand svg{flex:none;filter:drop-shadow(0 0 6px rgba(255,176,0,.4))}
+.brand .bname{font-family:var(--display);font-size:22px;line-height:1;letter-spacing:.5px;color:var(--accent)}
+.brand .bsub{font-size:10px;color:var(--faint);letter-spacing:2px;text-transform:uppercase}
+.rankbox{margin:14px 0;padding:12px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel2)}
+.rankbox .rk{font-family:var(--display);font-size:21px;color:var(--accent);line-height:1}
+.rankbox .rkxp{font-size:11px;color:var(--dim);margin-top:2px}
+.prbar{height:8px;border:1px solid var(--line2);background:var(--bg);border-radius:4px;margin-top:8px;overflow:hidden}
+.prbar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-soft),var(--accent));width:0%;transition:width .6s cubic-bezier(0.16,1,0.3,1)}
+.stackbox{padding:12px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel2);margin-bottom:6px}
+.stackbox .st{font-size:10px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between}
+#stackMini{display:flex;flex-direction:column;gap:3px;padding:8px 10px;background:var(--bg);border:1px solid var(--line);border-radius:4px}
+#stackMini .layer{height:11px;border-radius:2px;background:#1b2333;border:1px solid var(--line2);position:relative;cursor:pointer;transition:background .3s}
+#stackMini .layer .ltip{position:absolute;left:26px;top:-2px;background:var(--panel2);border:1px solid var(--line2);font-size:10px;white-space:nowrap;padding:1px 6px;border-radius:3px;display:none;z-index:5}
+#stackMini .layer:hover .ltip{display:block}
+#stackMini .layer.done{background:linear-gradient(90deg,var(--accent-soft),var(--accent));border-color:var(--accent);box-shadow:0 0 6px rgba(255,176,0,.3)}
+#stackMini .layer.cleared{background:linear-gradient(90deg,#1e7a4d,var(--ok));border-color:var(--ok)}
+#stackMini .layer.writable{height:16px;background:repeating-linear-gradient(45deg,#182136,#182136 6px,#1d2739 6px,#1d2739 12px);border-style:dashed;border-color:var(--ok-dim)}
+#stackMini .layer.writable.live{border-color:var(--ok);box-shadow:0 0 8px rgba(57,217,138,.4)}
+#stackMini .layer.newly{animation:layerin .5s cubic-bezier(0.16,1,0.3,1)}
+@keyframes layerin{0%{transform:translateX(18px);opacity:0}100%{transform:none;opacity:1}}
+#psRow{font-size:11px;margin-top:10px;padding:8px 10px;background:#0a1f14;border:1px solid var(--ok-dim);border-radius:4px;color:var(--ok);display:none;font-family:var(--mono)}
+#psRow b{color:var(--ok)}
+
+nav.docknav{margin-top:14px}
+.docksec{font-size:10px;letter-spacing:2px;color:var(--faint);text-transform:uppercase;margin:16px 0 6px}
+.navitem{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;cursor:pointer;border:1px solid transparent;margin-bottom:2px;transition:background .15s,border-color .15s}
+.navitem:hover{background:var(--panel2);border-color:var(--line2)}
+.navitem .n{font-family:var(--display);font-size:15px;color:var(--faint);width:26px;flex:none}
+.navitem .nt{font-size:12.5px;color:var(--dim);flex:1;line-height:1.3}
+.navitem.active .n{color:var(--accent)}
+.navitem.active{background:var(--panel2);border-color:var(--line2)}
+.navitem.active .nt{color:var(--fg)}
+.navitem .st{width:10px;height:10px;flex:none;border-radius:50%;border:1px solid var(--line2);background:var(--bg)}
+.navitem .st.done{background:var(--accent);border-color:var(--accent);box-shadow:0 0 6px rgba(255,176,0,.5)}
+.navitem .st.cleared{background:var(--ok);border-color:var(--ok)}
+.navitem .qbadge{font-size:10px;color:var(--ok);font-family:var(--mono)}
+.legend{margin-top:18px;padding-top:14px;border-top:1px dashed var(--line2)}
+.legend .lt{font-size:10px;letter-spacing:2px;color:var(--faint);text-transform:uppercase;margin-bottom:8px}
+.legend .lg{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--dim);padding:3px 0}
+.legend .sw{width:10px;height:10px;flex:none;border-radius:2px}
+.dockfoot{margin-top:16px;padding-top:12px;border-top:1px dashed var(--line2);font-size:10px;color:var(--faint);line-height:1.6}
+#burger{display:none}
+
+/* ---------- hero ---------- */
+.hero{padding:64px 0 40px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.boot{font-family:var(--mono);font-size:12.5px;color:var(--ok);margin-bottom:26px}
+.boot .bl{opacity:0;animation:bli .0s forwards}
+.boot .bl:nth-child(1){animation-delay:.1s}.boot .bl:nth-child(2){animation-delay:.5s}
+.boot .bl:nth-child(3){animation-delay:.9s}.boot .bl:nth-child(4){animation-delay:1.3s}
+.boot .bl:nth-child(5){animation-delay:1.7s}
+@keyframes bli{to{opacity:1}}
+.boot .warn{color:var(--deep)}
+.hero h1{font-family:var(--display);font-weight:400;font-size:clamp(44px,7vw,78px);line-height:.95;letter-spacing:1px;margin:10px 0 14px}
+.hero h1 .wh{color:var(--accent);text-shadow:0 0 22px rgba(255,176,0,.5)}
+.hero .sub{color:var(--dim);max-width:640px;font-size:14.5px}
+.hero .sub b{color:var(--fg)}
+.hstatus{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 30px}
+.hchip{font-size:11px;font-family:var(--mono);letter-spacing:1px;color:var(--dim);border:1px solid var(--line2);border-radius:3px;padding:6px 10px;background:var(--panel)}
+.hchip b{color:var(--accent);font-weight:400}
+.hchip b.ok{color:var(--ok)}
+#voyageHead{font-size:11px;letter-spacing:3px;color:var(--faint);text-transform:uppercase;margin-bottom:12px}
+.voyage{display:grid;grid-template-columns:1fr 1fr;gap:6px 26px;padding:0 0 8px}
+.waypoint{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--panel);cursor:pointer;transition:border-color .2s,transform .2s}
+.waypoint:hover{border-color:var(--accent);transform:translateX(3px)}
+.waypoint .wn{font-family:var(--display);font-size:18px;color:var(--accent);flex:none}
+.waypoint .wt{font-size:12.5px;line-height:1.25;color:var(--dim)}
+.waypoint .wt b{display:block;color:var(--fg);font-size:13px}
+.waypoint .wtag{margin-left:auto;flex:none}
+.waypoint.done .wn{color:var(--ok)}
+.waypoint.done .wt b{color:var(--ok)}
+
+/* ---------- part sections ---------- */
+.part{padding:70px 0 10px;scroll-margin-top:30px;position:relative}
+.part::before{content:"";position:absolute;left:-48px;top:70px;bottom:10px;width:3px;background:linear-gradient(180deg,var(--accent),transparent 70%);opacity:.25}
+.phead{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--line2);padding-bottom:14px;margin-bottom:26px}
+.pnum{font-family:var(--display);font-size:64px;line-height:.8;color:var(--line2);flex:none;text-shadow:0 0 14px rgba(255,176,0,.08)}
+.part.done .pnum{color:var(--accent);text-shadow:0 0 16px rgba(255,176,0,.45)}
+.ptitle{font-family:var(--display);font-weight:400;font-size:clamp(26px,3.6vw,40px);line-height:1.02;letter-spacing:.5px}
+.pmeta{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pmeta .m{font-size:10.5px;font-family:var(--mono);letter-spacing:1px;color:var(--faint);border:1px solid var(--line);border-radius:3px;padding:3px 8px;background:var(--panel)}
+.pmeta .m b{color:var(--accent);font-weight:400}
+.pactions{margin-left:auto;display:flex;gap:8px;align-items:center;flex:none}
+.part h2{font-family:var(--display);font-weight:400;font-size:29px;letter-spacing:.5px;color:var(--fg);margin:44px 0 12px;border-left:4px solid var(--accent);padding-left:12px}
+.part h3{font-family:var(--body);font-weight:700;font-size:16px;color:var(--accent);margin:30px 0 8px;letter-spacing:.3px}
+.part p{margin:10px 0;color:var(--fg)}
+.part li{margin:6px 0;color:var(--fg)}
+.part ul,.part ol{padding-left:24px;margin:10px 0}
+.part b{color:#fff}
+.part i{color:var(--dim)}
+hr.rule{border:none;border-top:1px dashed var(--line2);margin:34px 0}
+
+/* depth tags */
+.tag{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:1.5px;padding:2px 7px;border-radius:3px;vertical-align:middle;margin:0 2px;border:1px solid}
+.tag-deep{color:var(--deep);border-color:var(--deep);background:rgba(255,93,93,.08);text-shadow:0 0 8px rgba(255,93,93,.5)}
+.tag-recog{color:var(--recog);border-color:var(--recog);background:rgba(87,217,255,.08)}
+.tag-ref{color:var(--ref);border-color:var(--ref);background:rgba(154,164,178,.08)}
+.tag-adv{color:var(--adv);border-color:var(--adv);background:rgba(199,146,234,.08)}
+.wtag{font-family:var(--mono);font-size:8.5px;letter-spacing:1px;padding:2px 6px;border-radius:3px;border:1px solid}
+.wtag-deep{color:var(--deep);border-color:var(--deep)}
+.wtag-recog{color:var(--recog);border-color:var(--recog)}
+
+/* terminal code blocks */
+.term{margin:16px 0;border:1px solid var(--line2);border-radius:var(--radius);background:#0a0d13;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.termhead{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--panel2);border-bottom:1px solid var(--line);position:relative}
+.termhead .td{width:9px;height:9px;border-radius:50%;flex:none}
+.termhead .td1{background:#ff5d5d}.termhead .td2{background:#ffb000}.termhead .td3{background:#39d98a}
+.termhead .tname{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.5px}
+.termhead .copybtn{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--faint);background:none;border:1px solid var(--line2);border-radius:3px;padding:3px 9px;cursor:pointer;transition:all .15s}
+.termhead .copybtn:hover{color:var(--accent);border-color:var(--accent)}
+.termhead .copybtn.copied{color:var(--ok);border-color:var(--ok)}
+.term pre{margin:0;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.6;color:#c3cdda}
+.term pre .c{color:var(--faint)}
+.term pre .p{color:var(--ok)}
+.term pre .a{color:var(--accent)}
+.term pre .r{color:var(--deep)}
+.term pre .b{color:#fff;font-weight:600}
+.term pre .k{color:var(--recog)}
+
+/* tables */
+.tblwrap{overflow-x:auto;margin:16px 0;border:1px solid var(--line2);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:560px}
+thead th{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);text-align:left;background:var(--panel2);padding:10px 14px;border-bottom:1px solid var(--line2);white-space:nowrap}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--line);color:var(--fg);vertical-align:top;line-height:1.55}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:nth-child(even){background:rgba(255,255,255,.015)}
+tbody tr:hover{background:rgba(255,176,0,.04)}
+tbody td code{font-family:var(--mono);font-size:11.5px;color:var(--recog);background:rgba(87,217,255,.07);padding:1px 5px;border-radius:3px}
+td .tag{font-size:8.5px}
+
+/* cards */
+.idea,.lab,.warn,.ck,.note{border:1px solid;border-radius:var(--radius);padding:16px 18px;margin:20px 0;position:relative}
+.idea{border-color:var(--ok-dim);background:linear-gradient(180deg,rgba(57,217,138,.05),transparent)}
+.idea .lbl,.lab .lbl,.warn .lbl,.ck .lbl,.note .lbl{font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;display:block;margin-bottom:8px}
+.idea .lbl{color:var(--ok)}
+.idea p,.idea li{color:var(--fg)}
+.warn{border-color:var(--deep);background:linear-gradient(180deg,rgba(255,93,93,.06),transparent)}
+.warn .lbl{color:var(--deep)}
+.lab{border-color:var(--accent);background:linear-gradient(180deg,rgba(255,176,0,.06),transparent)}
+.lab .lbl{color:var(--accent)}
+.lab ol{padding-left:22px}
+.lab code,.warn code,.ck code,.note code{font-family:var(--mono);font-size:12px;color:var(--recog);background:rgba(87,217,255,.07);padding:1px 5px;border-radius:3px}
+.ck{border-color:var(--recog);background:linear-gradient(180deg,rgba(87,217,255,.05),transparent)}
+.ck .lbl{color:var(--recog)}
+.note{border-color:var(--line2);background:var(--panel)}
+.note .lbl{color:var(--faint)}
+details{margin:8px 0}
+details summary{cursor:pointer;color:var(--accent);font-size:13px;font-family:var(--mono);letter-spacing:.5px}
+details[open] summary{margin-bottom:10px}
+
+/* next/prev part nav */
+.breadcrumb{display:flex;justify-content:space-between;margin-top:56px;padding-top:18px;border-top:1px dashed var(--line2)}
+.breadcrumb a{font-family:var(--mono);font-size:12px;letter-spacing:1px;border:1px solid var(--line2);border-radius:4px;padding:8px 14px;transition:all .2s;color:var(--dim)}
+.breadcrumb a:hover{color:var(--accent);border-color:var(--accent)}
+.breadcrumb .next{margin-left:auto}
+
+/* ---------- diagrams ---------- */
+.pipeline{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0;margin:22px 0 6px;padding:22px 14px;border:1px solid var(--line2);border-radius:var(--radius);background:radial-gradient(600px 200px at 50% 0%,rgba(255,176,0,.05),transparent)}
+.pnode{border:1px solid var(--line2);border-radius:4px;background:var(--panel2);padding:8px 12px;text-align:center;min-width:86px}
+.pnode .pn1{font-family:var(--mono);font-size:12.5px;color:var(--fg)}
+.pnode .pn2{font-size:9px;color:var(--faint);letter-spacing:1px;margin-top:2px;font-family:var(--mono)}
+.pnode.hot{border-color:var(--accent);box-shadow:0 0 12px rgba(255,176,0,.25)}
+.pnode.hot .pn1{color:var(--accent)}
+.pnode.green{border-color:var(--ok)}
+.pnode.green .pn1{color:var(--ok)}
+.parrow{width:30px;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;margin:0 2px}
+.parrow::after{content:"";width:9px;height:9px;transform:rotate(45deg);border-top:1.5px solid var(--accent);border-right:1.5px solid var(--accent);flex:none}
+.parrow .flowdot{position:absolute;top:0;width:4px;height:4px;border-radius:50%;background:var(--accent);animation:flow 1.6s linear infinite;opacity:0}
+@keyframes flow{0%{top:0;opacity:0}20%{opacity:1}80%{opacity:1}100%{top:18px;opacity:0}}
+.pipeline .reglab{font-size:10px;color:var(--faint);text-align:center;margin-top:10px;font-family:var(--mono)}
+.pipeline .reglab b{color:var(--accent);font-weight:400}
+
+.stack-big{display:flex;flex-direction:column;gap:5px;margin:18px 0;padding:16px;border:1px solid var(--line2);border-radius:var(--radius);background:radial-gradient(500px 300px at 50% 100%,rgba(57,217,138,.05),transparent)}
+.sblayer{border:1px solid var(--line2);border-radius:4px;padding:9px 14px;display:flex;align-items:center;gap:10px;background:var(--panel);cursor:pointer;transition:all .25s;position:relative}
+.sblayer:hover{border-color:var(--accent);transform:translateX(4px)}
+.sblayer .sbn{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:1px;width:60px;flex:none}
+.sblayer .sbt{font-size:12.5px;color:var(--fg)}
+.sblayer .sbd{font-size:10.5px;color:var(--faint);margin-left:auto;text-align:right;font-family:var(--mono)}
+.sblayer.selected{border-color:var(--accent);box-shadow:0 0 14px rgba(255,176,0,.25)}
+.sblayer.writ{border-style:dashed;border-color:var(--ok-dim)}
+.sblayer.writ.live{border-color:var(--ok);box-shadow:0 0 16px rgba(57,217,138,.4)}
+.sblayer.writ .sbt b{color:var(--ok)}
+.sbdisc{margin-top:12px;padding:12px 14px;border:1px dashed var(--line2);border-radius:4px;font-size:12.5px;color:var(--dim);min-height:58px;font-family:var(--mono)}
+.sbdisc b{color:var(--fg)}
+.stack-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+
+/* lifecycle flow (part 3) */
+.life{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:18px 0;padding:18px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel)}
+.lstate{border:1px solid var(--line2);border-radius:4px;padding:7px 12px;font-family:var(--mono);font-size:12px;color:var(--fg);background:var(--bg);position:relative}
+.lstate .lcmd{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--accent);background:var(--panel);padding:0 5px;letter-spacing:1px;white-space:nowrap}
+.lstate.gone{color:var(--faint);border-style:dashed;text-decoration:line-through}
+.lstate.live{border-color:var(--ok);color:var(--ok);box-shadow:0 0 10px rgba(57,217,138,.25)}
+.larrow{color:var(--faint);font-size:12px;font-family:var(--mono)}
+
+/* bridge diagram (part 6) */
+.bridge{margin:18px 0;padding:20px;border:1px solid var(--line2);border-radius:var(--radius);background:linear-gradient(180deg,var(--panel),var(--bg))}
+.bridge .bnet{position:relative;border:1px dashed var(--line2);border-radius:8px;padding:30px 16px 16px;margin-top:26px}
+.bridge .bnet::before{content:"bridge network — docker0 (virtual switch)";position:absolute;top:-10px;left:14px;background:var(--bg);padding:0 8px;font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:1px}
+.bcontainer{display:inline-block;border:1px solid var(--recog);border-radius:4px;background:rgba(87,217,255,.05);padding:8px 12px;margin:0 10px;min-width:130px;text-align:center}
+.bcontainer .bn{font-family:var(--mono);font-size:12.5px;color:var(--recog)}
+.bcontainer .bi{font-size:10px;color:var(--faint);font-family:var(--mono);margin-top:2px}
+.bcontainer.hosted{border:1px solid var(--accent)}
+.bcontainer.hosted .bn{color:var(--accent)}
+.dnschip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--accent);border-radius:4px;background:rgba(255,176,0,.07);padding:6px 12px;font-family:var(--mono);font-size:12px;color:var(--accent);margin-top:14px}
+.dnschip b{color:#fff;font-weight:400}
+.bdns-note{font-size:11.5px;color:var(--dim);margin-top:12px}
+
+/* architecture diagram (part 8) */
+.arch{display:flex;align-items:stretch;gap:10px;margin:20px 0;flex-wrap:wrap;justify-content:center}
+.anode{border:1px solid var(--line2);border-radius:5px;padding:12px 14px;background:var(--panel2);min-width:150px;text-align:center;position:relative}
+.anode .an1{font-family:var(--mono);font-size:13px;color:var(--fg)}
+.anode .an2{font-size:10px;color:var(--faint);font-family:var(--mono);margin-top:3px;letter-spacing:.5px}
+.anode.edge{border-color:var(--accent)}
+.anode.edge .an1{color:var(--accent)}
+.anode.db{border-color:var(--ok)}
+.anode.db .an1{color:var(--ok)}
+.anode.cache{border-color:var(--recog)}
+.anode.cache .an1{color:var(--recog)}
+.anode .vchip{position:absolute;top:-9px;right:10px;background:var(--panel);border:1px solid var(--line2);font-family:var(--mono);font-size:8.5px;color:var(--faint);padding:0 5px;border-radius:3px;letter-spacing:1px}
+.astats{margin:14px 0 0;text-align:center;font-size:11px;color:var(--faint);font-family:var(--mono)}
+
+/* buttons */
+.btn{font-family:var(--mono);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;border:1px solid var(--accent);color:var(--accent);background:transparent;padding:9px 16px;border-radius:4px;cursor:pointer;transition:all .18s}
+.btn:hover{background:var(--accent);color:#0b0e14;box-shadow:0 0 18px rgba(255,176,0,.4)}
+.btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+.btn.ok{border-color:var(--ok);color:var(--ok)}
+.btn.ok:hover{background:var(--ok);color:#0b0e14;box-shadow:0 0 18px rgba(57,217,138,.4)}
+.btn.sm{padding:5px 10px;font-size:10.5px}
+
+/* quiz */
+.quiz{margin:22px 0;padding:18px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel);position:relative}
+.quiz .qlbl{font-family:var(--mono);font-size:10px;letter-spacing:2.5px;color:var(--accent);text-transform:uppercase;display:block;margin-bottom:14px}
+.q{position:relative}
+.q+.q{margin-top:22px;padding-top:20px;border-top:1px dashed var(--line2)}
+.qt{font-size:13.5px;color:var(--fg);margin-bottom:8px}
+.qt .qn{color:var(--accent);font-family:var(--mono)}
+.opts{display:grid;gap:6px}
+.opt{display:block;text-align:left;width:100%;font-family:var(--body);font-size:12.8px;color:var(--fg);background:var(--bg);border:1px solid var(--line2);border-radius:4px;padding:8px 12px;cursor:pointer;transition:all .15s;line-height:1.5}
+.opt:hover:not(:disabled){border-color:var(--accent);box-shadow:0 0 10px rgba(255,176,0,.15);transform:translateX(2px)}
+.opt:disabled{cursor:default}
+.opt.wrong{border-color:var(--deep);background:rgba(255,93,93,.08);color:#ffb9b9}
+.opt.right{border-color:var(--ok);background:rgba(57,217,138,.1);color:var(--ok)}
+.qe{display:none;margin-top:8px;font-size:12px;color:var(--dim);line-height:1.6;border-left:3px solid var(--line2);padding-left:10px}
+.qe.show{display:block;animation:fadein .4s}
+@keyframes fadein{from{opacity:0;transform:translateY(-3px)}to{opacity:1}}
+.qscore{position:absolute;top:14px;right:16px;font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:1px}
+.qscore b{color:var(--accent)}
+.qres{margin-top:14px;padding:10px 14px;border-radius:4px;font-family:var(--mono);font-size:12px;letter-spacing:.5px;display:none}
+.qres.show{display:block;animation:fadein .5s}
+.qres.pass{border:1px solid var(--ok);color:var(--ok);background:rgba(57,217,138,.07)}
+.qres.fail{border:1px solid var(--deep);color:#ffb9b9;background:rgba(255,93,93,.07)}
+
+/* flashcards */
+.deck{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin:20px 0}
+.card{perspective:1200px;height:190px;cursor:pointer}
+.card .inner{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(0.16,1,0.3,1);transform-style:preserve-3d}
+.card.flip .inner{transform:rotateY(180deg)}
+.card .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--line2);border-radius:6px;padding:14px;display:flex;flex-direction:column;overflow:auto}
+.card .front{background:var(--panel2)}
+.card .back{background:linear-gradient(180deg,var(--panel2),#0f1a10);transform:rotateY(180deg);border-color:var(--ok-dim)}
+.cardtier{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--faint);margin-bottom:8px;text-transform:uppercase}
+.card .qtext{font-size:13px;line-height:1.5;color:var(--fg);flex:1}
+.card .flip-hint{font-size:9px;color:var(--faint);font-family:var(--mono);letter-spacing:1.5px}
+.card.nailed{opacity:.45}
+.card.nailed .front,.card.nailed .back{border-color:#3d4a63}
+.card .back .qtext{color:var(--ok)}
+.card .nailedbtn{align-self:flex-end;margin-top:8px;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--faint);background:none;border:1px solid var(--line2);border-radius:3px;padding:3px 9px;cursor:pointer}
+.card .nailedbtn:hover{color:var(--ok);border-color:var(--ok)}
+.card .nailedbtn.n{border-color:var(--ok);color:var(--ok)}
+
+/* milestones */
+.mlist{margin:18px 0}
+.mile{display:flex;gap:14px;padding:14px 16px;border:1px solid var(--line2);border-radius:6px;background:var(--panel);cursor:pointer;transition:all .2s;align-items:flex-start}
+.mile+.mile{margin-top:10px}
+.mile:hover{border-color:var(--accent)}
+.mile .mbox{width:22px;height:22px;flex:none;border:2px solid var(--line2);border-radius:4px;margin-top:2px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;color:transparent;transition:all .2s}
+.mile.done .mbox{border-color:var(--ok);background:var(--ok);color:#0b0e14}
+.mile .mtitle{font-size:13.5px;color:var(--fg);cursor:pointer}
+.mile .mtitle b{color:var(--accent)}
+.mile .mpass{font-size:11.5px;color:var(--dim);margin-top:4px;line-height:1.55}
+.mile.done{background:linear-gradient(180deg,rgba(57,217,138,.06),var(--panel))}
+.mile.done .mpass{color:var(--ok)}
+
+/* duel columns part 12 */
+.duel{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.duel .col{border:1px solid var(--line2);border-radius:6px;padding:18px;background:var(--panel)}
+.duel .col h3{margin-top:0;font-size:14px}
+.duel .use{border-color:var(--ok-dim)}
+.duel .use h3{color:var(--ok)}
+.duel .skip{border-color:var(--deep)}
+.duel .skip h3{color:var(--deep)}
+.duel ul{padding-left:20px}
+.duel li{margin:6px 0;font-size:12.8px;line-height:1.55}
+
+/* footer */
+footer{margin-top:90px;padding-top:26px;border-top:1px dashed var(--line2);color:var(--faint);font-size:11.5px;line-height:1.8}
+footer b{color:var(--dim)}
+
+/* graduation overlay */
+#grad{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(4,6,10,.94);padding:20px;overflow:hidden}
+#grad.open{display:flex}
+#grad .gterm{width:min(680px,100%);border:1px solid var(--ok-dim);border-radius:8px;background:#070d09;box-shadow:0 0 60px rgba(57,217,138,.15);overflow:hidden;position:relative;z-index:2}
+#grad .ghead{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--ok-dim);font-family:var(--mono);font-size:11px;color:var(--ok);letter-spacing:1px}
+#grad .gbody{padding:22px;font-family:var(--mono);font-size:13px;color:var(--ok);line-height:1.9;max-height:70vh;overflow-y:auto}
+#grad .gbody .gl{opacity:0;animation:bli .3s forwards}
+#grad .gtitle{font-family:var(--display);font-size:46px;color:var(--ok);text-shadow:0 0 24px rgba(57,217,138,.6);line-height:1;margin:10px 0}
+#grad .gbtn{margin-top:16px}
+.ptcl{position:absolute;width:6px;height:6px;border-radius:2px;z-index:1;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:0}}
+#whaleSwim{position:absolute;bottom:40px;left:-140px;z-index:1;filter:drop-shadow(0 0 14px rgba(255,176,0,.5));animation:swim 14s linear infinite}
+@keyframes swim{from{left:-140px}70%,to{left:110vw}}
+
+/* misc */
+code.inline{font-family:var(--mono);font-size:12.5px;color:var(--recog);background:rgba(87,217,255,.07);padding:1px 6px;border-radius:3px}
+.kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line2);border-bottom-width:2px;border-radius:3px;padding:1px 6px;background:var(--panel)}
+.strong-sentence{color:#fff;background:linear-gradient(180deg,transparent 62%,rgba(255,176,0,.25) 62%)}
+
+@media (max-width:1020px){
+  #app{grid-template-columns:1fr}
+  #dock{position:fixed;left:0;top:0;transform:translateX(-105%);transition:transform .3s cubic-bezier(0.16,1,0.3,1);width:310px;box-shadow:20px 0 50px rgba(0,0,0,.5)}
+  #dock.open{transform:none}
+  #burger{display:flex;position:fixed;top:14px;left:14px;z-index:60;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line2);color:var(--accent);font-family:var(--mono);font-size:11px;letter-spacing:1.5px;padding:8px 12px;border-radius:4px;cursor:pointer}
+  main{padding:60px 22px 100px}
+  .part::before{display:none}
+  .voyage{grid-template-columns:1fr}
+  .duel{grid-template-columns:1fr}
+  .pactions{margin-left:0;width:100%;margin-top:10px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s !important;animation-iteration-count:1 !important;transition-duration:.001s !important}
+  html{scroll-behavior:auto}
+}
+
+</style>
+</head>
+<body>
+<div id="scanlines"></div><div id="vignette"></div>
+<button id="burger">&#9776; MAP</button><div id="backdrop"></div>
+<div id="app">
+<aside id="dock">
+  <div class="brand">
+    <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="var(--accent)" d="M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z"/>
+      <rect x="7" y="11" width="2" height="2" fill="var(--bg)"/><rect x="12" y="11" width="2" height="2" fill="var(--bg)"/><rect x="17" y="11" width="2" height="2" fill="var(--bg)"/>
+    </svg>
+    <div><div class="bname">THE PYTHON SHIPYARD</div><div class="bsub">Python · object model · mutability · protocols</div></div>
+  </div>
+
+  <div class="rankbox">
+    <div class="rk" id="rankNow">SWABBIE</div>
+    <div class="rkxp" id="rankXp"></div>
+    <div class="prbar"><i id="rankBar"></i></div>
+  </div>
+
+  <div class="stackbox">
+    <div class="st"><span>THE STACK — your container</span><span id="stackCount">0/14</span></div>
+    <div id="stackMini"></div>
+    <div id="psRow"><b>$ docker ps</b><br><span id="psRow2">—</span></div>
+  </div>
+
+  <nav class="docknav" id="docknav"></nav>
+
+  <div class="legend">
+    <div class="lt">Depth legend</div>
+    <div class="lg"><span class="sw" style="background:var(--deep);box-shadow:0 0 6px rgba(255,93,93,.6)"></span><span><b style="color:var(--deep)">DEEP</b> — core mental model. Prove it out loud.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--recog)"></span><span><b style="color:var(--recog)">RECOGNIZE</b> — read fluently; write with docs open.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--ref)"></span><span><b style="color:var(--ref)">REFERENCE</b> — know it exists. Never memorize.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--adv)"></span><span><b style="color:var(--adv)">ADVANCED</b> — return after Part 8.</span></div>
+  </div>
+
+  <div class="dockfoot" id="dockfoot"></div>
+</aside>
+
+<main>
+<section class="hero" id="part0">
+  <div class="boot"><div class="bl">$ shipyard boot --curriculum python-first-principles</div>
+    <div class="bl">STAGE 1: LOADING PARTS 0–14 ......... <span style="color:var(--ok)">OK</span></div>
+    <div class="bl">STAGE 2: MOUNTING DEPTH TAGS .......... <span style="color:var(--ok)">OK</span></div>
+    <div class="bl"><span class="warn">WARNING: names are labels, not boxes. Most Python bugs are Idea 1 wearing a costume.</span></div>
+    <div class="bl">AWAITING CREW — 14 waypoints ahead. <span class="cursor" style="color:var(--accent)">▮</span></div>
+  </div>
+  <h1>PYTHON, UNDERSTOOD.<br><span class="wh">NOT JUST SNIPPED.</span></h1>
+  <p class="sub">This is a first-principles curriculum rebuilt as a mission. Learn the object model <b>deeply</b> — names are labels, not boxes; mutability divides all surprising behaviour — reference the rest, and physically <b>build the shipyard&#39;s container</b> in the sidebar as you complete parts. Quizzes earn XP. Ranks go from <b>Swabbie</b> to <b>Harbor Master</b>. Finish all 14 parts and the shipyard ships your container.</p>
+  <div class="hstatus">
+    <div class="hchip">RANK <b id="hRank">SWABBIE</b></div>
+    <div class="hchip">XP <b id="hXp">0</b></div>
+    <div class="hchip">LAYERS <b id="hLayers">0/14</b></div>
+    <div class="hchip">QUIZZES CLEARED <b class="ok" id="hQuizzes">0</b></div>
+  </div>
+  <div id="voyageHead">THE VOYAGE — 14 WAYPOINTS</div>
+  <div class="voyage" id="voyage"></div>
+</section>
+
+<section class="part" id="p0">
+  <div class="phead"><div class="pnum">00</div>
+    <div><div class="ptitle">How to Use This Curriculum</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p0">MARK COMPLETE</button></div>
+  </div>
+
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>Part 1   Where Python came from                 [DEEP — explains its values]
+Part 2   The core mental model                  [DEEP — most important part]
+Part 3   The built-in data types and when to use each
+Part 4   Functions, closures, decorators, generators
+Part 5   Objects and the data model (dunder protocols)
+Part 6   Errors, control flow, context managers
+Part 7   Modules, packages, environments, project layout
+Part 8   Real projects: an ETL pipeline + a FastAPI service
+Part 9   Debugging playbook
+Part 10  Internals: CPython, the GIL, concurrency
+Part 11  Production: typing, testing, packaging, performance
+Part 12  When not to use Python
+Part 13  Interview preparation
+Part 14  Milestones</code></pre></div>
+
+  <div class="breadcrumb"><a class="next" href="#p1">01 · WHERE PYTHON CAME FROM &rarr;</a></div>
+</section>
+
+<section class="part" id="p1">
+  <div class="phead"><div class="pnum">01</div>
+    <div><div class="ptitle">Where Python Came From</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p1">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Python's design is unusually *intentional*, and knowing the intent explains why it looks the way it does.</p>
+
+<h2>The lineage</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Year</th><th>What happened</th><th>Why it still affects you</th></tr></thead><tbody><tr><td>Dec 1989</td><td>Guido van Rossum starts it as a Christmas-break project at CWI (Amsterdam), as a successor to <b>ABC</b> — a teaching language he admired but found limited</td><td>ABC gave Python its readability obsession, indentation-as-syntax, and high-level built-in types. Python was designed to be *read*, from day one</td></tr><tr><td>1991</td><td>First public release. Named after <b>Monty Python's Flying Circus</b>, not the snake</td><td>The reason docs and tutorials use <code class="inline">spam</code>/<code class="inline">eggs</code></td></tr><tr><td>1994–2000</td><td>Python 1.x. Lambda, map, filter, reduce arrive (borrowed from Lisp) — Guido never loved them</td><td>Why Python has functional tools but comprehensions are considered more Pythonic</td></tr><tr><td>2000</td><td>Python 2.0: list comprehensions, garbage collection for cycles, Unicode support begins. <b>PEP process</b> established</td><td>PEPs are why the language evolves by written, debated proposals rather than by committee or vendor whim</td></tr><tr><td>2001</td><td>Tim Peters' <b>"Zen of Python"</b> (<code class="inline">import this</code>)</td><td>"There should be one — and preferably only one — obvious way to do it." The explicit anti-Perl, anti-JavaScript design stance</td></tr><tr><td>2008</td><td><b>Python 3.0</b> breaks backward compatibility to fix text/bytes, integer division, and print</td><td>The great schism — a *twelve-year* migration that ended in 2020. Compare with JS's "never break the web": Python chose correctness over compatibility and paid for it in a decade of ecosystem split</td></tr><tr><td>2006–2015</td><td>numpy, scipy, pandas, scikit-learn. Python quietly wins scientific computing</td><td>Not because Python is fast — because it's a <b>great glue language</b>: readable syntax over C/Fortran numerical cores. The speed lives in C; Python orchestrates</td></tr><tr><td>2014–now</td><td>Type hints (PEP 484, 2014), asyncio (3.4), f-strings (3.6), dataclasses (3.7), walrus (3.8), pattern matching (3.10)</td><td>Python absorbed static typing *optionally* — annotations that tooling reads and the runtime ignores</td></tr><tr><td>2020–now</td><td>3.11+ delivers large real speedups; work on removing the GIL (PEP 703) is underway</td><td>The historical "Python is slow" and "Python can't do threads" claims are being actively dismantled — say so carefully and with dates in interviews</td></tr></tbody></table></div>
+
+<h2>The three ideas actually invented (or chosen) here</h2>
+
+<ol><li><b>Readability as a language-level constraint.</b> Indentation *is* syntax — you cannot write badly-formatted Python. That was a deliberate bet that code is read far more often than written, and it's why Python became the default teaching and scripting language.</li></ol>
+
+<ol><li><b>One obvious way.</b> Deliberately fewer features and idioms than Perl or C++. This is why "Pythonic" is a meaningful word: the community holds that there's usually a right way, and follows PEP 8 near-universally.</li></ol>
+
+<ol><li><b>Glue, not engine.</b> Python's biggest win — scientific computing and AI — came from being pleasant to write *around* fast C libraries. <code class="inline">numpy</code>, <code class="inline">pandas</code>, <code class="inline">torch</code>: all C/C++/CUDA underneath. Understanding this reframes "Python is slow" into "Python is slow at loops and fast at orchestrating vectorized C" — which is precisely the lesson you need for your pandas work: <b>the loop you write in Python is the bottleneck; the operation you hand to pandas is not.</b></li></ol>
+
+<h2>The framing that reads senior</h2>
+
+<p>*"Python optimized for programmer time over machine time, and for reading over writing. Its dominance in data and AI isn't about performance — it's that it's the most pleasant available interface to fast native code. And unlike JavaScript, it was willing to break backward compatibility to fix its mistakes, which cost the ecosystem twelve painful years but left a cleaner language."*</p>
+
+<div class="quiz" data-part="p1"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p0">&larr; 00 · HOW TO USE THIS CURRICULUM</a><a class="next" href="#p2">02 · THE CORE MENTAL MODEL &rarr;</a></div>
+</section>
+
+<section class="part" id="p2">
+  <div class="phead"><div class="pnum">02</div>
+    <div><div class="ptitle">The Core Mental Model</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p2">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Five ideas. If you get Idea 1 and 2, most Python bugs become predictable.</p>
+
+<h2>Idea 1: Everything is an object, and names are labels — not boxes</h2>
+
+<p>This is *the* Python model, and it differs from how most people first imagine variables.</p>
+
+<p>A variable is not a container holding a value. It is a <b>name bound to an object</b>. Assignment binds a name; it never copies.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>a = [1, 2, 3]
+b = a            # b is another NAME for the SAME list object
+b.append(4)
+a                # [1, 2, 3, 4]
+
+x = 5
+y = x            # both name the same int object
+y = 6            # rebinds y to a DIFFERENT object; x is untouched</code></pre></div>
+
+<p>Why both behave "differently": nothing about assignment differed. What differed is <b>mutability</b> — you can change a list in place, so both names see the change; you cannot change an int in place, so <code class="inline">y = 6</code> had to create/point to a new object.</p>
+
+<p>Everything is an object, including functions, classes, and modules — so they can be passed around, stored in lists, and given attributes. <code class="inline">id(obj)</code> shows identity; <code class="inline">is</code> compares identity while <code class="inline">==</code> compares value. (<code class="inline">a is b</code> for small ints and short strings can be surprisingly <code class="inline">True</code> due to interning — an implementation detail, never rely on it.)</p>
+
+<h2>Idea 2: Mutable vs immutable is the dividing line for all surprising behaviour</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Immutable</th><th>Mutable</th></tr></thead><tbody><tr><td><code class="inline">int</code>, <code class="inline">float</code>, <code class="inline">str</code>, <code class="inline">bytes</code>, <code class="inline">tuple</code>, <code class="inline">frozenset</code>, <code class="inline">bool</code>, <code class="inline">None</code></td><td><code class="inline">list</code>, <code class="inline">dict</code>, <code class="inline">set</code>, most class instances, <code class="inline">bytearray</code></td></tr></tbody></table></div>
+
+<p>Three consequences you will hit for real:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code><span class="c"># 1. The mutable default argument — the most famous Python trap</span>
+def add(item, target=[]):        # this list is created ONCE, at definition
+    target.append(item); return target
+add(1); add(2)                   # [1, 2]  ← shared across calls!
+def add(item, target=None):      # the fix
+    target = [] if target is None else target
+
+<span class="c"># 2. Functions can mutate your arguments (pass-by-object-reference)</span>
+def clean(rows): rows.sort()     # caller's list is now reordered
+
+<span class="c"># 3. Copies are shallow by default</span>
+import copy
+shallow = original.copy()        # nested objects still shared
+deep = copy.deepcopy(original)   # fully independent</code></pre></div>
+
+<p>Only immutable objects can be dict keys or set members — because hashing requires the value not to change. That's the whole reason tuples exist alongside lists.</p>
+
+<h2>Idea 3: Iteration is a protocol, and laziness is everywhere</h2>
+
+<p><code class="inline">for x in thing</code> does not need a list. It calls <code class="inline">iter(thing)</code> to get an iterator, then <code class="inline">next()</code> repeatedly until <code class="inline">StopIteration</code>. Anything implementing that protocol is iterable — files, dict views, generators, database cursors, custom classes.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>with open('big.csv') as f:        # a file IS an iterator of lines
+    for line in f:               # streams, never loads the whole file
+        process(line)</code></pre></div>
+
+<p>This is why Python handles data larger than memory gracefully, and why <code class="inline">range(10_000_000)</code> costs nothing (it computes on demand rather than building a list). Generators (Part 4) are how you write your own lazy pipelines — directly relevant to any ETL work.</p>
+
+<h2>Idea 4: Scope is LEGB, and assignment creates a local</h2>
+
+<p>Name lookup order: <b>L</b>ocal → <b>E</b>nclosing → <b>G</b>lobal → <b>B</b>uiltins.</p>
+
+<p>The rule that trips everyone: <b>assigning to a name anywhere in a function makes it local for the entire function</b>, even before the assignment line.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>count = 0
+def bump():
+    count += 1        # UnboundLocalError — `count` is local because it's assigned here
+def bump_ok():
+    global count      # explicit, and usually a design smell
+    count += 1</code></pre></div>
+
+<p>Preferred fix: don't mutate globals — return values instead. <code class="inline">nonlocal</code> exists for closures. Note the philosophy: Python makes you *say* you're reaching outward, matching "explicit is better than implicit."</p>
+
+<h2>Idea 5: Duck typing — behaviour matters, not type</h2>
+
+<p>Python doesn't check what something *is*; it tries what you asked and fails if unsupported. "If it quacks like a duck." Consequence: functions work with anything supporting the needed operations — a real strength for composition. Also why <code class="inline">try/except</code> (EAFP: easier to ask forgiveness than permission) is idiomatic where other languages check types first.</p>
+
+<p>Type hints (Part 11) don't change this — the runtime ignores them entirely. They're for tooling and for humans.</p>
+
+<h2>Checkpoint — before Part 3</h2>
+
+<p>Without running anything:</p>
+
+<ol><li><code class="inline">def f(x=[])</code> — explain precisely what goes wrong and when the list is created.</li></ol>
+
+<ol><li><code class="inline">a = [1,2]; b = a; b = b + [3]</code> — what is <code class="inline">a</code>, and why does it differ from <code class="inline">b.append(3)</code>?</li></ol>
+
+<ol><li>Why can a tuple be a dict key but a list cannot?</li></ol>
+
+<ol><li>Why does <code class="inline">for line in open(f)</code> handle a 10GB file when <code class="inline">open(f).readlines()</code> doesn't?</li></ol>
+
+<ol><li>Why does <code class="inline">count += 1</code> inside a function raise <code class="inline">UnboundLocalError</code> when <code class="inline">print(count)</code> alone wouldn't?</li></ol>
+
+<div class="quiz" data-part="p2"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p1">&larr; 01 · WHERE PYTHON CAME FROM</a><a class="next" href="#p3">03 · BUILT-IN DATA TYPES AND WHEN TO USE EACH &rarr;</a></div>
+</section>
+
+<section class="part" id="p3">
+  <div class="phead"><div class="pnum">03</div>
+    <div><div class="ptitle">Built-in Data Types and When to Use Each</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p3">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>3.1 The four workhorses [DEEP — the trade-offs, not the methods]</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Type</th><th>Ordered</th><th>Mutable</th><th>Lookup cost</th><th>Use when</th></tr></thead><tbody><tr><td><code class="inline">list</code></td><td>Yes</td><td>Yes</td><td>O(n) search, O(1) index</td><td>Ordered sequence you'll modify; the default collection</td></tr><tr><td><code class="inline">tuple</code></td><td>Yes</td><td>No</td><td>O(n) search</td><td>Fixed records ("a row"), dict keys, safe returns of multiple values</td></tr><tr><td><code class="inline">dict</code></td><td>Insertion order (3.7+)</td><td>Yes</td><td><b>O(1)</b> by key</td><td>Lookups by key, grouping, counting, JSON-shaped data</td></tr><tr><td><code class="inline">set</code></td><td>No</td><td>Yes</td><td><b>O(1)</b> membership</td><td>Uniqueness, membership tests, set algebra (diffs between two ID lists)</td></tr></tbody></table></div>
+
+<p>The single most valuable performance instinct in Python: <b><code class="inline">x in some_list</code> is O(n); <code class="inline">x in some_set</code> is O(1).</b> Turning a list into a set before a loop of membership checks converts an accidental O(n²) into O(n). This is the most common real speedup in data-cleaning scripts, and it's the kind of thing that turns a 40-minute job into 4 seconds.</p>
+
+<h2>3.2 Strings [DEEP on immutability + Unicode]</h2>
+
+<p>Immutable — every "modification" creates a new string. So building a string in a loop with <code class="inline">+=</code> is O(n²); use <code class="inline">''.join(parts)</code>. Text is <code class="inline">str</code> (Unicode code points); bytes are <code class="inline">bytes</code>. <code class="inline">encode()</code> goes str→bytes, <code class="inline">decode()</code> goes bytes→str. This distinction *is* the Python 3 break (Part 1), and it's why you must specify <code class="inline">encoding='utf-8'</code> when reading files — a <code class="inline">UnicodeDecodeError</code> on a client CSV is the single most common data-work error in India-facing work with mixed-encoding exports.</p>
+
+<p>f-strings are the modern default: <code class="inline">f"{name}: {total:,.2f}"</code> — and <code class="inline">f"{value=}"</code> for debugging.</p>
+
+<h2>3.3 Comprehensions [DEEP — the Pythonic transformation idiom]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>opens   = [c['id'] for c in cases if c['status'] == 'open']      # list
+by_id   = {c['id']: c for c in cases}                            # dict
+courts  = {c['court'] for c in cases}                            # set
+lazy    = (expensive(c) for c in cases)                          # GENERATOR — nothing runs yet</code></pre></div>
+
+<p>Read these as SQL, since that's your native language: <code class="inline">[expr for row in table if cond]</code> is <code class="inline">SELECT expr FROM table WHERE cond</code>. Prefer comprehensions over <code class="inline">map</code>/<code class="inline">filter</code> (more readable, and Guido's own preference). Stop at two levels of nesting — beyond that, write a loop or a generator function; clarity wins.</p>
+
+<h2>3.4 The standard library pieces that carry real work [RECOGNIZE]</h2>
+
+<p><code class="inline">collections.Counter</code> (frequency counts in one line), <code class="inline">defaultdict</code> (grouping without key checks), <code class="inline">pathlib.Path</code> (path handling that isn't string surgery), <code class="inline">datetime</code>/<code class="inline">zoneinfo</code> (always store UTC, convert at the edges), <code class="inline">decimal.Decimal</code> (money — never float, same lesson as JS), <code class="inline">itertools</code> (<code class="inline">groupby</code>, <code class="inline">chain</code>, <code class="inline">islice</code>, <code class="inline">batched</code>), <code class="inline">json</code>, <code class="inline">csv</code>, <code class="inline">re</code>, <code class="inline">dataclasses</code>, <code class="inline">enum</code>, <code class="inline">logging</code>.</p>
+
+<div class="quiz" data-part="p3"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p2">&larr; 02 · THE CORE MENTAL MODEL</a><a class="next" href="#p4">04 · FUNCTIONS, CLOSURES, DECORATORS, GENERATORS &rarr;</a></div>
+</section>
+
+<section class="part" id="p4">
+  <div class="phead"><div class="pnum">04</div>
+    <div><div class="ptitle">Functions, Closures, Decorators, Generators</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p4">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>4.1 Parameters, properly [DEEP]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>def fetch(table, *cols, limit=100, offset=0, **filters):
+    ...
+fetch('cases', 'id', 'court', limit=50, status='open')</code></pre></div>
+
+<p><code class="inline">*args</code> collects extra positionals into a tuple; <code class="inline">**kwargs</code> collects extra keywords into a dict. Keyword-only parameters (after <code class="inline">*</code>) are a design tool: they force call sites to be self-documenting, which matters for functions with several similar arguments. Type hints belong here (Part 11), and the mutable-default trap from Idea 2 lives here.</p>
+
+<h2>4.2 Closures [DEEP]</h2>
+
+<p>Same mechanism as JavaScript: a nested function retains access to the enclosing scope's names.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>def make_validator(required):
+    def validate(row):
+        return [f for f in required if not row.get(f)]   # `required` retained
+    return validate
+check = make_validator(['case_no', 'court'])</code></pre></div>
+
+<p>Python's version of the classic closure bug is <b>late binding</b>: closures capture the *name*, not the value at creation time.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>fns = [lambda: i for i in range(3)]
+[f() for f in fns]              # [2, 2, 2]  — all see the final i
+fns = [lambda i=i: i for i in range(3)]   # bind at definition → [0, 1, 2]</code></pre></div>
+
+<h2>4.3 Decorators [DEEP concept, RECOGNIZE syntax]</h2>
+
+<p>A decorator is a function that takes a function and returns a replacement. <code class="inline">@</code> is just sugar: <code class="inline">f = deco(f)</code>.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>import functools, time, logging
+
+def timed(fn):
+    @functools.wraps(fn)                     # preserve __name__, docstring
+    def wrapper(*args, **kwargs):
+        t0 = time.perf_counter()
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            logging.info("%s took %.2fs", fn.__name__, time.perf_counter() - t0)
+    return wrapper
+
+@timed
+def load_cases(path): ...</code></pre></div>
+
+<p>Why they exist: <b>cross-cutting concerns</b> — timing, logging, retries, caching, auth, transactions — that you don't want duplicated in every function body. Once you see this, FastAPI's <code class="inline">@app.get(...)</code>, pytest's <code class="inline">@fixture</code>, and <code class="inline">@functools.lru_cache</code> all stop being magic and become "a function wrapping my function." That single realization is worth the whole section, and it's a strong interview answer.</p>
+
+<h2>4.4 Generators [DEEP — the ETL tool]</h2>
+
+<p>A function with <code class="inline">yield</code> returns a generator: it produces values lazily, suspending and resuming, holding one item in memory at a time.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>def read_rows(path):
+    with open(path, encoding='utf-8') as f:
+        for line in f:
+            yield parse(line)                      # one row at a time
+
+def valid(rows):
+    for r in rows:
+        if r['amount'] &gt; 0: yield r
+
+def enriched(rows):
+    for r in rows:
+        yield {**r, 'gst': r['amount'] * 0.18}
+
+for row in enriched(valid(read_rows('huge.csv'))):  # a streaming pipeline
+    write(row)                                       # constant memory, any file size</code></pre></div>
+
+<p>That composition is the correct shape for any ETL work, and it's the strongest argument for understanding the iteration protocol from Idea 3. Compare with the pandas approach: pandas loads everything into memory but vectorizes the operations. Knowing when to stream (huge files, row-independent logic) versus vectorize (fits in memory, columnar math) is a real engineering judgment — and one that will come up when you talk about data pipelines in a BA/technical interview.</p>
+
+<div class="quiz" data-part="p4"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p3">&larr; 03 · BUILT-IN DATA TYPES AND WHEN TO USE EACH</a><a class="next" href="#p5">05 · OBJECTS AND THE DATA MODEL &rarr;</a></div>
+</section>
+
+<section class="part" id="p5">
+  <div class="phead"><div class="pnum">05</div>
+    <div><div class="ptitle">Objects and the Data Model</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p5">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>5.1 Classes when they're warranted [DEEP as judgment]</h2>
+
+<p>Python does not require classes. A module of functions is often better. Use a class when you have <b>state plus behaviour that belong together</b> and multiple instances. Don't use one as a namespace for stateless functions — that's a Java habit, and un-Pythonic.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>from dataclasses import dataclass, field
+from decimal import Decimal
+
+@dataclass
+class Invoice:
+    number: str
+    amount: Decimal
+    items: list[str] = field(default_factory=list)   # ← Idea 2, enforced by dataclasses
+    def with_gst(self) -&gt; Decimal:
+        return self.amount * Decimal('1.18')</code></pre></div>
+
+<p><code class="inline">@dataclass</code> generates <code class="inline">__init__</code>, <code class="inline">__repr__</code>, and <code class="inline">__eq__</code>. For records — which is most of what data work needs — it removes nearly all boilerplate. Note <code class="inline">default_factory</code>: the dataclass API *forces* you to avoid the mutable-default trap, which tells you how common that bug is.</p>
+
+<h2>5.2 The data model: dunder methods are protocols [DEEP — this is Python's real secret]</h2>
+
+<p>Python's built-in syntax is defined in terms of methods your objects can implement. <code class="inline">len(x)</code> calls <code class="inline">x.__len__()</code>. <code class="inline">a + b</code> calls <code class="inline">a.__add__(b)</code>. <code class="inline">for x in y</code> calls <code class="inline">y.__iter__()</code>. <code class="inline">with x:</code> calls <code class="inline">x.__enter__()</code>/<code class="inline">__exit__()</code>. <code class="inline">x[k]</code> calls <code class="inline">__getitem__</code>.</p>
+
+<p>So "Pythonic" design means: <b>implement the protocol and your object works with the whole language.</b></p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>class CaseList:
+    def __init__(self, cases): self._cases = cases
+    def __len__(self):  return len(self._cases)          # len()
+    def __iter__(self): return iter(self._cases)         # for, list(), unpacking
+    def __getitem__(self, i): return self._cases[i]      # indexing, slicing
+    def __repr__(self):  return f"CaseList({len(self)} cases)"   # debugging</code></pre></div>
+
+<p>That object now works in <code class="inline">for</code>, <code class="inline">len()</code>, <code class="inline">in</code>, comprehensions, and <code class="inline">list()</code> — with no inheritance. This is duck typing (Idea 5) formalized, and it's how pandas DataFrames and numpy arrays feel native. If you can explain "the data model is a set of protocols, not an inheritance hierarchy," you're ahead of most Python interviewees.</p>
+
+<h2>5.3 Properties, inheritance, composition [RECOGNIZE]</h2>
+
+<p><code class="inline">@property</code> turns a method into an attribute access — so you can add validation or computation later without changing every call site. Inheritance: use it for genuine "is-a" specialization; prefer composition (holding collaborators) otherwise. <code class="inline">abc.ABC</code> for defining an interface contract. Python's MRO and multiple inheritance are [ADVANCED] — know that <code class="inline">super()</code> follows a linearized order and leave the details until needed.</p>
+
+<div class="quiz" data-part="p5"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p4">&larr; 04 · FUNCTIONS, CLOSURES, DECORATORS, GENERATORS</a><a class="next" href="#p6">06 · ERRORS, CONTROL FLOW, CONTEXT MANAGERS &rarr;</a></div>
+</section>
+
+<section class="part" id="p6">
+  <div class="phead"><div class="pnum">06</div>
+    <div><div class="ptitle">Errors, Control Flow, Context Managers</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p6">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>6.1 Exceptions are normal control flow [DEEP]</h2>
+
+<p>In Python, exceptions are not exceptional. <code class="inline">StopIteration</code> ends every <code class="inline">for</code> loop; <code class="inline">KeyError</code> is how dicts report a miss. The idiom is <b>EAFP</b> — try it, handle failure — rather than LBYL (check first), because checking-then-acting has race conditions and reads worse.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>try:
+    row = parse(line)
+except ValueError as e:                       # catch SPECIFIC exceptions
+    logging.warning("skipping bad row %r: %s", line, e)
+    continue
+except (KeyError, TypeError):
+    raise                                     # re-raise what you can't handle
+else:
+    save(row)                                 # ran only if no exception
+finally:
+    counter += 1                              # always runs</code></pre></div>
+
+<p>The rules that matter: <b>never bare <code class="inline">except:</code></b> (it swallows <code class="inline">KeyboardInterrupt</code> and every bug you haven't thought of); catch the narrowest exception you can actually handle; and never silence an exception without logging it. <code class="inline">raise NewError(...) from e</code> preserves the original cause in the traceback — the difference between a debuggable error and a mystery.</p>
+
+<p>Define your own for domain failures (<code class="inline">class ValidationError(Exception)</code>) so callers can distinguish "the data was bad" from "the network died."</p>
+
+<h2>6.2 Context managers [DEEP]</h2>
+
+<p><code class="inline">with</code> guarantees cleanup even on exception — the mechanism behind file handles, DB connections and transactions, locks, and temp directories.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>with open(src, encoding='utf-8') as f, open(dst, 'w', newline='') as out:
+    ...                                       # both closed no matter what happens
+
+from contextlib import contextmanager
+@contextmanager
+def timed(label):
+    t0 = time.perf_counter()
+    try: yield
+    finally: logging.info("%s: %.2fs", label, time.perf_counter() - t0)
+
+with timed("load"): load_cases(path)</code></pre></div>
+
+<p>The reason this exists rather than manual <code class="inline">try/finally</code>: resource leaks are invisible until production. If you're writing <code class="inline">.close()</code> by hand, you're writing a future bug.</p>
+
+<h2>6.3 Modern control flow [RECOGNIZE]</h2>
+
+<p>Walrus <code class="inline">:=</code> for assign-and-test (<code class="inline">while (chunk := f.read(8192)):</code>), <code class="inline">match/case</code> for structural pattern matching on shaped data (genuinely good for parsing API responses, overkill as a switch statement), and <code class="inline">enumerate</code>/<code class="inline">zip</code> instead of index arithmetic — <code class="inline">for i, row in enumerate(rows, start=1)</code> is the idiomatic counted loop.</p>
+
+<div class="quiz" data-part="p6"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p5">&larr; 05 · OBJECTS AND THE DATA MODEL</a><a class="next" href="#p7">07 · MODULES, PACKAGES, ENVIRONMENTS &rarr;</a></div>
+</section>
+
+<section class="part" id="p7">
+  <div class="phead"><div class="pnum">07</div>
+    <div><div class="ptitle">Modules, Packages, Environments</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p7">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>7.1 Imports [DEEP enough to stop the errors]</h2>
+
+<p>A module is a file; a package is a directory. <code class="inline">import x</code> binds a *module object* to a name — modules are objects too (Idea 1), and they're executed once and cached in <code class="inline">sys.modules</code>.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>from pathlib import Path              # specific name — preferred
+import pandas as pd                   # conventional alias
+from .models import Invoice           # relative, inside a package</code></pre></div>
+
+<p>Never <code class="inline">from x import *</code> (pollutes the namespace, breaks tooling, hides origins). The <code class="inline">if __name__ == "__main__":</code> guard exists because importing a module *runs* it — the guard separates "run as a script" from "imported as a library," which is what lets the same file be both.</p>
+
+<p>Import errors are the #1 beginner blocker, and the cause is almost always <b>where you ran python from</b>, not your code: Python resolves imports against <code class="inline">sys.path</code>, which starts with the script's directory. Running <code class="inline">python src/main.py</code> versus <code class="inline">python -m src.main</code> produces different <code class="inline">sys.path</code> and thus different results. Use <code class="inline">-m</code> for packages.</p>
+
+<h2>7.2 Environments [DEEP — non-negotiable hygiene]</h2>
+
+<p>Every project gets its own isolated interpreter and dependency set. Installing globally guarantees version conflicts between projects — the same problem Docker solves at the OS level, solved here at the language level. (Worth noting the parallel explicitly: venv is to Python packages what a container is to system libraries. Neither replaces the other, which is why Dockerized Python still uses a venv or a clean base image.)</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">bash</span><button class="copybtn">COPY</button></div><pre><code>python -m venv .venv &amp;&amp; source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+pip freeze &gt; requirements.txt        # crude: pins everything including transitive deps</code></pre></div>
+
+<p>Modern tooling worth adopting: <b>uv</b> (very fast installs, resolves and locks properly) or Poetry/PDM, with dependencies declared in <code class="inline">pyproject.toml</code> — the current standard, replacing <code class="inline">setup.py</code> and loose <code class="inline">requirements.txt</code>. Pin versions for anything deployed.</p>
+
+<h2>7.3 Project layout [RECOGNIZE]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>project/
+  pyproject.toml          # deps, tool config (ruff, mypy, pytest), build metadata
+  src/myapp/
+    __init__.py
+    config.py             # env-var driven settings, no secrets in code
+    models.py
+    pipeline.py
+    cli.py
+  tests/
+    test_pipeline.py
+  .env                    # gitignored</code></pre></div>
+
+<p><code class="inline">src/</code> layout prevents accidentally importing your package from the working directory instead of the installed copy — which is how "it works on my machine but not in CI" happens in Python.</p>
+
+<div class="quiz" data-part="p7"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p6">&larr; 06 · ERRORS, CONTROL FLOW, CONTEXT MANAGERS</a><a class="next" href="#p8">08 · REAL PROJECTS &rarr;</a></div>
+</section>
+
+<section class="part" id="p8">
+  <div class="phead"><div class="pnum">08</div>
+    <div><div class="ptitle">Real Projects</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p8">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Two projects, chosen because they're the shapes of work you'd actually be paid for and the shapes that show up in a technical BA portfolio.</p>
+
+<h2>8.1 Project A — a production-shaped ETL pipeline</h2>
+
+<p><b>Spec:</b> a CLI that ingests messy tabular data and lands it in a database, correctly.</p>
+
+<ol><li><b>Extract</b> — read a CSV *and* an API endpoint (<code class="inline">httpx</code> or <code class="inline">requests</code>), streaming the CSV with a generator (Part 4.4), handling encoding explicitly.</li></ol>
+
+<ol><li><b>Validate</b> — a schema check with clear per-row errors, using <code class="inline">pydantic</code> or dataclasses plus your own validators. Bad rows go to a rejects file with reasons, never silently dropped. This is your S2T-mapping instinct expressed in code.</li></ol>
+
+<ol><li><b>Transform</b> — normalize dates to UTC (<code class="inline">datetime</code> + <code class="inline">zoneinfo</code>), money as <code class="inline">Decimal</code>, text trimmed and case-normalized, IDs deduplicated with a <code class="inline">set</code>.</li></ol>
+
+<ol><li><b>Load</b> — upsert into Postgres (<code class="inline">psycopg</code>) inside a transaction with a context manager, batched — not row-by-row.</li></ol>
+
+<ol><li><b>Observe</b> — <code class="inline">logging</code> (not <code class="inline">print</code>) with levels, a run summary (rows in / loaded / rejected / duration), and a non-zero exit code on failure.</li></ol>
+
+<ol><li><b>Configure</b> — <code class="inline">argparse</code> for CLI args, env vars for credentials, nothing secret in code.</li></ol>
+
+<ol><li><b>Test</b> — pytest covering validation rules and transforms with fixtures; no DB needed for those.</li></ol>
+
+<p><b>Definition of done:</b> it runs on a 500MB file without exhausting memory; a malformed row can't kill the run; re-running it twice produces the same database state (idempotent); and someone else can run it from the README alone.</p>
+
+<p>Then the reflection: rewrite the transform step in pandas and compare — lines of code, memory, speed, and readability. That comparison is the actual lesson about when to stream and when to vectorize.</p>
+
+<h2>8.2 Project B — a FastAPI service</h2>
+
+<p><b>Spec:</b> wrap Project A's logic in an API. Routes to trigger a run, check status, and query results. Pydantic models for request/response validation. Dependency injection for the DB session. Proper status codes and error responses. Background task for the long-running job. <code class="inline">/health</code>. Auto-generated OpenAPI docs (which you get free — a genuinely useful thing to show a stakeholder). Then containerize it with the Docker curriculum's Part 8 Dockerfile.</p>
+
+<p>Why this pairing: A teaches you data correctness, generators, errors, and the standard library; B teaches you typing in anger (FastAPI *uses* your type hints at runtime for validation, the one place annotations aren't ignored), async, and service shape. Together they're a portfolio piece that maps directly onto a technical BA / analytics-engineering conversation.</p>
+
+<div class="quiz" data-part="p8"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p7">&larr; 07 · MODULES, PACKAGES, ENVIRONMENTS</a><a class="next" href="#p9">09 · DEBUGGING PLAYBOOK &rarr;</a></div>
+</section>
+
+<section class="part" id="p9">
+  <div class="phead"><div class="pnum">09</div>
+    <div><div class="ptitle">Debugging Playbook</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p9">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>Read the traceback correctly</h2>
+
+<p>Python tracebacks are printed <b>oldest call first, error last</b>. So read from the <b>bottom up</b>: the last line is the exception and message, the line above it is where it happened, and the frames above that are how you got there. Most people skim the top and miss that the answer is at the bottom.</p>
+
+<h2>The decision tree</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Error</th><th>What it actually means</th><th>First move</th></tr></thead><tbody><tr><td><code class="inline">AttributeError: 'NoneType' has no attribute 'x'</code></td><td>Something returned <code class="inline">None</code> — usually a function with no <code class="inline">return</code>, or a lookup that missed</td><td>Print/inspect the object one step earlier</td></tr><tr><td><code class="inline">KeyError</code> / <code class="inline">IndexError</code></td><td>The key/index isn't there</td><td><code class="inline">dict.get(k, default)</code>; check the actual keys, don't assume the API's shape</td></tr><tr><td><code class="inline">TypeError: ... not callable</code> / wrong arg count</td><td>Name shadowing (you assigned over a function), or a signature mismatch</td><td>Check what the name is bound to</td></tr><tr><td><code class="inline">UnboundLocalError</code></td><td>Idea 4 — assignment made it local</td><td>Don't mutate globals; pass and return</td></tr><tr><td><code class="inline">ImportError</code> / <code class="inline">ModuleNotFoundError</code></td><td><code class="inline">sys.path</code>, wrong env, or circular import</td><td>Confirm the active venv; use <code class="inline">python -m</code>; check for a cycle</td></tr><tr><td><code class="inline">UnicodeDecodeError</code></td><td>Wrong encoding assumption on input</td><td>Specify <code class="inline">encoding=</code>; try <code class="inline">utf-8-sig</code> for Excel exports with a BOM</td></tr><tr><td>Wrong numbers, no error</td><td>Float arithmetic, integer division, timezone-naive datetimes, or silent coercion</td><td><code class="inline">Decimal</code> for money, UTC everywhere, assert your assumptions</td></tr><tr><td>Mysteriously shared state</td><td>Idea 2 — mutable default or an aliased object</td><td>Search for <code class="inline">=[]</code>/<code class="inline">={}</code> in signatures; <code class="inline">copy.deepcopy</code> to test the hypothesis</td></tr></tbody></table></div>
+
+<h2>Tools</h2>
+
+<p><code class="inline">breakpoint()</code> drops you into pdb at that line — <code class="inline">n</code> next, <code class="inline">s</code> step in, <code class="inline">c</code> continue, <code class="inline">p expr</code> print, <code class="inline">l</code> list, <code class="inline">w</code> where. Learning six pdb commands beats a hundred print statements, and it's the habit that most speeds up debugging. Beyond that: <code class="inline">logging</code> with levels instead of <code class="inline">print</code> (you can leave it in and turn it down), <code class="inline">pytest -x --pdb</code> to drop into the debugger at the first failure, <code class="inline">dis.dis(fn)</code> when you want to see what Python actually does (Part 10), and <code class="inline">cProfile</code> before optimizing anything — <b>measure, never guess</b>, because Python performance intuitions are wrong more often than right.</p>
+
+<div class="quiz" data-part="p9"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p8">&larr; 08 · REAL PROJECTS</a><a class="next" href="#p10">10 · INTERNALS &rarr;</a></div>
+</section>
+
+<section class="part" id="p10">
+  <div class="phead"><div class="pnum">10</div>
+    <div><div class="ptitle">Internals</div>
+    <div class="pmeta"><span class="m">TAG <b>ADVANCED</b></span><span class="m">★ <b>INTERVIEW GOLD</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p10">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>10.1 CPython: what running Python actually does</h2>
+
+<p><code class="inline">python script.py</code> → the source is parsed to an AST → compiled to <b>bytecode</b> (cached as <code class="inline">.pyc</code> in <code class="inline">__pycache__</code>) → executed by a <b>stack-based virtual machine</b> loop. There's no machine-code compilation in CPython (that's PyPy's JIT, or Numba, or Cython).</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>import dis
+dis.dis(lambda x: x + 1)     # see the actual bytecode instructions</code></pre></div>
+
+<p>This is why Python loops are slow: every operation goes through the interpreter loop with dynamic type dispatch and object allocation, where C would be a couple of instructions. And why the fix is not "write cleverer Python" but "hand the loop to C" — numpy/pandas vectorization, exactly the Part 1 glue-language point.</p>
+
+<h2>10.2 Memory: reference counting plus a cycle collector</h2>
+
+<p>CPython frees an object the moment its <b>reference count</b> hits zero — which is why memory is released promptly and deterministically, unlike JS's GC. A separate generational collector handles <b>reference cycles</b> (<code class="inline">a.b = b; b.a = a</code>), which counting alone can never free.</p>
+
+<p>Practical consequences: hold no references you don't need (a list of 10M objects is 10M live objects); <code class="inline">__slots__</code> cuts per-instance memory noticeably for many small objects [ADVANCED]; <code class="inline">weakref</code> for caches that shouldn't keep things alive; and "memory not released" usually means a lingering reference — a module-level cache, a closure, or an exception traceback holding frames.</p>
+
+<h2>10.3 The GIL, explained properly [DEEP for interviews]</h2>
+
+<p>The <b>Global Interpreter Lock</b> allows only one thread to execute Python bytecode at a time in a CPython process. Its purpose is to make reference counting thread-safe cheaply.</p>
+
+<p>The consequence that actually matters:</p>
+
+<div class="tblwrap"><table><thead><tr><th>Workload</th><th>Bound by</th><th>Use</th><th>Why</th></tr></thead><tbody><tr><td>Network calls, DB queries, file I/O, API requests</td><td><b>I/O</b></td><td><code class="inline">threading</code> or <code class="inline">asyncio</code></td><td>The GIL is *released* during I/O waits, so threads genuinely overlap</td></tr><tr><td>Number crunching, parsing, image processing</td><td><b>CPU</b></td><td><code class="inline">multiprocessing</code> (or numpy, which releases the GIL in C)</td><td>Separate processes = separate GILs = real parallelism</td></tr></tbody></table></div>
+
+<p>So the accurate claim is not "Python can't do concurrency" — it's "<b>Python threads don't give you CPU parallelism, but they do give you I/O concurrency.</b>" Being able to state exactly that, with the release-during-I/O detail, is a strong senior signal. Add the current context: 3.13 ships an experimental free-threaded build (PEP 703), so the GIL is being actively removed — a claim to make with dates attached rather than as settled fact.</p>
+
+<h2>10.4 asyncio's model [ADVANCED]</h2>
+
+<p>Same shape as JavaScript's event loop: single-threaded cooperative multitasking. <code class="inline">await</code> yields control back to the loop while waiting. The difference from JS is that Python's is <b>opt-in</b> — you must run an event loop and use async-aware libraries. Which produces the classic beginner failure: one blocking call (<code class="inline">requests</code>, <code class="inline">time.sleep</code>, heavy CPU work) inside an async function stalls the entire loop. Rule: <code class="inline">async</code> code must use async libraries all the way down (<code class="inline">httpx</code>/<code class="inline">asyncpg</code>, <code class="inline">asyncio.sleep</code>), or offload blocking work to a thread/process executor.</p>
+
+<p>Choose asyncio for thousands of concurrent connections (a web service like Project B); choose threads for a few dozen blocking calls (simpler, no library rewrite); choose processes for CPU work.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">simulator — click RUN</span></div><pre id="simOut"><span cl/></pre><div class="stack-controls" style="margin:0;padding:10px 16px;border-top:1px solid var(--line)"><button class="btn sm" id="simRun">&#9654; RUN</button><button class="btn sm ok" id="simReset">RESET</button></div></div>
+
+<div class="quiz" data-part="p10"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p9">&larr; 09 · DEBUGGING PLAYBOOK</a><a class="next" href="#p11">11 · PRODUCTION &rarr;</a></div>
+</section>
+
+<section class="part" id="p11">
+  <div class="phead"><div class="pnum">11</div>
+    <div><div class="ptitle">Production</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p11">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>11.1 Type hints [DEEP as a decision]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>def load(path: Path, *, limit: int | None = None) -&gt; list[Invoice]: ...</code></pre></div>
+
+<p>The runtime <b>ignores</b> these (with the notable exception of frameworks like FastAPI and pydantic, which read them deliberately). Their value is tooling: mypy/pyright catch errors before runtime, editors autocomplete accurately, and signatures document themselves. Their cost is verbosity and occasional fights with complex generics.</p>
+
+<p>Pragmatic policy: annotate all function signatures at module boundaries, skip local variables where the type is obvious, and run mypy in CI. Same caveat as TypeScript — <b>types are not runtime validation.</b> Validate external data (API payloads, CSVs, env vars) with pydantic; annotations alone guarantee nothing about what arrives.</p>
+
+<h2>11.2 Testing [RECOGNIZE]</h2>
+
+<p>pytest: plain functions, plain <code class="inline">assert</code>, fixtures for setup, <code class="inline">parametrize</code> for table-driven cases (which will feel natural given how you think about test cases as a BA):</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>import pytest
+@pytest.mark.parametrize("raw,expected", [("1,200.50", 1200.50), ("₹0", 0.0)])
+def test_parse_amount(raw, expected):
+    assert parse_amount(raw) == expected</code></pre></div>
+
+<p>Test the logic that would embarrass you if wrong: validation rules, transforms, edge cases, money and date handling. Don't chase coverage percentages; chase the cases you'd write in a UAT test plan.</p>
+
+<h2>11.3 Performance, in order [DEEP as discipline]</h2>
+
+<ol><li><b>Measure</b> (<code class="inline">cProfile</code>, <code class="inline">time.perf_counter</code>) — the bottleneck is almost never where you assumed.</li></ol>
+
+<ol><li><b>Fix the algorithm</b> — the set-vs-list membership fix (Part 3.1) beats every micro-optimization.</li></ol>
+
+<ol><li><b>Vectorize or push into C</b> — numpy/pandas/Polars, so the loop runs in C, not the interpreter.</li></ol>
+
+<ol><li><b>Parallelize</b> correctly per the GIL table (10.3).</li></ol>
+
+<ol><li>Only then reach for PyPy, Cython, or a rewrite of the hot path in another language.</li></ol>
+
+<h2>11.4 Security &amp; operational hygiene [RECOGNIZE]</h2>
+
+<p>Never <code class="inline">eval</code>/<code class="inline">exec</code> on input; never build SQL by string concatenation — <b>parameterize</b> (<code class="inline">cur.execute("... WHERE id = %s", (id,))</code>), which given your SQL background is the habit to carry over most strictly; secrets in env vars, never in code or git; pin dependencies and audit them (<code class="inline">pip-audit</code>); validate all external input; and log without leaking PII. And use <code class="inline">ruff</code> — one fast tool that replaces linting and formatting, and ends all style debate.</p>
+
+<div class="quiz" data-part="p11"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p10">&larr; 10 · INTERNALS</a><a class="next" href="#p12">12 · WHEN NOT TO USE PYTHON &rarr;</a></div>
+</section>
+
+<section class="part" id="p12">
+  <div class="phead"><div class="pnum">12</div>
+    <div><div class="ptitle">When Not to Use Python</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p12">MARK COMPLETE</button></div>
+  </div>
+
+  <p><b>Right tool when:</b> data work, analysis, ETL, and ML (no real competition); automation and scripting; APIs and backends where developer speed beats raw throughput; glue between systems; anywhere readability and hiring matter more than milliseconds.</p>
+
+<p><b>Wrong or questionable when:</b></p>
+
+<ul><li><b>CPU-bound hot loops</b> where the work can't be vectorized or pushed to C — Go, Rust, C++, or Java will be an order of magnitude faster.</li></ul>
+
+<ul><li><b>Hard real-time or memory-constrained</b> systems — GC pauses, interpreter overhead, and per-object memory cost rule it out.</li></ul>
+
+<ul><li><b>Browser frontends</b> — you'd be fighting the platform; JS/TS is the native answer (PyScript/WASM exists but is niche).</li></ul>
+
+<ul><li><b>Mobile apps</b> — no first-class story.</li></ul>
+
+<ul><li><b>Shipping a binary to non-technical users</b> — packaging a Python app for end users is genuinely painful (PyInstaller helps and still hurts); Go's single static binary is the contrast.</li></ul>
+
+<ul><li><b>Very large codebases without discipline</b> — dynamic typing plus late-bound everything means refactoring is riskier than in a statically typed language. Type hints plus mypy mitigate but don't eliminate this.</li></ul>
+
+<p>Honest weaknesses worth naming in an interview: the GIL for CPU parallelism, packaging and environment management as a historically bad experience, startup time, and memory overhead per object. Being able to list those makes your enthusiasm credible rather than naive.</p>
+
+<div class="quiz" data-part="p12"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p11">&larr; 11 · PRODUCTION</a><a class="next" href="#p13">13 · INTERVIEW PREPARATION &rarr;</a></div>
+</section>
+
+<section class="part" id="p13">
+  <div class="phead"><div class="pnum">13</div>
+    <div><div class="ptitle">Interview Preparation</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p13">MARK COMPLETE</button></div>
+  </div>
+
+  <p><b>Tier 1 — expected:</b></p>
+
+<ol><li><code class="inline">list</code> vs <code class="inline">tuple</code> vs <code class="inline">dict</code> vs <code class="inline">set</code> — and the complexity of a membership test in each. (Part 3.1)</li></ol>
+
+<ol><li>Mutable vs immutable, and the mutable default argument trap. (Part 2, Idea 2)</li></ol>
+
+<ol><li>Is Python pass-by-value or pass-by-reference? (Trick — it's pass-by-object-reference; explain via Idea 1.)</li></ol>
+
+<ol><li>What a comprehension is; when you'd use a generator instead. (Parts 3.3, 4.4)</li></ol>
+
+<ol><li><code class="inline">is</code> vs <code class="inline">==</code>. (Idea 1)</li></ol>
+
+<ol><li>How exceptions work; why bare <code class="inline">except</code> is wrong. (Part 6.1)</li></ol>
+
+<ol><li><code class="inline">*args</code> / <code class="inline">**kwargs</code>. (Part 4.1)</li></ol>
+
+<ol><li>What <code class="inline">if __name__ == "__main__"</code> does and why. (Part 7.1)</li></ol>
+
+<p><b>Tier 2 — differentiators:</b></p>
+
+<ol><li>Explain the GIL, and when you'd use threads vs processes vs asyncio. (Part 10.3)</li></ol>
+
+<ol><li>What is a decorator, and write one. (Part 4.3)</li></ol>
+
+<ol><li>Generators vs lists — memory and use cases. (Part 4.4)</li></ol>
+
+<ol><li>Shallow vs deep copy. (Idea 2)</li></ol>
+
+<ol><li>What <code class="inline">with</code> does and why it beats <code class="inline">try/finally</code>. (Part 6.2)</li></ol>
+
+<ol><li>Dunder methods — what does implementing <code class="inline">__iter__</code> and <code class="inline">__len__</code> buy you? (Part 5.2)</li></ol>
+
+<ol><li>LEGB scope, and why <code class="inline">count += 1</code> raises <code class="inline">UnboundLocalError</code>. (Idea 4)</li></ol>
+
+<ol><li>Do type hints affect runtime? Where's the exception? (Part 11.1)</li></ol>
+
+<p><b>Tier 3 — senior signal:</b></p>
+
+<ol><li>What happens when you run a <code class="inline">.py</code> file? (Part 10.1 — AST, bytecode, VM loop, <code class="inline">.pyc</code>)</li></ol>
+
+<ol><li>How does CPython manage memory, and what leaks? (Part 10.2)</li></ol>
+
+<ol><li>Why are Python loops slow, and what do you actually do about it? (Parts 1, 10.1, 11.3)</li></ol>
+
+<ol><li>Why did Python 3 break compatibility, and what did that cost? (Part 1 — contrast with JS's "never break the web")</li></ol>
+
+<ol><li>When is Python the wrong choice? (Part 12)</li></ol>
+
+<ol><li>Streaming vs vectorizing a large transform — how do you decide? (Parts 4.4, 8.1)</li></ol>
+
+<p><b>Answer shape:</b> what it is → why it exists → one concrete consequence you've hit. And for anything about the GIL or performance, attach a version number — "as of 3.13 there's an experimental free-threaded build" is the difference between current and stale knowledge.</p>
+
+<p>If you can deliver these aloud — with the WHAT → WHY IT EXISTS → ONE CONCRETE CONSEQUENCE shape — you are interview-ready. Answer before flipping; nailed cards dim.</p>
+<div class="deck" id="deck"><!-- cards injected by JS --></div>
+
+  <div class="breadcrumb"><a href="#p12">&larr; 12 · WHEN NOT TO USE PYTHON</a><a class="next" href="#p14">14 · MILESTONES &rarr;</a></div>
+</section>
+
+<section class="part" id="p14">
+  <div class="phead"><div class="pnum">14</div>
+    <div><div class="ptitle">Milestones</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p14">MARK COMPLETE</button></div>
+  </div>
+
+  <p><b>M1 — Model (Parts 1–2).</b> Pass: the five Part 2 checkpoint questions, unaided, out loud.</p>
+
+<p><b>M2 — Data types (Part 3).</b> Pass: choose the right structure for five described problems and justify each on complexity; convert a nested loop into a set-based O(n) version.</p>
+
+<p><b>M3 — Functions (Parts 4–5).</b> Pass: write a <code class="inline">@retry</code> decorator and a streaming generator pipeline from scratch; explain what implementing <code class="inline">__iter__</code> gives you.</p>
+
+<p><b>M4 — Robustness (Parts 6–7).</b> Pass: a script with proper exception handling, logging, a context manager, and a clean project layout that installs in a fresh venv from <code class="inline">pyproject.toml</code>.</p>
+
+<p><b>M5 — Projects (Part 8).</b> Pass: the ETL pipeline meeting every "definition of done" item, plus the pandas comparison written out; the FastAPI service running in a container.</p>
+
+<p><b>M6 — Depth (Parts 9–12).</b> Pass: debug an unfamiliar failing script from the traceback alone; deliver the GIL answer with the threads/processes/asyncio table from memory; argue two cases where Python is the wrong tool.</p>
+
+<p>Pace at ~1 hour/day: M1 days 1–3, M2 days 4–6, M3 days 7–12, M4 days 13–16, M5 days 17–25, M6 days 26–30.</p>
+
+<p><b>One note on sequencing with your pandas study:</b> finish M1–M3 here before going deeper into pandas. Almost every pandas confusion — views vs copies, <code class="inline">SettingWithCopyWarning</code>, why <code class="inline">apply</code> is slow, why chained indexing fails — is a Part 2 problem (names, objects, mutability, and vectorization) wearing a DataFrame costume. The base language pays for itself immediately there.</p>
+
+<p>Six milestones = six layers of proof, mapped to the curriculum&#39;s day plan. When all six drop, the shipyard ships your container.</p>
+<div class="mlist" id="mlist"><!-- milestones injected by JS --></div>
+
+  <div class="breadcrumb"><a href="#p13">&larr; 13 · INTERVIEW PREPARATION</a></div>
+</section><footer>
+  <b>ABOUT THIS BUILD:</b> The Python Shipyard is a faithful interactive conversion of the first-principles Python curriculum — every concept, table, code block and exercise preserved. Progress lives in your browser (localStorage). Built as a single file — copy it anywhere, it runs offline.<br>
+  <b>THE ONE RULE:</b> a name is a label, not a box. Hold that and Python never surprises you.
+</footer>
+</main>
+</div>
+<div id="grad"><div class="gterm"><div class="ghead">&#9650; SHIPYARD DEPLOYMENT — ALL MILESTONES CROSSED</div><div class="gbody"></div></div></div>
+<script>
+// generated by build.mjs from python-curriculum.md + build/pedagogy/python.mjs - do not hand-edit
+window.SHIPYARD_DATA={
+meta:{
+ "tech": "python",
+ "title": "The Python Shipyard - Python: A First-Principles Curriculum",
+ "brand": "THE PYTHON SHIPYARD",
+ "tagline": "Python · object model · mutability · protocols",
+ "storageKey": "shipyard:python:v1",
+ "accent": "#16b981"
+},
+parts:[
+ {
+  "id": "p0",
+  "num": "00",
+  "title": "How to Use This Curriculum",
+  "tag": null
+ },
+ {
+  "id": "p1",
+  "num": "01",
+  "title": "Where Python Came From",
+  "tag": "DEEP"
+ },
+ {
+  "id": "p2",
+  "num": "02",
+  "title": "The Core Mental Model",
+  "tag": "DEEP"
+ },
+ {
+  "id": "p3",
+  "num": "03",
+  "title": "Built-in Data Types and When to Use Each",
+  "tag": null
+ },
+ {
+  "id": "p4",
+  "num": "04",
+  "title": "Functions, Closures, Decorators, Generators",
+  "tag": null
+ },
+ {
+  "id": "p5",
+  "num": "05",
+  "title": "Objects and the Data Model",
+  "tag": null
+ },
+ {
+  "id": "p6",
+  "num": "06",
+  "title": "Errors, Control Flow, Context Managers",
+  "tag": null
+ },
+ {
+  "id": "p7",
+  "num": "07",
+  "title": "Modules, Packages, Environments",
+  "tag": null
+ },
+ {
+  "id": "p8",
+  "num": "08",
+  "title": "Real Projects",
+  "tag": null
+ },
+ {
+  "id": "p9",
+  "num": "09",
+  "title": "Debugging Playbook",
+  "tag": "DEEP"
+ },
+ {
+  "id": "p10",
+  "num": "10",
+  "title": "Internals",
+  "tag": "ADVANCED"
+ },
+ {
+  "id": "p11",
+  "num": "11",
+  "title": "Production",
+  "tag": null
+ },
+ {
+  "id": "p12",
+  "num": "12",
+  "title": "When Not to Use Python",
+  "tag": "DEEP"
+ },
+ {
+  "id": "p13",
+  "num": "13",
+  "title": "Interview Preparation",
+  "tag": null
+ },
+ {
+  "id": "p14",
+  "num": "14",
+  "title": "Milestones",
+  "tag": null
+ }
+],
+quiz:{
+ "p1": [
+  {
+   "q": "Why does Python use indentation as syntax, where most languages use braces?",
+   "o": [
+    "Because Guido liked how ABC looked",
+    "A deliberate bet that code is read more often than it is written — you cannot write badly-formatted Python",
+    "Because whitespace saves file size",
+    "A compromise that never got fixed"
+   ],
+   "a": 1,
+   "e": "Readability as a language-level constraint — indentation IS syntax. That bet is why Python became the default teaching and scripting language."
+  },
+  {
+   "q": "Python won scientific computing because: (Part 1 says)",
+   "o": [
+    "Python is the fastest language for numerical cores",
+    "Python is pleasant to write around fast C libraries — numpy, pandas, torch are C underneath",
+    "The GIL was removed early for numpy",
+    "Cython compiles all Python to machine code"
+   ],
+   "a": 1,
+   "e": "Glue, not engine: the speed lives in C; Python orchestrates. The loop you write is the bottleneck; the operation you hand to pandas is not."
+  },
+  {
+   "q": "Why do Python docs and tutorials use spam/eggs?",
+   "o": [
+    "After Monty Python’s Flying Circus — the language’s namesake",
+    "An old Unix filesystem joke",
+    "Guido’s favourite sandwich",
+    "A type-theory convention"
+   ],
+   "a": 0,
+   "e": "Named after Monty Python’s Flying Circus, not the snake."
+  },
+  {
+   "q": "The interview framing that reads senior: Python chose ___ over ___.",
+   "o": [
+    "correctness over compatibility — and paid twelve painful years of ecosystem split",
+    "compatibility over correctness — preserving every API forever",
+    "machine time over programmer time",
+    "speed over readability"
+   ],
+   "a": 0,
+   "e": "Python 3.0 broke backwards compatibility to fix text/bytes, division, print. Contrast with JS’s “never break the web”."
+  }
+ ],
+ "p2": [
+  {
+   "q": "a = [1,2]; b = a; b.append(3) — what is a?",
+   "o": [
+    "[1, 2] — b is a copy",
+    "[1, 2, 3] — b is another NAME for the SAME list object",
+    "NameError",
+    "Depends on the interpreter"
+   ],
+   "a": 1,
+   "e": "Assignment binds a name; it never copies. Mutating the object through either name is visible through both."
+  },
+  {
+   "q": "def add(item, target=[]) — when is the default list created?",
+   "o": [
+    "On every call",
+    "Once, at function definition — and shared across every call",
+    "On the first call only",
+    "Never — Python rejects mutable defaults"
+   ],
+   "a": 1,
+   "e": "The default is evaluated once at def time; mutations persist across calls. Fix: target=None, then create a fresh list inside."
+  },
+  {
+   "q": "Why can a tuple be a dict key but a list cannot?",
+   "o": [
+    "Tuples are smaller in memory",
+    "Dict keys must be hashable, and hashing requires the value never change — only immutable objects qualify",
+    "Lists are reserved for values",
+    "CPython forbids it for performance"
+   ],
+   "a": 1,
+   "e": "Hashing requires immutability — that is the whole reason tuples exist alongside lists."
+  },
+  {
+   "q": "Why does for line in open(f) stream a 10GB file while open(f).readlines() does not?",
+   "o": [
+    "open() inspects the file size first",
+    "A file IS an iterator: for calls iter() then next() until StopIteration — one line in memory at a time",
+    "readlines() is deprecated",
+    "The OS page cache makes it free either way"
+   ],
+   "a": 1,
+   "e": "Iteration is a protocol (iter/next/StopIteration), and laziness means nothing is materialised until asked. Generators (Part 4) are how you write your own."
+  },
+  {
+   "q": "Why does count += 1 inside a function raise UnboundLocalError when print(count) alone would not?",
+   "o": [
+    "count is a reserved keyword",
+    "Assigning to a name anywhere in a function makes it local for the ENTIRE function",
+    "Globals cannot be incremented",
+    "A Python 3 regression"
+   ],
+   "a": 1,
+   "e": "LEGB scope: assignment creates a local for the whole function, even before the assignment line. Fix: return values instead of mutating globals."
+  }
+ ],
+ "p3": [
+  {
+   "q": "x in some_list vs x in some_set — the single most valuable performance instinct:",
+   "o": [
+    "list is O(n), set is O(1) — convert before membership loops to kill accidental O(n²)",
+    "both are O(1)",
+    "set is O(n)",
+    "list is faster for small data"
+   ],
+   "a": 0,
+   "e": "The most common real speedup in data-cleaning: turn a list into a set before a loop of membership checks — a 40-minute job becomes 4 seconds."
+  },
+  {
+   "q": "dicts preserve insertion order since:",
+   "o": [
+    "Python 3.7 (language guarantee)",
+    "Python 2.7 (accidentally)",
+    "3.10 (by spec)",
+    "never — dicts are unordered"
+   ],
+   "a": 0,
+   "e": "Insertion order is guaranteed since 3.7. pairs well with the workhorse table: dict = O(1) lookup by key."
+  },
+  {
+   "q": "Building a string with += in a loop is:",
+   "o": [
+    "Fine for any size",
+    "O(n²) — use ⟶’’.join(parts)",
+    "Faster than join",
+    "Impossible"
+   ],
+   "a": 1,
+   "e": "Strings are immutable: every “modification” creates a new string, so a loop of += is quadratic. Join builds once."
+  },
+  {
+   "q": "A client CSV raises UnicodeDecodeError. First move:",
+   "o": [
+    "Ignore it — pandas handles encodings",
+    "Specify encoding= explicitly; try utf-8-sig for Excel exports with a BOM",
+    "Open the file in binary mode",
+    "Delete rows containing non-ASCII"
+   ],
+   "a": 1,
+   "e": "Text is str, bytes are bytes; decode input with the right encoding. utf-8-sig absorbs Excel’s BOM. This is the most common data-work error."
+  }
+ ],
+ "p4": [
+  {
+   "q": "fns = [lambda: i for i in range(3)]; [f() for f in fns] evaluates to:",
+   "o": [
+    "[0, 1, 2]",
+    "[2, 2, 2] — closures capture the NAME, bound at call time",
+    "NameError",
+    "copies of i"
+   ],
+   "a": 1,
+   "e": "Python’s closure bug: late binding — the closure captures the name, not the value. Fix: bind at definition, lambda i=i: i."
+  },
+  {
+   "q": "A decorator is:",
+   "o": [
+    "A function that takes a function and returns a replacement — @ is sugar for f = deco(f)",
+    "A compiler directive",
+    "A kind of macro",
+    "An inheritance mechanism"
+   ],
+   "a": 0,
+   "e": "Once you see @app.get(...), @pytest.fixture and @functools.lru_cache as “a function wrapping my function”, frameworks stop being magic — a strong interview answer."
+  },
+  {
+   "q": "Generators vs pandas for a huge transform — the judgment from Part 4.4:",
+   "o": [
+    "Stream (yield) for huge files with row-independent logic; vectorize in pandas when it fits in memory",
+    "Always vectorize",
+    "Always stream",
+    "Streaming requires numpy"
+   ],
+   "a": 0,
+   "e": "Know when to stream versus vectorize — that is real engineering judgment, and it shows up in data-pipeline interviews."
+  },
+  {
+   "q": "def fetch(table, *cols, limit=100, **filters): fetch(‘cases’, ‘id’) — what is cols?",
+   "o": [
+    "A tuple: (‘id’,)",
+    "A list: [‘id’]",
+    "A dict",
+    "A keyword-only set"
+   ],
+   "a": 0,
+   "e": "*args collects extra positionals into a tuple; **kwargs into a dict. Keyword-only params (after *) force self-documenting call sites."
+  }
+ ],
+ "p5": [
+  {
+   "q": "The data model: len(x) calls __len__, a + b calls __add__, for x in y calls __iter__. That means:",
+   "o": [
+    "Python syntax is defined in terms of dunder PROTOCOLS your objects can implement",
+    "Python is secretly an inheritance hierarchy",
+    "Dunders only work on builtins",
+    "Protocols require ABCs"
+   ],
+   "a": 1,
+   "e": "The real secret: implement the protocol and your object works with the whole language — for, in, len(), list(), comprehensions: no inheritance required."
+  },
+  {
+   "q": "What does @dataclass generate for you?",
+   "o": [
+    "__init__, __repr__, __eq__ — and default_factory FORCES you to avoid the mutable-default trap",
+    "A database schema",
+    "__slots__ only",
+    "A full ORM"
+   ],
+   "a": 0,
+   "e": "For records (most data work), dataclasses remove nearly all boilerplate — and the API was shaped by how common the =[] trap is."
+  },
+  {
+   "q": "When is a class actually warranted?",
+   "o": [
+    "State plus behaviour that belong together, instantiated multiple times",
+    "Any group of related functions",
+    "Every module boundary",
+    "Never in Python"
+   ],
+   "a": 0,
+   "e": "A module of functions is often better. A class as a namespace for stateless functions is a Java habit, and un-Pythonic."
+  },
+  {
+   "q": "@property turns a method into:",
+   "o": [
+    "Attribute access — so validation/computation can be added later without changing call sites",
+    "A classmethod",
+    "A cached value forever",
+    "A dunder"
+   ],
+   "a": 0,
+   "e": "Change the implementation without breaking the API. Composition beats inheritance for most “is-a” urges; super() follows a linearised MRO."
+  }
+ ],
+ "p6": [
+  {
+   "q": "The idiomatic Python error philosophy is:",
+   "o": [
+    "LBYL — check before you act",
+    "EAFP — try it and handle failure; StopIteration ends every for loop",
+    "Never catch exceptions",
+    "Return codes everywhere"
+   ],
+   "a": 1,
+   "e": "Exceptions are normal control flow in Python. Checking-then-acting has race conditions and reads worse."
+  },
+  {
+   "q": "Why is bare except: wrong?",
+   "o": [
+    "It is slow",
+    "It swallows KeyboardInterrupt and every bug you have not thought of",
+    "It is only a style issue",
+    "It requires a logger"
+   ],
+   "a": 1,
+   "e": "Catch the narrowest exception you can actually handle; never silence one without logging; raise NewError(...) from e preserves the cause."
+  },
+  {
+   "q": "with open(...) as f: guarantees:",
+   "o": [
+    "The file loads eagerly",
+    "Cleanup even on exception — hand-written .close() is a future bug",
+    "Exclusive access",
+    "Lazy reads by default"
+   ],
+   "a": 0,
+   "e": "Context managers guarantee cleanup for files, DB connections, transactions, locks, temp dirs. If you write .close() by hand, you are writing a future bug."
+  },
+  {
+   "q": "raise ValidationError(...) from e — what does from e do?",
+   "o": [
+    "Preserves the original exception as the cause in the traceback",
+    "Renames the exception",
+    "Deletes the traceback",
+    "Is deprecated in 3.11"
+   ],
+   "a": 0,
+   "e": "The difference between a debuggable error and a mystery. Define your own exception classes so callers can distinguish bad data from a dead network."
+  }
+ ],
+ "p7": [
+  {
+   "q": "The if __name__ == \"__main__\" guard exists because:",
+   "o": [
+    "Importing a module RUNS it — the guard separates “run as a script” from “imported as a library”",
+    "It speeds up imports",
+    "It is required by PEP 8",
+    "It prevents circular imports"
+   ],
+   "a": 0,
+   "e": "The same file can be both a script and a library if the entry code is guarded."
+  },
+  {
+   "q": "The #1 cause of import errors is:",
+   "o": [
+    "Circular imports only",
+    "Where you ran python from — sys.path starts with the script’s directory; use python -m for packages",
+    "Missing __init__.py in Python 3",
+    "Unicode in file names"
+   ],
+   "a": 1,
+   "e": "python src/main.py and python -m src.main produce different sys.path and different results. When imports break, check your run command first."
+  },
+  {
+   "q": "venv is to Python packages what ___ is to system libraries:",
+   "o": [
+    "A container",
+    "A virtual machine",
+    "A compiler",
+    "A linter"
+   ],
+   "a": 0,
+   "e": "The parallel is explicit in the curriculum: neither replaces the other — Dockerized Python still uses a venv or a clean base image."
+  },
+  {
+   "q": "The src/ project layout exists to:",
+   "o": [
+    "Prevent importing your package from the working directory instead of the installed copy — the “works on my machine” guard",
+    "Hide secrets",
+    "Speed up mypy",
+    "Comply with PEP 517"
+   ],
+   "a": 0,
+   "e": "src/ layout stops the accidental wrong-copy import that causes exactly the “works locally, fails in CI” failure mode."
+  }
+ ],
+ "p8": [
+  {
+   "q": "The ETL definition of done includes all EXCEPT:",
+   "o": [
+    "Runs on a 500MB file without exhausting memory",
+    "Uses the fastest possible single-threaded loop",
+    "A malformed row cannot kill the run",
+    "Re-running twice produces the same database state"
+   ],
+   "a": 1,
+   "e": "Idempotent, memory-safe, failures isolated — and someone else can run it from the README alone."
+  },
+  {
+   "q": "A malformed row must be:",
+   "o": [
+    "Silently dropped to keep the run moving",
+    "Written to a rejects file with reasons — never silent",
+    "Allowed to crash the run",
+    "Logged at most once"
+   ],
+   "a": 1,
+   "e": "Bad rows to rejects with reasons is your S2T-mapping instinct expressed in code."
+  },
+  {
+   "q": "Where are Python type hints actually used at RUNTIME?",
+   "o": [
+    "Never",
+    "FastAPI and pydantic — which read annotations deliberately for validation",
+    "mypy and pyright",
+    "CPython’s compiler"
+   ],
+   "a": 1,
+   "e": "The runtime ignores annotations everywhere else. Project B teaches typing in anger: FastAPI converts hints into real validation and OpenAPI docs."
+  },
+  {
+   "q": "The pairing lesson of the two projects:",
+   "o": [
+    "A teaches data correctness, generators, errors, stdlib; B teaches typing-in-anger, async, service shape",
+    "A is for beginners only",
+    "Only B matters for interviews",
+    "Both are calculators"
+   ],
+   "a": 0,
+   "e": "Together they are a portfolio piece that maps directly onto a technical BA / analytics-engineering conversation."
+  }
+ ],
+ "p9": [
+  {
+   "q": "How do you read a Python traceback?",
+   "o": [
+    "Top to bottom — the oldest frame matters most",
+    "Bottom up: oldest call first, error last — the last line is the exception, the line above is where it happened",
+    "Alphabetically",
+    "Only the module names"
+   ],
+   "a": 1,
+   "e": "The answer is at the bottom: exception + message, then where it happened, then the frames that led there."
+  },
+  {
+   "q": "AttributeError: ‘NoneType’ object has no attribute ‘x’ means:",
+   "o": [
+    "x is misspelled",
+    "Something returned None — usually a function with no return, or a lookup that missed; inspect one step earlier",
+    "None is a reserved word",
+    "Your class is broken"
+   ],
+   "a": 0,
+   "e": "Follow the data one step earlier: what produced None? That is the bug, not the AttributeError."
+  },
+  {
+   "q": "Mysteriously shared state across calls is:",
+   "o": [
+    "A mutable default (=[]) in a signature, or an aliased object — Idea 2 in the wild",
+    "A GIL issue",
+    "A caching bug in CPython",
+    "Normal Python behaviour to accept"
+   ],
+   "a": 0,
+   "e": "Search signatures for =[] / ={}; copy.deepcopy to test the hypothesis."
+  },
+  {
+   "q": "Replace print() debugging with:",
+   "o": [
+    "breakpoint() (pdb: n next, s step, c continue, p expr) — six commands beat a hundred prints",
+    "More print statements",
+    "F-strings everywhere",
+    "tracing tools only"
+   ],
+   "a": 0,
+   "e": "The habit that most speeds up debugging. And cProfile before optimizing anything — measure, never guess: Python performance intuitions are wrong more often than right."
+  }
+ ],
+ "p10": [
+  {
+   "q": "Running python script.py does this in order:",
+   "o": [
+    "Parse → AST → compile to bytecode (.pyc in __pycache__) → execute on a stack-based VM loop",
+    "Compile directly to machine code",
+    "Bytecode → AST → source",
+    "Interpret the source character by character"
+   ],
+   "a": 0,
+   "e": "There is no machine-code compilation in CPython — the .pyc bytecode runs on an interpreter loop. PyPy/Numba/Cython are where “faster Python” comes from."
+  },
+  {
+   "q": "Why are Python loops slow, and what do you actually do?",
+   "o": [
+    "Hand the loop to C — numpy/pandas vectorization; every op in the interpreter pays dynamic dispatch + allocation",
+    "Write cleverer Python micro-tricks",
+    "Use PyPy always",
+    "Add type hints"
+   ],
+   "a": 0,
+   "e": "The fix is not cleverness — it is pushing work to C. Exactly the Part 1 glue-language point."
+  },
+  {
+   "q": "CPython frees an object:",
+   "o": [
+    "The moment its reference count hits zero — deterministic, unlike JS GC; a generational collector handles cycles",
+    "Only when the process exits",
+    "After a fixed 60s",
+    "Never — Python leaks by design"
+   ],
+   "a": 0,
+   "e": "Refcount + cycle collector. “Memory not released” usually means a lingering reference: module cache, closure, or a traceback holding frames."
+  },
+  {
+   "q": "The accurate GIL claim is:",
+   "o": [
+    "Python threads give you I/O CONCURRENCY but not CPU parallelism — the GIL is released during I/O waits",
+    "Python cannot do concurrency at all",
+    "Threads are faster than processes for CPU work",
+    "The GIL was removed in 3.12"
+   ],
+   "a": 0,
+   "e": "Network/DB/file work: threads or asyncio overlap. Number crunching: multiprocessing (or numpy, which releases the GIL in C). PEP 703 free-threaded builds are experimental as of 3.13 — attach a date to that claim."
+  }
+ ],
+ "p11": [
+  {
+   "q": "Type hints at runtime:",
+   "o": [
+    "Are ignored — annotations are for tooling and humans; validate external data with pydantic",
+    "Enforce types everywhere",
+    "Slow down CPython",
+    "Are required by PEP 8"
+   ],
+   "a": 0,
+   "e": "Pragmatic policy: annotate signatures at module boundaries, run mypy in CI. Types are not runtime validation."
+  },
+  {
+   "q": "pytest parametrize exists for:",
+   "o": [
+    "Table-driven cases — the same instinct as a BA test plan",
+    "Replacing fixtures",
+    "Parallel tests",
+    "Coverage reports"
+   ],
+   "a": 0,
+   "e": "Test the logic that would embarrass you if wrong: validation, transforms, money and date edge cases. Chase cases, not coverage percentages."
+  },
+  {
+   "q": "The performance order that works:",
+   "o": [
+    "Measure (cProfile) → fix the algorithm (set-vs-list!) → vectorize/push into C → parallelize per the GIL table → only then exotic compilers",
+    "Rewrite in Rust first",
+    "Add more workers",
+    "Use asyncio for CPU math"
+   ],
+   "a": 0,
+   "e": "The set-vs-list fix beats every micro-optimization. Measure first: the bottleneck is almost never where you assumed."
+  },
+  {
+   "q": "SQL in Python must be:",
+   "o": [
+    "Parameterized — never string concatenation: cur.execute(“... WHERE id = %s”, (id,))",
+    "Built with f-strings for speed",
+    "Pandas-only",
+    "Prepared by hand each time"
+   ],
+   "a": 0,
+   "e": "Never build SQL by concatenation; never eval/exec on input; secrets in env vars, never git; ruff ends all style debate."
+  }
+ ],
+ "p12": [
+  {
+   "q": "Python is the wrong tool for:",
+   "o": [
+    "CPU-bound hot loops that cannot vectorize — Go/Rust/C++ win by an order of magnitude",
+    "ETL pipelines",
+    "Automation scripts",
+    "FastAPI backends"
+   ],
+   "a": 0,
+   "e": "Also: hard real-time, browser frontends, mobile, shipping binaries to non-technical users, and very large undisciplined codebases."
+  },
+  {
+   "q": "Python’s honest weaknesses to name in an interview:",
+   "o": [
+    "GIL for CPU parallelism, packaging/environment history, startup time, per-object memory",
+    "It is too slow for everything",
+    "Nothing — Python is perfect",
+    "The whitespace"
+   ],
+   "a": 0,
+   "e": "Naming the weaknesses with dates and versions makes your enthusiasm credible rather than naive."
+  },
+  {
+   "q": "How do the GIL claims stay current?",
+   "o": [
+    "Attach versions: as of 3.13 there is an experimental free-threaded build (PEP 703)",
+    "Repeat what you learned in 2015",
+    "Ignore versioning",
+    "Never mention the GIL"
+   ],
+   "a": 0,
+   "e": "“As of X it is experimental” is the difference between current and stale knowledge."
+  },
+  {
+   "q": "Streaming vs vectorizing a large transform — the decision:",
+   "o": [
+    "Stream when files are huge and logic is row-independent; vectorize when it fits in memory and math is columnar",
+    "Always stream",
+    "Always vectorize",
+    "Ask the database"
+   ],
+   "a": 0,
+   "e": "The Part 4.4 / 8.1 judgment — one of the most senior signals on this curriculum."
+  }
+ ]
+},
+cards:[
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "1 ▶ list vs tuple vs dict vs set — and the complexity of a membership test in each.",
+  "a": "list/tuple: O(n) membership, O(1) index; dict/set: O(1) by key/hash. dict preserves insertion order (3.7+). tuple = immutable records, dict keys; set = uniqueness + algebra. (Part 3.1)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "2 ▶ Mutable vs immutable — and the mutable default argument trap.",
+  "a": "Immutable: int, float, str, bytes, tuple, frozenset, None. Mutable: list, dict, set, instances. Defaults evaluate once at def time — use target=None and build inside. (Part 2, Idea 2)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "3 ▶ Is Python pass-by-value or pass-by-reference?",
+  "a": "Neither — pass-by-object-reference: the name (not a copy) is passed; rebinding inside does not affect the caller, mutation does. Explain via Idea 1: names are labels. (Part 2)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "4 ▶ What is a comprehension; when do you use a generator instead?",
+  "a": "Comprehension = materialised list/dict/set from a transform (+ optional where-clause). Generator = lazy, one item at a time, constant memory — huge files, streaming pipelines. (Parts 3.3, 4.4)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "5 ▶ is vs ==?",
+  "a": "== compares value; is compares identity (id()). a is b can be True for interned small ints/short strings — an implementation detail, never rely on it. (Part 2, Idea 1)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "6 ▶ How do exceptions work; why is bare except wrong?",
+  "a": "Exceptions are normal control flow (StopIteration ends every for). Bare except swallows KeyboardInterrupt and unknown bugs — catch the narrowest thing you can handle, log, re-raise with raise ... from e. (Part 6.1)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "7 ▶ *args / **kwargs?",
+  "a": "*args gathers extra positionals into a tuple; **kwargs extra keywords into a dict; keyword-only params after * force self-documenting call sites. (Part 4.1)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "8 ▶ What does if __name__ == \"__main__\" do and why is it there?",
+  "a": "Importing runs the module; the guard separates script-entry from library-import so one file can be both. (Part 7.1)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "9 ▶ Explain the GIL; when do you use threads vs processes vs asyncio?",
+  "a": "GIL serialises bytecode execution (keeps refcounting cheap) but is released during I/O. I/O: threads/asyncio overlap. CPU: multiprocessing (separate GILs) or numpy (releases GIL in C). 3.13: experimental free-threaded build (PEP 703). (Part 10.3)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "10 ▶ Generators vs lists — memory and use cases?",
+  "a": "List materialises everything (O(n) memory now); generator yields lazily, holds one item, suspends/resumes — streams, big files, pipeline composition. Trade: no len/indexing, single pass. (Part 4.4)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "11 ▶ Shallow vs deep copy?",
+  "a": "Shallow (.copy(), = slicing): new top container, nested objects SHARED. Deep (copy.deepcopy): fully independent. Mutations through the shallow copy hit the original’s nested data. (Part 2, Idea 2)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "12 ▶ What does with give you that try/finally does not?",
+  "a": "The same cleanup guarantee with less ceremony and no ability to forget it — __enter__/__exit__ protocol behind files, connections, transactions, locks. Hand-written .close() is a future bug. (Part 6.2)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "13 ▶ Implementing __iter__ and __len__ — what do you get?",
+  "a": "for, len(), in, list(), comprehensions, unpacking, slicing (with __getitem__) — the language working with YOUR object via protocols, no inheritance. (Part 5.2)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "14 ▶ LEGB scope — why does count += 1 raise UnboundLocalError?",
+  "a": "Lookup is Local → Enclosing → Global → Builtins. Assignment anywhere in a function makes the name local for the whole function. Fix: return values, not global mutation. (Part 2, Idea 4)"
+ },
+ {
+  "t": "TIER 3 - SENIOR SIGNAL",
+  "q": "15 ▶ What happens when you run a .py file?",
+  "a": "Parse → AST → compile to bytecode (cached .pyc) → stack-based VM loop. No machine-code compilation in CPython — that is PyPy, Numba, Cython. (Part 10.1)"
+ },
+ {
+  "t": "TIER 3 - SENIOR SIGNAL",
+  "q": "16 ▶ How does CPython manage memory, and what leaks?",
+  "a": "Reference counting frees deterministically at zero; generational collector handles cycles. Leaks = lingering references: module caches, closures, tracebacks holding frames, weakrefs ignored. (Part 10.2)"
+ },
+ {
+  "t": "TIER 3 - SENIOR SIGNAL",
+  "q": "17 ▶ Why are Python loops slow — and what do you actually do about it?",
+  "a": "Interpreter loop + dynamic dispatch + allocation per op, versus a few C instructions. Fix in order: measure (cProfile), fix the algorithm (set-vs-list), vectorize/numpy, parallelize per GIL table. (Parts 1, 10.1, 11.3)"
+ },
+ {
+  "t": "TIER 3 - SENIOR SIGNAL",
+  "q": "18 ▶ Streaming vs vectorizing a large transform — how do you decide?",
+  "a": "Row-independent logic on huge files: stream with generators (constant memory). Columnar math that fits in memory: vectorize in pandas. The comparison write-up is the real lesson. (Parts 4.4, 8.1)"
+ }
+],
+miles:[
+ {
+  "id": "m1",
+  "title": "Milestone 1 ▶ Model",
+  "pass": "Pass: the five Part 2 checkpoint questions, unaided, out loud. <b>(Parts 1–2; ~days 1–3)</b>"
+ },
+ {
+  "id": "m2",
+  "title": "Milestone 2 ▶ Data types",
+  "pass": "Pass: choose the right structure for five described problems and justify each on complexity; convert a nested loop into a set-based O(n) version. <b>(Part 3; days 4–6)</b>"
+ },
+ {
+  "id": "m3",
+  "title": "Milestone 3 ▶ Functions",
+  "pass": "Pass: write a @retry decorator and a streaming generator pipeline from scratch; explain what implementing __iter__ gives you. <b>(Parts 4–5; days 7–12)</b>"
+ },
+ {
+  "id": "m4",
+  "title": "Milestone 4 ▶ Robustness",
+  "pass": "Pass: a script with proper exceptions, logging, a context manager, and a layout that installs in a fresh venv from pyproject.toml. <b>(Parts 6–7; days 13–16)</b>"
+ },
+ {
+  "id": "m5",
+  "title": "Milestone 5 ▶ Projects",
+  "pass": "Pass: the ETL pipeline meeting every definition-of-done item plus the pandas comparison written out; the FastAPI service running in a container. <b>(Part 8; days 17–25)</b>"
+ },
+ {
+  "id": "m6",
+  "title": "Milestone 6 ▶ Depth",
+  "pass": "Pass: debug an unfamiliar failing script from the traceback alone; deliver the GIL answer with the threads/processes/asyncio table from memory; argue two cases where Python is the wrong tool. <b>(Parts 9–12; days 26–30)</b>"
+ }
+],
+sim:[
+ {
+  "t": 800,
+  "l": "<span class=\"a\">cli</span> $ python etl.py --input huge.csv --db local"
+ },
+ {
+  "t": 1200,
+  "l": "<span class=\"a\">generator</span> read_rows() streaming huge.csv — one row in memory"
+ },
+ {
+  "t": 1400,
+  "l": "<span class=\"a\">validate</span> 1,204 rows ok · 3 bad → rejects file with reasons"
+ },
+ {
+  "t": 1200,
+  "l": "<span class=\"a\">transform</span> dates → UTC · money → Decimal · ids deduped via set"
+ },
+ {
+  "t": 1300,
+  "l": "<span class=\"a\">load</span> upsert into postgres inside <span class=\"c\">with psycopg.connect(...)</span> — batched"
+ },
+ {
+  "t": 1000,
+  "l": "<span class=\"a\">observe</span> logged: rows in 1207 / loaded 1204 / rejected 3 / 2.1s"
+ },
+ {
+  "t": 1200,
+  "l": "<span class=\"a\">test</span> pytest: 42 passed — re-run again, same state (idempotent)"
+ },
+ {
+  "t": 900,
+  "l": "<span class=\"ok\">OK</span> landed. peak memory 84 MB — not 2 GB."
+ }
+]
+
+};
+
+</script>
+<script>
+(function(){
+"use strict";
+
+"use strict";
+/* ================= DATA ================= */
+var META=(window.SHIPYARD_DATA&&SHIPYARD_DATA.meta)||{};
+var PARTS=SHIPYARD_DATA.parts||[];
+var QUIZ=SHIPYARD_DATA.quiz||{};
+var CARDS=SHIPYARD_DATA.cards||[];
+var MILES=SHIPYARD_DATA.miles||[];
+var RANKS=[[0,"SWABBIE"],[100,"DECKHAND"],[200,"BOATSWAIN"],[300,"FIRST MATE"],[420,"DOCKER CAPTAIN"],[540,"HARBOR MASTER"]];
+
+/* ================= STATE ================= */
+var KEY=META.storageKey||("shipyard:"+(META.tech||"x")+":v1");
+var D=JSON.parse(localStorage.getItem(KEY)||"null");
+if(!D||typeof D!=="object"){D={done:{},quiz:{},milestones:{},nailed:{},xp:0,graduated:false};}
+function save(){localStorage.setItem(KEY,JSON.stringify(D));}
+function addXp(n){D.xp=(D.xp||0)+n;}
+function rankFor(xp){var r=RANKS[0];for(var i=0;i<RANKS.length;i++){if(xp>=RANKS[i][0])r=RANKS[i];}return r;}
+function nextRank(xp){for(var i=0;i<RANKS.length;i++){if(xp<RANKS[i][0])return RANKS[i];}return null;}
+function refreshAll(){renderStack();renderNav();renderVoyage();renderHero();renderQuizzes();renderDeck();renderMilestones();}
+
+/* ================= RENDER: STACK ================= */
+function renderStack(){
+  var el=document.getElementById("stackMini");if(!el)return;
+  var h="";
+  for(var i=1;i<PARTS.length;i++){
+    var p=PARTS[i],cls="layer"+(D.done[p.id]?" done":"")+(clearedPart(p.id)?" cleared":"");
+    if(D.done[p.id]&&clearedPart(p.id))cls="layer cleared";
+    h+='<div class="'+cls+'" data-nav="'+p.id+'"><span class="ltip">PART '+p.num+' · '+p.title+'</span></div>';
+  }
+  el.innerHTML=h;
+  el.querySelectorAll(".layer[data-nav]").forEach(function(l){l.addEventListener("click",function(){goto(l.getAttribute("data-nav"));});});
+  var w=el.querySelector(".writable");if(!w){var wd=document.createElement("div");wd.className="layer writable";el.insertBefore(wd,el.firstChild);}
+  var wr=el.querySelector(".writable");
+  if(allDone()){wr.classList.add("live");}
+  document.getElementById("stackCount").textContent=doneCount()+"/14";
+  var ps=document.getElementById("psRow");
+  if(D.graduated){ps.style.display="block";document.getElementById("psRow2").textContent="web  RUNNING  0.0.0.0:80→80   uptime ∞   (yours — every layer earned)";}
+  else ps.style.display="none";
+}
+function allDone(){return PARTS.slice(1).every(function(p){return D.done[p.id];});}
+function doneCount(){return PARTS.slice(1).filter(function(p){return D.done[p.id];}).length;}
+function clearedPart(id){var q=D.quiz[id];return q&&q.best>=70;}
+
+/* ================= RENDER: NAV ================= */
+function renderNav(){
+  var nav=document.getElementById("docknav");if(!nav)return;
+  var h='<div class="docksec">Curriculum</div>';
+  for(var i=0;i<PARTS.length;i++){
+    var p=PARTS[i];
+    var st=D.done[p.id]?"done":(D.quiz[p.id]&&D.quiz[p.id].best>=70?"cleared":"");
+    h+='<div class="navitem" data-nav="'+p.id+'"><span class="n">'+p.num+'</span><span class="nt">'+p.title+'</span><span class="st '+st+'"></span>'+(D.quiz[p.id]&&D.quiz[p.id].best>=0?'<span class="qbadge">★'+D.quiz[p.id].best+'</span>':'')+'</div>';
+  }
+  nav.innerHTML=h;
+  nav.querySelectorAll(".navitem").forEach(function(n){n.addEventListener("click",function(){goto(n.getAttribute("data-nav"));});});
+}
+
+/* ================= RENDER: VOYAGE ================= */
+function renderVoyage(){
+  var v=document.getElementById("voyage");if(!v)return;
+  var h="";
+  for(var i=0;i<PARTS.length;i++){
+    var p=PARTS[i];
+    var t=p.tag?"<span class='wtag wtag-"+p.tag.toLowerCase()+"'>"+p.tag+"</span>":"";
+    h+='<div class="waypoint'+(D.done[p.id]?" done":"")+'" data-nav="'+p.id+'"><span class="wn">'+p.num+'</span><span class="wt"><b>'+p.title+'</b>'+(p.tag?'<span style="color:var(--faint);font-size:10.5px">'+p.tag+' · learning path waypoint</span>':'<span style="color:var(--faint);font-size:10.5px">mission briefing</span>')+'</span>'+t+'</div>';
+  }
+  v.innerHTML=h;
+  v.querySelectorAll(".waypoint").forEach(function(w){w.addEventListener("click",function(){goto(w.getAttribute("data-nav"));});});
+}
+
+/* ================= RENDER: HERO STATUS ================= */
+function renderHero(){
+  var r=rankFor(D.xp),nr=nextRank(D.xp);
+  var el=document.getElementById("rankNow");if(el)el.textContent=r[1];
+  var e2=document.getElementById("hRank");if(e2)e2.textContent=r[1];
+  var e3=document.getElementById("hXp");if(e3)e3.textContent=D.xp;
+  document.getElementById("hLayers").textContent=doneCount()+"/14";
+  var qc=0;for(var k in QUIZ){if(D.quiz[k]&&D.quiz[k].best>=70)qc++;}
+  document.getElementById("hQuizzes").textContent=qc;
+  var rx=document.getElementById("rankXp");
+  if(nr){var lo=r[0],hi=nr[0];rx.textContent=D.xp+" XP · "+Math.round((D.xp-lo)/(hi-lo)*100)+"% of the way to "+nr[1];var bar=document.getElementById("rankBar");if(bar)bar.style.width=Math.min(100,Math.round((D.xp-lo)/(hi-lo)*100))+"%";}
+  else{rx.textContent=D.xp+" XP · MAX RANK · the yard is yours";var bar2=document.getElementById("rankBar");if(bar2)bar2.style.width="100%";}
+  var foot=document.getElementById("dockfoot");
+  foot.innerHTML="layers laid: <b style='color:var(--accent)'>"+doneCount()+"/14</b><br>quizzes ★≥70%: <b style='color:var(--ok)'>"+qc+"/"+Object.keys(QUIZ).length+"</b><br>milestones: <b style='color:var(--ok)'>"+Object.keys(D.milestones).length+"/6</b><br>"+(D.graduated?"<span style='color:var(--ok)'>SHIPPED "+(new Date()).getFullYear()+"</span>":"awaiting launch");
+}
+
+/* ================= QUIZZES ================= */
+function renderQuizzes(){
+  document.querySelectorAll(".quiz").forEach(function(qz){
+    var pid=qz.getAttribute("data-part");
+    var wrap=qz.querySelector(".qwrap");
+    if(qz._rendered===pid){updateQuizScore(qz,pid);return;}
+    qz._rendered=pid;
+    var qs=QUIZZES()[pid];if(!qs){return;}
+    var h="";
+    qs.forEach(function(qu,i){
+      var st=D.quiz[pid]&&D.quiz[pid].first&&D.quiz[pid].first[i];
+      var ow="",cls="";
+      if(st===true||st===false){
+        qu.o.forEach(function(o,j){
+          if(j===qu.a){cls="opt right";}else if(st===false){cls="opt wrong";}else{cls="";}
+          ow+='<button class="opt '+cls+'" disabled>'+o+'</button>';
+        });
+      }else{
+        qu.o.forEach(function(o,j){ow+='<button class="opt" data-q="'+i+'" data-o="'+j+'">'+o+'</button>';});
+      }
+      h+='<div class="q"><p class="qt"><span class="qn">Q'+(i+1)+'.</span> '+qu.q+'</p><div class="opts">'+ow+'</div><p class="qe'+(st===true||st===false?' show':'')+'">'+qu.e+'</p></div>';
+    });
+    wrap.innerHTML=h;
+    wrap.querySelectorAll(".opt[data-q]").forEach(function(btn){
+      btn.addEventListener("click",function(){answer(pid,parseInt(btn.getAttribute("data-q")),parseInt(btn.getAttribute("data-o")),btn);});
+    });
+    updateQuizScore(qz,pid);
+  });
+}
+function QUIZZES(){return QUIZ;}
+function answer(pid,qi,oi,btn){
+  var qs=QUIZZES()[pid],q=qs[qi];
+  var first=!D.quiz[pid]||!D.quiz[pid].tried;
+  var qd=D.quiz[pid]||{first:[],correct:0,total:qs.length,tried:false,best:0};
+  if(!qd.tried)qd.tried=true;
+  var right=(oi===q.a);
+  if(first){qd.first[qi]=(right?1:0);if(right){addXp(3);}}
+  if(first&&right){qd.correct=(qd.correct||0)+1;}
+  var qz=btn.closest(".quiz");
+  btn.closest(".opts").querySelectorAll(".opt").forEach(function(o){o.disabled=true;if(o===btn)o.classList.add(right?"right":"wrong");else if(o.getAttribute("data-o")==q.a)o.classList.add("right");});
+  var qe=btn.closest(".q").querySelector(".qe");qe.classList.add("show");
+  if(first){
+    D.quiz[pid]=qd;
+    save();renderHero();renderStack();renderNav();
+  }else{
+    D.quiz[pid]=qd;save();
+  }
+  var answered=qd.first.filter(function(x){return x===0||x===1;}).length;
+  var correctNow=qd.first.reduce(function(s,v){return s+(v===1?1:0);},0);
+  var pct=Math.round(correctNow/qs.length*100);
+  if(pct>qd.best)qd.best=pct;
+  updateQuizScore(qz,pid);
+  if(answered>=qs.length){finishQuiz(qz,pid,qd,pct,first);}
+  refreshAll();
+}
+function updateQuizScore(qz,pid){
+  var qd=D.quiz[pid];var qs=QUIZZES()[pid];
+  var sc=qz.querySelector(".qscore b");if(sc){if(qd&&qd.best>=0&&qs){sc.textContent=qd.best+"%";}else{sc.textContent="—";}}
+}
+function finishQuiz(qz,pid,qd,pct,first){
+  var res=qz.querySelector(".qres");
+  var pass=pct>=70;
+  var xpGain=first?qd.correct*3:0;
+  res.className="qres show "+(pass?"pass":"fail");
+  res.innerHTML=(pass?"✔ CHECKPOINT CLEARED — "+pct+"%":"✘ "+pct+"% — re-read the section, then re-run the quiz")
+  +" · best "+qd.best+"%"+(xpGain>0?" · <b>+"+xpGain+" XP</b>":"");
+  renderHero();renderStack();renderNav();
+  if(pass&&!qz._celebrated){qz._celebrated=true;}
+}
+
+/* ================= FLASHCARDS ================= */
+function renderDeck(){
+  var deck=document.getElementById("deck");if(!deck||deck._rendered)return;
+  deck._rendered=true;
+  var h="";
+  CARDS.forEach(function(c,i){
+    var nailed=!!D.nailed[i];
+    h+='<div class="card'+(nailed?" nailed":"")+'" data-c="'+i+'">'
+       +'<div class="inner"><div class="face front"><span class="cardtier">'+c.t+'</span><div class="qtext">'+c.q+'</div><span class="flip-hint">CLICK TO REVEAL</span></div>'
+       +'<div class="face back"><span class="cardtier" style="color:var(--ok)">answer</span><div class="qtext">'+c.a+'</div><button class="nailedbtn'+(nailed?" n":"")+'">'+(nailed?"✓ NAILED":"NAIL IT")+'</button></div></div></div>';
+  });
+  deck.innerHTML=h;
+  deck.querySelectorAll(".card").forEach(function(cd){
+    cd.addEventListener("click",function(ev){
+      if(ev.target.classList.contains("nailedbtn")){
+        var i=parseInt(cd.getAttribute("data-c"));
+        D.nailed[i]=!D.nailed[i];save();
+        cd.classList.toggle("nailed");cd.querySelector(".nailedbtn").classList.toggle("n");
+        return;
+      }
+      cd.classList.toggle("flip");
+    });
+  });
+}
+
+/* ================= MILESTONES ================= */
+function renderMilestones(){
+  var ml=document.getElementById("mlist");if(!ml||ml._rendered)return;
+  ml._rendered=true;
+  var h="";
+  MILES.forEach(function(m){
+    var done=!!D.milestones[m.id];
+    h+='<div class="mile'+(done?" done":"")+'" data-m="'+m.id+'"><div class="mbox">✓</div><div><div class="mtitle"><b>'+m.title+'</b></div><div class="mpass">'+m.pass+'</div></div></div>';
+  });
+  ml.innerHTML=h;
+  ml.querySelectorAll(".mile").forEach(function(mi){
+    mi.addEventListener("click",function(){
+      var id=mi.getAttribute("data-m");
+      if(D.milestones[id]){
+        delete D.milestones[id];
+      }else{
+        D.milestones[id]=true;addXp(10);
+      }
+      save();renderMilestones();renderHero();renderStack();renderNav();
+      checkGraduation();
+    });
+  });
+}
+function checkGraduation(){
+  if(!MILES.length)return;
+  if(MILES.every(function(m){return D.milestones[m.id];})&&!D.graduated){
+    D.graduated=true;save();
+    setTimeout(graduation,600);
+  }
+}
+
+/* ================= GRADUATION ================= */
+function graduation(){
+  var g=document.getElementById("grad");
+  var lines=[
+    "> verifying layer p1 ... OK","> verifying layer p2 ... OK","> verifying layer p3 ... OK",
+    "> verifying layer p4 ... OK","> verifying layer p5 ... OK","> verifying layer p6 ... OK",
+    "> verifying layer p7 ... OK","> verifying layer p8 ... OK","> verifying layer p9 ... OK",
+    "> verifying layer p10 ... OK","> verifying layer p11 ... OK","> verifying layer p12 ... OK",
+    "> verifying layer p13 ... OK","> verifying layer p14 ... OK",
+    "> mounting writable layer ... OK","> attaching bridge network ... OK",
+    "> running PID 1 ... OK",""
+  ];
+  var body=g.querySelector(".gbody");
+  body.innerHTML="";
+  var rank=rankFor(D.xp)[1];
+  lines.forEach(function(l,i){
+    var div=document.createElement("div");div.className="gl";div.style.animationDelay=(i*0.22)+"s";
+    div.textContent=l;body.appendChild(div);
+  });
+  var title=document.createElement("div");title.className="gtitle gl";title.style.animationDelay=(lines.length*0.22)+"s";
+  title.textContent="CONTAINER DEPLOYED 🐳";
+  body.appendChild(title);
+  var sub=document.createElement("div");sub.className="gl";sub.style.animationDelay=(lines.length*0.22+0.3)+"s";
+  sub.innerHTML="RANK: <b>"+rank+"</b> · all "+doneCount()+" layers laid · every milestone crossed. The shipyard ships what you built."
+  +"<br><br><i>Remember the one rule: a container is just a process.</i>";
+  body.appendChild(sub);
+  var btn=document.createElement("button");btn.className="btn ok gbtn gl";btn.style.animationDelay=(lines.length*0.22+0.8)+"s";
+  btn.textContent="BACK TO THE DECK";btn.addEventListener("click",function(){g.classList.remove("open");});
+  body.appendChild(btn);
+  g.classList.add("open");
+  confetti();
+  renderStack();renderHero();
+}
+function confetti(){
+  var g=document.getElementById("grad");
+  var colors=["#ffb000","#39d98a","#57d9ff","#ff5d5d"];
+  for(var i=0;i<46;i++){
+    var p=document.createElement("span");p.className="ptcl";
+    p.style.left=Math.random()*100+"%";p.style.top="-10px";
+    p.style.background=colors[i%colors.length];
+    p.style.animationDuration=(2.4+Math.random()*2.6)+"s";
+    p.style.animationDelay=(Math.random()*1.4)+"s";
+    p.style.width=(4+Math.random()*5)+"px";p.style.height=(4+Math.random()*8)+"px";
+    g.appendChild(p);
+    setTimeout(function(el){el.remove();},9000);
+  }
+}
+
+/* ================= SIMULATOR (Part 3.1) ================= */
+var SIMSTEPS=SHIPYARD_DATA.sim||[];
+var simTimer=null;
+function simLine(text){
+  var out=document.getElementById("simOut");
+  var div=document.createElement("div");div.innerHTML=text;
+  div.style.opacity=0;div.style.animation="bli .2s forwards";
+  out.appendChild(div);
+  out.scrollTop=out.scrollHeight;
+}
+function simClear(){
+  var out=document.getElementById("simOut");
+  out.innerHTML='<code style="color:var(--faint)"># docker run -d -p 8080:80 --name web nginx</code>';
+}
+function simRun(){
+  if(simTimer||!SIMSTEPS.length)return;
+  simClear();
+  var i=0;
+  simTimer=setInterval(function(){
+    if(i>=SIMSTEPS.length){clearInterval(simTimer);simTimer=null;return;}
+    var s=SIMSTEPS[i];simLine(s.l);i++;
+  },Math.min.apply(null,[700]));
+  var t=0;
+  SIMSTEPS.forEach(function(s,idx){t+=s.t;setTimeout(simLine.bind(null,s.l),t);});
+  simTimer=setTimeout(function(){simTimer=null;},t+300);
+}
+
+/* ================= INTERACTIVE STACK (Part 2) ================= */
+function setupBigStack(){
+  var big=document.getElementById("stackBig");if(!big||big._bound)return;
+  big._bound=true;
+  var disc=document.getElementById("sbdisc");
+  var info=SHIPYARD_DATA.stackInfo||{};
+  big.querySelectorAll(".sblayer").forEach(function(ly){
+    ly.addEventListener("click",function(){
+      big.querySelectorAll(".sblayer").forEach(function(x){x.classList.remove("selected");});
+      ly.classList.add("selected");
+      disc.innerHTML=info[ly.getAttribute("data-layer")]||"That layer is sealed in the image. Read the part to unlock its story.";
+    });
+  });
+  var running=false,writes=0;
+  var log=document.getElementById("sbLog");
+  var wr=big.querySelector(".writ");
+  var btnStart=document.getElementById("sbStart"),btnWrite=document.getElementById("sbWrite"),btnRm=document.getElementById("sbRm");
+  btnStart.addEventListener("click",function(){
+    if(running){log.textContent="already running";return;}
+    running=true;writes=0;
+    wr.classList.add("live");
+    log.textContent="PID 1 started · container RUNNING";
+    btnWrite.disabled=false;
+  });
+  btnWrite.addEventListener("click",function(){
+    if(!running){log.textContent="start the container first";return;}
+    writes++;
+    wr.style.animation="none";wr.offsetHeight;wr.style.animation="layerin .3s";
+    log.textContent="write #"+writes+" → writable layer ("+(writes*40)+"KB)";
+  });
+  btnRm.addEventListener("click",function(){
+    if(!running){log.textContent="nothing to remove";return;}
+    running=false;
+    wr.classList.remove("live");
+    log.textContent="docker rm → writable layer destroyed · "+writes+" file(s) gone. forever.";
+    btnWrite.disabled=true;
+  });
+}
+
+/* ================= COPY BUTTONS ================= */
+function setupCopy(){
+  document.querySelectorAll(".copybtn").forEach(function(btn){
+    if(btn._bound)return;btn._bound=true;
+    btn.addEventListener("click",function(){
+      var pre=btn.closest(".term").querySelector("pre");
+      var txt=pre?pre.textContent:"";
+      var done=function(){btn.textContent="COPIED ✓";btn.classList.add("copied");setTimeout(function(){btn.textContent="COPY";btn.classList.remove("copied");},1500);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,function(){fallback(txt,done);});}
+      else{fallback(txt,done);}
+    });
+  });
+}
+function fallback(txt,done){
+  var ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";
+  document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e){}
+  ta.remove();done();
+}
+
+/* ================= NAV / SCROLLSPY ================= */
+function goto(id){
+  var el=document.getElementById(id);
+  if(!el)return;
+  el.scrollIntoView({behavior:"smooth",block:"start"});
+  closeDock();
+  var nav=document.querySelectorAll(".navitem");
+  nav.forEach(function(n){n.classList.toggle("active",n.getAttribute("data-nav")===id);});
+}
+function closeDock(){
+  document.getElementById("dock").classList.remove("open");
+  document.getElementById("backdrop").classList.remove("open");
+}
+function setupScrollspy(){
+  var nav=document.getElementById("docknav");
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        nav.querySelectorAll(".navitem").forEach(function(n){n.classList.toggle("active",n.getAttribute("data-nav")===en.target.id);});
+      }
+    });
+  },{rootMargin:"-20% 0px -60% 0px"});
+  document.querySelectorAll(".part").forEach(function(p){obs.observe(p);});
+}
+
+/* ================= BRANDING / EASTER EGG ================= */
+var konami=[38,38,40,40,37,39,37,39,66,65],kpos=0;
+var whaleCount=0;
+function whaleMode(){
+  var w=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  w.setAttribute("id","whaleSwim");w.setAttribute("width","110");w.setAttribute("height","55");w.setAttribute("viewBox","0 0 24 24");
+  w.innerHTML='<path fill="none" stroke="#57d9ff" stroke-width="1.4" d="M4 12c0-4 2.5-7 6-8 3.5 1 6 4 6 8 1.5-1 3-1.5 5-1-1 3-3 5-6 5H6c-1 0-1.5.5-2 1z" stroke-linejoin="round"/><circle cx="8" cy="10" r=".7" fill="#57d9ff"/><path d="M6 20l7-3" stroke="#57d9ff" stroke-width="1" stroke-linecap="round"/>';
+  document.body.appendChild(w);
+  whaleCount++;
+  setTimeout(function(){w.remove();},16000);
+}
+document.addEventListener("keydown",function(ev){
+  if(ev.key==="ArrowUp"&&konami[kpos]===38)kpos++;
+  else if(ev.key==="ArrowDown"&&konami[kpos]===40)kpos++;
+  else if(ev.key==="ArrowLeft"&&konami[kpos]===37)kpos++;
+  else if(ev.key==="ArrowRight"&&konami[kpos]===39)kpos++;
+  else if(ev.key.toLowerCase()==="b"&&konami[kpos]===66)kpos++;
+  else if(ev.key.toLowerCase()==="a"&&konami[kpos]===65)kpos++;
+  else kpos=0;
+  if(kpos===konami.length){kpos=0;whaleMode();whaleMode();var t=document.createElement("div");t.textContent="WHALE MODE ENGAGED";t.style.cssText="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;font-family:var(--mono);color:#57d9ff;border:1px solid #57d9ff;background:rgba(10,14,22,.9);padding:8px 16px;border-radius:4px;letter-spacing:2px;font-size:12px;";document.body.appendChild(t);setTimeout(function(){t.remove();},2200);}
+});
+
+/* ================= DONE BUTTONS ================= */
+function setupDone(){
+  document.querySelectorAll("[data-done]").forEach(function(btn){
+    if(btn._bound)return;btn._bound=true;
+    var pid=btn.getAttribute("data-done");
+    btn.textContent=D.done[pid]?"✔ COMPLETE":"MARK COMPLETE";
+    btn.classList.toggle("ok",!!D.done[pid]);
+    btn.addEventListener("click",function(){
+      if(D.done[pid]){delete D.done[pid];}
+      else{D.done[pid]=true;addXp(25);
+        var part=document.getElementById(pid);if(part)part.classList.add("done");
+      }
+      save();refreshAll();
+      btn.textContent=D.done[pid]?"✔ COMPLETE":"MARK COMPLETE";
+      btn.classList.toggle("ok",!!D.done[pid]);
+    });
+  });
+  PARTS.forEach(function(p){
+    var el=document.getElementById(p.id);
+    if(el&&D.done[p.id])el.classList.add("done");
+  });
+}
+
+/* ================= BURGER ================= */
+document.getElementById("burger").addEventListener("click",function(){
+  var d=document.getElementById("dock");
+  var open=d.classList.toggle("open");
+  document.getElementById("backdrop").classList.toggle("open",open);
+});
+document.getElementById("backdrop").addEventListener("click",closeDock);
+
+/* ================= BOOT ================= */
+function applyMeta(){
+  var t=document.querySelector("title");if(t&&META.title)t.textContent=META.title;
+  var bn=document.querySelector(".bname");if(bn&&META.brand)bn.textContent=META.brand;
+  var bs=document.querySelector(".bsub");if(bs&&META.tagline)bs.textContent=META.tagline;
+  if(META.accent){
+    var h=META.accent.replace("#","");
+    var r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+    var m=function(v){return Math.max(0,Math.round(v*0.62));};
+    var st=document.documentElement.style;
+    st.setProperty("--accent",META.accent);
+    st.setProperty("--accent-soft","rgb("+m(r)+","+m(g)+","+m(b)+")");
+  }
+}
+window.addEventListener("load",function(){
+  applyMeta();
+  refreshAll();
+  setupBigStack();
+  setupCopy();
+  setupDone();
+  setupScrollspy();
+  var simBtn=document.getElementById("simRun");if(simBtn){simBtn.addEventListener("click",simRun);}
+  var simRst=document.getElementById("simReset");if(simRst){simRst.addEventListener("click",function(){if(simTimer){clearTimeout(simTimer);simTimer=null;}simClear();});}
+  checkGraduation();
+});
+
+})();
+
+</script>
+</body>
+</html>

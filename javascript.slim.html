@@ -1,0 +1,2406 @@
+<!DOCTYPE html>
+<html lang="en" data-render="img">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The JavaScript Shipyard - JavaScript: A First-Principles Curriculum">
+<meta property="og:description" content="JavaScript · values &amp; refs · closures · the event loop — a first-principles interactive curriculum, one portable HTML file, runs offline.">
+<meta property="og:image" content="assets/og/javascript.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%23a78bfa%22 d=%22M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z%22/%3E%3C/svg%3E">
+<meta name="contract" content="shipyard-javascript@1">
+<title>The JavaScript Shipyard - JavaScript: A First-Principles Curriculum</title>
+<style>
+
+:root{
+  --bg:#0b0e14; --bg2:#0e1119; --panel:#10141d; --panel2:#141927;
+  --line:#232c3d; --line2:#2e3a52;
+  --fg:#d6dee8; --dim:#8b96a8; --faint:#5b6577;
+  --accent:#ffb000; --accent-soft:#b37b00;
+  --ok:#39d98a; --ok-dim:#1e7a4d;
+  --deep:#ff5d5d; --recog:#57d9ff; --ref:#9aa4b2; --adv:#c792ea;
+  --display:'VT323', 'Courier New', monospace;
+  --body:'Space Mono', 'Consolas', monospace;
+  --mono:'IBM Plex Mono', 'Consolas', monospace;
+  --radius:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--body); font-size:15px; line-height:1.65;
+  background-image:
+    radial-gradient(1200px 600px at 80% -10%, rgba(255,176,0,.05), transparent 60%),
+    radial-gradient(900px 500px at -10% 30%, rgba(87,217,255,.04), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+::selection{background:var(--accent);color:#0b0e14}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-shadow:0 0 8px rgba(255,176,0,.6)}
+#scanlines{position:fixed;inset:0;pointer-events:none;z-index:9990;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px);opacity:.5}
+#vignette{position:fixed;inset:0;pointer-events:none;z-index:9989;
+  background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.45) 100%)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+
+/* ---------- layout ---------- */
+#app{display:grid;grid-template-columns:310px 1fr;min-height:100vh}
+main{padding:0 48px 120px;max-width:1060px;min-width:0}
+#backdrop{position:fixed;inset:0;background:rgba(5,7,11,.7);z-index:49;display:none}
+#backdrop.open{display:block}
+
+/* ---------- sidebar dock ---------- */
+#dock{position:sticky;top:0;height:100vh;overflow-y:auto;overflow-x:hidden;
+  background:linear-gradient(180deg,var(--panel) 0%, #0d1119 100%);
+  border-right:1px solid var(--line);padding:22px 18px 30px;z-index:50}
+.brand{display:flex;align-items:center;gap:10px;padding-bottom:16px;border-bottom:1px dashed var(--line2)}
+.brand svg{flex:none;filter:drop-shadow(0 0 6px rgba(255,176,0,.4))}
+.brand .bname{font-family:var(--display);font-size:22px;line-height:1;letter-spacing:.5px;color:var(--accent)}
+.brand .bsub{font-size:10px;color:var(--faint);letter-spacing:2px;text-transform:uppercase}
+.rankbox{margin:14px 0;padding:12px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel2)}
+.rankbox .rk{font-family:var(--display);font-size:21px;color:var(--accent);line-height:1}
+.rankbox .rkxp{font-size:11px;color:var(--dim);margin-top:2px}
+.prbar{height:8px;border:1px solid var(--line2);background:var(--bg);border-radius:4px;margin-top:8px;overflow:hidden}
+.prbar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-soft),var(--accent));width:0%;transition:width .6s cubic-bezier(0.16,1,0.3,1)}
+.stackbox{padding:12px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel2);margin-bottom:6px}
+.stackbox .st{font-size:10px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between}
+#stackMini{display:flex;flex-direction:column;gap:3px;padding:8px 10px;background:var(--bg);border:1px solid var(--line);border-radius:4px}
+#stackMini .layer{height:11px;border-radius:2px;background:#1b2333;border:1px solid var(--line2);position:relative;cursor:pointer;transition:background .3s}
+#stackMini .layer .ltip{position:absolute;left:26px;top:-2px;background:var(--panel2);border:1px solid var(--line2);font-size:10px;white-space:nowrap;padding:1px 6px;border-radius:3px;display:none;z-index:5}
+#stackMini .layer:hover .ltip{display:block}
+#stackMini .layer.done{background:linear-gradient(90deg,var(--accent-soft),var(--accent));border-color:var(--accent);box-shadow:0 0 6px rgba(255,176,0,.3)}
+#stackMini .layer.cleared{background:linear-gradient(90deg,#1e7a4d,var(--ok));border-color:var(--ok)}
+#stackMini .layer.writable{height:16px;background:repeating-linear-gradient(45deg,#182136,#182136 6px,#1d2739 6px,#1d2739 12px);border-style:dashed;border-color:var(--ok-dim)}
+#stackMini .layer.writable.live{border-color:var(--ok);box-shadow:0 0 8px rgba(57,217,138,.4)}
+#stackMini .layer.newly{animation:layerin .5s cubic-bezier(0.16,1,0.3,1)}
+@keyframes layerin{0%{transform:translateX(18px);opacity:0}100%{transform:none;opacity:1}}
+#psRow{font-size:11px;margin-top:10px;padding:8px 10px;background:#0a1f14;border:1px solid var(--ok-dim);border-radius:4px;color:var(--ok);display:none;font-family:var(--mono)}
+#psRow b{color:var(--ok)}
+
+nav.docknav{margin-top:14px}
+.docksec{font-size:10px;letter-spacing:2px;color:var(--faint);text-transform:uppercase;margin:16px 0 6px}
+.navitem{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;cursor:pointer;border:1px solid transparent;margin-bottom:2px;transition:background .15s,border-color .15s}
+.navitem:hover{background:var(--panel2);border-color:var(--line2)}
+.navitem .n{font-family:var(--display);font-size:15px;color:var(--faint);width:26px;flex:none}
+.navitem .nt{font-size:12.5px;color:var(--dim);flex:1;line-height:1.3}
+.navitem.active .n{color:var(--accent)}
+.navitem.active{background:var(--panel2);border-color:var(--line2)}
+.navitem.active .nt{color:var(--fg)}
+.navitem .st{width:10px;height:10px;flex:none;border-radius:50%;border:1px solid var(--line2);background:var(--bg)}
+.navitem .st.done{background:var(--accent);border-color:var(--accent);box-shadow:0 0 6px rgba(255,176,0,.5)}
+.navitem .st.cleared{background:var(--ok);border-color:var(--ok)}
+.navitem .qbadge{font-size:10px;color:var(--ok);font-family:var(--mono)}
+.legend{margin-top:18px;padding-top:14px;border-top:1px dashed var(--line2)}
+.legend .lt{font-size:10px;letter-spacing:2px;color:var(--faint);text-transform:uppercase;margin-bottom:8px}
+.legend .lg{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--dim);padding:3px 0}
+.legend .sw{width:10px;height:10px;flex:none;border-radius:2px}
+.dockfoot{margin-top:16px;padding-top:12px;border-top:1px dashed var(--line2);font-size:10px;color:var(--faint);line-height:1.6}
+#burger{display:none}
+
+/* ---------- hero ---------- */
+.hero{padding:64px 0 40px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.boot{font-family:var(--mono);font-size:12.5px;color:var(--ok);margin-bottom:26px}
+.boot .bl{opacity:0;animation:bli .0s forwards}
+.boot .bl:nth-child(1){animation-delay:.1s}.boot .bl:nth-child(2){animation-delay:.5s}
+.boot .bl:nth-child(3){animation-delay:.9s}.boot .bl:nth-child(4){animation-delay:1.3s}
+.boot .bl:nth-child(5){animation-delay:1.7s}
+@keyframes bli{to{opacity:1}}
+.boot .warn{color:var(--deep)}
+.hero h1{font-family:var(--display);font-weight:400;font-size:clamp(44px,7vw,78px);line-height:.95;letter-spacing:1px;margin:10px 0 14px}
+.hero h1 .wh{color:var(--accent);text-shadow:0 0 22px rgba(255,176,0,.5)}
+.hero .sub{color:var(--dim);max-width:640px;font-size:14.5px}
+.hero .sub b{color:var(--fg)}
+.hstatus{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 30px}
+.hchip{font-size:11px;font-family:var(--mono);letter-spacing:1px;color:var(--dim);border:1px solid var(--line2);border-radius:3px;padding:6px 10px;background:var(--panel)}
+.hchip b{color:var(--accent);font-weight:400}
+.hchip b.ok{color:var(--ok)}
+#voyageHead{font-size:11px;letter-spacing:3px;color:var(--faint);text-transform:uppercase;margin-bottom:12px}
+.voyage{display:grid;grid-template-columns:1fr 1fr;gap:6px 26px;padding:0 0 8px}
+.waypoint{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--panel);cursor:pointer;transition:border-color .2s,transform .2s}
+.waypoint:hover{border-color:var(--accent);transform:translateX(3px)}
+.waypoint .wn{font-family:var(--display);font-size:18px;color:var(--accent);flex:none}
+.waypoint .wt{font-size:12.5px;line-height:1.25;color:var(--dim)}
+.waypoint .wt b{display:block;color:var(--fg);font-size:13px}
+.waypoint .wtag{margin-left:auto;flex:none}
+.waypoint.done .wn{color:var(--ok)}
+.waypoint.done .wt b{color:var(--ok)}
+
+/* ---------- part sections ---------- */
+.part{padding:70px 0 10px;scroll-margin-top:30px;position:relative}
+.part::before{content:"";position:absolute;left:-48px;top:70px;bottom:10px;width:3px;background:linear-gradient(180deg,var(--accent),transparent 70%);opacity:.25}
+.phead{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--line2);padding-bottom:14px;margin-bottom:26px}
+.pnum{font-family:var(--display);font-size:64px;line-height:.8;color:var(--line2);flex:none;text-shadow:0 0 14px rgba(255,176,0,.08)}
+.part.done .pnum{color:var(--accent);text-shadow:0 0 16px rgba(255,176,0,.45)}
+.ptitle{font-family:var(--display);font-weight:400;font-size:clamp(26px,3.6vw,40px);line-height:1.02;letter-spacing:.5px}
+.pmeta{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pmeta .m{font-size:10.5px;font-family:var(--mono);letter-spacing:1px;color:var(--faint);border:1px solid var(--line);border-radius:3px;padding:3px 8px;background:var(--panel)}
+.pmeta .m b{color:var(--accent);font-weight:400}
+.pactions{margin-left:auto;display:flex;gap:8px;align-items:center;flex:none}
+.part h2{font-family:var(--display);font-weight:400;font-size:29px;letter-spacing:.5px;color:var(--fg);margin:44px 0 12px;border-left:4px solid var(--accent);padding-left:12px}
+.part h3{font-family:var(--body);font-weight:700;font-size:16px;color:var(--accent);margin:30px 0 8px;letter-spacing:.3px}
+.part p{margin:10px 0;color:var(--fg)}
+.part li{margin:6px 0;color:var(--fg)}
+.part ul,.part ol{padding-left:24px;margin:10px 0}
+.part b{color:#fff}
+.part i{color:var(--dim)}
+hr.rule{border:none;border-top:1px dashed var(--line2);margin:34px 0}
+
+/* depth tags */
+.tag{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:1.5px;padding:2px 7px;border-radius:3px;vertical-align:middle;margin:0 2px;border:1px solid}
+.tag-deep{color:var(--deep);border-color:var(--deep);background:rgba(255,93,93,.08);text-shadow:0 0 8px rgba(255,93,93,.5)}
+.tag-recog{color:var(--recog);border-color:var(--recog);background:rgba(87,217,255,.08)}
+.tag-ref{color:var(--ref);border-color:var(--ref);background:rgba(154,164,178,.08)}
+.tag-adv{color:var(--adv);border-color:var(--adv);background:rgba(199,146,234,.08)}
+.wtag{font-family:var(--mono);font-size:8.5px;letter-spacing:1px;padding:2px 6px;border-radius:3px;border:1px solid}
+.wtag-deep{color:var(--deep);border-color:var(--deep)}
+.wtag-recog{color:var(--recog);border-color:var(--recog)}
+
+/* terminal code blocks */
+.term{margin:16px 0;border:1px solid var(--line2);border-radius:var(--radius);background:#0a0d13;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.termhead{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--panel2);border-bottom:1px solid var(--line);position:relative}
+.termhead .td{width:9px;height:9px;border-radius:50%;flex:none}
+.termhead .td1{background:#ff5d5d}.termhead .td2{background:#ffb000}.termhead .td3{background:#39d98a}
+.termhead .tname{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.5px}
+.termhead .copybtn{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--faint);background:none;border:1px solid var(--line2);border-radius:3px;padding:3px 9px;cursor:pointer;transition:all .15s}
+.termhead .copybtn:hover{color:var(--accent);border-color:var(--accent)}
+.termhead .copybtn.copied{color:var(--ok);border-color:var(--ok)}
+.term pre{margin:0;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.6;color:#c3cdda}
+.term pre .c{color:var(--faint)}
+.term pre .p{color:var(--ok)}
+.term pre .a{color:var(--accent)}
+.term pre .r{color:var(--deep)}
+.term pre .b{color:#fff;font-weight:600}
+.term pre .k{color:var(--recog)}
+
+/* tables */
+.tblwrap{overflow-x:auto;margin:16px 0;border:1px solid var(--line2);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:560px}
+thead th{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);text-align:left;background:var(--panel2);padding:10px 14px;border-bottom:1px solid var(--line2);white-space:nowrap}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--line);color:var(--fg);vertical-align:top;line-height:1.55}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:nth-child(even){background:rgba(255,255,255,.015)}
+tbody tr:hover{background:rgba(255,176,0,.04)}
+tbody td code{font-family:var(--mono);font-size:11.5px;color:var(--recog);background:rgba(87,217,255,.07);padding:1px 5px;border-radius:3px}
+td .tag{font-size:8.5px}
+
+/* cards */
+.idea,.lab,.warn,.ck,.note{border:1px solid;border-radius:var(--radius);padding:16px 18px;margin:20px 0;position:relative}
+.idea{border-color:var(--ok-dim);background:linear-gradient(180deg,rgba(57,217,138,.05),transparent)}
+.idea .lbl,.lab .lbl,.warn .lbl,.ck .lbl,.note .lbl{font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;display:block;margin-bottom:8px}
+.idea .lbl{color:var(--ok)}
+.idea p,.idea li{color:var(--fg)}
+.warn{border-color:var(--deep);background:linear-gradient(180deg,rgba(255,93,93,.06),transparent)}
+.warn .lbl{color:var(--deep)}
+.lab{border-color:var(--accent);background:linear-gradient(180deg,rgba(255,176,0,.06),transparent)}
+.lab .lbl{color:var(--accent)}
+.lab ol{padding-left:22px}
+.lab code,.warn code,.ck code,.note code{font-family:var(--mono);font-size:12px;color:var(--recog);background:rgba(87,217,255,.07);padding:1px 5px;border-radius:3px}
+.ck{border-color:var(--recog);background:linear-gradient(180deg,rgba(87,217,255,.05),transparent)}
+.ck .lbl{color:var(--recog)}
+.note{border-color:var(--line2);background:var(--panel)}
+.note .lbl{color:var(--faint)}
+details{margin:8px 0}
+details summary{cursor:pointer;color:var(--accent);font-size:13px;font-family:var(--mono);letter-spacing:.5px}
+details[open] summary{margin-bottom:10px}
+
+/* next/prev part nav */
+.breadcrumb{display:flex;justify-content:space-between;margin-top:56px;padding-top:18px;border-top:1px dashed var(--line2)}
+.breadcrumb a{font-family:var(--mono);font-size:12px;letter-spacing:1px;border:1px solid var(--line2);border-radius:4px;padding:8px 14px;transition:all .2s;color:var(--dim)}
+.breadcrumb a:hover{color:var(--accent);border-color:var(--accent)}
+.breadcrumb .next{margin-left:auto}
+
+/* ---------- diagrams ---------- */
+.pipeline{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0;margin:22px 0 6px;padding:22px 14px;border:1px solid var(--line2);border-radius:var(--radius);background:radial-gradient(600px 200px at 50% 0%,rgba(255,176,0,.05),transparent)}
+.pnode{border:1px solid var(--line2);border-radius:4px;background:var(--panel2);padding:8px 12px;text-align:center;min-width:86px}
+.pnode .pn1{font-family:var(--mono);font-size:12.5px;color:var(--fg)}
+.pnode .pn2{font-size:9px;color:var(--faint);letter-spacing:1px;margin-top:2px;font-family:var(--mono)}
+.pnode.hot{border-color:var(--accent);box-shadow:0 0 12px rgba(255,176,0,.25)}
+.pnode.hot .pn1{color:var(--accent)}
+.pnode.green{border-color:var(--ok)}
+.pnode.green .pn1{color:var(--ok)}
+.parrow{width:30px;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;margin:0 2px}
+.parrow::after{content:"";width:9px;height:9px;transform:rotate(45deg);border-top:1.5px solid var(--accent);border-right:1.5px solid var(--accent);flex:none}
+.parrow .flowdot{position:absolute;top:0;width:4px;height:4px;border-radius:50%;background:var(--accent);animation:flow 1.6s linear infinite;opacity:0}
+@keyframes flow{0%{top:0;opacity:0}20%{opacity:1}80%{opacity:1}100%{top:18px;opacity:0}}
+.pipeline .reglab{font-size:10px;color:var(--faint);text-align:center;margin-top:10px;font-family:var(--mono)}
+.pipeline .reglab b{color:var(--accent);font-weight:400}
+
+.stack-big{display:flex;flex-direction:column;gap:5px;margin:18px 0;padding:16px;border:1px solid var(--line2);border-radius:var(--radius);background:radial-gradient(500px 300px at 50% 100%,rgba(57,217,138,.05),transparent)}
+.sblayer{border:1px solid var(--line2);border-radius:4px;padding:9px 14px;display:flex;align-items:center;gap:10px;background:var(--panel);cursor:pointer;transition:all .25s;position:relative}
+.sblayer:hover{border-color:var(--accent);transform:translateX(4px)}
+.sblayer .sbn{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:1px;width:60px;flex:none}
+.sblayer .sbt{font-size:12.5px;color:var(--fg)}
+.sblayer .sbd{font-size:10.5px;color:var(--faint);margin-left:auto;text-align:right;font-family:var(--mono)}
+.sblayer.selected{border-color:var(--accent);box-shadow:0 0 14px rgba(255,176,0,.25)}
+.sblayer.writ{border-style:dashed;border-color:var(--ok-dim)}
+.sblayer.writ.live{border-color:var(--ok);box-shadow:0 0 16px rgba(57,217,138,.4)}
+.sblayer.writ .sbt b{color:var(--ok)}
+.sbdisc{margin-top:12px;padding:12px 14px;border:1px dashed var(--line2);border-radius:4px;font-size:12.5px;color:var(--dim);min-height:58px;font-family:var(--mono)}
+.sbdisc b{color:var(--fg)}
+.stack-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+
+/* lifecycle flow (part 3) */
+.life{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:18px 0;padding:18px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel)}
+.lstate{border:1px solid var(--line2);border-radius:4px;padding:7px 12px;font-family:var(--mono);font-size:12px;color:var(--fg);background:var(--bg);position:relative}
+.lstate .lcmd{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--accent);background:var(--panel);padding:0 5px;letter-spacing:1px;white-space:nowrap}
+.lstate.gone{color:var(--faint);border-style:dashed;text-decoration:line-through}
+.lstate.live{border-color:var(--ok);color:var(--ok);box-shadow:0 0 10px rgba(57,217,138,.25)}
+.larrow{color:var(--faint);font-size:12px;font-family:var(--mono)}
+
+/* bridge diagram (part 6) */
+.bridge{margin:18px 0;padding:20px;border:1px solid var(--line2);border-radius:var(--radius);background:linear-gradient(180deg,var(--panel),var(--bg))}
+.bridge .bnet{position:relative;border:1px dashed var(--line2);border-radius:8px;padding:30px 16px 16px;margin-top:26px}
+.bridge .bnet::before{content:"bridge network — docker0 (virtual switch)";position:absolute;top:-10px;left:14px;background:var(--bg);padding:0 8px;font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:1px}
+.bcontainer{display:inline-block;border:1px solid var(--recog);border-radius:4px;background:rgba(87,217,255,.05);padding:8px 12px;margin:0 10px;min-width:130px;text-align:center}
+.bcontainer .bn{font-family:var(--mono);font-size:12.5px;color:var(--recog)}
+.bcontainer .bi{font-size:10px;color:var(--faint);font-family:var(--mono);margin-top:2px}
+.bcontainer.hosted{border:1px solid var(--accent)}
+.bcontainer.hosted .bn{color:var(--accent)}
+.dnschip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--accent);border-radius:4px;background:rgba(255,176,0,.07);padding:6px 12px;font-family:var(--mono);font-size:12px;color:var(--accent);margin-top:14px}
+.dnschip b{color:#fff;font-weight:400}
+.bdns-note{font-size:11.5px;color:var(--dim);margin-top:12px}
+
+/* architecture diagram (part 8) */
+.arch{display:flex;align-items:stretch;gap:10px;margin:20px 0;flex-wrap:wrap;justify-content:center}
+.anode{border:1px solid var(--line2);border-radius:5px;padding:12px 14px;background:var(--panel2);min-width:150px;text-align:center;position:relative}
+.anode .an1{font-family:var(--mono);font-size:13px;color:var(--fg)}
+.anode .an2{font-size:10px;color:var(--faint);font-family:var(--mono);margin-top:3px;letter-spacing:.5px}
+.anode.edge{border-color:var(--accent)}
+.anode.edge .an1{color:var(--accent)}
+.anode.db{border-color:var(--ok)}
+.anode.db .an1{color:var(--ok)}
+.anode.cache{border-color:var(--recog)}
+.anode.cache .an1{color:var(--recog)}
+.anode .vchip{position:absolute;top:-9px;right:10px;background:var(--panel);border:1px solid var(--line2);font-family:var(--mono);font-size:8.5px;color:var(--faint);padding:0 5px;border-radius:3px;letter-spacing:1px}
+.astats{margin:14px 0 0;text-align:center;font-size:11px;color:var(--faint);font-family:var(--mono)}
+
+/* buttons */
+.btn{font-family:var(--mono);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;border:1px solid var(--accent);color:var(--accent);background:transparent;padding:9px 16px;border-radius:4px;cursor:pointer;transition:all .18s}
+.btn:hover{background:var(--accent);color:#0b0e14;box-shadow:0 0 18px rgba(255,176,0,.4)}
+.btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+.btn.ok{border-color:var(--ok);color:var(--ok)}
+.btn.ok:hover{background:var(--ok);color:#0b0e14;box-shadow:0 0 18px rgba(57,217,138,.4)}
+.btn.sm{padding:5px 10px;font-size:10.5px}
+
+/* quiz */
+.quiz{margin:22px 0;padding:18px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel);position:relative}
+.quiz .qlbl{font-family:var(--mono);font-size:10px;letter-spacing:2.5px;color:var(--accent);text-transform:uppercase;display:block;margin-bottom:14px}
+.q{position:relative}
+.q+.q{margin-top:22px;padding-top:20px;border-top:1px dashed var(--line2)}
+.qt{font-size:13.5px;color:var(--fg);margin-bottom:8px}
+.qt .qn{color:var(--accent);font-family:var(--mono)}
+.opts{display:grid;gap:6px}
+.opt{display:block;text-align:left;width:100%;font-family:var(--body);font-size:12.8px;color:var(--fg);background:var(--bg);border:1px solid var(--line2);border-radius:4px;padding:8px 12px;cursor:pointer;transition:all .15s;line-height:1.5}
+.opt:hover:not(:disabled){border-color:var(--accent);box-shadow:0 0 10px rgba(255,176,0,.15);transform:translateX(2px)}
+.opt:disabled{cursor:default}
+.opt.wrong{border-color:var(--deep);background:rgba(255,93,93,.08);color:#ffb9b9}
+.opt.right{border-color:var(--ok);background:rgba(57,217,138,.1);color:var(--ok)}
+.qe{display:none;margin-top:8px;font-size:12px;color:var(--dim);line-height:1.6;border-left:3px solid var(--line2);padding-left:10px}
+.qe.show{display:block;animation:fadein .4s}
+@keyframes fadein{from{opacity:0;transform:translateY(-3px)}to{opacity:1}}
+.qscore{position:absolute;top:14px;right:16px;font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:1px}
+.qscore b{color:var(--accent)}
+.qres{margin-top:14px;padding:10px 14px;border-radius:4px;font-family:var(--mono);font-size:12px;letter-spacing:.5px;display:none}
+.qres.show{display:block;animation:fadein .5s}
+.qres.pass{border:1px solid var(--ok);color:var(--ok);background:rgba(57,217,138,.07)}
+.qres.fail{border:1px solid var(--deep);color:#ffb9b9;background:rgba(255,93,93,.07)}
+
+/* flashcards */
+.deck{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin:20px 0}
+.card{perspective:1200px;height:190px;cursor:pointer}
+.card .inner{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(0.16,1,0.3,1);transform-style:preserve-3d}
+.card.flip .inner{transform:rotateY(180deg)}
+.card .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--line2);border-radius:6px;padding:14px;display:flex;flex-direction:column;overflow:auto}
+.card .front{background:var(--panel2)}
+.card .back{background:linear-gradient(180deg,var(--panel2),#0f1a10);transform:rotateY(180deg);border-color:var(--ok-dim)}
+.cardtier{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--faint);margin-bottom:8px;text-transform:uppercase}
+.card .qtext{font-size:13px;line-height:1.5;color:var(--fg);flex:1}
+.card .flip-hint{font-size:9px;color:var(--faint);font-family:var(--mono);letter-spacing:1.5px}
+.card.nailed{opacity:.45}
+.card.nailed .front,.card.nailed .back{border-color:#3d4a63}
+.card .back .qtext{color:var(--ok)}
+.card .nailedbtn{align-self:flex-end;margin-top:8px;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--faint);background:none;border:1px solid var(--line2);border-radius:3px;padding:3px 9px;cursor:pointer}
+.card .nailedbtn:hover{color:var(--ok);border-color:var(--ok)}
+.card .nailedbtn.n{border-color:var(--ok);color:var(--ok)}
+
+/* milestones */
+.mlist{margin:18px 0}
+.mile{display:flex;gap:14px;padding:14px 16px;border:1px solid var(--line2);border-radius:6px;background:var(--panel);cursor:pointer;transition:all .2s;align-items:flex-start}
+.mile+.mile{margin-top:10px}
+.mile:hover{border-color:var(--accent)}
+.mile .mbox{width:22px;height:22px;flex:none;border:2px solid var(--line2);border-radius:4px;margin-top:2px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;color:transparent;transition:all .2s}
+.mile.done .mbox{border-color:var(--ok);background:var(--ok);color:#0b0e14}
+.mile .mtitle{font-size:13.5px;color:var(--fg);cursor:pointer}
+.mile .mtitle b{color:var(--accent)}
+.mile .mpass{font-size:11.5px;color:var(--dim);margin-top:4px;line-height:1.55}
+.mile.done{background:linear-gradient(180deg,rgba(57,217,138,.06),var(--panel))}
+.mile.done .mpass{color:var(--ok)}
+
+/* duel columns part 12 */
+.duel{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.duel .col{border:1px solid var(--line2);border-radius:6px;padding:18px;background:var(--panel)}
+.duel .col h3{margin-top:0;font-size:14px}
+.duel .use{border-color:var(--ok-dim)}
+.duel .use h3{color:var(--ok)}
+.duel .skip{border-color:var(--deep)}
+.duel .skip h3{color:var(--deep)}
+.duel ul{padding-left:20px}
+.duel li{margin:6px 0;font-size:12.8px;line-height:1.55}
+
+/* footer */
+footer{margin-top:90px;padding-top:26px;border-top:1px dashed var(--line2);color:var(--faint);font-size:11.5px;line-height:1.8}
+footer b{color:var(--dim)}
+
+/* graduation overlay */
+#grad{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(4,6,10,.94);padding:20px;overflow:hidden}
+#grad.open{display:flex}
+#grad .gterm{width:min(680px,100%);border:1px solid var(--ok-dim);border-radius:8px;background:#070d09;box-shadow:0 0 60px rgba(57,217,138,.15);overflow:hidden;position:relative;z-index:2}
+#grad .ghead{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--ok-dim);font-family:var(--mono);font-size:11px;color:var(--ok);letter-spacing:1px}
+#grad .gbody{padding:22px;font-family:var(--mono);font-size:13px;color:var(--ok);line-height:1.9;max-height:70vh;overflow-y:auto}
+#grad .gbody .gl{opacity:0;animation:bli .3s forwards}
+#grad .gtitle{font-family:var(--display);font-size:46px;color:var(--ok);text-shadow:0 0 24px rgba(57,217,138,.6);line-height:1;margin:10px 0}
+#grad .gbtn{margin-top:16px}
+.ptcl{position:absolute;width:6px;height:6px;border-radius:2px;z-index:1;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:0}}
+#whaleSwim{position:absolute;bottom:40px;left:-140px;z-index:1;filter:drop-shadow(0 0 14px rgba(255,176,0,.5));animation:swim 14s linear infinite}
+@keyframes swim{from{left:-140px}70%,to{left:110vw}}
+
+/* misc */
+code.inline{font-family:var(--mono);font-size:12.5px;color:var(--recog);background:rgba(87,217,255,.07);padding:1px 6px;border-radius:3px}
+.kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line2);border-bottom-width:2px;border-radius:3px;padding:1px 6px;background:var(--panel)}
+.strong-sentence{color:#fff;background:linear-gradient(180deg,transparent 62%,rgba(255,176,0,.25) 62%)}
+
+@media (max-width:1020px){
+  #app{grid-template-columns:1fr}
+  #dock{position:fixed;left:0;top:0;transform:translateX(-105%);transition:transform .3s cubic-bezier(0.16,1,0.3,1);width:310px;box-shadow:20px 0 50px rgba(0,0,0,.5)}
+  #dock.open{transform:none}
+  #burger{display:flex;position:fixed;top:14px;left:14px;z-index:60;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line2);color:var(--accent);font-family:var(--mono);font-size:11px;letter-spacing:1.5px;padding:8px 12px;border-radius:4px;cursor:pointer}
+  main{padding:60px 22px 100px}
+  .part::before{display:none}
+  .voyage{grid-template-columns:1fr}
+  .duel{grid-template-columns:1fr}
+  .pactions{margin-left:0;width:100%;margin-top:10px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s !important;animation-iteration-count:1 !important;transition-duration:.001s !important}
+  html{scroll-behavior:auto}
+}
+
+</style>
+</head>
+<body>
+<div id="scanlines"></div><div id="vignette"></div>
+<button id="burger">&#9776; MAP</button><div id="backdrop"></div>
+<div id="app">
+<aside id="dock">
+  <div class="brand">
+    <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="var(--accent)" d="M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z"/>
+      <rect x="7" y="11" width="2" height="2" fill="var(--bg)"/><rect x="12" y="11" width="2" height="2" fill="var(--bg)"/><rect x="17" y="11" width="2" height="2" fill="var(--bg)"/>
+    </svg>
+    <div><div class="bname">THE JAVASCRIPT SHIPYARD</div><div class="bsub">JavaScript · values &amp; refs · closures · the event loop</div></div>
+  </div>
+
+  <div class="rankbox">
+    <div class="rk" id="rankNow">SWABBIE</div>
+    <div class="rkxp" id="rankXp"></div>
+    <div class="prbar"><i id="rankBar"></i></div>
+  </div>
+
+  <div class="stackbox">
+    <div class="st"><span>THE STACK — your container</span><span id="stackCount">0/14</span></div>
+    <div id="stackMini"></div>
+    <div id="psRow"><b>$ docker ps</b><br><span id="psRow2">—</span></div>
+  </div>
+
+  <nav class="docknav" id="docknav"></nav>
+
+  <div class="legend">
+    <div class="lt">Depth legend</div>
+    <div class="lg"><span class="sw" style="background:var(--deep);box-shadow:0 0 6px rgba(255,93,93,.6)"></span><span><b style="color:var(--deep)">DEEP</b> — core mental model. Prove it out loud.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--recog)"></span><span><b style="color:var(--recog)">RECOGNIZE</b> — read fluently; write with docs open.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--ref)"></span><span><b style="color:var(--ref)">REFERENCE</b> — know it exists. Never memorize.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--adv)"></span><span><b style="color:var(--adv)">ADVANCED</b> — return after Part 8.</span></div>
+  </div>
+
+  <div class="dockfoot" id="dockfoot"></div>
+</aside>
+
+<main>
+<section class="hero" id="part0">
+  <div class="boot"><div class="bl">$ shipyard boot --curriculum javascript-first-principles</div>
+    <div class="bl">STAGE 1: LOADING PARTS 0–14 ......... <span style="color:var(--ok)">OK</span></div>
+    <div class="bl">STAGE 2: MOUNTING DEPTH TAGS .......... <span style="color:var(--ok)">OK</span></div>
+    <div class="bl"><span class="warn">WARNING: `this` is decided by the call, not by the definition.</span></div>
+    <div class="bl">AWAITING CREW — 14 waypoints ahead. <span class="cursor" style="color:var(--accent)">▮</span></div>
+  </div>
+  <h1>JAVASCRIPT, UNDERSTOOD.<br><span class="wh">NOT JUST STACKED.</span></h1>
+  <p class="sub">This is a first-principles curriculum rebuilt as a mission. Learn the core mental model <b>deeply</b> — values vs references, lexical scope, the prototype chain, and the event loop — reference the rest, and physically <b>build the shipyard&#39;s container</b> in the sidebar as you complete parts. Quizzes earn XP. Ranks go from <b>Swabbie</b> to <b>Harbor Master</b>. Finish all 14 parts and the shipyard ships your container.</p>
+  <div class="hstatus">
+    <div class="hchip">RANK <b id="hRank">SWABBIE</b></div>
+    <div class="hchip">XP <b id="hXp">0</b></div>
+    <div class="hchip">LAYERS <b id="hLayers">0/14</b></div>
+    <div class="hchip">QUIZZES CLEARED <b class="ok" id="hQuizzes">0</b></div>
+  </div>
+  <div id="voyageHead">THE VOYAGE — 14 WAYPOINTS</div>
+  <div class="voyage" id="voyage"></div>
+</section>
+
+<section class="part" id="p0">
+  <div class="phead"><div class="pnum">00</div>
+    <div><div class="ptitle">How to Use This Curriculum</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p0">MARK COMPLETE</button></div>
+  </div>
+
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>Part 1   Where JavaScript came from            [DEEP — explains all the weirdness]
+Part 2   The core mental model                  [DEEP — most important part]
+Part 3   Values, types, and coercion
+Part 4   Functions, scope, closures
+Part 5   Objects, prototypes, classes
+Part 6   Arrays and data transformation
+Part 7   Asynchrony: the event loop in practice
+Part 8   The browser: DOM, events, and why frameworks exist
+Part 9   Real projects: vanilla app + Node service
+Part 10  Debugging playbook
+Part 11  Internals: V8, memory, the event loop precisely
+Part 12  Production: modules, TypeScript, testing, security
+Part 13  When not to use JavaScript
+Part 14  Interview prep &amp; milestones</code></pre></div>
+
+  <div class="breadcrumb"><a class="next" href="#p1">01 · WHERE JAVASCRIPT CAME FROM &rarr;</a></div>
+</section>
+
+<section class="part" id="p1">
+  <div class="phead"><div class="pnum">01</div>
+    <div><div class="ptitle">Where JavaScript Came From</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p1">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Every strange thing about JavaScript is a historical artifact. Knowing the history converts "this language is broken" into "this language has scars, and here's which ones to avoid."</p>
+
+<h2>The lineage</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Year</th><th>What happened</th><th>Why it still affects you</th></tr></thead><tbody><tr><td>1995</td><td>Brendan Eich writes it at Netscape in <b>~10 days</b>, under orders to make it "look like Java" while actually borrowing from Scheme (first-class functions, closures) and Self (prototypes)</td><td>The two halves of the language: a serious functional/prototypal core wearing a C-family costume. <code class="inline">==</code> coercion, <code class="inline">typeof null === "object"</code>, and hoisting are ten-day-deadline artifacts that could never be removed</td></tr><tr><td>1995</td><td>Named <b>JavaScript</b> purely for marketing — Java was hot. It is unrelated to Java</td><td>Twenty years of confused interviews</td></tr><tr><td>1996–99</td><td>Microsoft ships JScript; <b>ECMAScript</b> standardization begins (hence "ES"). ES3 (1999) is the baseline for a decade</td><td>The name ECMAScript exists because "JavaScript" was a Sun trademark</td></tr><tr><td>2000–05</td><td>Browser incompatibility hell. <b>jQuery</b> (2006) exists almost entirely to paper over DOM API differences and provide a usable selector engine</td><td>Why every senior dev has jQuery reflexes, and why <code class="inline">querySelector</code> + <code class="inline">fetch</code> made it unnecessary</td></tr><tr><td>2005</td><td><b>AJAX</b> named; Gmail/Maps prove the browser can host applications</td><td>The moment the browser stopped being a document viewer. Everything after is consequence</td></tr><tr><td>2008</td><td>Google ships <b>V8</b> with JIT compilation — JS goes from ~100x slower than C to within a small multiple</td><td>Without V8 there is no Node, no modern frontend, no Electron. Performance changed what was buildable</td></tr><tr><td>2009</td><td><b>Node.js</b> puts V8 on the server; npm follows</td><td>JS escapes the browser. One language across the stack — the reason full-stack JS exists</td></tr><tr><td>2015</td><td><b>ES6/ES2015</b>: <code class="inline">let</code>/<code class="inline">const</code>, classes, arrow functions, promises, modules, destructuring</td><td>The reset. Code before and after this line looks like different languages</td></tr><tr><td>2015–now</td><td>TC39 ships <b>yearly</b>; async/await (2017), optional chaining (2020), top-level await, <code class="inline">Array.at</code>, etc.</td><td>Small, steady additions instead of decade gaps</td></tr><tr><td>2012→</td><td><b>TypeScript</b> grows to become the default way large JS is written</td><td>An admission that JS's dynamism doesn't scale to large teams — while keeping the runtime unchanged</td></tr></tbody></table></div>
+
+<h2>What JavaScript actually invented — and what it inherited</h2>
+
+<p>It invented almost none of its good ideas: closures and first-class functions are Scheme's, prototypes are Self's, the syntax is C/Java's. What it *did* uniquely get was <b>ubiquity</b> — the only language that runs natively in every browser on Earth, and therefore the only one with a guaranteed distribution channel of billions of devices. That accident of position, not language quality, is why it won.</p>
+
+<h2>The governing constraint: "don't break the web"</h2>
+
+<p>This is the single most important thing to understand about JS's evolution, and it's the same principle you met in the HTML curriculum. Millions of pages will never be updated, so <b>nothing can ever be removed.</b> <code class="inline">var</code>, <code class="inline">==</code>, <code class="inline">with</code>, implicit globals, <code class="inline">typeof null</code> — all still there, forever. New features must be added *alongside* the mistakes.</p>
+
+<p>Two direct consequences: (1) the language has multiple ways to do everything, and "modern JS" is mostly a set of *conventions about which subset to use* — <code class="inline">const</code>/<code class="inline">let</code> not <code class="inline">var</code>, <code class="inline">===</code> not <code class="inline">==</code>, <code class="inline">async/await</code> not callbacks; (2) <code class="inline">"use strict"</code> and ES modules exist as opt-in stricter dialects, because they could change behaviour only for code that asked for it.</p>
+
+<p>Interview-grade framing: *"JavaScript's quirks aren't carelessness so much as a permanent backward-compatibility guarantee. It was written in ten days, standardized before it was designed, and can never remove a mistake — so evolution happens by adding better paths and socially deprecating the old ones."*</p>
+
+<div class="quiz" data-part="p1"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p0">&larr; 00 · HOW TO USE THIS CURRICULUM</a><a class="next" href="#p2">02 · THE CORE MENTAL MODEL &rarr;</a></div>
+</section>
+
+<section class="part" id="p2">
+  <div class="phead"><div class="pnum">02</div>
+    <div><div class="ptitle">The Core Mental Model</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p2">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Five ideas. Everything downstream is detail.</p>
+
+<h2>Idea 1: Variables hold values or references, and the difference explains half your bugs</h2>
+
+<p>Primitives (<code class="inline">number</code>, <code class="inline">string</code>, <code class="inline">boolean</code>, <code class="inline">null</code>, <code class="inline">undefined</code>, <code class="inline">symbol</code>, <code class="inline">bigint</code>) are copied <b>by value</b>. Objects (including arrays and functions) are copied <b>by reference</b> — the variable holds a pointer, not the thing.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>let a = { n: 1 };
+let b = a;        // b points at the SAME object
+b.n = 2;
+a.n;              // 2  ← you mutated one object through two names
+
+let x = [1,2,3];
+let y = [...x];   // NEW array (shallow copy) — y[0] is independent</code></pre></div>
+
+<p>Consequences you'll hit constantly:</p>
+
+<ul><li><code class="inline">const obj = {}</code> prevents <b>rebinding</b> <code class="inline">obj</code>, not mutation of its contents. <code class="inline">const</code> is not immutability.</li></ul>
+
+<ul><li>Passing an object into a function passes the reference — the function can mutate your data. This is the #1 source of "why did my state change?" bugs.</li></ul>
+
+<ul><li>Spread and <code class="inline">Object.assign</code> are <b>shallow</b>: nested objects are still shared. <code class="inline">structuredClone(obj)</code> gives you a deep copy.</li></ul>
+
+<ul><li>React's re-render logic is built on identity comparison, which is why "mutate then setState" silently does nothing while "create a new object" works. That's not a React rule; it's this rule.</li></ul>
+
+<h2>Idea 2: Scope is lexical, and closures fall out of it for free</h2>
+
+<p>Where a variable is *visible* is determined by where the code is <b>written</b>, not who calls it. Every function, when created, keeps a live link to the scope it was defined in — that combination of function + retained scope is a <b>closure</b>.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>function counter() {
+  let count = 0;                 // lives in counter's scope
+  return () =&gt; ++count;          // this function keeps that scope alive
+}
+const next = counter();
+next(); next();                  // 1, 2  ← count survives after counter() returned</code></pre></div>
+
+<p>Closures are not an advanced feature; they're a consequence of lexical scope plus functions being values. Every callback, every event handler, every React hook, every module-private variable is a closure. If you understand this one idea properly, <code class="inline">useState</code>'s "stale value" bugs stop being mysterious.</p>
+
+<h2>Idea 3: Objects delegate to other objects — the prototype chain</h2>
+
+<p>There are no classes underneath. Every object has an internal link to another object (its <b>prototype</b>). Property lookup walks that chain until found or until <code class="inline">null</code>:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>myArray → Array.prototype → Object.prototype → null</code></pre></div>
+
+<p>That's why <code class="inline">[].map</code> exists without being on your array: it's found one link up. <code class="inline">class</code> syntax (ES6) is real and useful but is <b>sugar over this mechanism</b> — it creates a constructor function and wires prototypes. Understanding the chain is what makes <code class="inline">instanceof</code>, method inheritance, and "why is my method undefined?" tractable.</p>
+
+<h2>Idea 4: <code class="inline">this</code> is decided by the call, not by the definition</h2>
+
+<p>The most-failed interview topic. <code class="inline">this</code> inside a normal function is determined at <b>call time</b>:</p>
+
+<div class="tblwrap"><table><thead><tr><th>Call form</th><th><code class="inline">this</code> is</th></tr></thead><tbody><tr><td><code class="inline">obj.method()</code></td><td><code class="inline">obj</code> — the object left of the dot</td></tr><tr><td><code class="inline">fn()</code></td><td><code class="inline">undefined</code> in strict mode/modules; the global object otherwise</td></tr><tr><td><code class="inline">new Fn()</code></td><td>The newly created object</td></tr><tr><td><code class="inline">fn.call(x)</code> / <code class="inline">fn.apply(x)</code> / <code class="inline">fn.bind(x)</code></td><td>Explicitly <code class="inline">x</code></td></tr><tr><td>Arrow function</td><td><b>Not its own</b> — inherited lexically from where it was written</td></tr></tbody></table></div>
+
+<p>Which gives you the classic bug and its fix in one:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>const user = {
+  name: 'Utkarsh',
+  greetBroken() { setTimeout(function () { console.log(this.name); }, 0); }, // undefined
+  greetFixed()  { setTimeout(() =&gt; console.log(this.name), 0); }             // works
+};</code></pre></div>
+
+<p>The arrow function fixes it not by magic but by *not having* <code class="inline">this</code> — it reads the enclosing one. That's the whole reason arrows were added.</p>
+
+<h2>Idea 5: One thread, one call stack, and a queue — the event loop</h2>
+
+<p>JavaScript executes on a <b>single thread</b>. There is one call stack; only one thing runs at a time. So how does it do network requests, timers, and clicks without freezing?</p>
+
+<p>It doesn't do them itself. The <b>runtime</b> (browser or Node) does — with real threads underneath — and hands results back as callbacks. The event loop's job: when the call stack is empty, take the next queued callback and run it.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>        ┌──────────────┐
+run ───▶│  call stack  │  (one thing at a time)
+        └──────────────┘
+               ▲
+               │ event loop: when stack is empty, take next
+        ┌──────┴─────────────────────────────┐
+        │ microtasks (promises) — drained FIRST, fully │
+        │ macrotasks (setTimeout, I/O, events) — one per tick │
+        └────────────────────────────────────┘</code></pre></div>
+
+<p>Two consequences that answer most async confusion:</p>
+
+<ul><li><b>Nothing is interrupted.</b> A long synchronous loop blocks timers, clicks, and rendering — because they're all waiting for the stack to empty. "JS is non-blocking" refers to I/O, not to your code.</li></ul>
+
+<ul><li><b>Microtasks jump the queue.</b> All pending promise callbacks run before the next <code class="inline">setTimeout</code>, which is exactly why this prints <code class="inline">1, 4, 3, 2</code>:</li></ul>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>console.log(1);
+setTimeout(() =&gt; console.log(2), 0);
+Promise.resolve().then(() =&gt; console.log(3));
+console.log(4);</code></pre></div>
+
+<h2>Checkpoint — before Part 3</h2>
+
+<p>Without running anything:</p>
+
+<ol><li>Explain why <code class="inline">const arr = [1,2]; arr.push(3)</code> is legal.</li></ol>
+
+<ol><li><code class="inline">for (var i=0;i&lt;3;i++) setTimeout(()=&gt;console.log(i))</code> prints <code class="inline">3 3 3</code>. Explain in terms of Ideas 2 and 5 — and say what one-word change fixes it and why.</li></ol>
+
+<ol><li>Why does <code class="inline">this</code> break when you pass <code class="inline">obj.method</code> as a callback, and name two fixes.</li></ol>
+
+<ol><li>Predict the output order of the four-line snippet above and justify each position.</li></ol>
+
+<p>If any of these is shaky, reread Part 2. Everything later assumes them.</p>
+
+<div class="quiz" data-part="p2"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p1">&larr; 01 · WHERE JAVASCRIPT CAME FROM</a><a class="next" href="#p3">03 · VALUES, TYPES, AND COERCION &rarr;</a></div>
+</section>
+
+<section class="part" id="p3">
+  <div class="phead"><div class="pnum">03</div>
+    <div><div class="ptitle">Values, Types, and Coercion</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p3">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>3.1 The type system [DEEP concept, REFERENCE the trivia]</h2>
+
+<p>Dynamically typed: <b>values</b> have types, variables don't. Seven primitives (<code class="inline">number</code>, <code class="inline">string</code>, <code class="inline">boolean</code>, <code class="inline">null</code>, <code class="inline">undefined</code>, <code class="inline">symbol</code>, <code class="inline">bigint</code>) plus objects. <code class="inline">typeof null === "object"</code> is a 1995 bug preserved forever (Part 1).</p>
+
+<p>One number type: IEEE-754 doubles. Hence <code class="inline">0.1 + 0.2 === 0.30000000000000004</code>, and hence: <b>never store money in a float.</b> Use integer paise/cents, or a decimal library. Given your fintech and invoicing work (Razorpay amounts are integers in paise for exactly this reason), this one is load-bearing, not academic.</p>
+
+<h2>3.2 Coercion, and the rule that makes it a non-issue [DEEP]</h2>
+
+<p>JS converts types implicitly, and the rules are genuinely arbitrary (<code class="inline">[] + {}</code>, <code class="inline">"5" - 2</code>, <code class="inline">null &gt;= 0</code>). The professional response is not to memorize the table — it's to <b>not rely on it</b>:</p>
+
+<ul><li>Always <code class="inline">===</code>, never <code class="inline">==</code>. The one defensible exception is <code class="inline">x == null</code> to catch both <code class="inline">null</code> and <code class="inline">undefined</code>.</li></ul>
+
+<ul><li>Convert explicitly: <code class="inline">Number(x)</code>, <code class="inline">String(x)</code>, <code class="inline">Boolean(x)</code>.</li></ul>
+
+<ul><li>Know the eight falsy values by heart, because they cause real bugs: <code class="inline">false, 0, -0, 0n, "", null, undefined, NaN</code>. Everything else — including <code class="inline">[]</code>, <code class="inline">{}</code>, and <code class="inline">"0"</code> — is truthy.</li></ul>
+
+<ul><li>The falsy trap that will bite you: <code class="inline">if (count)</code> is false when <code class="inline">count === 0</code>, which is usually a valid value. Use <code class="inline">if (count !== undefined)</code> or <code class="inline">??</code>.</li></ul>
+
+<p><code class="inline">??</code> (nullish coalescing) vs <code class="inline">||</code>: <code class="inline">||</code> falls through on any falsy value, <code class="inline">??</code> only on <code class="inline">null</code>/<code class="inline">undefined</code>. <code class="inline">const limit = input ?? 10</code> is correct where <code class="inline">input || 10</code> would wrongly override a deliberate <code class="inline">0</code>.</p>
+
+<h2>3.3 Declarations [DEEP]</h2>
+
+<div class="tblwrap"><table><thead><tr><th></th><th><code class="inline">var</code></th><th><code class="inline">let</code></th><th><code class="inline">const</code></th></tr></thead><tbody><tr><td>Scope</td><td>Function</td><td>Block</td><td>Block</td></tr><tr><td>Hoisting</td><td>Hoisted, initialized <code class="inline">undefined</code></td><td>Hoisted but in <b>TDZ</b> — throws if accessed before declaration</td><td>Same as <code class="inline">let</code></td></tr><tr><td>Rebindable</td><td>Yes</td><td>Yes</td><td>No</td></tr></tbody></table></div>
+
+<p>Rule: <code class="inline">const</code> by default, <code class="inline">let</code> when you must reassign, <b><code class="inline">var</code> never</b>. The TDZ (temporal dead zone) is a deliberate improvement: <code class="inline">var</code>'s silent <code class="inline">undefined</code> hid bugs; <code class="inline">let</code> throws a clear error instead.</p>
+
+<h2>3.4 Modern syntax you'll read constantly [RECOGNIZE]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>const { name, email: mail, role = 'user' } = user;      // destructure + rename + default
+const [first, ...rest] = items;
+const merged = { ...defaults, ...overrides };            // later wins
+const label = `${count} case${count === 1 ? '' : 's'}`;  // template literal
+const city = user?.address?.city ?? 'Unknown';           // optional chaining + nullish</code></pre></div>
+
+<p>Optional chaining is worth a note: it short-circuits to <code class="inline">undefined</code> instead of throwing "cannot read property of undefined" — the single most common runtime error in JS. It replaced whole paragraphs of defensive <code class="inline">&amp;&amp;</code> chains.</p>
+
+<div class="quiz" data-part="p3"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p2">&larr; 02 · THE CORE MENTAL MODEL</a><a class="next" href="#p4">04 · FUNCTIONS, SCOPE, CLOSURES &rarr;</a></div>
+</section>
+
+<section class="part" id="p4">
+  <div class="phead"><div class="pnum">04</div>
+    <div><div class="ptitle">Functions, Scope, Closures</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p4">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>4.1 Functions are values [DEEP]</h2>
+
+<p>They can be assigned, passed, returned, and stored in objects and arrays. This is the foundation of callbacks, higher-order functions, event handlers, middleware, and every hook you use. It comes from Scheme (Part 1) and is the language's best feature.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>const twice = fn =&gt; x =&gt; fn(fn(x));       // takes a function, returns a function
+const inc = n =&gt; n + 1;
+twice(inc)(5);                            // 7</code></pre></div>
+
+<h2>4.2 Arrow vs normal functions [DEEP]</h2>
+
+<div class="tblwrap"><table><thead><tr><th></th><th><code class="inline">function</code></th><th>Arrow</th></tr></thead><tbody><tr><td><code class="inline">this</code></td><td>Dynamic, set by call site</td><td><b>Lexical</b> — inherited, cannot be rebound</td></tr><tr><td><code class="inline">arguments</code></td><td>Available</td><td>Not available</td></tr><tr><td>Hoisted</td><td>Declarations are fully hoisted</td><td>No (it's a <code class="inline">const</code> assignment)</td></tr><tr><td>Usable as constructor / method with <code class="inline">this</code></td><td>Yes</td><td>No</td></tr></tbody></table></div>
+
+<p>Practical rule: <b>arrows for callbacks and anything nested inside a method; normal functions for object methods and anything needing dynamic <code class="inline">this</code>.</b> The reason arrows exist at all is Idea 4 — they were added specifically to kill <code class="inline">var self = this</code>.</p>
+
+<h2>4.3 Closures in practice [DEEP]</h2>
+
+<p>Four patterns you already use without naming them:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>// 1. Private state (the module pattern)
+const makeStore = () =&gt; { let state = {}; return {
+  get: k =&gt; state[k], set: (k,v) =&gt; { state = {...state, [k]:v}; } }; };
+
+// 2. Function factories / partial application
+const withPrefix = p =&gt; msg =&gt; console.log(`[${p}] ${msg}`);
+const logDb = withPrefix('db');
+
+// 3. Memoization — the cache lives in the closure
+const memo = fn =&gt; { const c = new Map();
+  return x =&gt; c.has(x) ? c.get(x) : (c.set(x, fn(x)), c.get(x)); };
+
+// 4. Debounce — the timer id lives in the closure
+const debounce = (fn, ms) =&gt; { let t; return (...a) =&gt; {
+  clearTimeout(t); t = setTimeout(() =&gt; fn(...a), ms); }; };</code></pre></div>
+
+<p>That debounce is worth writing from memory once; it's the most-asked closure question in interviews and it's genuinely useful in every search box you build.</p>
+
+<p><b>The classic closure bug</b> (and the reason <code class="inline">let</code> was introduced): <code class="inline">var</code> is function-scoped, so all three callbacks close over the *same* <code class="inline">i</code>. <code class="inline">let</code> creates a <b>new binding per iteration</b>, so each closure captures its own.</p>
+
+<h2>4.4 Parameters [RECOGNIZE]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>function search(q, { limit = 20, sort = 'date' } = {}) { }   // destructured options w/ defaults
+const sum = (...nums) =&gt; nums.reduce((a,b) =&gt; a+b, 0);        // rest</code></pre></div>
+
+<p>Common mistake: a mutable default that's shared — less severe in JS than Python, but <code class="inline">function f(arr = [])</code> creates a fresh array per call, so JS gets this right where Python doesn't. Worth knowing since you're learning both.</p>
+
+<h2>4.5 Purity and side effects [DEEP as discipline]</h2>
+
+<p>A <b>pure</b> function's output depends only on its inputs and it mutates nothing outside itself. Pure functions are trivially testable, cacheable, and safe to move. The practical discipline: push side effects (network, DOM, storage, logging) to the edges of your code and keep the middle pure. This is the single habit that most improves testability, and it's the principle behind React's render model, reducers, and functional pipelines.</p>
+
+<div class="quiz" data-part="p4"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p3">&larr; 03 · VALUES, TYPES, AND COERCION</a><a class="next" href="#p5">05 · OBJECTS, PROTOTYPES, CLASSES &rarr;</a></div>
+</section>
+
+<section class="part" id="p5">
+  <div class="phead"><div class="pnum">05</div>
+    <div><div class="ptitle">Objects, Prototypes, Classes</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p5">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>5.1 Objects [RECOGNIZE]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>const key = 'status';
+const case_ = { id: 7, [key]: 'open', hear() { return this.id; } };
+Object.keys(o); Object.values(o); Object.entries(o);   // iterate
+const { id, ...rest } = case_;                          // omit a key
+Object.freeze(o);                                       // shallow immutability</code></pre></div>
+
+<p>Note <code class="inline">Object.entries(o).map(...)</code> — converting objects to arrays to use array methods, then back with <code class="inline">Object.fromEntries</code>. That round-trip is the standard idiom for transforming object shapes.</p>
+
+<h2>5.2 The prototype chain, concretely [DEEP]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>const animal = { speak() { return `${this.name} makes a sound`; } };
+const dog = Object.create(animal);      // dog's prototype IS animal
+dog.name = 'Rex';
+dog.speak();                            // found one link up the chain
+Object.getPrototypeOf(dog) === animal;  // true</code></pre></div>
+
+<p>Lookup walks up; <b>assignment does not</b> — <code class="inline">dog.speak = ...</code> creates an own property that shadows the prototype's. That asymmetry explains most confusion about inheritance in JS.</p>
+
+<h2>5.3 Classes [RECOGNIZE syntax, DEEP that it's sugar]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>class Case {
+<span class="c">  #notes = [];                                  // truly private field</span>
+  static from(row) { return new Case(row.id); } // static factory
+  constructor(id) { this.id = id; }
+  get summary() { return `Case ${this.id}`; }   // getter — accessed as .summary
+  addNote(n) { this.#notes.push(n); return this; }
+}
+class Appeal extends Case {
+  constructor(id, court) { super(id); this.court = court; }
+}</code></pre></div>
+
+<p>Methods live on <code class="inline">Case.prototype</code>, shared by all instances — not copied per object. <code class="inline">extends</code> links prototypes. <code class="inline">super</code> calls up the chain. So classes are a readability win over <code class="inline">Object.create</code> plumbing, nothing more, and knowing that is the interview answer.</p>
+
+<p><b>Prefer composition over inheritance.</b> Deep class hierarchies are brittle; passing collaborating objects/functions in is more flexible. Most modern JS codebases (and all of React) chose composition — worth being able to argue why.</p>
+
+<div class="quiz" data-part="p5"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p4">&larr; 04 · FUNCTIONS, SCOPE, CLOSURES</a><a class="next" href="#p6">06 · ARRAYS AND DATA TRANSFORMATION &rarr;</a></div>
+</section>
+
+<section class="part" id="p6">
+  <div class="phead"><div class="pnum">06</div>
+    <div><div class="ptitle">Arrays and Data Transformation</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p6">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>6.1 The model [DEEP]</h2>
+
+<p>Stop writing <code class="inline">for</code> loops for transformations. Think in three verbs — this is the same mental shift you already made with SQL, and it's the closest analogy available to you:</p>
+
+<div class="tblwrap"><table><thead><tr><th>Verb</th><th>SQL analogue</th><th>Returns</th></tr></thead><tbody><tr><td><code class="inline">map</code></td><td><code class="inline">SELECT expr</code></td><td>New array, same length</td></tr><tr><td><code class="inline">filter</code></td><td><code class="inline">WHERE</code></td><td>New array, subset</td></tr><tr><td><code class="inline">reduce</code></td><td><code class="inline">GROUP BY</code> / aggregate</td><td>Any single value</td></tr></tbody></table></div>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>const hearings = cases
+  .filter(c =&gt; c.status === 'open')                  // WHERE
+  .map(c =&gt; ({ id: c.id, next: c.hearings[0] }))     // SELECT
+  .sort((a,b) =&gt; a.next.localeCompare(b.next));      // ORDER BY
+
+const byCourt = cases.reduce((acc, c) =&gt; {           // GROUP BY
+  (acc[c.court] ??= []).push(c); return acc;
+}, {});</code></pre></div>
+
+<p><code class="inline">reduce</code> is the general case — <code class="inline">map</code> and <code class="inline">filter</code> are both special cases of it. Understand <code class="inline">(accumulator, current) =&gt; newAccumulator</code> and it stops being scary.</p>
+
+<h2>6.2 Mutating vs non-mutating [DEEP — bug source]</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Mutates in place</th><th>Returns new</th></tr></thead><tbody><tr><td><code class="inline">push</code>, <code class="inline">pop</code>, <code class="inline">shift</code>, <code class="inline">unshift</code>, <code class="inline">splice</code>, <code class="inline">sort</code>, <code class="inline">reverse</code></td><td><code class="inline">map</code>, <code class="inline">filter</code>, <code class="inline">slice</code>, <code class="inline">concat</code>, <code class="inline">flat</code>, spread, <code class="inline">toSorted</code>, <code class="inline">toReversed</code></td></tr></tbody></table></div>
+
+<p><code class="inline">sort</code> and <code class="inline">reverse</code> mutating <b>is</b> a trap — <code class="inline">list.sort()</code> reorders the original, which in React means state you thought was untouched has changed. Use <code class="inline">[...list].sort()</code> or the newer <code class="inline">toSorted()</code>.</p>
+
+<h2>6.3 Other collections [RECOGNIZE]</h2>
+
+<p><code class="inline">Map</code> — keys of any type, preserves insertion order, <code class="inline">.size</code>, no prototype-key collisions. Prefer over plain objects for real key-value stores. <code class="inline">Set</code> — unique values; <code class="inline">[...new Set(arr)]</code> is the standard dedupe. <code class="inline">Object.groupBy</code> for grouping without the reduce boilerplate.</p>
+
+<h2>6.4 Common mistakes</h2>
+
+<ul><li><code class="inline">forEach</code> when you wanted <code class="inline">map</code> (returns <code class="inline">undefined</code>).</li></ul>
+
+<ul><li><code class="inline">async</code> inside <code class="inline">forEach</code> — it does <b>not</b> wait. Use <code class="inline">for...of</code> with <code class="inline">await</code>, or <code class="inline">Promise.all(arr.map(async ...))</code>.</li></ul>
+
+<ul><li>Mutating during iteration.</li></ul>
+
+<ul><li>Reaching for a library for things now native (<code class="inline">flat</code>, <code class="inline">groupBy</code>, <code class="inline">structuredClone</code>).</li></ul>
+
+<div class="quiz" data-part="p6"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p5">&larr; 05 · OBJECTS, PROTOTYPES, CLASSES</a><a class="next" href="#p7">07 · ASYNCHRONY: THE EVENT LOOP IN PRACTICE &rarr;</a></div>
+</section>
+
+<section class="part" id="p7">
+  <div class="phead"><div class="pnum">07</div>
+    <div><div class="ptitle">Asynchrony: The Event Loop in Practice</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p7">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>7.1 Why async exists at all [DEEP]</h2>
+
+<p>One thread (Idea 5) + operations that take time (network, disk, timers) = if you waited synchronously, the UI would freeze on every request. So the runtime does the waiting off-thread and calls you back. Async in JS isn't about parallelism — it's about <b>not blocking the one thread you have</b>.</p>
+
+<h2>7.2 The three generations [DEEP on why each replaced the last]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>// 1. Callbacks (1995–) — worked, but nesting and error handling didn't compose
+getUser(id, (err, user) =&gt; { if (err) return cb(err);
+  getCases(user.id, (err, cases) =&gt; { /* callback hell */ }); });
+
+// 2. Promises (ES6) — a first-class VALUE representing a future result, so it can be
+//    returned, stored, combined, and chained; errors propagate down one .catch
+getUser(id).then(u =&gt; getCases(u.id)).then(render).catch(showError);
+
+// 3. async/await (ES2017) — the same promises, written in linear form
+async function load(id) {
+  try {
+    const user  = await getUser(id);
+    const cases = await getCases(user.id);
+    return render(cases);
+  } catch (e) { showError(e); }
+}</code></pre></div>
+
+<p>The key insight most people miss: <b><code class="inline">async/await</code> is not a third mechanism.</b> An <code class="inline">async</code> function always returns a promise; <code class="inline">await</code> just pauses that function and resumes it in a microtask when the promise settles. Everything about promises still applies — which is why understanding promises properly is non-optional.</p>
+
+<h2>7.3 Concurrency patterns [DEEP — the sequential-await mistake]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>// SLOW — 3 sequential round trips
+const a = await getA(); const b = await getB(); const c = await getC();
+
+// FAST — all three start immediately, then wait for all
+const [a, b, c] = await Promise.all([getA(), getB(), getC()]);</code></pre></div>
+
+<p>Awaiting in a loop when the operations are independent is the most common real-world async performance bug. <code class="inline">Promise.all</code> rejects if *any* rejects; <code class="inline">Promise.allSettled</code> gives you every outcome (right for "fetch 50 things, tolerate failures" — e.g. your eCourts sync); <code class="inline">Promise.race</code>/<code class="inline">any</code> for timeouts and fallbacks.</p>
+
+<h2>7.4 Errors, timeouts, cancellation [RECOGNIZE, one [DEEP] gotcha]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>const ctrl = new AbortController();
+setTimeout(() =&gt; ctrl.abort(), 5000);
+const res = await fetch(url, { signal: ctrl.signal });
+if (!res.ok) throw new Error(`HTTP ${res.status}`);   // ← fetch does NOT throw on 404/500
+const data = await res.json();</code></pre></div>
+
+<p>The [DEEP] gotcha in that snippet: <b><code class="inline">fetch</code> only rejects on network failure, not on HTTP error status.</b> A 500 resolves normally with <code class="inline">res.ok === false</code>. Every JS developer has shipped this bug once. And an unawaited async call that rejects becomes an unhandled rejection — silent in browsers, fatal in modern Node.</p>
+
+<h2>7.5 Exercise</h2>
+
+<p>Write a <code class="inline">fetchWithRetry(url, { retries = 3, timeout = 5000 })</code> that: times out via AbortController, retries with exponential backoff, doesn't retry 4xx (client errors won't fix themselves), throws a useful error on final failure. This single function exercises promises, closures, error handling, and cancellation — and you'll reuse it in every project you build.</p>
+
+<div class="quiz" data-part="p7"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p6">&larr; 06 · ARRAYS AND DATA TRANSFORMATION</a><a class="next" href="#p8">08 · THE BROWSER: DOM, EVENTS, AND WHY FRAMEWORKS EXIST &rarr;</a></div>
+</section>
+
+<section class="part" id="p8">
+  <div class="phead"><div class="pnum">08</div>
+    <div><div class="ptitle">The Browser: DOM, Events, and Why Frameworks Exist</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p8">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>8.1 The DOM is an API, not the language [DEEP]</h2>
+
+<p>JS the language has no concept of a document. <code class="inline">document</code>, <code class="inline">window</code>, <code class="inline">fetch</code>, <code class="inline">localStorage</code> are all <b>host-provided APIs</b> — which is why the same language runs in Node with none of them. Keeping that separation clear is what makes "does this code run on the server?" answerable.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>const el = document.querySelector('.card');          // CSS selectors, no jQuery needed
+el.textContent = 'safe';                             // ← always prefer over innerHTML
+el.classList.toggle('is-open');
+el.dataset.caseId = 7;                               // data-case-id
+const node = tpl.content.cloneNode(true);            // &lt;template&gt; for repeated markup</code></pre></div>
+
+<p><b><code class="inline">textContent</code> vs <code class="inline">innerHTML</code> is a security boundary, not a style choice.</b> <code class="inline">innerHTML</code> with any user-supplied string is an XSS vulnerability. Given you're building a real app with user data, treat <code class="inline">innerHTML</code> as a decision requiring justification and sanitization.</p>
+
+<h2>8.2 Events [DEEP]</h2>
+
+<p>An event <b>captures</b> down the tree from <code class="inline">window</code> to the target, fires on the target, then <b>bubbles</b> back up. Consequences:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>list.addEventListener('click', e =&gt; {                 // ONE listener for N children
+  const btn = e.target.closest('[data-id]');          // event DELEGATION
+  if (!btn) return;
+  open(btn.dataset.id);
+});</code></pre></div>
+
+<p>Delegation is the pattern to internalize: it works for elements added later, and it replaces N listeners with one. <code class="inline">e.preventDefault()</code> stops the browser's default action (form submit, link navigation); <code class="inline">e.stopPropagation()</code> stops the bubbling — different things, frequently confused, and a common interview question.</p>
+
+<h2>8.3 Why frameworks exist [DEEP — this is the bridge to your actual work]</h2>
+
+<p>Vanilla DOM manipulation has one structural problem: <b>you must manually keep the DOM in sync with your data, from every code path that changes it.</b> With three pieces of state and five views, the number of update paths explodes, and bugs are always "this one place forgot to update."</p>
+
+<p>React's proposition is a single idea: <b>UI is a function of state.</b> You describe what the DOM should look like for the current state; the framework computes the difference and applies it. Every React concept you already use follows from that:</p>
+
+<div class="tblwrap"><table><thead><tr><th>React thing</th><th>The vanilla problem it solves</th></tr></thead><tbody><tr><td>Components</td><td>Ad-hoc functions creating and wiring DOM by hand</td></tr><tr><td>State + re-render</td><td>Manual, easily-forgotten DOM updates</td></tr><tr><td>Keys in lists</td><td>Identity tracking when reordering children</td></tr><tr><td><code class="inline">useEffect</code></td><td>Lifecycle-tied side effects and their cleanup (removing listeners, aborting fetches)</td></tr><tr><td>Reference equality in deps/memo</td><td>Idea 1 — new object identity per render</td></tr></tbody></table></div>
+
+<p>So do Part 9's vanilla app <b>before</b> reaching for a framework again. It's the only way to feel the problem React solves, which is the difference between using React and understanding it.</p>
+
+<div class="quiz" data-part="p8"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p7">&larr; 07 · ASYNCHRONY: THE EVENT LOOP IN PRACTICE</a><a class="next" href="#p9">09 · REAL PROJECTS &rarr;</a></div>
+</section>
+
+<section class="part" id="p9">
+  <div class="phead"><div class="pnum">09</div>
+    <div><div class="ptitle">Real Projects</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p9">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>9.1 Project A — vanilla browser app, no framework, no build step</h2>
+
+<p><b>Spec:</b> a case/task list that (1) fetches from a public API, (2) renders a list from a <code class="inline">&lt;template&gt;</code>, (3) supports search (debounced), filter, and sort, (4) has add/edit/delete with optimistic UI, (5) persists to <code class="inline">localStorage</code>, (6) shows explicit loading, empty, and error states, (7) uses one delegated click listener for the whole list, (8) is fully keyboard operable.</p>
+
+<p><b>Definition of done:</b> no <code class="inline">innerHTML</code> with user data; every async path has error handling; state lives in one object and rendering is a single function of it (<code class="inline">render(state)</code>); and you can explain which parts of your code React would have written for you.</p>
+
+<h2>9.2 Project B — Node service</h2>
+
+<p><b>Spec:</b> an HTTP API (Node's built-in <code class="inline">http</code>, or Express/Fastify once you've seen raw) with: two or three routes, JSON parsing, input validation with clear 4xx errors, an async data layer talking to Postgres or a JSON file, structured logging, graceful shutdown on SIGTERM, and env-var config. Then containerize it using the Docker curriculum's Part 8 pattern.</p>
+
+<p>Why this pairing: Project A teaches the browser half and why frameworks exist; Project B teaches that the same language, same event loop, and same async model apply with a completely different set of host APIs. Together they cover the whole of what "knowing JavaScript" means.</p>
+
+<div class="quiz" data-part="p9"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p8">&larr; 08 · THE BROWSER: DOM, EVENTS, AND WHY FRAMEWORKS EXIST</a><a class="next" href="#p10">10 · DEBUGGING PLAYBOOK &rarr;</a></div>
+</section>
+
+<section class="part" id="p10">
+  <div class="phead"><div class="pnum">10</div>
+    <div><div class="ptitle">Debugging Playbook</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p10">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>The decision tree</h2>
+
+<p><b><code class="inline">Cannot read properties of undefined (reading 'x')</code></b> — the most common JS error. Something in the chain before <code class="inline">.x</code> is <code class="inline">undefined</code>. Read the stack trace's top frame, log the object *one level up*, and fix the cause (usually a wrong API shape assumption or an async value read before it arrived). <code class="inline">?.</code> silences the symptom; only use it where absence is genuinely valid.</p>
+
+<p><b><code class="inline">undefined is not a function</code></b> — typo, wrong import shape (default vs named), or <code class="inline">this</code> lost (Idea 4).</p>
+
+<p><b>"My value is stale / didn't update."</b> Almost always Idea 1 (mutated instead of replaced, so identity didn't change) or Idea 2 (a closure captured an old value). In React specifically: mutation of state, or a stale closure in a callback with missing deps.</p>
+
+<p><b>"My async code runs in the wrong order."</b> Reason it out with Idea 5: sync code first, then all microtasks (promises/awaits), then one macrotask (timers). Add <code class="inline">console.log</code> markers before/after every <code class="inline">await</code> and read the actual order rather than the intended one.</p>
+
+<p><b>"It works locally, fails in production."</b> Env vars missing, CORS, HTTPS-only APIs, minification exposing a timing bug, or a browser-only API running during SSR (<code class="inline">window is not defined</code> — a Next.js classic).</p>
+
+<p><b>Silent failure, nothing in console.</b> An unhandled promise rejection (add <code class="inline">window.addEventListener('unhandledrejection', ...)</code>), an error swallowed by an empty <code class="inline">catch</code>, or an event listener attached before the element existed.</p>
+
+<h2>The tools worth mastery</h2>
+
+<p><code class="inline">console.table</code> for arrays of objects; <code class="inline">console.group</code>; <code class="inline">debugger;</code> statements and DevTools breakpoints (<b>conditional</b> breakpoints are the underrated one); the Network tab for the actual request/response rather than what you think you sent; and <code class="inline">Sources → watch</code> for stepping through closures to see captured values. Learning to step through code beats adding logs, and it's the habit that most separates fast debuggers from slow ones.</p>
+
+<div class="quiz" data-part="p10"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p9">&larr; 09 · REAL PROJECTS</a><a class="next" href="#p11">11 · INTERNALS &rarr;</a></div>
+</section>
+
+<section class="part" id="p11">
+  <div class="phead"><div class="pnum">11</div>
+    <div><div class="ptitle">Internals</div>
+    <div class="pmeta"><span class="m">TAG <b>ADVANCED</b></span><span class="m">★ <b>INTERVIEW GOLD</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p11">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>11.1 How V8 runs your code</h2>
+
+<p>Parse → AST → <b>Ignition</b> compiles to bytecode and starts executing immediately → hot functions get optimized by <b>TurboFan</b> into machine code, using observed types → if an assumption breaks (a function that always got numbers suddenly gets a string), V8 <b>deoptimizes</b> back to bytecode.</p>
+
+<p>The actionable consequence: V8 optimizes *predictable* code. Objects with consistent shapes (same properties, same order — "hidden classes") and functions called with consistent types run dramatically faster than polymorphic ones. You don't micro-optimize for this, but it explains why "just make it dynamic" has a real cost, and why TypeScript's discipline often incidentally produces faster code.</p>
+
+<h2>11.2 Memory and leaks</h2>
+
+<p>Automatic GC (generational, mark-and-sweep): unreachable objects are collected. So leaks in JS are always <b>unintended reachability</b>:</p>
+
+<ul><li>Listeners never removed (the closure keeps the whole scope alive — including DOM nodes).</li></ul>
+
+<ul><li>Timers/intervals never cleared.</li></ul>
+
+<ul><li>Growing caches/arrays with no eviction.</li></ul>
+
+<ul><li>Detached DOM nodes still referenced by a variable.</li></ul>
+
+<p><code class="inline">WeakMap</code>/<code class="inline">WeakSet</code> hold keys weakly, so they don't prevent collection — the right tool for metadata attached to objects you don't own. Diagnose with DevTools Memory → heap snapshot comparison.</p>
+
+<h2>11.3 The event loop, precisely [DEEP for interviews]</h2>
+
+<p>One turn: (1) run the current macrotask to completion; (2) <b>drain the entire microtask queue</b> — including microtasks queued by microtasks, which is why an infinite microtask loop hangs the page permanently; (3) in browsers, run <code class="inline">requestAnimationFrame</code> callbacks and then render if needed; (4) take the next macrotask.</p>
+
+<p>Therefore: <code class="inline">setTimeout(fn, 0)</code> means "after the current task and all microtasks," not "immediately" — and the minimum clamps to ~4ms after nesting. Node adds <code class="inline">process.nextTick</code> (before other microtasks) and distinct phases (timers, pending callbacks, poll, check/<code class="inline">setImmediate</code>, close) — [ADVANCED], but knowing the phases exist is a real Node signal.</p>
+
+<h2>11.4 Modules [DEEP]</h2>
+
+<p><b>ESM</b> (<code class="inline">import</code>/<code class="inline">export</code>) is statically analyzable — resolved before execution, which enables tree-shaking and circular-import handling, and its imports are *live bindings*. <b>CommonJS</b> (<code class="inline">require</code>/<code class="inline">module.exports</code>) is dynamic and synchronous, evaluated at call time, returning a copy of the value. That difference is why the Node ecosystem's ESM/CJS transition has been so painful, and why <code class="inline">"type": "module"</code>, <code class="inline">.mjs</code>, and dual builds exist.</p>
+
+<p>Bundlers exist because HTTP/1.1 made hundreds of module requests slow and because browsers had no module system until 2017 — plus transpilation for older targets. With ESM and HTTP/2, "why do I need a bundler at all?" is now a legitimate question for small projects, which is exactly what Vite's dev server bets on.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">simulator — click RUN</span></div><pre id="simOut"><span cl/></pre><div class="stack-controls" style="margin:0;padding:10px 16px;border-top:1px solid var(--line)"><button class="btn sm" id="simRun">&#9654; RUN</button><button class="btn sm ok" id="simReset">RESET</button></div></div>
+
+<div class="quiz" data-part="p11"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p10">&larr; 10 · DEBUGGING PLAYBOOK</a><a class="next" href="#p12">12 · PRODUCTION &rarr;</a></div>
+</section>
+
+<section class="part" id="p12">
+  <div class="phead"><div class="pnum">12</div>
+    <div><div class="ptitle">Production</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p12">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>12.1 TypeScript [DEEP as a decision]</h2>
+
+<p>TS adds a compile-time type layer and erases entirely at runtime — <b>no runtime safety</b>. What you get: errors at build time instead of in production, real autocomplete, and types as executable documentation. What you pay: a build step, config, and the type-gymnastics tax on complex generics.</p>
+
+<p>The critical implication people miss: because types vanish at runtime, <b>external data is unverified.</b> A typed <code class="inline">fetch</code> response is a *claim*, not a check. Validate boundaries at runtime (Zod or equivalent) — API responses, form input, env vars, webhook payloads. Type-safe-in-editor plus unvalidated-at-runtime is a false sense of security, and it's exactly the gap that bites in real apps like yours with Supabase and Razorpay payloads.</p>
+
+<h2>12.2 Testing [RECOGNIZE]</h2>
+
+<p>Unit tests for pure logic (cheap, fast, plentiful); integration tests for modules working together; a small number of end-to-end tests (Playwright) for critical user paths. Test behaviour, not implementation — a test that breaks on every refactor is a liability. Vitest/Jest for the first two.</p>
+
+<h2>12.3 Security essentials [DEEP — non-negotiable]</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Risk</th><th>Mechanism</th><th>Defence</th></tr></thead><tbody><tr><td><b>XSS</b></td><td>Attacker's string executed as code in your page</td><td>Never <code class="inline">innerHTML</code> with untrusted data; escape output; Content-Security-Policy; sanitize if HTML is genuinely required</td></tr><tr><td><b>Secrets in client code</b></td><td>Anything shipped to the browser is public</td><td>Server-side only; for Supabase, <code class="inline">anon</code> key + Row-Level Security is the design — RLS is the actual security, not key secrecy</td></tr><tr><td><b>CSRF</b></td><td>Attacker's site triggers authenticated requests</td><td><code class="inline">SameSite</code> cookies, CSRF tokens</td></tr><tr><td><b>Dependency risk</b></td><td><code class="inline">npm install</code> runs others' code</td><td><code class="inline">npm audit</code>, lockfiles, minimize dependencies, review before adding</td></tr><tr><td><b>Trusting the client</b></td><td>Any validation in the browser can be bypassed</td><td><b>Every</b> rule must be re-enforced server-side. Client validation is UX only</td></tr></tbody></table></div>
+
+<p>That last row is the one that matters most for your paywall/credits work: if credit deduction or tier checks happen client-side, they don't exist.</p>
+
+<div class="quiz" data-part="p12"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p11">&larr; 11 · INTERNALS</a><a class="next" href="#p13">13 · WHEN NOT TO USE JAVASCRIPT &rarr;</a></div>
+</section>
+
+<section class="part" id="p13">
+  <div class="phead"><div class="pnum">13</div>
+    <div><div class="ptitle">When Not to Use JavaScript</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p13">MARK COMPLETE</button></div>
+  </div>
+
+  <p><b>Right tool when:</b> anything in a browser (no alternative that isn't compiled to JS/WASM); full-stack teams wanting one language; I/O-heavy services (the event loop is genuinely excellent at many concurrent connections); real-time (WebSockets); tooling and scripting where npm's ecosystem wins.</p>
+
+<p><b>Wrong or questionable when:</b></p>
+
+<ul><li><b>CPU-bound work</b> — single thread, and heavy computation blocks everything. Worker threads and WASM help; Python/Go/Rust are often just better. Your ETL and data-crunching work belongs in Python, not Node.</li></ul>
+
+<ul><li><b>Data science / ML</b> — the ecosystem simply isn't there. numpy/pandas/PyTorch have no real JS equivalent.</li></ul>
+
+<ul><li><b>Precise decimal arithmetic</b> — floats. Money needs integers or a decimal library (Part 3.1).</li></ul>
+
+<ul><li><b>Long-lived systems needing strong guarantees</b> — dynamic typing plus a fast-churning ecosystem; TS mitigates, doesn't eliminate.</li></ul>
+
+<ul><li><b>Small static sites</b> — often no JS needed at all; HTML/CSS does it, and shipping zero JS is faster than any framework.</li></ul>
+
+<ul><li><b>Where the dependency tree is the risk</b> — a 2MB node_modules for a 50-line script is a real supply-chain and maintenance cost.</li></ul>
+
+<p>Honest additional weaknesses worth being able to name: ecosystem churn, <code class="inline">node_modules</code> weight, ESM/CJS fragmentation, and the fact that "JavaScript fatigue" is a real cost of the platform's speed of change.</p>
+
+<p>If you can deliver these aloud — WHAT → WHY IT EXISTS → ONE CONCRETE CONSEQUENCE — you are interview-ready. Answer before flipping; nailed cards dim.</p>
+<div class="deck" id="deck"><!-- cards injected by JS --></div>
+
+  <div class="breadcrumb"><a href="#p12">&larr; 12 · PRODUCTION</a><a class="next" href="#p14">14 · INTERVIEW PREP &amp; MILESTONES &rarr;</a></div>
+</section>
+
+<section class="part" id="p14">
+  <div class="phead"><div class="pnum">14</div>
+    <div><div class="ptitle">Interview Prep &amp; Milestones</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p14">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>Questions</h2>
+
+<p><b>Tier 1:</b> <code class="inline">var</code>/<code class="inline">let</code>/<code class="inline">const</code> and TDZ · <code class="inline">==</code> vs <code class="inline">===</code> · what a closure is, with a use case · arrow vs normal function · <code class="inline">map</code>/<code class="inline">filter</code>/<code class="inline">reduce</code> · promise vs callback · what <code class="inline">this</code> is in four call forms · hoisting.</p>
+
+<p><b>Tier 2:</b> explain the event loop and predict output order · microtask vs macrotask · deep vs shallow copy and why it matters in React · prototype chain, and what <code class="inline">class</code> compiles to · event delegation, bubbling vs capturing · <code class="inline">Promise.all</code> vs <code class="inline">allSettled</code> vs <code class="inline">race</code> · debounce vs throttle (write one) · why <code class="inline">fetch</code> doesn't reject on 500 · ESM vs CommonJS.</p>
+
+<p><b>Tier 3:</b> how V8 optimizes and deoptimizes · what causes memory leaks in JS and how you'd find one · why animating with <code class="inline">transform</code> is cheaper (cross-links to the CSS curriculum) · layout thrashing · what TypeScript does and doesn't guarantee at runtime · why JavaScript can never remove <code class="inline">var</code> · what problem React actually solves, in one sentence about state and the DOM.</p>
+
+<h2>Milestones</h2>
+
+<p><b>M1 — Model (Parts 1–2).</b> Pass: the four Part 2 checkpoint questions, unaided, out loud.</p>
+
+<p><b>M2 — Language (Parts 3–6).</b> Pass: write <code class="inline">debounce</code>, <code class="inline">memoize</code>, and a <code class="inline">groupBy</code> from scratch; predict output of five coercion/closure snippets.</p>
+
+<p><b>M3 — Async (Part 7).</b> Pass: build <code class="inline">fetchWithRetry</code>; correctly order any promise/timer snippet; explain sequential-await cost.</p>
+
+<p><b>M4 — Browser (Part 8) + Project A.</b> Pass: the vanilla app meeting every "definition of done" item, and a written list of what React would have handled.</p>
+
+<p><b>M5 — Node (Project B) + Debugging (Part 10).</b> Pass: the service running and containerized; debug an unfamiliar broken script using breakpoints, not logs.</p>
+
+<p><b>M6 — Depth (Parts 11–13).</b> Pass: the event-loop narration; name three leak causes; argue where JS is the wrong tool.</p>
+
+<p>Pace at ~1 hour/day: M1 days 1–3, M2 days 4–9, M3 days 10–13, M4 days 14–20, M5 days 21–26, M6 days 27–31. Write every snippet by hand — reading JS creates the illusion of understanding faster than any other language, because the syntax is familiar even when the semantics aren't.</p>
+
+<p>Six milestones = six layers of proof. When all six drop, the shipyard ships your container.</p>
+<div class="mlist" id="mlist"><!-- milestones injected by JS --></div>
+
+  <div class="breadcrumb"><a href="#p13">&larr; 13 · WHEN NOT TO USE JAVASCRIPT</a></div>
+</section><footer>
+  <b>ABOUT THIS BUILD:</b> The JavaScript Shipyard is a faithful interactive conversion of the first-principles JavaScript curriculum — every concept, table, code block and exercise preserved. Progress lives in your browser (localStorage). Built as a single file — copy it anywhere, it runs offline.<br>
+  <b>THE ONE RULE:</b> `this` is decided by the call, not by the definition. Hold that and half your JS bugs disappear.
+</footer>
+</main>
+</div>
+<div id="grad"><div class="gterm"><div class="ghead">&#9650; SHIPYARD DEPLOYMENT — ALL MILESTONES CROSSED</div><div class="gbody"></div></div></div>
+<script>
+// generated by build.mjs from javascript-curriculum.md + build/pedagogy/javascript.mjs - do not hand-edit
+window.SHIPYARD_DATA={
+meta:{
+ "tech": "javascript",
+ "title": "The JavaScript Shipyard - JavaScript: A First-Principles Curriculum",
+ "brand": "THE JAVASCRIPT SHIPYARD",
+ "tagline": "JavaScript · values & refs · closures · the event loop",
+ "storageKey": "shipyard:javascript:v1",
+ "accent": "#a78bfa"
+},
+parts:[
+ {
+  "id": "p0",
+  "num": "00",
+  "title": "How to Use This Curriculum",
+  "tag": null
+ },
+ {
+  "id": "p1",
+  "num": "01",
+  "title": "Where JavaScript Came From",
+  "tag": "DEEP"
+ },
+ {
+  "id": "p2",
+  "num": "02",
+  "title": "The Core Mental Model",
+  "tag": "DEEP"
+ },
+ {
+  "id": "p3",
+  "num": "03",
+  "title": "Values, Types, and Coercion",
+  "tag": null
+ },
+ {
+  "id": "p4",
+  "num": "04",
+  "title": "Functions, Scope, Closures",
+  "tag": null
+ },
+ {
+  "id": "p5",
+  "num": "05",
+  "title": "Objects, Prototypes, Classes",
+  "tag": null
+ },
+ {
+  "id": "p6",
+  "num": "06",
+  "title": "Arrays and Data Transformation",
+  "tag": null
+ },
+ {
+  "id": "p7",
+  "num": "07",
+  "title": "Asynchrony: The Event Loop in Practice",
+  "tag": null
+ },
+ {
+  "id": "p8",
+  "num": "08",
+  "title": "The Browser: DOM, Events, and Why Frameworks Exist",
+  "tag": null
+ },
+ {
+  "id": "p9",
+  "num": "09",
+  "title": "Real Projects",
+  "tag": null
+ },
+ {
+  "id": "p10",
+  "num": "10",
+  "title": "Debugging Playbook",
+  "tag": "DEEP"
+ },
+ {
+  "id": "p11",
+  "num": "11",
+  "title": "Internals",
+  "tag": "ADVANCED"
+ },
+ {
+  "id": "p12",
+  "num": "12",
+  "title": "Production",
+  "tag": null
+ },
+ {
+  "id": "p13",
+  "num": "13",
+  "title": "When Not to Use JavaScript",
+  "tag": "DEEP"
+ },
+ {
+  "id": "p14",
+  "num": "14",
+  "title": "Interview Prep & Milestones",
+  "tag": null
+ }
+],
+quiz:{
+ "p1": [
+  {
+   "q": "The governing constraint of JS — the one that explains its history:",
+   "o": [
+    "Never break the web — every surviving page must keep working; legacy mistakes stay",
+    "Maximise raw speed",
+    "Remove footguns aggressively every release",
+    "Keep the GIL"
+   ],
+   "a": 0,
+   "e": "“Don’t break the web”: backwards compatibility is sacred, so old mistakes persist — which is why new features arrive via transpilation, not breaking changes."
+  },
+  {
+   "q": "JavaScript was invented:",
+   "o": [
+    "By Brendan Eich in 10 days at Netscape, 1995 — borrowing prototypes from Self and closures/first-class functions from Scheme",
+    "By the W3C committee over five years",
+    "By Microsoft in 2001",
+    "As a subset of Java"
+   ],
+   "a": 0,
+   "e": "Ten days, Netscape, 1995. Prototypes from Self, lambdas from Scheme — that lineage is why the language looks the way it does."
+  },
+  {
+   "q": "What took JavaScript out of the browser?",
+   "o": [
+    "Node.js (Ryan Dahl, 2009) — V8 running outside the browser",
+    "TypeScript in 2012",
+    "ES6 modules",
+    "npm becoming mandatory"
+   ],
+   "a": 0,
+   "e": "Node.js moved JS to servers and build tooling, which changed the ecosystem forever."
+  },
+  {
+   "q": "How do ES6+ features reach the web safely?",
+   "o": [
+    "Transpilation — Babel compiles modern syntax down to what older engines understand",
+    "Breaking browsers",
+    "A parallel language",
+    "CDN polyfills only"
+   ],
+   "a": 0,
+   "e": "The “never break the web” constraint means new syntax ships compiled, not native — until engines catch up."
+  }
+ ],
+ "p2": [
+  {
+   "q": "Primitives vs objects — the divide:",
+   "o": [
+    "7 primitives are values compared by VALUE; everything else is an object compared by REFERENCE",
+    "Everything is an object",
+    "Strings are objects",
+    "Primitives cannot be stored in variables"
+   ],
+   "a": 0,
+   "e": "string, number, bigint, boolean, symbol, undefined, null — value semantics. Objects (incl. arrays, functions): reference semantics. Half your bugs live at this boundary."
+  },
+  {
+   "q": "let vs const vs var:",
+   "o": [
+    "var: function-scoped + hoisted as undefined — the legacy footgun; let/const: block-scoped with a temporal dead zone",
+    "let and const are identical",
+    "const prevents all mutation",
+    "var is best practice in 2025"
+   ],
+   "a": 0,
+   "e": "Use const by default, let when rebinding. const binds the name; it does not freeze the object."
+  },
+  {
+   "q": "const a = {x:1}; const b = a; b.x = 2; what is a.x?",
+   "o": [
+    "2 — b is a second reference to the SAME object; assignment never copies objects",
+    "1 — b is a copy",
+    "undefined",
+    "TypeError"
+   ],
+   "a": 0,
+   "e": "b = a makes two names for one object; mutation through either is visible through both. Clone explicitly (spread) when you need independence."
+  },
+  {
+   "q": "A closure is:",
+   "o": [
+    "A function that keeps access to the scope where it was defined, even after the outer function returns",
+    "A function with no arguments",
+    "The event loop’s queue",
+    "A class without state"
+   ],
+   "a": 0,
+   "e": "Lexical scoping: functions capture surrounding variables. Counters, factories, and modules are all closures."
+  }
+ ],
+ "p3": [
+  {
+   "q": "‘2’ + 2 evaluates to:",
+   "o": [
+    "‘22’ — + favours string concatenation",
+    "4 — + is always numeric",
+    "NaN",
+    "TypeError"
+   ],
+   "a": 0,
+   "e": "‘+’ is dual-purpose (concat/numeric) which is why it lies; ‘*’ is numeric-only. The coercion rule that matters: be explicit, use ===."
+  },
+  {
+   "q": "== vs ===:",
+   "o": [
+    "=== checks type AND value; == coerces first. Prefer === — except rare deliberate cross-type comparisons",
+    "== is faster, always use it",
+    "=== fails on objects",
+    "Never use either"
+   ],
+   "a": 0,
+   "e": "=== with explicit conversions at boundaries makes coercion a non-issue."
+  },
+  {
+   "q": "Which values are falsy?",
+   "o": [
+    "0, ‘’, null, undefined, NaN, false — arrays and objects are always truthy, even [] and {}",
+    "[] and {} are falsy",
+    "‘false’ is falsy",
+    "null is truthy"
+   ],
+   "a": 0,
+   "e": "The classic plain-error: [] and {} are truthy. if (arr.length) — not if (arr) — when counting items."
+  },
+  {
+   "q": "The rule that makes coercion a non-issue:",
+   "o": [
+    "Convert explicitly (String()/Number()/Boolean()) at boundaries and use === everywhere else",
+    "Avoid all conversions",
+    "Use == everywhere",
+    "Rely on truthiness only"
+   ],
+   "a": 0,
+   "e": "Explicit conversion at input boundaries + strict equality internally — coercion stops being a bug source."
+  }
+ ],
+ "p4": [
+  {
+   "q": "Arrow vs normal functions:",
+   "o": [
+    "Arrows inherit `this` lexically and have no own arguments — ideal callbacks; normal functions get `this` from the call",
+    "Arrows have their own this",
+    "Arrows cannot close over scope",
+    "Arrows are slower"
+   ],
+   "a": 0,
+   "e": "No own `this`, no arguments object, not constructible. That is precisely why arrows replaced callbacks in modern code."
+  },
+  {
+   "q": "Closures in practice:",
+   "o": [
+    "Variable persistence + encapsulation — the module pattern is a closure over private state",
+    "A memory leak by design",
+    "A replacement for classes",
+    "An async mechanism"
+   ],
+   "a": 0,
+   "e": "A closure keeps its definition scope alive, giving exclusive access to private state — counters, factories, modules."
+  },
+  {
+   "q": "Purity and side effects:",
+   "o": [
+    "A pure function → same inputs, same output, no outer mutation; isolate side effects at the edges of your app",
+    "Pure means “no errors possible”",
+    "Side-effect-free code cannot exist",
+    "Impure code is always a bug"
+   ],
+   "a": 0,
+   "e": "Side effects (I/O, DOM, timers) are unavoidable — pay for them at the edges; keep the middle pure, tested, predictable."
+  },
+  {
+   "q": "Default parameters and rest:",
+   "o": [
+    "Defaults evaluate at CALL time; ...rest collects the tail into a real array",
+    "Defaults run at definition",
+    "Rest is still experimental",
+    "arguments is a modern array"
+   ],
+   "a": 0,
+   "e": "function f(a, b = 2, ...rest) — defaults on call, rest as a true array (unlike the legacy arguments object)."
+  }
+ ],
+ "p5": [
+  {
+   "q": "The prototype chain, concretely:",
+   "o": [
+    "obj.prop looks on obj, then its prototype, then up to Object.prototype, then null — DELEGATION, not copying",
+    "Each object copies its prototype at creation",
+    "Chains stop at Function.prototype",
+    "Prototypes are classes"
+   ],
+   "a": 0,
+   "e": "Lookup delegates up the chain until found or null. Mutating a prototype is visible to every object that delegates to it."
+  },
+  {
+   "q": "JS classes are:",
+   "o": [
+    "Sugar over constructor functions + the prototype — the same delegation underneath, same `this` rules",
+    "A new memory model",
+    "Static-only types",
+    "Interfaces"
+   ],
+   "a": 0,
+   "e": "class is syntax, not a new paradigm: a constructor plus prototype methods. Everything you learned about delegation still applies."
+  },
+  {
+   "q": "When do you not need a class?",
+   "o": [
+    "Factories (object literals + closures) cover most modules — no ceremony, no `this` to lose",
+    "Classes are mandatory in modern JS",
+    "Object.create(null) is deprecated",
+    "Factories are slower"
+   ],
+   "a": 0,
+   "e": "Prefer the simplest thing that holds state — a factory with a closure is often it."
+  },
+  {
+   "q": "obj.method() then const f = obj.method; f() — this in the second call is:",
+   "o": [
+    "undefined (strict) — `this` is decided by the CALL; fix with arrow, bind, or call/apply",
+    "obj",
+    "the global object",
+    "the method itself"
+   ],
+   "a": 0,
+   "e": "obj.method() binds this to obj; a detached reference loses it. That asymmetry explains most `this` bugs."
+  }
+ ],
+ "p6": [
+  {
+   "q": "map, filter, reduce — the three shapes:",
+   "o": [
+    "map = 1:1 transform, filter = subset, reduce = fold to any value — the shapes of all data work",
+    "map mutates in place",
+    "reduce is deprecated",
+    "filter returns a new array but map does not"
+   ],
+   "a": 0,
+   "e": "If you can name any pipeline you write as one of the three shapes, the code writes itself."
+  },
+  {
+   "q": "Which methods mutate and which return new?",
+   "o": [
+    "push/sort/reverse/splice MUTATE; map/filter/slice/spread return new — mixing the two is a classic bug source",
+    "All methods mutate",
+    "sort is pure",
+    "push returns a new array"
+   ],
+   "a": 0,
+   "e": "Know the split at a glance: state-changers (push, sort, reverse, splice) vs producers (map, filter, slice, spread)."
+  },
+  {
+   "q": "The immutability pattern:",
+   "o": [
+    "Spread: const next = [...arr, item] or {...obj, x: 1} — a new reference, the original untouched",
+    "Spread copies deeply",
+    "Immutability is impossible in JS",
+    "Only Object.assign works"
+   ],
+   "a": 0,
+   "e": "Spread gives you a new top-level reference cheaply. For nested data you need structuredClone or an immutable library."
+  },
+  {
+   "q": "Optional chaining and destructuring:",
+   "o": [
+    "?. short-circuits to undefined instead of throwing; destructuring unpacks objects and arrays into names",
+    "?. throws by default",
+    "Destructuring mutates the source",
+    "Both are Babel-only"
+   ],
+   "a": 0,
+   "e": "const {name, age = 0} = user ?? {} — defaults, safety, and unpacking in one readable line."
+  }
+ ],
+ "p7": [
+  {
+   "q": "Why does async exist at all?",
+   "o": [
+    "One thread, one call stack — I/O must not block it; promises/async-await let the stack keep working while I/O waits",
+    "Browsers are multithreaded by default",
+    "Async adds threads",
+    "Promises run in parallel processes"
+   ],
+   "a": 0,
+   "e": "The browser/Node each have one main thread. While a fetch waits, the call stack must stay free — that is the entire reason for callbacks → promises → async/await."
+  },
+  {
+   "q": "Event-loop ordering:",
+   "o": [
+    "Sync code → then microtasks (promises) drain fully → then macrotasks (timers, I/O) — microtasks always win between macrotasks",
+    "Microtasks wait for all macrotasks",
+    "Timers run first",
+    "Everything is FIFO"
+   ],
+   "a": 0,
+   "e": "Promise callbacks beat setTimeout — always. that ordering decides real dinnertime UI behaviour."
+  },
+  {
+   "q": "The sequential-await mistake:",
+   "o": [
+    "await inside a for-loop SERIALISES requests — use Promise.all for independent fetches",
+    "Promise.all is slower",
+    "for-await is mandatory",
+    "await is synchronous"
+   ],
+   "a": 0,
+   "e": "Each await parks the loop. Independent work should be started together and awaited together: const xs = await Promise.all(ids.map(fetch))."
+  },
+  {
+   "q": "Errors and timeouts:",
+   "o": [
+    "Add a timeout (Promise.race or AbortController) and always catch — unhandled rejections crash the process",
+    "Timeouts are automatic",
+    "Rejections are silent by design",
+    "Promises cannot fail"
+   ],
+   "a": 0,
+   "e": "A fetch with no timeout can hang forever; AbortController actually cancels the request. Never await without a plan for rejection."
+  }
+ ],
+ "p8": [
+  {
+   "q": "The DOM is:",
+   "o": [
+    "A live tree the browser builds from HTML — JS queries and mutates the tree, not the file",
+    "The HTML source string",
+    "The same as innerHTML",
+    "A CSS feature"
+   ],
+   "a": 0,
+   "e": "document.querySelector etc. operate on the parsed tree the browser maintains; innerHTML re-parses text into nodes."
+  },
+  {
+   "q": "Events:",
+   "o": [
+    "Bubble child → parent — delegate with one listener on a parent for many children, and stay dynamic-safe",
+    "Descend parent → child only",
+    "Need manual wiring per element",
+    "Cannot be prevented"
+   ],
+   "a": 0,
+   "e": "Event delegation: one listener handles existing AND future children — the standard pattern for lists and tables."
+  },
+  {
+   "q": "Why do frameworks exist?",
+   "o": [
+    "Keeping state and DOM in sync is the hard part — frameworks make the mapping explicit instead of manual string updates",
+    "Frameworks make JS itself faster",
+    "Frameworks add threads",
+    "Frameworks replace the DOM"
+   ],
+   "a": 0,
+   "e": "Manual updates mean you lose where state lives. Virtual DOM / reactive signals give a single explicit path from state → DOM."
+  },
+  {
+   "q": "Layout thrash is caused by:",
+   "o": [
+    "Interleaved reads and writes — each write marks layout dirty; a read forces synchronous relayout. Batch DOM writes",
+    "Too many elements",
+    "CSS animations",
+    "Using React"
+   ],
+   "a": 0,
+   "e": "The fix: read all values first, then write. One forced reflow per frame is cheap; a thrashing loop is not."
+  }
+ ],
+ "p9": [
+  {
+   "q": "ESM vs CommonJS:",
+   "o": [
+    "ESM is static and tree-shakeable — imports analysed before execution; CJS is dynamic. Choose ESM for new code",
+    "CJS is deprecated",
+    "ESM cannot run in Node",
+    "They are identical"
+   ],
+   "a": 0,
+   "e": "Static imports let bundlers drop unused code; CJS require() runs at runtime, so tree-shaking fails."
+  },
+  {
+   "q": "State in a vanilla app:",
+   "o": [
+    "One render(state) function driven by explicit events — the source of truth lives in plain data",
+    "In DOM attributes",
+    "In global variables only",
+    "In CSS classes"
+   ],
+   "a": 0,
+   "e": "Even without a framework: state → render → events → state. That discipline is what frameworks formalise."
+  },
+  {
+   "q": "A Node service shape:",
+   "o": [
+    "Small handlers, explicit validation, error middleware, composition over frameworks",
+    "One giant handler",
+    "No validation — JS types itself",
+    "Frameworks are mandatory"
+   ],
+   "a": 0,
+   "e": "Composition + explicit boundaries: validate at the edge, keep handlers thin, let errors bubble to one middleware."
+  },
+  {
+   "q": "When does TypeScript become the right call?",
+   "o": [
+    "When surface area and team size make refactor safety worth the ceremony — it is a tooling win, not a runtime one",
+    "Never",
+    "Always, from line one",
+    "Only for browsers"
+   ],
+   "a": 0,
+   "e": "TS costs ceremony and buys tooling safety. Small scripts: plain JS. Growing codebase: adopt incrementally."
+  }
+ ],
+ "p10": [
+  {
+   "q": "The debugging decision tree starts with:",
+   "o": [
+    "Reproducing exactly — then bisecting the failing assumption",
+    "Reading the source top to bottom",
+    "Asking the framework",
+    "Restarting the machine"
+   ],
+   "a": 0,
+   "e": "A reproducible case + a stated assumption lets you bisect fast. DevTools come second."
+  },
+  {
+   "q": "DevTools patterns that beat console.log:",
+   "o": [
+    "Breakpoints, call stack, watchers — plus the debugger statement, Network tab, and Performance panel",
+    "console.log everywhere",
+    "Only the Elements tab",
+    "DevTools cannot debug async"
+   ],
+   "a": 0,
+   "e": "Breakpoints pause the call stack so you can inspect state at the exact moment — no logging noise."
+  },
+  {
+   "q": "Async bugs are hard because:",
+   "o": [
+    "The stack unwinds at each await — use async await tracing in DevTools and fake timers in tests",
+    "Errors are invisible",
+    "Promises never throw",
+    "alert() is required"
+   ],
+   "a": 0,
+   "e": "Async tracing follows promise chains across awaits; fake timers make timeout/polling logic deterministic in tests."
+  },
+  {
+   "q": "undefined vs NaN as symptoms:",
+   "o": [
+    "undefined usually means a missing property or a fallen-through return; NaN usually means coercion — string math or a bad parse",
+    "NaN means hardware failure",
+    "undefined means a network error",
+    "Both are typos"
+   ],
+   "a": 0,
+   "e": "Read the symptom: undefined → wrong object shape; NaN → coercion. Both are cheap to locate once you know the direction."
+  }
+ ],
+ "p11": [
+  {
+   "q": "How V8 runs your code:",
+   "o": [
+    "Parse → AST → bytecode, then TurboFan JIT compiles hot paths to machine code — with hidden classes and inline caches optimizing property access",
+    "Interpreted only",
+    "V8 never optimises",
+    "Bytecode is machine code"
+   ],
+   "a": 0,
+   "e": "JS in production is JIT-compiled: hot functions become real machine code. That is why loops are not inherently slow in JS — unlike Python."
+  },
+  {
+   "q": "Memory and leaks:",
+   "o": [
+    "GC marks and sweeps heap objects; the classic leaks are detached DOM nodes and closures retaining large scopes",
+    "JS has no GC",
+    "JS uses reference counting only",
+    "Leaks are impossible in modern engines"
+   ],
+   "a": 0,
+   "e": "A detached node with a listener keeps its subtree alive; closures keep whatever they capture. Heap snapshots find both."
+  },
+  {
+   "q": "The event loop, precisely:",
+   "o": [
+    "Macrotasks (timers, I/O, UI events) and microtasks (promises, queueMicrotask) — after each macrotask the microtask queue drains completely",
+    "Microtasks are macrotasks",
+    "Only timers exist",
+    "The loop runs in parallel threads"
+   ],
+   "a": 0,
+   "e": "Promise callbacks beat setTimeout, and a microtask that schedules another microtask delays the next macrotask indefinitely."
+  },
+  {
+   "q": "ES modules execute:",
+   "o": [
+    "Once per URL, with static imports resolved before any code runs — no duplicate execution like CJS cycles",
+    "On every import call",
+    "Lazily in parallel",
+    "In global scope"
+   ],
+   "a": 0,
+   "e": "The module graph is resolved and instantiated up front; evaluation happens once. That is why ESM cycles work and CJS cycles deadlock."
+  }
+ ],
+ "p12": [
+  {
+   "q": "TypeScript the decision:",
+   "o": [
+    "Annotations buy tooling safety at the cost of ceremony — and TS is NOT runtime validation; validate external data at the boundary",
+    "TS runs in the browser",
+    "TS replaces tests",
+    "Types guarantee safety"
+   ],
+   "a": 0,
+   "e": "TS erases to plain JS; runtime validation still needs explicit checks (zod etc.) on API boundaries."
+  },
+  {
+   "q": "Testing doctrine:",
+   "o": [
+    "Test BEHAVIOUR, not implementation — the unit is a behaviour, and tests freeze the contract",
+    "Test every line for coverage",
+    "Tests slow you down",
+    "Skip tests for demos"
+   ],
+   "a": 0,
+   "e": "Behaviour tests survive refactors; implementation tests just break. Coverage is a hint, not a goal."
+  },
+  {
+   "q": "The security essentials:",
+   "o": [
+    "Never inject untrusted strings via innerHTML — build with textContent/createElement; sanitise URLs (javascript:) and CSP headers",
+    "innerHTML is safe",
+    "eval is fine for user data",
+    "CSP is optional"
+   ],
+   "a": 0,
+   "e": "XSS = trusting strings as code. Escape output, validate input, and let CSP constrain what can execute."
+  },
+  {
+   "q": "When NOT to use JavaScript:",
+   "o": [
+    "CPU-bound work that browsers cannot offload, hard real-time, and massive in-process compute — native/WASM or other languages choose themselves",
+    "JS is always fastest",
+    "JS is for everything",
+    "Node cannot serve production traffic"
+   ],
+   "a": 0,
+   "e": "The honest answer includes the platform: in the browser there is no alternative; on servers, reach for the right tool when the hot path demands it."
+  }
+ ]
+},
+cards:[
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "1 ▶ Primitives vs objects — and what assignment actually does.",
+  "a": "7 primitives are values (compared by value); objects (arrays, functions included) are references. Assignment never copies — it points two names at one object. (Part 2, Idea 1)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "2 ▶ let vs const vs var — scoping and hoisting.",
+  "a": "var: function-scoped, hoisted as undefined. let/const: block-scoped with TDZ; const binds the name, does not freeze the object. (Part 2, Idea 1)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "3 ▶ == vs === and the coercion rule.",
+  "a": "=== checks type and value; == coerces. The non-issue rule: convert explicitly (String/Number/Boolean) at boundaries, use === everywhere else. (Part 3.2)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "4 ▶ The falsy list — and the classic plain-error.",
+  "a": "0, ‘’, null, undefined, NaN, false. [] and {} are TRUTHY — use arr.length, not arr, to test for items. (Part 3.1)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "5 ▶ Closures — what they capture and why they exist.",
+  "a": "A function keeps access to the scope where it was defined, even after the outer function returns. Captures variables (not values) — late-binding footgun with loops. (Parts 2, 4.3)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "6 ▶ The prototype chain, concretely.",
+  "a": "Property lookup: the object, then its prototype, up to Object.prototype, then null — delegation, not copying. class is sugar over constructor + prototype. (Part 5.2)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "7 ▶ `this` — who decides it?",
+  "a": "The CALL: obj.method() binds obj; a detached reference loses it (undefined in strict). Arrows inherit `this` lexically; bind/call/apply override. (Part 2, Idea 4)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "8 ▶ The event loop in one breath.",
+  "a": "One thread. Sync code runs, then ALL microtasks (promises), then one macrotask (timer/I/O/UI), then microtasks again. Promise callbacks beat setTimeout — always. (Part 2, Idea 5)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "9 ▶ map/filter/reduce — the three shapes of data work.",
+  "a": "map = 1:1 transform, filter = subset, reduce = fold to any value. Any pipeline names itself as one of the three — and they never mutate. (Part 6.1)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "10 ▶ Mutating vs non-mutating array methods.",
+  "a": "Mutate: push, sort, reverse, splice. Return new: map, filter, slice, spread. Mixing the two is THE classic array bug. (Part 6.2)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "11 ▶ Spread and immutability.",
+  "a": "const next = [...arr, item] / {...obj, x:1} — new reference, original untouched. Shallow: nested objects still shared; use structuredClone for depth. (Part 6.2)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "12 ▶ Why async exists — the single thread.",
+  "a": "One call stack; I/O must not block it. Callbacks came first, then promises (composable, no pyramid), then async/await (synchronous-looking). (Part 7.1)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "13 ▶ The sequential-await mistake.",
+  "a": "await in a loop serialises independent work. Start together, await together: Promise.all(ids.map(fetch)). Add timeouts via AbortController. (Part 7.3)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "14 ▶ Why frameworks exist.",
+  "a": "State ↔ DOM sync is the hard part; frameworks make it explicit (virtual DOM / reactive signals) instead of manual string updates. Delegation + render(state) is the vanilla version. (Part 8.3)"
+ },
+ {
+  "t": "TIER 3 - SENIOR SIGNAL",
+  "q": "15 ▶ How V8 runs your code.",
+  "a": "Parse → AST → bytecode, then TurboFan JIT-compiles hot paths to machine code; hidden classes + inline caches speed property access. (Part 11.1)"
+ },
+ {
+  "t": "TIER 3 - SENIOR SIGNAL",
+  "q": "16 ▶ Memory — and the two classic leaks.",
+  "a": "GC marks/sweeps the heap. Leaks: detached DOM nodes holding subtrees via listeners, and closures retaining large scopes. Heap snapshots find both. (Part 11.2)"
+ },
+ {
+  "t": "TIER 3 - SENIOR SIGNAL",
+  "q": "17 ▶ Microtasks vs macrotasks, precisely.",
+  "a": "After every macrotask, the microtask queue drains completely. A microtask scheduling another microtask starves timers. queueMicrotask runs before any next timer. (Part 11.3)"
+ },
+ {
+  "t": "TIER 3 - SENIOR SIGNAL",
+  "q": "18 ▶ When is JavaScript the wrong choice?",
+  "a": "CPU-bound work the browser cannot offload, hard real-time, huge in-process compute. In the browser there is no alternative; on the server, pick the right tool. (Part 13)"
+ }
+],
+miles:[
+ {
+  "id": "m1",
+  "title": "Milestone 1 ▶ Model",
+  "pass": "Pass: the Part 2 checkpoint aloud — values vs references, let/const/var, a closure, the prototype chain, `this`, and the event loop ordering. <b>(Parts 1–2; days ~1–3)</b>"
+ },
+ {
+  "id": "m2",
+  "title": "Milestone 2 ▶ Values",
+  "pass": "Pass: recite the falsy list and coercion rule from memory; rewrite five == programs with === + explicit conversions. <b>(Part 3; days 4–6)</b>"
+ },
+ {
+  "id": "m3",
+  "title": "Milestone 3 ▶ Functions & objects",
+  "pass": "Pass: write a counter closure, a factory, and a class; explain arrow `this` and trace a prototype lookup path by hand. <b>(Parts 4–5; days 7–12)</b>"
+ },
+ {
+  "id": "m4",
+  "title": "Milestone 4 ▶ Data & async",
+  "pass": "Pass: transform a dataset with map/filter/reduce without mutation; build a parallel fetch with Promise.all and timeouts. <b>(Parts 6–7; days 13–16)</b>"
+ },
+ {
+  "id": "m5",
+  "title": "Milestone 5 ▶ Projects",
+  "pass": "Pass: a vanilla browser app (delegated events + render(state), no framework, no build step) and a Node service with explicit validation. <b>(Parts 8–9; days 17–25)</b>"
+ },
+ {
+  "id": "m6",
+  "title": "Milestone 6 ▶ Depth",
+  "pass": "Pass: reproduce the event-loop order on paper; find a real leak in DevTools (heap snapshot); argue two cases where JS is the wrong tool. <b>(Parts 10–13; days 26–30)</b>"
+ }
+],
+sim:[
+ {
+  "t": 700,
+  "l": "<span class=\"a\">cli</span> GET /api/orders → fetch() from a browser tab"
+ },
+ {
+  "t": 1000,
+  "l": "<span class=\"a\">sync</span> call stack runs execute() — 2ms, stack empties"
+ },
+ {
+  "t": 1100,
+  "l": "<span class=\"a\">micro</span> promise.then drains: render badge → queue flushed before ANY timer"
+ },
+ {
+  "t": 1200,
+  "l": "<span class=\"a\">io</span> network 120ms — the stack stays free; other tasks keep running"
+ },
+ {
+  "t": 1000,
+  "l": "<span class=\"a\">macro</span> setTimeout(0) waits in the macrotask queue — after microtasks"
+ },
+ {
+  "t": 1000,
+  "l": "<span class=\"a\">concurrent</span> 3 fetches via Promise.all — overlapped, not serialised"
+ },
+ {
+  "t": 900,
+  "l": "<span class=\"a\">render</span> paint committed at 60fps — zero layout thrash"
+ },
+ {
+  "t": 800,
+  "l": "<span class=\"ok\">OK</span> orders table updated. one thread; nothing blocked."
+ }
+]
+
+};
+
+</script>
+<script>
+(function(){
+"use strict";
+
+"use strict";
+/* ================= DATA ================= */
+var META=(window.SHIPYARD_DATA&&SHIPYARD_DATA.meta)||{};
+var PARTS=SHIPYARD_DATA.parts||[];
+var QUIZ=SHIPYARD_DATA.quiz||{};
+var CARDS=SHIPYARD_DATA.cards||[];
+var MILES=SHIPYARD_DATA.miles||[];
+var RANKS=[[0,"SWABBIE"],[100,"DECKHAND"],[200,"BOATSWAIN"],[300,"FIRST MATE"],[420,"DOCKER CAPTAIN"],[540,"HARBOR MASTER"]];
+
+/* ================= STATE ================= */
+var KEY=META.storageKey||("shipyard:"+(META.tech||"x")+":v1");
+var D=JSON.parse(localStorage.getItem(KEY)||"null");
+if(!D||typeof D!=="object"){D={done:{},quiz:{},milestones:{},nailed:{},xp:0,graduated:false};}
+function save(){localStorage.setItem(KEY,JSON.stringify(D));}
+function addXp(n){D.xp=(D.xp||0)+n;}
+function rankFor(xp){var r=RANKS[0];for(var i=0;i<RANKS.length;i++){if(xp>=RANKS[i][0])r=RANKS[i];}return r;}
+function nextRank(xp){for(var i=0;i<RANKS.length;i++){if(xp<RANKS[i][0])return RANKS[i];}return null;}
+function refreshAll(){renderStack();renderNav();renderVoyage();renderHero();renderQuizzes();renderDeck();renderMilestones();}
+
+/* ================= RENDER: STACK ================= */
+function renderStack(){
+  var el=document.getElementById("stackMini");if(!el)return;
+  var h="";
+  for(var i=1;i<PARTS.length;i++){
+    var p=PARTS[i],cls="layer"+(D.done[p.id]?" done":"")+(clearedPart(p.id)?" cleared":"");
+    if(D.done[p.id]&&clearedPart(p.id))cls="layer cleared";
+    h+='<div class="'+cls+'" data-nav="'+p.id+'"><span class="ltip">PART '+p.num+' · '+p.title+'</span></div>';
+  }
+  el.innerHTML=h;
+  el.querySelectorAll(".layer[data-nav]").forEach(function(l){l.addEventListener("click",function(){goto(l.getAttribute("data-nav"));});});
+  var w=el.querySelector(".writable");if(!w){var wd=document.createElement("div");wd.className="layer writable";el.insertBefore(wd,el.firstChild);}
+  var wr=el.querySelector(".writable");
+  if(allDone()){wr.classList.add("live");}
+  document.getElementById("stackCount").textContent=doneCount()+"/14";
+  var ps=document.getElementById("psRow");
+  if(D.graduated){ps.style.display="block";document.getElementById("psRow2").textContent="web  RUNNING  0.0.0.0:80→80   uptime ∞   (yours — every layer earned)";}
+  else ps.style.display="none";
+}
+function allDone(){return PARTS.slice(1).every(function(p){return D.done[p.id];});}
+function doneCount(){return PARTS.slice(1).filter(function(p){return D.done[p.id];}).length;}
+function clearedPart(id){var q=D.quiz[id];return q&&q.best>=70;}
+
+/* ================= RENDER: NAV ================= */
+function renderNav(){
+  var nav=document.getElementById("docknav");if(!nav)return;
+  var h='<div class="docksec">Curriculum</div>';
+  for(var i=0;i<PARTS.length;i++){
+    var p=PARTS[i];
+    var st=D.done[p.id]?"done":(D.quiz[p.id]&&D.quiz[p.id].best>=70?"cleared":"");
+    h+='<div class="navitem" data-nav="'+p.id+'"><span class="n">'+p.num+'</span><span class="nt">'+p.title+'</span><span class="st '+st+'"></span>'+(D.quiz[p.id]&&D.quiz[p.id].best>=0?'<span class="qbadge">★'+D.quiz[p.id].best+'</span>':'')+'</div>';
+  }
+  nav.innerHTML=h;
+  nav.querySelectorAll(".navitem").forEach(function(n){n.addEventListener("click",function(){goto(n.getAttribute("data-nav"));});});
+}
+
+/* ================= RENDER: VOYAGE ================= */
+function renderVoyage(){
+  var v=document.getElementById("voyage");if(!v)return;
+  var h="";
+  for(var i=0;i<PARTS.length;i++){
+    var p=PARTS[i];
+    var t=p.tag?"<span class='wtag wtag-"+p.tag.toLowerCase()+"'>"+p.tag+"</span>":"";
+    h+='<div class="waypoint'+(D.done[p.id]?" done":"")+'" data-nav="'+p.id+'"><span class="wn">'+p.num+'</span><span class="wt"><b>'+p.title+'</b>'+(p.tag?'<span style="color:var(--faint);font-size:10.5px">'+p.tag+' · learning path waypoint</span>':'<span style="color:var(--faint);font-size:10.5px">mission briefing</span>')+'</span>'+t+'</div>';
+  }
+  v.innerHTML=h;
+  v.querySelectorAll(".waypoint").forEach(function(w){w.addEventListener("click",function(){goto(w.getAttribute("data-nav"));});});
+}
+
+/* ================= RENDER: HERO STATUS ================= */
+function renderHero(){
+  var r=rankFor(D.xp),nr=nextRank(D.xp);
+  var el=document.getElementById("rankNow");if(el)el.textContent=r[1];
+  var e2=document.getElementById("hRank");if(e2)e2.textContent=r[1];
+  var e3=document.getElementById("hXp");if(e3)e3.textContent=D.xp;
+  document.getElementById("hLayers").textContent=doneCount()+"/14";
+  var qc=0;for(var k in QUIZ){if(D.quiz[k]&&D.quiz[k].best>=70)qc++;}
+  document.getElementById("hQuizzes").textContent=qc;
+  var rx=document.getElementById("rankXp");
+  if(nr){var lo=r[0],hi=nr[0];rx.textContent=D.xp+" XP · "+Math.round((D.xp-lo)/(hi-lo)*100)+"% of the way to "+nr[1];var bar=document.getElementById("rankBar");if(bar)bar.style.width=Math.min(100,Math.round((D.xp-lo)/(hi-lo)*100))+"%";}
+  else{rx.textContent=D.xp+" XP · MAX RANK · the yard is yours";var bar2=document.getElementById("rankBar");if(bar2)bar2.style.width="100%";}
+  var foot=document.getElementById("dockfoot");
+  foot.innerHTML="layers laid: <b style='color:var(--accent)'>"+doneCount()+"/14</b><br>quizzes ★≥70%: <b style='color:var(--ok)'>"+qc+"/"+Object.keys(QUIZ).length+"</b><br>milestones: <b style='color:var(--ok)'>"+Object.keys(D.milestones).length+"/6</b><br>"+(D.graduated?"<span style='color:var(--ok)'>SHIPPED "+(new Date()).getFullYear()+"</span>":"awaiting launch");
+}
+
+/* ================= QUIZZES ================= */
+function renderQuizzes(){
+  document.querySelectorAll(".quiz").forEach(function(qz){
+    var pid=qz.getAttribute("data-part");
+    var wrap=qz.querySelector(".qwrap");
+    if(qz._rendered===pid){updateQuizScore(qz,pid);return;}
+    qz._rendered=pid;
+    var qs=QUIZZES()[pid];if(!qs){return;}
+    var h="";
+    qs.forEach(function(qu,i){
+      var st=D.quiz[pid]&&D.quiz[pid].first&&D.quiz[pid].first[i];
+      var ow="",cls="";
+      if(st===true||st===false){
+        qu.o.forEach(function(o,j){
+          if(j===qu.a){cls="opt right";}else if(st===false){cls="opt wrong";}else{cls="";}
+          ow+='<button class="opt '+cls+'" disabled>'+o+'</button>';
+        });
+      }else{
+        qu.o.forEach(function(o,j){ow+='<button class="opt" data-q="'+i+'" data-o="'+j+'">'+o+'</button>';});
+      }
+      h+='<div class="q"><p class="qt"><span class="qn">Q'+(i+1)+'.</span> '+qu.q+'</p><div class="opts">'+ow+'</div><p class="qe'+(st===true||st===false?' show':'')+'">'+qu.e+'</p></div>';
+    });
+    wrap.innerHTML=h;
+    wrap.querySelectorAll(".opt[data-q]").forEach(function(btn){
+      btn.addEventListener("click",function(){answer(pid,parseInt(btn.getAttribute("data-q")),parseInt(btn.getAttribute("data-o")),btn);});
+    });
+    updateQuizScore(qz,pid);
+  });
+}
+function QUIZZES(){return QUIZ;}
+function answer(pid,qi,oi,btn){
+  var qs=QUIZZES()[pid],q=qs[qi];
+  var first=!D.quiz[pid]||!D.quiz[pid].tried;
+  var qd=D.quiz[pid]||{first:[],correct:0,total:qs.length,tried:false,best:0};
+  if(!qd.tried)qd.tried=true;
+  var right=(oi===q.a);
+  if(first){qd.first[qi]=(right?1:0);if(right){addXp(3);}}
+  if(first&&right){qd.correct=(qd.correct||0)+1;}
+  var qz=btn.closest(".quiz");
+  btn.closest(".opts").querySelectorAll(".opt").forEach(function(o){o.disabled=true;if(o===btn)o.classList.add(right?"right":"wrong");else if(o.getAttribute("data-o")==q.a)o.classList.add("right");});
+  var qe=btn.closest(".q").querySelector(".qe");qe.classList.add("show");
+  if(first){
+    D.quiz[pid]=qd;
+    save();renderHero();renderStack();renderNav();
+  }else{
+    D.quiz[pid]=qd;save();
+  }
+  var answered=qd.first.filter(function(x){return x===0||x===1;}).length;
+  var correctNow=qd.first.reduce(function(s,v){return s+(v===1?1:0);},0);
+  var pct=Math.round(correctNow/qs.length*100);
+  if(pct>qd.best)qd.best=pct;
+  updateQuizScore(qz,pid);
+  if(answered>=qs.length){finishQuiz(qz,pid,qd,pct,first);}
+  refreshAll();
+}
+function updateQuizScore(qz,pid){
+  var qd=D.quiz[pid];var qs=QUIZZES()[pid];
+  var sc=qz.querySelector(".qscore b");if(sc){if(qd&&qd.best>=0&&qs){sc.textContent=qd.best+"%";}else{sc.textContent="—";}}
+}
+function finishQuiz(qz,pid,qd,pct,first){
+  var res=qz.querySelector(".qres");
+  var pass=pct>=70;
+  var xpGain=first?qd.correct*3:0;
+  res.className="qres show "+(pass?"pass":"fail");
+  res.innerHTML=(pass?"✔ CHECKPOINT CLEARED — "+pct+"%":"✘ "+pct+"% — re-read the section, then re-run the quiz")
+  +" · best "+qd.best+"%"+(xpGain>0?" · <b>+"+xpGain+" XP</b>":"");
+  renderHero();renderStack();renderNav();
+  if(pass&&!qz._celebrated){qz._celebrated=true;}
+}
+
+/* ================= FLASHCARDS ================= */
+function renderDeck(){
+  var deck=document.getElementById("deck");if(!deck||deck._rendered)return;
+  deck._rendered=true;
+  var h="";
+  CARDS.forEach(function(c,i){
+    var nailed=!!D.nailed[i];
+    h+='<div class="card'+(nailed?" nailed":"")+'" data-c="'+i+'">'
+       +'<div class="inner"><div class="face front"><span class="cardtier">'+c.t+'</span><div class="qtext">'+c.q+'</div><span class="flip-hint">CLICK TO REVEAL</span></div>'
+       +'<div class="face back"><span class="cardtier" style="color:var(--ok)">answer</span><div class="qtext">'+c.a+'</div><button class="nailedbtn'+(nailed?" n":"")+'">'+(nailed?"✓ NAILED":"NAIL IT")+'</button></div></div></div>';
+  });
+  deck.innerHTML=h;
+  deck.querySelectorAll(".card").forEach(function(cd){
+    cd.addEventListener("click",function(ev){
+      if(ev.target.classList.contains("nailedbtn")){
+        var i=parseInt(cd.getAttribute("data-c"));
+        D.nailed[i]=!D.nailed[i];save();
+        cd.classList.toggle("nailed");cd.querySelector(".nailedbtn").classList.toggle("n");
+        return;
+      }
+      cd.classList.toggle("flip");
+    });
+  });
+}
+
+/* ================= MILESTONES ================= */
+function renderMilestones(){
+  var ml=document.getElementById("mlist");if(!ml||ml._rendered)return;
+  ml._rendered=true;
+  var h="";
+  MILES.forEach(function(m){
+    var done=!!D.milestones[m.id];
+    h+='<div class="mile'+(done?" done":"")+'" data-m="'+m.id+'"><div class="mbox">✓</div><div><div class="mtitle"><b>'+m.title+'</b></div><div class="mpass">'+m.pass+'</div></div></div>';
+  });
+  ml.innerHTML=h;
+  ml.querySelectorAll(".mile").forEach(function(mi){
+    mi.addEventListener("click",function(){
+      var id=mi.getAttribute("data-m");
+      if(D.milestones[id]){
+        delete D.milestones[id];
+      }else{
+        D.milestones[id]=true;addXp(10);
+      }
+      save();renderMilestones();renderHero();renderStack();renderNav();
+      checkGraduation();
+    });
+  });
+}
+function checkGraduation(){
+  if(!MILES.length)return;
+  if(MILES.every(function(m){return D.milestones[m.id];})&&!D.graduated){
+    D.graduated=true;save();
+    setTimeout(graduation,600);
+  }
+}
+
+/* ================= GRADUATION ================= */
+function graduation(){
+  var g=document.getElementById("grad");
+  var lines=[
+    "> verifying layer p1 ... OK","> verifying layer p2 ... OK","> verifying layer p3 ... OK",
+    "> verifying layer p4 ... OK","> verifying layer p5 ... OK","> verifying layer p6 ... OK",
+    "> verifying layer p7 ... OK","> verifying layer p8 ... OK","> verifying layer p9 ... OK",
+    "> verifying layer p10 ... OK","> verifying layer p11 ... OK","> verifying layer p12 ... OK",
+    "> verifying layer p13 ... OK","> verifying layer p14 ... OK",
+    "> mounting writable layer ... OK","> attaching bridge network ... OK",
+    "> running PID 1 ... OK",""
+  ];
+  var body=g.querySelector(".gbody");
+  body.innerHTML="";
+  var rank=rankFor(D.xp)[1];
+  lines.forEach(function(l,i){
+    var div=document.createElement("div");div.className="gl";div.style.animationDelay=(i*0.22)+"s";
+    div.textContent=l;body.appendChild(div);
+  });
+  var title=document.createElement("div");title.className="gtitle gl";title.style.animationDelay=(lines.length*0.22)+"s";
+  title.textContent="CONTAINER DEPLOYED 🐳";
+  body.appendChild(title);
+  var sub=document.createElement("div");sub.className="gl";sub.style.animationDelay=(lines.length*0.22+0.3)+"s";
+  sub.innerHTML="RANK: <b>"+rank+"</b> · all "+doneCount()+" layers laid · every milestone crossed. The shipyard ships what you built."
+  +"<br><br><i>Remember the one rule: a container is just a process.</i>";
+  body.appendChild(sub);
+  var btn=document.createElement("button");btn.className="btn ok gbtn gl";btn.style.animationDelay=(lines.length*0.22+0.8)+"s";
+  btn.textContent="BACK TO THE DECK";btn.addEventListener("click",function(){g.classList.remove("open");});
+  body.appendChild(btn);
+  g.classList.add("open");
+  confetti();
+  renderStack();renderHero();
+}
+function confetti(){
+  var g=document.getElementById("grad");
+  var colors=["#ffb000","#39d98a","#57d9ff","#ff5d5d"];
+  for(var i=0;i<46;i++){
+    var p=document.createElement("span");p.className="ptcl";
+    p.style.left=Math.random()*100+"%";p.style.top="-10px";
+    p.style.background=colors[i%colors.length];
+    p.style.animationDuration=(2.4+Math.random()*2.6)+"s";
+    p.style.animationDelay=(Math.random()*1.4)+"s";
+    p.style.width=(4+Math.random()*5)+"px";p.style.height=(4+Math.random()*8)+"px";
+    g.appendChild(p);
+    setTimeout(function(el){el.remove();},9000);
+  }
+}
+
+/* ================= SIMULATOR (Part 3.1) ================= */
+var SIMSTEPS=SHIPYARD_DATA.sim||[];
+var simTimer=null;
+function simLine(text){
+  var out=document.getElementById("simOut");
+  var div=document.createElement("div");div.innerHTML=text;
+  div.style.opacity=0;div.style.animation="bli .2s forwards";
+  out.appendChild(div);
+  out.scrollTop=out.scrollHeight;
+}
+function simClear(){
+  var out=document.getElementById("simOut");
+  out.innerHTML='<code style="color:var(--faint)"># docker run -d -p 8080:80 --name web nginx</code>';
+}
+function simRun(){
+  if(simTimer||!SIMSTEPS.length)return;
+  simClear();
+  var i=0;
+  simTimer=setInterval(function(){
+    if(i>=SIMSTEPS.length){clearInterval(simTimer);simTimer=null;return;}
+    var s=SIMSTEPS[i];simLine(s.l);i++;
+  },Math.min.apply(null,[700]));
+  var t=0;
+  SIMSTEPS.forEach(function(s,idx){t+=s.t;setTimeout(simLine.bind(null,s.l),t);});
+  simTimer=setTimeout(function(){simTimer=null;},t+300);
+}
+
+/* ================= INTERACTIVE STACK (Part 2) ================= */
+function setupBigStack(){
+  var big=document.getElementById("stackBig");if(!big||big._bound)return;
+  big._bound=true;
+  var disc=document.getElementById("sbdisc");
+  var info=SHIPYARD_DATA.stackInfo||{};
+  big.querySelectorAll(".sblayer").forEach(function(ly){
+    ly.addEventListener("click",function(){
+      big.querySelectorAll(".sblayer").forEach(function(x){x.classList.remove("selected");});
+      ly.classList.add("selected");
+      disc.innerHTML=info[ly.getAttribute("data-layer")]||"That layer is sealed in the image. Read the part to unlock its story.";
+    });
+  });
+  var running=false,writes=0;
+  var log=document.getElementById("sbLog");
+  var wr=big.querySelector(".writ");
+  var btnStart=document.getElementById("sbStart"),btnWrite=document.getElementById("sbWrite"),btnRm=document.getElementById("sbRm");
+  btnStart.addEventListener("click",function(){
+    if(running){log.textContent="already running";return;}
+    running=true;writes=0;
+    wr.classList.add("live");
+    log.textContent="PID 1 started · container RUNNING";
+    btnWrite.disabled=false;
+  });
+  btnWrite.addEventListener("click",function(){
+    if(!running){log.textContent="start the container first";return;}
+    writes++;
+    wr.style.animation="none";wr.offsetHeight;wr.style.animation="layerin .3s";
+    log.textContent="write #"+writes+" → writable layer ("+(writes*40)+"KB)";
+  });
+  btnRm.addEventListener("click",function(){
+    if(!running){log.textContent="nothing to remove";return;}
+    running=false;
+    wr.classList.remove("live");
+    log.textContent="docker rm → writable layer destroyed · "+writes+" file(s) gone. forever.";
+    btnWrite.disabled=true;
+  });
+}
+
+/* ================= COPY BUTTONS ================= */
+function setupCopy(){
+  document.querySelectorAll(".copybtn").forEach(function(btn){
+    if(btn._bound)return;btn._bound=true;
+    btn.addEventListener("click",function(){
+      var pre=btn.closest(".term").querySelector("pre");
+      var txt=pre?pre.textContent:"";
+      var done=function(){btn.textContent="COPIED ✓";btn.classList.add("copied");setTimeout(function(){btn.textContent="COPY";btn.classList.remove("copied");},1500);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,function(){fallback(txt,done);});}
+      else{fallback(txt,done);}
+    });
+  });
+}
+function fallback(txt,done){
+  var ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";
+  document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e){}
+  ta.remove();done();
+}
+
+/* ================= NAV / SCROLLSPY ================= */
+function goto(id){
+  var el=document.getElementById(id);
+  if(!el)return;
+  el.scrollIntoView({behavior:"smooth",block:"start"});
+  closeDock();
+  var nav=document.querySelectorAll(".navitem");
+  nav.forEach(function(n){n.classList.toggle("active",n.getAttribute("data-nav")===id);});
+}
+function closeDock(){
+  document.getElementById("dock").classList.remove("open");
+  document.getElementById("backdrop").classList.remove("open");
+}
+function setupScrollspy(){
+  var nav=document.getElementById("docknav");
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        nav.querySelectorAll(".navitem").forEach(function(n){n.classList.toggle("active",n.getAttribute("data-nav")===en.target.id);});
+      }
+    });
+  },{rootMargin:"-20% 0px -60% 0px"});
+  document.querySelectorAll(".part").forEach(function(p){obs.observe(p);});
+}
+
+/* ================= BRANDING / EASTER EGG ================= */
+var konami=[38,38,40,40,37,39,37,39,66,65],kpos=0;
+var whaleCount=0;
+function whaleMode(){
+  var w=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  w.setAttribute("id","whaleSwim");w.setAttribute("width","110");w.setAttribute("height","55");w.setAttribute("viewBox","0 0 24 24");
+  w.innerHTML='<path fill="none" stroke="#57d9ff" stroke-width="1.4" d="M4 12c0-4 2.5-7 6-8 3.5 1 6 4 6 8 1.5-1 3-1.5 5-1-1 3-3 5-6 5H6c-1 0-1.5.5-2 1z" stroke-linejoin="round"/><circle cx="8" cy="10" r=".7" fill="#57d9ff"/><path d="M6 20l7-3" stroke="#57d9ff" stroke-width="1" stroke-linecap="round"/>';
+  document.body.appendChild(w);
+  whaleCount++;
+  setTimeout(function(){w.remove();},16000);
+}
+document.addEventListener("keydown",function(ev){
+  if(ev.key==="ArrowUp"&&konami[kpos]===38)kpos++;
+  else if(ev.key==="ArrowDown"&&konami[kpos]===40)kpos++;
+  else if(ev.key==="ArrowLeft"&&konami[kpos]===37)kpos++;
+  else if(ev.key==="ArrowRight"&&konami[kpos]===39)kpos++;
+  else if(ev.key.toLowerCase()==="b"&&konami[kpos]===66)kpos++;
+  else if(ev.key.toLowerCase()==="a"&&konami[kpos]===65)kpos++;
+  else kpos=0;
+  if(kpos===konami.length){kpos=0;whaleMode();whaleMode();var t=document.createElement("div");t.textContent="WHALE MODE ENGAGED";t.style.cssText="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;font-family:var(--mono);color:#57d9ff;border:1px solid #57d9ff;background:rgba(10,14,22,.9);padding:8px 16px;border-radius:4px;letter-spacing:2px;font-size:12px;";document.body.appendChild(t);setTimeout(function(){t.remove();},2200);}
+});
+
+/* ================= DONE BUTTONS ================= */
+function setupDone(){
+  document.querySelectorAll("[data-done]").forEach(function(btn){
+    if(btn._bound)return;btn._bound=true;
+    var pid=btn.getAttribute("data-done");
+    btn.textContent=D.done[pid]?"✔ COMPLETE":"MARK COMPLETE";
+    btn.classList.toggle("ok",!!D.done[pid]);
+    btn.addEventListener("click",function(){
+      if(D.done[pid]){delete D.done[pid];}
+      else{D.done[pid]=true;addXp(25);
+        var part=document.getElementById(pid);if(part)part.classList.add("done");
+      }
+      save();refreshAll();
+      btn.textContent=D.done[pid]?"✔ COMPLETE":"MARK COMPLETE";
+      btn.classList.toggle("ok",!!D.done[pid]);
+    });
+  });
+  PARTS.forEach(function(p){
+    var el=document.getElementById(p.id);
+    if(el&&D.done[p.id])el.classList.add("done");
+  });
+}
+
+/* ================= BURGER ================= */
+document.getElementById("burger").addEventListener("click",function(){
+  var d=document.getElementById("dock");
+  var open=d.classList.toggle("open");
+  document.getElementById("backdrop").classList.toggle("open",open);
+});
+document.getElementById("backdrop").addEventListener("click",closeDock);
+
+/* ================= BOOT ================= */
+function applyMeta(){
+  var t=document.querySelector("title");if(t&&META.title)t.textContent=META.title;
+  var bn=document.querySelector(".bname");if(bn&&META.brand)bn.textContent=META.brand;
+  var bs=document.querySelector(".bsub");if(bs&&META.tagline)bs.textContent=META.tagline;
+  if(META.accent){
+    var h=META.accent.replace("#","");
+    var r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+    var m=function(v){return Math.max(0,Math.round(v*0.62));};
+    var st=document.documentElement.style;
+    st.setProperty("--accent",META.accent);
+    st.setProperty("--accent-soft","rgb("+m(r)+","+m(g)+","+m(b)+")");
+  }
+}
+window.addEventListener("load",function(){
+  applyMeta();
+  refreshAll();
+  setupBigStack();
+  setupCopy();
+  setupDone();
+  setupScrollspy();
+  var simBtn=document.getElementById("simRun");if(simBtn){simBtn.addEventListener("click",simRun);}
+  var simRst=document.getElementById("simReset");if(simRst){simRst.addEventListener("click",function(){if(simTimer){clearTimeout(simTimer);simTimer=null;}simClear();});}
+  checkGraduation();
+});
+
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+{
+ "generated": "2026-08-10T19:44:43.547Z",
+ "techs": [
+  {
+   "id": "docker",
+   "brand": "THE CONTAINER SHIPYARD",
+   "title": "The Container Shipyard - Docker: A First-Principles Curriculum",
+   "tagline": "Docker - first-principles curriculum",
+   "accent": "#ffb000",
+   "parts": 15,
+   "quiz": 65,
+   "file": "docker.html"
+  },
+  {
+   "id": "python",
+   "brand": "THE PYTHON SHIPYARD",
+   "title": "The Python Shipyard - Python: A First-Principles Curriculum",
+   "tagline": "Python · object model · mutability · protocols",
+   "accent": "#16b981",
+   "parts": 15,
+   "quiz": 67,
+   "file": "python.html"
+  },
+  {
+   "id": "javascript",
+   "brand": "THE JAVASCRIPT SHIPYARD",
+   "title": "The JavaScript Shipyard - JavaScript: A First-Principles Curriculum",
+   "tagline": "JavaScript · values & refs · closures · the event loop",
+   "accent": "#a78bfa",
+   "parts": 15,
+   "quiz": 66,
+   "file": "javascript.html"
+  },
+  {
+   "id": "htmlcss",
+   "brand": "THE HTML/CSS SHIPYARD",
+   "title": "The HTML/CSS Shipyard - HTML & CSS: A First-Principles Curriculum",
+   "tagline": "HTML & CSS · the document tree · the cascade · layout",
+   "accent": "#ff6b6b",
+   "parts": 15,
+   "quiz": 66,
+   "file": "htmlcss.html"
+  }
+ ]
+}

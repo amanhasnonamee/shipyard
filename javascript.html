@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en" data-render="img">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The JavaScript Shipyard - JavaScript: A First-Principles Curriculum">
+<meta property="og:description" content="JavaScript · values &amp; refs · closures · the event loop — a first-principles interactive curriculum, one portable HTML file, runs offline.">
+<meta property="og:image" content="assets/og/javascript.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%23a78bfa%22 d=%22M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z%22/%3E%3C/svg%3E">
+<meta name="contract" content="shipyard-javascript@1">
+<title>The JavaScript Shipyard - JavaScript: A First-Principles Curriculum</title>
+<link rel="stylesheet" href="assets/shipyard.css">
+</head>
+<body>
+<div id="scanlines"></div><div id="vignette"></div>
+<button id="burger">&#9776; MAP</button><div id="backdrop"></div>
+<div id="app">
+<aside id="dock">
+  <div class="brand">
+    <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="var(--accent)" d="M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z"/>
+      <rect x="7" y="11" width="2" height="2" fill="var(--bg)"/><rect x="12" y="11" width="2" height="2" fill="var(--bg)"/><rect x="17" y="11" width="2" height="2" fill="var(--bg)"/>
+    </svg>
+    <div><div class="bname">THE JAVASCRIPT SHIPYARD</div><div class="bsub">JavaScript · values &amp; refs · closures · the event loop</div></div>
+  </div>
+
+  <div class="rankbox">
+    <div class="rk" id="rankNow">SWABBIE</div>
+    <div class="rkxp" id="rankXp"></div>
+    <div class="prbar"><i id="rankBar"></i></div>
+  </div>
+
+  <div class="stackbox">
+    <div class="st"><span>THE STACK — your container</span><span id="stackCount">0/14</span></div>
+    <div id="stackMini"></div>
+    <div id="psRow"><b>$ docker ps</b><br><span id="psRow2">—</span></div>
+  </div>
+
+  <nav class="docknav" id="docknav"></nav>
+
+  <div class="legend">
+    <div class="lt">Depth legend</div>
+    <div class="lg"><span class="sw" style="background:var(--deep);box-shadow:0 0 6px rgba(255,93,93,.6)"></span><span><b style="color:var(--deep)">DEEP</b> — core mental model. Prove it out loud.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--recog)"></span><span><b style="color:var(--recog)">RECOGNIZE</b> — read fluently; write with docs open.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--ref)"></span><span><b style="color:var(--ref)">REFERENCE</b> — know it exists. Never memorize.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--adv)"></span><span><b style="color:var(--adv)">ADVANCED</b> — return after Part 8.</span></div>
+  </div>
+
+  <div class="dockfoot" id="dockfoot"></div>
+</aside>
+
+<main>
+<section class="hero" id="part0">
+  <div class="boot"><div class="bl">$ shipyard boot --curriculum javascript-first-principles</div>
+    <div class="bl">STAGE 1: LOADING PARTS 0–14 ......... <span style="color:var(--ok)">OK</span></div>
+    <div class="bl">STAGE 2: MOUNTING DEPTH TAGS .......... <span style="color:var(--ok)">OK</span></div>
+    <div class="bl"><span class="warn">WARNING: `this` is decided by the call, not by the definition.</span></div>
+    <div class="bl">AWAITING CREW — 14 waypoints ahead. <span class="cursor" style="color:var(--accent)">▮</span></div>
+  </div>
+  <h1>JAVASCRIPT, UNDERSTOOD.<br><span class="wh">NOT JUST STACKED.</span></h1>
+  <p class="sub">This is a first-principles curriculum rebuilt as a mission. Learn the core mental model <b>deeply</b> — values vs references, lexical scope, the prototype chain, and the event loop — reference the rest, and physically <b>build the shipyard&#39;s container</b> in the sidebar as you complete parts. Quizzes earn XP. Ranks go from <b>Swabbie</b> to <b>Harbor Master</b>. Finish all 14 parts and the shipyard ships your container.</p>
+  <div class="hstatus">
+    <div class="hchip">RANK <b id="hRank">SWABBIE</b></div>
+    <div class="hchip">XP <b id="hXp">0</b></div>
+    <div class="hchip">LAYERS <b id="hLayers">0/14</b></div>
+    <div class="hchip">QUIZZES CLEARED <b class="ok" id="hQuizzes">0</b></div>
+  </div>
+  <div id="voyageHead">THE VOYAGE — 14 WAYPOINTS</div>
+  <div class="voyage" id="voyage"></div>
+</section>
+
+<section class="part" id="p0">
+  <div class="phead"><div class="pnum">00</div>
+    <div><div class="ptitle">How to Use This Curriculum</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p0">MARK COMPLETE</button></div>
+  </div>
+
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>Part 1   Where JavaScript came from            [DEEP — explains all the weirdness]
+Part 2   The core mental model                  [DEEP — most important part]
+Part 3   Values, types, and coercion
+Part 4   Functions, scope, closures
+Part 5   Objects, prototypes, classes
+Part 6   Arrays and data transformation
+Part 7   Asynchrony: the event loop in practice
+Part 8   The browser: DOM, events, and why frameworks exist
+Part 9   Real projects: vanilla app + Node service
+Part 10  Debugging playbook
+Part 11  Internals: V8, memory, the event loop precisely
+Part 12  Production: modules, TypeScript, testing, security
+Part 13  When not to use JavaScript
+Part 14  Interview prep &amp; milestones</code></pre></div>
+
+  <div class="breadcrumb"><a class="next" href="#p1">01 · WHERE JAVASCRIPT CAME FROM &rarr;</a></div>
+</section>
+
+<section class="part" id="p1">
+  <div class="phead"><div class="pnum">01</div>
+    <div><div class="ptitle">Where JavaScript Came From</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p1">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Every strange thing about JavaScript is a historical artifact. Knowing the history converts "this language is broken" into "this language has scars, and here's which ones to avoid."</p>
+
+<h2>The lineage</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Year</th><th>What happened</th><th>Why it still affects you</th></tr></thead><tbody><tr><td>1995</td><td>Brendan Eich writes it at Netscape in <b>~10 days</b>, under orders to make it "look like Java" while actually borrowing from Scheme (first-class functions, closures) and Self (prototypes)</td><td>The two halves of the language: a serious functional/prototypal core wearing a C-family costume. <code class="inline">==</code> coercion, <code class="inline">typeof null === "object"</code>, and hoisting are ten-day-deadline artifacts that could never be removed</td></tr><tr><td>1995</td><td>Named <b>JavaScript</b> purely for marketing — Java was hot. It is unrelated to Java</td><td>Twenty years of confused interviews</td></tr><tr><td>1996–99</td><td>Microsoft ships JScript; <b>ECMAScript</b> standardization begins (hence "ES"). ES3 (1999) is the baseline for a decade</td><td>The name ECMAScript exists because "JavaScript" was a Sun trademark</td></tr><tr><td>2000–05</td><td>Browser incompatibility hell. <b>jQuery</b> (2006) exists almost entirely to paper over DOM API differences and provide a usable selector engine</td><td>Why every senior dev has jQuery reflexes, and why <code class="inline">querySelector</code> + <code class="inline">fetch</code> made it unnecessary</td></tr><tr><td>2005</td><td><b>AJAX</b> named; Gmail/Maps prove the browser can host applications</td><td>The moment the browser stopped being a document viewer. Everything after is consequence</td></tr><tr><td>2008</td><td>Google ships <b>V8</b> with JIT compilation — JS goes from ~100x slower than C to within a small multiple</td><td>Without V8 there is no Node, no modern frontend, no Electron. Performance changed what was buildable</td></tr><tr><td>2009</td><td><b>Node.js</b> puts V8 on the server; npm follows</td><td>JS escapes the browser. One language across the stack — the reason full-stack JS exists</td></tr><tr><td>2015</td><td><b>ES6/ES2015</b>: <code class="inline">let</code>/<code class="inline">const</code>, classes, arrow functions, promises, modules, destructuring</td><td>The reset. Code before and after this line looks like different languages</td></tr><tr><td>2015–now</td><td>TC39 ships <b>yearly</b>; async/await (2017), optional chaining (2020), top-level await, <code class="inline">Array.at</code>, etc.</td><td>Small, steady additions instead of decade gaps</td></tr><tr><td>2012→</td><td><b>TypeScript</b> grows to become the default way large JS is written</td><td>An admission that JS's dynamism doesn't scale to large teams — while keeping the runtime unchanged</td></tr></tbody></table></div>
+
+<h2>What JavaScript actually invented — and what it inherited</h2>
+
+<p>It invented almost none of its good ideas: closures and first-class functions are Scheme's, prototypes are Self's, the syntax is C/Java's. What it *did* uniquely get was <b>ubiquity</b> — the only language that runs natively in every browser on Earth, and therefore the only one with a guaranteed distribution channel of billions of devices. That accident of position, not language quality, is why it won.</p>
+
+<h2>The governing constraint: "don't break the web"</h2>
+
+<p>This is the single most important thing to understand about JS's evolution, and it's the same principle you met in the HTML curriculum. Millions of pages will never be updated, so <b>nothing can ever be removed.</b> <code class="inline">var</code>, <code class="inline">==</code>, <code class="inline">with</code>, implicit globals, <code class="inline">typeof null</code> — all still there, forever. New features must be added *alongside* the mistakes.</p>
+
+<p>Two direct consequences: (1) the language has multiple ways to do everything, and "modern JS" is mostly a set of *conventions about which subset to use* — <code class="inline">const</code>/<code class="inline">let</code> not <code class="inline">var</code>, <code class="inline">===</code> not <code class="inline">==</code>, <code class="inline">async/await</code> not callbacks; (2) <code class="inline">"use strict"</code> and ES modules exist as opt-in stricter dialects, because they could change behaviour only for code that asked for it.</p>
+
+<p>Interview-grade framing: *"JavaScript's quirks aren't carelessness so much as a permanent backward-compatibility guarantee. It was written in ten days, standardized before it was designed, and can never remove a mistake — so evolution happens by adding better paths and socially deprecating the old ones."*</p>
+
+<div class="quiz" data-part="p1"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p0">&larr; 00 · HOW TO USE THIS CURRICULUM</a><a class="next" href="#p2">02 · THE CORE MENTAL MODEL &rarr;</a></div>
+</section>
+
+<section class="part" id="p2">
+  <div class="phead"><div class="pnum">02</div>
+    <div><div class="ptitle">The Core Mental Model</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p2">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Five ideas. Everything downstream is detail.</p>
+
+<h2>Idea 1: Variables hold values or references, and the difference explains half your bugs</h2>
+
+<p>Primitives (<code class="inline">number</code>, <code class="inline">string</code>, <code class="inline">boolean</code>, <code class="inline">null</code>, <code class="inline">undefined</code>, <code class="inline">symbol</code>, <code class="inline">bigint</code>) are copied <b>by value</b>. Objects (including arrays and functions) are copied <b>by reference</b> — the variable holds a pointer, not the thing.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>let a = { n: 1 };
+let b = a;        // b points at the SAME object
+b.n = 2;
+a.n;              // 2  ← you mutated one object through two names
+
+let x = [1,2,3];
+let y = [...x];   // NEW array (shallow copy) — y[0] is independent</code></pre></div>
+
+<p>Consequences you'll hit constantly:</p>
+
+<ul><li><code class="inline">const obj = {}</code> prevents <b>rebinding</b> <code class="inline">obj</code>, not mutation of its contents. <code class="inline">const</code> is not immutability.</li></ul>
+
+<ul><li>Passing an object into a function passes the reference — the function can mutate your data. This is the #1 source of "why did my state change?" bugs.</li></ul>
+
+<ul><li>Spread and <code class="inline">Object.assign</code> are <b>shallow</b>: nested objects are still shared. <code class="inline">structuredClone(obj)</code> gives you a deep copy.</li></ul>
+
+<ul><li>React's re-render logic is built on identity comparison, which is why "mutate then setState" silently does nothing while "create a new object" works. That's not a React rule; it's this rule.</li></ul>
+
+<h2>Idea 2: Scope is lexical, and closures fall out of it for free</h2>
+
+<p>Where a variable is *visible* is determined by where the code is <b>written</b>, not who calls it. Every function, when created, keeps a live link to the scope it was defined in — that combination of function + retained scope is a <b>closure</b>.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>function counter() {
+  let count = 0;                 // lives in counter's scope
+  return () =&gt; ++count;          // this function keeps that scope alive
+}
+const next = counter();
+next(); next();                  // 1, 2  ← count survives after counter() returned</code></pre></div>
+
+<p>Closures are not an advanced feature; they're a consequence of lexical scope plus functions being values. Every callback, every event handler, every React hook, every module-private variable is a closure. If you understand this one idea properly, <code class="inline">useState</code>'s "stale value" bugs stop being mysterious.</p>
+
+<h2>Idea 3: Objects delegate to other objects — the prototype chain</h2>
+
+<p>There are no classes underneath. Every object has an internal link to another object (its <b>prototype</b>). Property lookup walks that chain until found or until <code class="inline">null</code>:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>myArray → Array.prototype → Object.prototype → null</code></pre></div>
+
+<p>That's why <code class="inline">[].map</code> exists without being on your array: it's found one link up. <code class="inline">class</code> syntax (ES6) is real and useful but is <b>sugar over this mechanism</b> — it creates a constructor function and wires prototypes. Understanding the chain is what makes <code class="inline">instanceof</code>, method inheritance, and "why is my method undefined?" tractable.</p>
+
+<h2>Idea 4: <code class="inline">this</code> is decided by the call, not by the definition</h2>
+
+<p>The most-failed interview topic. <code class="inline">this</code> inside a normal function is determined at <b>call time</b>:</p>
+
+<div class="tblwrap"><table><thead><tr><th>Call form</th><th><code class="inline">this</code> is</th></tr></thead><tbody><tr><td><code class="inline">obj.method()</code></td><td><code class="inline">obj</code> — the object left of the dot</td></tr><tr><td><code class="inline">fn()</code></td><td><code class="inline">undefined</code> in strict mode/modules; the global object otherwise</td></tr><tr><td><code class="inline">new Fn()</code></td><td>The newly created object</td></tr><tr><td><code class="inline">fn.call(x)</code> / <code class="inline">fn.apply(x)</code> / <code class="inline">fn.bind(x)</code></td><td>Explicitly <code class="inline">x</code></td></tr><tr><td>Arrow function</td><td><b>Not its own</b> — inherited lexically from where it was written</td></tr></tbody></table></div>
+
+<p>Which gives you the classic bug and its fix in one:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>const user = {
+  name: 'Utkarsh',
+  greetBroken() { setTimeout(function () { console.log(this.name); }, 0); }, // undefined
+  greetFixed()  { setTimeout(() =&gt; console.log(this.name), 0); }             // works
+};</code></pre></div>
+
+<p>The arrow function fixes it not by magic but by *not having* <code class="inline">this</code> — it reads the enclosing one. That's the whole reason arrows were added.</p>
+
+<h2>Idea 5: One thread, one call stack, and a queue — the event loop</h2>
+
+<p>JavaScript executes on a <b>single thread</b>. There is one call stack; only one thing runs at a time. So how does it do network requests, timers, and clicks without freezing?</p>
+
+<p>It doesn't do them itself. The <b>runtime</b> (browser or Node) does — with real threads underneath — and hands results back as callbacks. The event loop's job: when the call stack is empty, take the next queued callback and run it.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>        ┌──────────────┐
+run ───▶│  call stack  │  (one thing at a time)
+        └──────────────┘
+               ▲
+               │ event loop: when stack is empty, take next
+        ┌──────┴─────────────────────────────┐
+        │ microtasks (promises) — drained FIRST, fully │
+        │ macrotasks (setTimeout, I/O, events) — one per tick │
+        └────────────────────────────────────┘</code></pre></div>
+
+<p>Two consequences that answer most async confusion:</p>
+
+<ul><li><b>Nothing is interrupted.</b> A long synchronous loop blocks timers, clicks, and rendering — because they're all waiting for the stack to empty. "JS is non-blocking" refers to I/O, not to your code.</li></ul>
+
+<ul><li><b>Microtasks jump the queue.</b> All pending promise callbacks run before the next <code class="inline">setTimeout</code>, which is exactly why this prints <code class="inline">1, 4, 3, 2</code>:</li></ul>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>console.log(1);
+setTimeout(() =&gt; console.log(2), 0);
+Promise.resolve().then(() =&gt; console.log(3));
+console.log(4);</code></pre></div>
+
+<h2>Checkpoint — before Part 3</h2>
+
+<p>Without running anything:</p>
+
+<ol><li>Explain why <code class="inline">const arr = [1,2]; arr.push(3)</code> is legal.</li></ol>
+
+<ol><li><code class="inline">for (var i=0;i&lt;3;i++) setTimeout(()=&gt;console.log(i))</code> prints <code class="inline">3 3 3</code>. Explain in terms of Ideas 2 and 5 — and say what one-word change fixes it and why.</li></ol>
+
+<ol><li>Why does <code class="inline">this</code> break when you pass <code class="inline">obj.method</code> as a callback, and name two fixes.</li></ol>
+
+<ol><li>Predict the output order of the four-line snippet above and justify each position.</li></ol>
+
+<p>If any of these is shaky, reread Part 2. Everything later assumes them.</p>
+
+<div class="quiz" data-part="p2"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p1">&larr; 01 · WHERE JAVASCRIPT CAME FROM</a><a class="next" href="#p3">03 · VALUES, TYPES, AND COERCION &rarr;</a></div>
+</section>
+
+<section class="part" id="p3">
+  <div class="phead"><div class="pnum">03</div>
+    <div><div class="ptitle">Values, Types, and Coercion</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p3">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>3.1 The type system [DEEP concept, REFERENCE the trivia]</h2>
+
+<p>Dynamically typed: <b>values</b> have types, variables don't. Seven primitives (<code class="inline">number</code>, <code class="inline">string</code>, <code class="inline">boolean</code>, <code class="inline">null</code>, <code class="inline">undefined</code>, <code class="inline">symbol</code>, <code class="inline">bigint</code>) plus objects. <code class="inline">typeof null === "object"</code> is a 1995 bug preserved forever (Part 1).</p>
+
+<p>One number type: IEEE-754 doubles. Hence <code class="inline">0.1 + 0.2 === 0.30000000000000004</code>, and hence: <b>never store money in a float.</b> Use integer paise/cents, or a decimal library. Given your fintech and invoicing work (Razorpay amounts are integers in paise for exactly this reason), this one is load-bearing, not academic.</p>
+
+<h2>3.2 Coercion, and the rule that makes it a non-issue [DEEP]</h2>
+
+<p>JS converts types implicitly, and the rules are genuinely arbitrary (<code class="inline">[] + {}</code>, <code class="inline">"5" - 2</code>, <code class="inline">null &gt;= 0</code>). The professional response is not to memorize the table — it's to <b>not rely on it</b>:</p>
+
+<ul><li>Always <code class="inline">===</code>, never <code class="inline">==</code>. The one defensible exception is <code class="inline">x == null</code> to catch both <code class="inline">null</code> and <code class="inline">undefined</code>.</li></ul>
+
+<ul><li>Convert explicitly: <code class="inline">Number(x)</code>, <code class="inline">String(x)</code>, <code class="inline">Boolean(x)</code>.</li></ul>
+
+<ul><li>Know the eight falsy values by heart, because they cause real bugs: <code class="inline">false, 0, -0, 0n, "", null, undefined, NaN</code>. Everything else — including <code class="inline">[]</code>, <code class="inline">{}</code>, and <code class="inline">"0"</code> — is truthy.</li></ul>
+
+<ul><li>The falsy trap that will bite you: <code class="inline">if (count)</code> is false when <code class="inline">count === 0</code>, which is usually a valid value. Use <code class="inline">if (count !== undefined)</code> or <code class="inline">??</code>.</li></ul>
+
+<p><code class="inline">??</code> (nullish coalescing) vs <code class="inline">||</code>: <code class="inline">||</code> falls through on any falsy value, <code class="inline">??</code> only on <code class="inline">null</code>/<code class="inline">undefined</code>. <code class="inline">const limit = input ?? 10</code> is correct where <code class="inline">input || 10</code> would wrongly override a deliberate <code class="inline">0</code>.</p>
+
+<h2>3.3 Declarations [DEEP]</h2>
+
+<div class="tblwrap"><table><thead><tr><th></th><th><code class="inline">var</code></th><th><code class="inline">let</code></th><th><code class="inline">const</code></th></tr></thead><tbody><tr><td>Scope</td><td>Function</td><td>Block</td><td>Block</td></tr><tr><td>Hoisting</td><td>Hoisted, initialized <code class="inline">undefined</code></td><td>Hoisted but in <b>TDZ</b> — throws if accessed before declaration</td><td>Same as <code class="inline">let</code></td></tr><tr><td>Rebindable</td><td>Yes</td><td>Yes</td><td>No</td></tr></tbody></table></div>
+
+<p>Rule: <code class="inline">const</code> by default, <code class="inline">let</code> when you must reassign, <b><code class="inline">var</code> never</b>. The TDZ (temporal dead zone) is a deliberate improvement: <code class="inline">var</code>'s silent <code class="inline">undefined</code> hid bugs; <code class="inline">let</code> throws a clear error instead.</p>
+
+<h2>3.4 Modern syntax you'll read constantly [RECOGNIZE]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>const { name, email: mail, role = 'user' } = user;      // destructure + rename + default
+const [first, ...rest] = items;
+const merged = { ...defaults, ...overrides };            // later wins
+const label = `${count} case${count === 1 ? '' : 's'}`;  // template literal
+const city = user?.address?.city ?? 'Unknown';           // optional chaining + nullish</code></pre></div>
+
+<p>Optional chaining is worth a note: it short-circuits to <code class="inline">undefined</code> instead of throwing "cannot read property of undefined" — the single most common runtime error in JS. It replaced whole paragraphs of defensive <code class="inline">&amp;&amp;</code> chains.</p>
+
+<div class="quiz" data-part="p3"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p2">&larr; 02 · THE CORE MENTAL MODEL</a><a class="next" href="#p4">04 · FUNCTIONS, SCOPE, CLOSURES &rarr;</a></div>
+</section>
+
+<section class="part" id="p4">
+  <div class="phead"><div class="pnum">04</div>
+    <div><div class="ptitle">Functions, Scope, Closures</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p4">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>4.1 Functions are values [DEEP]</h2>
+
+<p>They can be assigned, passed, returned, and stored in objects and arrays. This is the foundation of callbacks, higher-order functions, event handlers, middleware, and every hook you use. It comes from Scheme (Part 1) and is the language's best feature.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>const twice = fn =&gt; x =&gt; fn(fn(x));       // takes a function, returns a function
+const inc = n =&gt; n + 1;
+twice(inc)(5);                            // 7</code></pre></div>
+
+<h2>4.2 Arrow vs normal functions [DEEP]</h2>
+
+<div class="tblwrap"><table><thead><tr><th></th><th><code class="inline">function</code></th><th>Arrow</th></tr></thead><tbody><tr><td><code class="inline">this</code></td><td>Dynamic, set by call site</td><td><b>Lexical</b> — inherited, cannot be rebound</td></tr><tr><td><code class="inline">arguments</code></td><td>Available</td><td>Not available</td></tr><tr><td>Hoisted</td><td>Declarations are fully hoisted</td><td>No (it's a <code class="inline">const</code> assignment)</td></tr><tr><td>Usable as constructor / method with <code class="inline">this</code></td><td>Yes</td><td>No</td></tr></tbody></table></div>
+
+<p>Practical rule: <b>arrows for callbacks and anything nested inside a method; normal functions for object methods and anything needing dynamic <code class="inline">this</code>.</b> The reason arrows exist at all is Idea 4 — they were added specifically to kill <code class="inline">var self = this</code>.</p>
+
+<h2>4.3 Closures in practice [DEEP]</h2>
+
+<p>Four patterns you already use without naming them:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>// 1. Private state (the module pattern)
+const makeStore = () =&gt; { let state = {}; return {
+  get: k =&gt; state[k], set: (k,v) =&gt; { state = {...state, [k]:v}; } }; };
+
+// 2. Function factories / partial application
+const withPrefix = p =&gt; msg =&gt; console.log(`[${p}] ${msg}`);
+const logDb = withPrefix('db');
+
+// 3. Memoization — the cache lives in the closure
+const memo = fn =&gt; { const c = new Map();
+  return x =&gt; c.has(x) ? c.get(x) : (c.set(x, fn(x)), c.get(x)); };
+
+// 4. Debounce — the timer id lives in the closure
+const debounce = (fn, ms) =&gt; { let t; return (...a) =&gt; {
+  clearTimeout(t); t = setTimeout(() =&gt; fn(...a), ms); }; };</code></pre></div>
+
+<p>That debounce is worth writing from memory once; it's the most-asked closure question in interviews and it's genuinely useful in every search box you build.</p>
+
+<p><b>The classic closure bug</b> (and the reason <code class="inline">let</code> was introduced): <code class="inline">var</code> is function-scoped, so all three callbacks close over the *same* <code class="inline">i</code>. <code class="inline">let</code> creates a <b>new binding per iteration</b>, so each closure captures its own.</p>
+
+<h2>4.4 Parameters [RECOGNIZE]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>function search(q, { limit = 20, sort = 'date' } = {}) { }   // destructured options w/ defaults
+const sum = (...nums) =&gt; nums.reduce((a,b) =&gt; a+b, 0);        // rest</code></pre></div>
+
+<p>Common mistake: a mutable default that's shared — less severe in JS than Python, but <code class="inline">function f(arr = [])</code> creates a fresh array per call, so JS gets this right where Python doesn't. Worth knowing since you're learning both.</p>
+
+<h2>4.5 Purity and side effects [DEEP as discipline]</h2>
+
+<p>A <b>pure</b> function's output depends only on its inputs and it mutates nothing outside itself. Pure functions are trivially testable, cacheable, and safe to move. The practical discipline: push side effects (network, DOM, storage, logging) to the edges of your code and keep the middle pure. This is the single habit that most improves testability, and it's the principle behind React's render model, reducers, and functional pipelines.</p>
+
+<div class="quiz" data-part="p4"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p3">&larr; 03 · VALUES, TYPES, AND COERCION</a><a class="next" href="#p5">05 · OBJECTS, PROTOTYPES, CLASSES &rarr;</a></div>
+</section>
+
+<section class="part" id="p5">
+  <div class="phead"><div class="pnum">05</div>
+    <div><div class="ptitle">Objects, Prototypes, Classes</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p5">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>5.1 Objects [RECOGNIZE]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>const key = 'status';
+const case_ = { id: 7, [key]: 'open', hear() { return this.id; } };
+Object.keys(o); Object.values(o); Object.entries(o);   // iterate
+const { id, ...rest } = case_;                          // omit a key
+Object.freeze(o);                                       // shallow immutability</code></pre></div>
+
+<p>Note <code class="inline">Object.entries(o).map(...)</code> — converting objects to arrays to use array methods, then back with <code class="inline">Object.fromEntries</code>. That round-trip is the standard idiom for transforming object shapes.</p>
+
+<h2>5.2 The prototype chain, concretely [DEEP]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>const animal = { speak() { return `${this.name} makes a sound`; } };
+const dog = Object.create(animal);      // dog's prototype IS animal
+dog.name = 'Rex';
+dog.speak();                            // found one link up the chain
+Object.getPrototypeOf(dog) === animal;  // true</code></pre></div>
+
+<p>Lookup walks up; <b>assignment does not</b> — <code class="inline">dog.speak = ...</code> creates an own property that shadows the prototype's. That asymmetry explains most confusion about inheritance in JS.</p>
+
+<h2>5.3 Classes [RECOGNIZE syntax, DEEP that it's sugar]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>class Case {
+<span class="c">  #notes = [];                                  // truly private field</span>
+  static from(row) { return new Case(row.id); } // static factory
+  constructor(id) { this.id = id; }
+  get summary() { return `Case ${this.id}`; }   // getter — accessed as .summary
+  addNote(n) { this.#notes.push(n); return this; }
+}
+class Appeal extends Case {
+  constructor(id, court) { super(id); this.court = court; }
+}</code></pre></div>
+
+<p>Methods live on <code class="inline">Case.prototype</code>, shared by all instances — not copied per object. <code class="inline">extends</code> links prototypes. <code class="inline">super</code> calls up the chain. So classes are a readability win over <code class="inline">Object.create</code> plumbing, nothing more, and knowing that is the interview answer.</p>
+
+<p><b>Prefer composition over inheritance.</b> Deep class hierarchies are brittle; passing collaborating objects/functions in is more flexible. Most modern JS codebases (and all of React) chose composition — worth being able to argue why.</p>
+
+<div class="quiz" data-part="p5"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p4">&larr; 04 · FUNCTIONS, SCOPE, CLOSURES</a><a class="next" href="#p6">06 · ARRAYS AND DATA TRANSFORMATION &rarr;</a></div>
+</section>
+
+<section class="part" id="p6">
+  <div class="phead"><div class="pnum">06</div>
+    <div><div class="ptitle">Arrays and Data Transformation</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p6">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>6.1 The model [DEEP]</h2>
+
+<p>Stop writing <code class="inline">for</code> loops for transformations. Think in three verbs — this is the same mental shift you already made with SQL, and it's the closest analogy available to you:</p>
+
+<div class="tblwrap"><table><thead><tr><th>Verb</th><th>SQL analogue</th><th>Returns</th></tr></thead><tbody><tr><td><code class="inline">map</code></td><td><code class="inline">SELECT expr</code></td><td>New array, same length</td></tr><tr><td><code class="inline">filter</code></td><td><code class="inline">WHERE</code></td><td>New array, subset</td></tr><tr><td><code class="inline">reduce</code></td><td><code class="inline">GROUP BY</code> / aggregate</td><td>Any single value</td></tr></tbody></table></div>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>const hearings = cases
+  .filter(c =&gt; c.status === 'open')                  // WHERE
+  .map(c =&gt; ({ id: c.id, next: c.hearings[0] }))     // SELECT
+  .sort((a,b) =&gt; a.next.localeCompare(b.next));      // ORDER BY
+
+const byCourt = cases.reduce((acc, c) =&gt; {           // GROUP BY
+  (acc[c.court] ??= []).push(c); return acc;
+}, {});</code></pre></div>
+
+<p><code class="inline">reduce</code> is the general case — <code class="inline">map</code> and <code class="inline">filter</code> are both special cases of it. Understand <code class="inline">(accumulator, current) =&gt; newAccumulator</code> and it stops being scary.</p>
+
+<h2>6.2 Mutating vs non-mutating [DEEP — bug source]</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Mutates in place</th><th>Returns new</th></tr></thead><tbody><tr><td><code class="inline">push</code>, <code class="inline">pop</code>, <code class="inline">shift</code>, <code class="inline">unshift</code>, <code class="inline">splice</code>, <code class="inline">sort</code>, <code class="inline">reverse</code></td><td><code class="inline">map</code>, <code class="inline">filter</code>, <code class="inline">slice</code>, <code class="inline">concat</code>, <code class="inline">flat</code>, spread, <code class="inline">toSorted</code>, <code class="inline">toReversed</code></td></tr></tbody></table></div>
+
+<p><code class="inline">sort</code> and <code class="inline">reverse</code> mutating <b>is</b> a trap — <code class="inline">list.sort()</code> reorders the original, which in React means state you thought was untouched has changed. Use <code class="inline">[...list].sort()</code> or the newer <code class="inline">toSorted()</code>.</p>
+
+<h2>6.3 Other collections [RECOGNIZE]</h2>
+
+<p><code class="inline">Map</code> — keys of any type, preserves insertion order, <code class="inline">.size</code>, no prototype-key collisions. Prefer over plain objects for real key-value stores. <code class="inline">Set</code> — unique values; <code class="inline">[...new Set(arr)]</code> is the standard dedupe. <code class="inline">Object.groupBy</code> for grouping without the reduce boilerplate.</p>
+
+<h2>6.4 Common mistakes</h2>
+
+<ul><li><code class="inline">forEach</code> when you wanted <code class="inline">map</code> (returns <code class="inline">undefined</code>).</li></ul>
+
+<ul><li><code class="inline">async</code> inside <code class="inline">forEach</code> — it does <b>not</b> wait. Use <code class="inline">for...of</code> with <code class="inline">await</code>, or <code class="inline">Promise.all(arr.map(async ...))</code>.</li></ul>
+
+<ul><li>Mutating during iteration.</li></ul>
+
+<ul><li>Reaching for a library for things now native (<code class="inline">flat</code>, <code class="inline">groupBy</code>, <code class="inline">structuredClone</code>).</li></ul>
+
+<div class="quiz" data-part="p6"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p5">&larr; 05 · OBJECTS, PROTOTYPES, CLASSES</a><a class="next" href="#p7">07 · ASYNCHRONY: THE EVENT LOOP IN PRACTICE &rarr;</a></div>
+</section>
+
+<section class="part" id="p7">
+  <div class="phead"><div class="pnum">07</div>
+    <div><div class="ptitle">Asynchrony: The Event Loop in Practice</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p7">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>7.1 Why async exists at all [DEEP]</h2>
+
+<p>One thread (Idea 5) + operations that take time (network, disk, timers) = if you waited synchronously, the UI would freeze on every request. So the runtime does the waiting off-thread and calls you back. Async in JS isn't about parallelism — it's about <b>not blocking the one thread you have</b>.</p>
+
+<h2>7.2 The three generations [DEEP on why each replaced the last]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>// 1. Callbacks (1995–) — worked, but nesting and error handling didn't compose
+getUser(id, (err, user) =&gt; { if (err) return cb(err);
+  getCases(user.id, (err, cases) =&gt; { /* callback hell */ }); });
+
+// 2. Promises (ES6) — a first-class VALUE representing a future result, so it can be
+//    returned, stored, combined, and chained; errors propagate down one .catch
+getUser(id).then(u =&gt; getCases(u.id)).then(render).catch(showError);
+
+// 3. async/await (ES2017) — the same promises, written in linear form
+async function load(id) {
+  try {
+    const user  = await getUser(id);
+    const cases = await getCases(user.id);
+    return render(cases);
+  } catch (e) { showError(e); }
+}</code></pre></div>
+
+<p>The key insight most people miss: <b><code class="inline">async/await</code> is not a third mechanism.</b> An <code class="inline">async</code> function always returns a promise; <code class="inline">await</code> just pauses that function and resumes it in a microtask when the promise settles. Everything about promises still applies — which is why understanding promises properly is non-optional.</p>
+
+<h2>7.3 Concurrency patterns [DEEP — the sequential-await mistake]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>// SLOW — 3 sequential round trips
+const a = await getA(); const b = await getB(); const c = await getC();
+
+// FAST — all three start immediately, then wait for all
+const [a, b, c] = await Promise.all([getA(), getB(), getC()]);</code></pre></div>
+
+<p>Awaiting in a loop when the operations are independent is the most common real-world async performance bug. <code class="inline">Promise.all</code> rejects if *any* rejects; <code class="inline">Promise.allSettled</code> gives you every outcome (right for "fetch 50 things, tolerate failures" — e.g. your eCourts sync); <code class="inline">Promise.race</code>/<code class="inline">any</code> for timeouts and fallbacks.</p>
+
+<h2>7.4 Errors, timeouts, cancellation [RECOGNIZE, one [DEEP] gotcha]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>const ctrl = new AbortController();
+setTimeout(() =&gt; ctrl.abort(), 5000);
+const res = await fetch(url, { signal: ctrl.signal });
+if (!res.ok) throw new Error(`HTTP ${res.status}`);   // ← fetch does NOT throw on 404/500
+const data = await res.json();</code></pre></div>
+
+<p>The [DEEP] gotcha in that snippet: <b><code class="inline">fetch</code> only rejects on network failure, not on HTTP error status.</b> A 500 resolves normally with <code class="inline">res.ok === false</code>. Every JS developer has shipped this bug once. And an unawaited async call that rejects becomes an unhandled rejection — silent in browsers, fatal in modern Node.</p>
+
+<h2>7.5 Exercise</h2>
+
+<p>Write a <code class="inline">fetchWithRetry(url, { retries = 3, timeout = 5000 })</code> that: times out via AbortController, retries with exponential backoff, doesn't retry 4xx (client errors won't fix themselves), throws a useful error on final failure. This single function exercises promises, closures, error handling, and cancellation — and you'll reuse it in every project you build.</p>
+
+<div class="quiz" data-part="p7"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p6">&larr; 06 · ARRAYS AND DATA TRANSFORMATION</a><a class="next" href="#p8">08 · THE BROWSER: DOM, EVENTS, AND WHY FRAMEWORKS EXIST &rarr;</a></div>
+</section>
+
+<section class="part" id="p8">
+  <div class="phead"><div class="pnum">08</div>
+    <div><div class="ptitle">The Browser: DOM, Events, and Why Frameworks Exist</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p8">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>8.1 The DOM is an API, not the language [DEEP]</h2>
+
+<p>JS the language has no concept of a document. <code class="inline">document</code>, <code class="inline">window</code>, <code class="inline">fetch</code>, <code class="inline">localStorage</code> are all <b>host-provided APIs</b> — which is why the same language runs in Node with none of them. Keeping that separation clear is what makes "does this code run on the server?" answerable.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>const el = document.querySelector('.card');          // CSS selectors, no jQuery needed
+el.textContent = 'safe';                             // ← always prefer over innerHTML
+el.classList.toggle('is-open');
+el.dataset.caseId = 7;                               // data-case-id
+const node = tpl.content.cloneNode(true);            // &lt;template&gt; for repeated markup</code></pre></div>
+
+<p><b><code class="inline">textContent</code> vs <code class="inline">innerHTML</code> is a security boundary, not a style choice.</b> <code class="inline">innerHTML</code> with any user-supplied string is an XSS vulnerability. Given you're building a real app with user data, treat <code class="inline">innerHTML</code> as a decision requiring justification and sanitization.</p>
+
+<h2>8.2 Events [DEEP]</h2>
+
+<p>An event <b>captures</b> down the tree from <code class="inline">window</code> to the target, fires on the target, then <b>bubbles</b> back up. Consequences:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">js</span><button class="copybtn">COPY</button></div><pre><code>list.addEventListener('click', e =&gt; {                 // ONE listener for N children
+  const btn = e.target.closest('[data-id]');          // event DELEGATION
+  if (!btn) return;
+  open(btn.dataset.id);
+});</code></pre></div>
+
+<p>Delegation is the pattern to internalize: it works for elements added later, and it replaces N listeners with one. <code class="inline">e.preventDefault()</code> stops the browser's default action (form submit, link navigation); <code class="inline">e.stopPropagation()</code> stops the bubbling — different things, frequently confused, and a common interview question.</p>
+
+<h2>8.3 Why frameworks exist [DEEP — this is the bridge to your actual work]</h2>
+
+<p>Vanilla DOM manipulation has one structural problem: <b>you must manually keep the DOM in sync with your data, from every code path that changes it.</b> With three pieces of state and five views, the number of update paths explodes, and bugs are always "this one place forgot to update."</p>
+
+<p>React's proposition is a single idea: <b>UI is a function of state.</b> You describe what the DOM should look like for the current state; the framework computes the difference and applies it. Every React concept you already use follows from that:</p>
+
+<div class="tblwrap"><table><thead><tr><th>React thing</th><th>The vanilla problem it solves</th></tr></thead><tbody><tr><td>Components</td><td>Ad-hoc functions creating and wiring DOM by hand</td></tr><tr><td>State + re-render</td><td>Manual, easily-forgotten DOM updates</td></tr><tr><td>Keys in lists</td><td>Identity tracking when reordering children</td></tr><tr><td><code class="inline">useEffect</code></td><td>Lifecycle-tied side effects and their cleanup (removing listeners, aborting fetches)</td></tr><tr><td>Reference equality in deps/memo</td><td>Idea 1 — new object identity per render</td></tr></tbody></table></div>
+
+<p>So do Part 9's vanilla app <b>before</b> reaching for a framework again. It's the only way to feel the problem React solves, which is the difference between using React and understanding it.</p>
+
+<div class="quiz" data-part="p8"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p7">&larr; 07 · ASYNCHRONY: THE EVENT LOOP IN PRACTICE</a><a class="next" href="#p9">09 · REAL PROJECTS &rarr;</a></div>
+</section>
+
+<section class="part" id="p9">
+  <div class="phead"><div class="pnum">09</div>
+    <div><div class="ptitle">Real Projects</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p9">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>9.1 Project A — vanilla browser app, no framework, no build step</h2>
+
+<p><b>Spec:</b> a case/task list that (1) fetches from a public API, (2) renders a list from a <code class="inline">&lt;template&gt;</code>, (3) supports search (debounced), filter, and sort, (4) has add/edit/delete with optimistic UI, (5) persists to <code class="inline">localStorage</code>, (6) shows explicit loading, empty, and error states, (7) uses one delegated click listener for the whole list, (8) is fully keyboard operable.</p>
+
+<p><b>Definition of done:</b> no <code class="inline">innerHTML</code> with user data; every async path has error handling; state lives in one object and rendering is a single function of it (<code class="inline">render(state)</code>); and you can explain which parts of your code React would have written for you.</p>
+
+<h2>9.2 Project B — Node service</h2>
+
+<p><b>Spec:</b> an HTTP API (Node's built-in <code class="inline">http</code>, or Express/Fastify once you've seen raw) with: two or three routes, JSON parsing, input validation with clear 4xx errors, an async data layer talking to Postgres or a JSON file, structured logging, graceful shutdown on SIGTERM, and env-var config. Then containerize it using the Docker curriculum's Part 8 pattern.</p>
+
+<p>Why this pairing: Project A teaches the browser half and why frameworks exist; Project B teaches that the same language, same event loop, and same async model apply with a completely different set of host APIs. Together they cover the whole of what "knowing JavaScript" means.</p>
+
+<div class="quiz" data-part="p9"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p8">&larr; 08 · THE BROWSER: DOM, EVENTS, AND WHY FRAMEWORKS EXIST</a><a class="next" href="#p10">10 · DEBUGGING PLAYBOOK &rarr;</a></div>
+</section>
+
+<section class="part" id="p10">
+  <div class="phead"><div class="pnum">10</div>
+    <div><div class="ptitle">Debugging Playbook</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p10">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>The decision tree</h2>
+
+<p><b><code class="inline">Cannot read properties of undefined (reading 'x')</code></b> — the most common JS error. Something in the chain before <code class="inline">.x</code> is <code class="inline">undefined</code>. Read the stack trace's top frame, log the object *one level up*, and fix the cause (usually a wrong API shape assumption or an async value read before it arrived). <code class="inline">?.</code> silences the symptom; only use it where absence is genuinely valid.</p>
+
+<p><b><code class="inline">undefined is not a function</code></b> — typo, wrong import shape (default vs named), or <code class="inline">this</code> lost (Idea 4).</p>
+
+<p><b>"My value is stale / didn't update."</b> Almost always Idea 1 (mutated instead of replaced, so identity didn't change) or Idea 2 (a closure captured an old value). In React specifically: mutation of state, or a stale closure in a callback with missing deps.</p>
+
+<p><b>"My async code runs in the wrong order."</b> Reason it out with Idea 5: sync code first, then all microtasks (promises/awaits), then one macrotask (timers). Add <code class="inline">console.log</code> markers before/after every <code class="inline">await</code> and read the actual order rather than the intended one.</p>
+
+<p><b>"It works locally, fails in production."</b> Env vars missing, CORS, HTTPS-only APIs, minification exposing a timing bug, or a browser-only API running during SSR (<code class="inline">window is not defined</code> — a Next.js classic).</p>
+
+<p><b>Silent failure, nothing in console.</b> An unhandled promise rejection (add <code class="inline">window.addEventListener('unhandledrejection', ...)</code>), an error swallowed by an empty <code class="inline">catch</code>, or an event listener attached before the element existed.</p>
+
+<h2>The tools worth mastery</h2>
+
+<p><code class="inline">console.table</code> for arrays of objects; <code class="inline">console.group</code>; <code class="inline">debugger;</code> statements and DevTools breakpoints (<b>conditional</b> breakpoints are the underrated one); the Network tab for the actual request/response rather than what you think you sent; and <code class="inline">Sources → watch</code> for stepping through closures to see captured values. Learning to step through code beats adding logs, and it's the habit that most separates fast debuggers from slow ones.</p>
+
+<div class="quiz" data-part="p10"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p9">&larr; 09 · REAL PROJECTS</a><a class="next" href="#p11">11 · INTERNALS &rarr;</a></div>
+</section>
+
+<section class="part" id="p11">
+  <div class="phead"><div class="pnum">11</div>
+    <div><div class="ptitle">Internals</div>
+    <div class="pmeta"><span class="m">TAG <b>ADVANCED</b></span><span class="m">★ <b>INTERVIEW GOLD</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p11">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>11.1 How V8 runs your code</h2>
+
+<p>Parse → AST → <b>Ignition</b> compiles to bytecode and starts executing immediately → hot functions get optimized by <b>TurboFan</b> into machine code, using observed types → if an assumption breaks (a function that always got numbers suddenly gets a string), V8 <b>deoptimizes</b> back to bytecode.</p>
+
+<p>The actionable consequence: V8 optimizes *predictable* code. Objects with consistent shapes (same properties, same order — "hidden classes") and functions called with consistent types run dramatically faster than polymorphic ones. You don't micro-optimize for this, but it explains why "just make it dynamic" has a real cost, and why TypeScript's discipline often incidentally produces faster code.</p>
+
+<h2>11.2 Memory and leaks</h2>
+
+<p>Automatic GC (generational, mark-and-sweep): unreachable objects are collected. So leaks in JS are always <b>unintended reachability</b>:</p>
+
+<ul><li>Listeners never removed (the closure keeps the whole scope alive — including DOM nodes).</li></ul>
+
+<ul><li>Timers/intervals never cleared.</li></ul>
+
+<ul><li>Growing caches/arrays with no eviction.</li></ul>
+
+<ul><li>Detached DOM nodes still referenced by a variable.</li></ul>
+
+<p><code class="inline">WeakMap</code>/<code class="inline">WeakSet</code> hold keys weakly, so they don't prevent collection — the right tool for metadata attached to objects you don't own. Diagnose with DevTools Memory → heap snapshot comparison.</p>
+
+<h2>11.3 The event loop, precisely [DEEP for interviews]</h2>
+
+<p>One turn: (1) run the current macrotask to completion; (2) <b>drain the entire microtask queue</b> — including microtasks queued by microtasks, which is why an infinite microtask loop hangs the page permanently; (3) in browsers, run <code class="inline">requestAnimationFrame</code> callbacks and then render if needed; (4) take the next macrotask.</p>
+
+<p>Therefore: <code class="inline">setTimeout(fn, 0)</code> means "after the current task and all microtasks," not "immediately" — and the minimum clamps to ~4ms after nesting. Node adds <code class="inline">process.nextTick</code> (before other microtasks) and distinct phases (timers, pending callbacks, poll, check/<code class="inline">setImmediate</code>, close) — [ADVANCED], but knowing the phases exist is a real Node signal.</p>
+
+<h2>11.4 Modules [DEEP]</h2>
+
+<p><b>ESM</b> (<code class="inline">import</code>/<code class="inline">export</code>) is statically analyzable — resolved before execution, which enables tree-shaking and circular-import handling, and its imports are *live bindings*. <b>CommonJS</b> (<code class="inline">require</code>/<code class="inline">module.exports</code>) is dynamic and synchronous, evaluated at call time, returning a copy of the value. That difference is why the Node ecosystem's ESM/CJS transition has been so painful, and why <code class="inline">"type": "module"</code>, <code class="inline">.mjs</code>, and dual builds exist.</p>
+
+<p>Bundlers exist because HTTP/1.1 made hundreds of module requests slow and because browsers had no module system until 2017 — plus transpilation for older targets. With ESM and HTTP/2, "why do I need a bundler at all?" is now a legitimate question for small projects, which is exactly what Vite's dev server bets on.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">simulator — click RUN</span></div><pre id="simOut"><span cl/></pre><div class="stack-controls" style="margin:0;padding:10px 16px;border-top:1px solid var(--line)"><button class="btn sm" id="simRun">&#9654; RUN</button><button class="btn sm ok" id="simReset">RESET</button></div></div>
+
+<div class="quiz" data-part="p11"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p10">&larr; 10 · DEBUGGING PLAYBOOK</a><a class="next" href="#p12">12 · PRODUCTION &rarr;</a></div>
+</section>
+
+<section class="part" id="p12">
+  <div class="phead"><div class="pnum">12</div>
+    <div><div class="ptitle">Production</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p12">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>12.1 TypeScript [DEEP as a decision]</h2>
+
+<p>TS adds a compile-time type layer and erases entirely at runtime — <b>no runtime safety</b>. What you get: errors at build time instead of in production, real autocomplete, and types as executable documentation. What you pay: a build step, config, and the type-gymnastics tax on complex generics.</p>
+
+<p>The critical implication people miss: because types vanish at runtime, <b>external data is unverified.</b> A typed <code class="inline">fetch</code> response is a *claim*, not a check. Validate boundaries at runtime (Zod or equivalent) — API responses, form input, env vars, webhook payloads. Type-safe-in-editor plus unvalidated-at-runtime is a false sense of security, and it's exactly the gap that bites in real apps like yours with Supabase and Razorpay payloads.</p>
+
+<h2>12.2 Testing [RECOGNIZE]</h2>
+
+<p>Unit tests for pure logic (cheap, fast, plentiful); integration tests for modules working together; a small number of end-to-end tests (Playwright) for critical user paths. Test behaviour, not implementation — a test that breaks on every refactor is a liability. Vitest/Jest for the first two.</p>
+
+<h2>12.3 Security essentials [DEEP — non-negotiable]</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Risk</th><th>Mechanism</th><th>Defence</th></tr></thead><tbody><tr><td><b>XSS</b></td><td>Attacker's string executed as code in your page</td><td>Never <code class="inline">innerHTML</code> with untrusted data; escape output; Content-Security-Policy; sanitize if HTML is genuinely required</td></tr><tr><td><b>Secrets in client code</b></td><td>Anything shipped to the browser is public</td><td>Server-side only; for Supabase, <code class="inline">anon</code> key + Row-Level Security is the design — RLS is the actual security, not key secrecy</td></tr><tr><td><b>CSRF</b></td><td>Attacker's site triggers authenticated requests</td><td><code class="inline">SameSite</code> cookies, CSRF tokens</td></tr><tr><td><b>Dependency risk</b></td><td><code class="inline">npm install</code> runs others' code</td><td><code class="inline">npm audit</code>, lockfiles, minimize dependencies, review before adding</td></tr><tr><td><b>Trusting the client</b></td><td>Any validation in the browser can be bypassed</td><td><b>Every</b> rule must be re-enforced server-side. Client validation is UX only</td></tr></tbody></table></div>
+
+<p>That last row is the one that matters most for your paywall/credits work: if credit deduction or tier checks happen client-side, they don't exist.</p>
+
+<div class="quiz" data-part="p12"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p11">&larr; 11 · INTERNALS</a><a class="next" href="#p13">13 · WHEN NOT TO USE JAVASCRIPT &rarr;</a></div>
+</section>
+
+<section class="part" id="p13">
+  <div class="phead"><div class="pnum">13</div>
+    <div><div class="ptitle">When Not to Use JavaScript</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p13">MARK COMPLETE</button></div>
+  </div>
+
+  <p><b>Right tool when:</b> anything in a browser (no alternative that isn't compiled to JS/WASM); full-stack teams wanting one language; I/O-heavy services (the event loop is genuinely excellent at many concurrent connections); real-time (WebSockets); tooling and scripting where npm's ecosystem wins.</p>
+
+<p><b>Wrong or questionable when:</b></p>
+
+<ul><li><b>CPU-bound work</b> — single thread, and heavy computation blocks everything. Worker threads and WASM help; Python/Go/Rust are often just better. Your ETL and data-crunching work belongs in Python, not Node.</li></ul>
+
+<ul><li><b>Data science / ML</b> — the ecosystem simply isn't there. numpy/pandas/PyTorch have no real JS equivalent.</li></ul>
+
+<ul><li><b>Precise decimal arithmetic</b> — floats. Money needs integers or a decimal library (Part 3.1).</li></ul>
+
+<ul><li><b>Long-lived systems needing strong guarantees</b> — dynamic typing plus a fast-churning ecosystem; TS mitigates, doesn't eliminate.</li></ul>
+
+<ul><li><b>Small static sites</b> — often no JS needed at all; HTML/CSS does it, and shipping zero JS is faster than any framework.</li></ul>
+
+<ul><li><b>Where the dependency tree is the risk</b> — a 2MB node_modules for a 50-line script is a real supply-chain and maintenance cost.</li></ul>
+
+<p>Honest additional weaknesses worth being able to name: ecosystem churn, <code class="inline">node_modules</code> weight, ESM/CJS fragmentation, and the fact that "JavaScript fatigue" is a real cost of the platform's speed of change.</p>
+
+<p>If you can deliver these aloud — WHAT → WHY IT EXISTS → ONE CONCRETE CONSEQUENCE — you are interview-ready. Answer before flipping; nailed cards dim.</p>
+<div class="deck" id="deck"><!-- cards injected by JS --></div>
+
+  <div class="breadcrumb"><a href="#p12">&larr; 12 · PRODUCTION</a><a class="next" href="#p14">14 · INTERVIEW PREP &amp; MILESTONES &rarr;</a></div>
+</section>
+
+<section class="part" id="p14">
+  <div class="phead"><div class="pnum">14</div>
+    <div><div class="ptitle">Interview Prep &amp; Milestones</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p14">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>Questions</h2>
+
+<p><b>Tier 1:</b> <code class="inline">var</code>/<code class="inline">let</code>/<code class="inline">const</code> and TDZ · <code class="inline">==</code> vs <code class="inline">===</code> · what a closure is, with a use case · arrow vs normal function · <code class="inline">map</code>/<code class="inline">filter</code>/<code class="inline">reduce</code> · promise vs callback · what <code class="inline">this</code> is in four call forms · hoisting.</p>
+
+<p><b>Tier 2:</b> explain the event loop and predict output order · microtask vs macrotask · deep vs shallow copy and why it matters in React · prototype chain, and what <code class="inline">class</code> compiles to · event delegation, bubbling vs capturing · <code class="inline">Promise.all</code> vs <code class="inline">allSettled</code> vs <code class="inline">race</code> · debounce vs throttle (write one) · why <code class="inline">fetch</code> doesn't reject on 500 · ESM vs CommonJS.</p>
+
+<p><b>Tier 3:</b> how V8 optimizes and deoptimizes · what causes memory leaks in JS and how you'd find one · why animating with <code class="inline">transform</code> is cheaper (cross-links to the CSS curriculum) · layout thrashing · what TypeScript does and doesn't guarantee at runtime · why JavaScript can never remove <code class="inline">var</code> · what problem React actually solves, in one sentence about state and the DOM.</p>
+
+<h2>Milestones</h2>
+
+<p><b>M1 — Model (Parts 1–2).</b> Pass: the four Part 2 checkpoint questions, unaided, out loud.</p>
+
+<p><b>M2 — Language (Parts 3–6).</b> Pass: write <code class="inline">debounce</code>, <code class="inline">memoize</code>, and a <code class="inline">groupBy</code> from scratch; predict output of five coercion/closure snippets.</p>
+
+<p><b>M3 — Async (Part 7).</b> Pass: build <code class="inline">fetchWithRetry</code>; correctly order any promise/timer snippet; explain sequential-await cost.</p>
+
+<p><b>M4 — Browser (Part 8) + Project A.</b> Pass: the vanilla app meeting every "definition of done" item, and a written list of what React would have handled.</p>
+
+<p><b>M5 — Node (Project B) + Debugging (Part 10).</b> Pass: the service running and containerized; debug an unfamiliar broken script using breakpoints, not logs.</p>
+
+<p><b>M6 — Depth (Parts 11–13).</b> Pass: the event-loop narration; name three leak causes; argue where JS is the wrong tool.</p>
+
+<p>Pace at ~1 hour/day: M1 days 1–3, M2 days 4–9, M3 days 10–13, M4 days 14–20, M5 days 21–26, M6 days 27–31. Write every snippet by hand — reading JS creates the illusion of understanding faster than any other language, because the syntax is familiar even when the semantics aren't.</p>
+
+<p>Six milestones = six layers of proof. When all six drop, the shipyard ships your container.</p>
+<div class="mlist" id="mlist"><!-- milestones injected by JS --></div>
+
+  <div class="breadcrumb"><a href="#p13">&larr; 13 · WHEN NOT TO USE JAVASCRIPT</a></div>
+</section><footer>
+  <b>ABOUT THIS BUILD:</b> The JavaScript Shipyard is a faithful interactive conversion of the first-principles JavaScript curriculum — every concept, table, code block and exercise preserved. Progress lives in your browser (localStorage). Built as a single file — copy it anywhere, it runs offline.<br>
+  <b>THE ONE RULE:</b> `this` is decided by the call, not by the definition. Hold that and half your JS bugs disappear.
+</footer>
+</main>
+</div>
+<div id="grad"><div class="gterm"><div class="ghead">&#9650; SHIPYARD DEPLOYMENT — ALL MILESTONES CROSSED</div><div class="gbody"></div></div></div>
+<script src="data/javascript.js"></script>
+<script src="assets/shipyard.js"></script>
+</body>
+</html>

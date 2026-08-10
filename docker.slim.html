@@ -1,0 +1,2029 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-render="img">
+<head>
+<meta charset="UTF-8">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="The Container Shipyard - Docker First-Principles Curriculum">
+    <meta property="og:description" content="Docker - first-principles curriculum - an interactive, one-file, offline curriculum.">
+    <meta property="og:image" content="assets/og/docker.png">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%23ffb000%22 d=%22M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z%22/%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Container Shipyard — Docker First-Principles Curriculum</title>
+<!-- HERO: THE STACK — your learning progress physically builds a container, layer by layer, in the sidebar; completing all 14 parts ships it (animated deployment + rank-up) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffb000' d='M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z'/%3E%3Crect x='7' y='11' width='2' height='2' fill='%230b0e14'/%3E%3Crect x='12' y='11' width='2' height='2' fill='%230b0e14'/%3E%3Crect x='17' y='11' width='2' height='2' fill='%230b0e14'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --bg:#0b0e14; --bg2:#0e1119; --panel:#10141d; --panel2:#141927;
+  --line:#232c3d; --line2:#2e3a52;
+  --fg:#d6dee8; --dim:#8b96a8; --faint:#5b6577;
+  --accent:#ffb000; --accent-soft:#b37b00;
+  --ok:#39d98a; --ok-dim:#1e7a4d;
+  --deep:#ff5d5d; --recog:#57d9ff; --ref:#9aa4b2; --adv:#c792ea;
+  --display:'VT323', 'Courier New', monospace;
+  --body:'Space Mono', 'Consolas', monospace;
+  --mono:'IBM Plex Mono', 'Consolas', monospace;
+  --radius:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--body); font-size:15px; line-height:1.65;
+  background-image:
+    radial-gradient(1200px 600px at 80% -10%, rgba(255,176,0,.05), transparent 60%),
+    radial-gradient(900px 500px at -10% 30%, rgba(87,217,255,.04), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+::selection{background:var(--accent);color:#0b0e14}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-shadow:0 0 8px rgba(255,176,0,.6)}
+#scanlines{position:fixed;inset:0;pointer-events:none;z-index:9990;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px);opacity:.5}
+#vignette{position:fixed;inset:0;pointer-events:none;z-index:9989;
+  background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.45) 100%)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+
+/* ---------- layout ---------- */
+#app{display:grid;grid-template-columns:310px 1fr;min-height:100vh}
+main{padding:0 48px 120px;max-width:1060px;min-width:0}
+#backdrop{position:fixed;inset:0;background:rgba(5,7,11,.7);z-index:49;display:none}
+#backdrop.open{display:block}
+
+/* ---------- sidebar dock ---------- */
+#dock{position:sticky;top:0;height:100vh;overflow-y:auto;overflow-x:hidden;
+  background:linear-gradient(180deg,var(--panel) 0%, #0d1119 100%);
+  border-right:1px solid var(--line);padding:22px 18px 30px;z-index:50}
+.brand{display:flex;align-items:center;gap:10px;padding-bottom:16px;border-bottom:1px dashed var(--line2)}
+.brand svg{flex:none;filter:drop-shadow(0 0 6px rgba(255,176,0,.4))}
+.brand .bname{font-family:var(--display);font-size:22px;line-height:1;letter-spacing:.5px;color:var(--accent)}
+.brand .bsub{font-size:10px;color:var(--faint);letter-spacing:2px;text-transform:uppercase}
+.rankbox{margin:14px 0;padding:12px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel2)}
+.rankbox .rk{font-family:var(--display);font-size:21px;color:var(--accent);line-height:1}
+.rankbox .rkxp{font-size:11px;color:var(--dim);margin-top:2px}
+.prbar{height:8px;border:1px solid var(--line2);background:var(--bg);border-radius:4px;margin-top:8px;overflow:hidden}
+.prbar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-soft),var(--accent));width:0%;transition:width .6s cubic-bezier(0.16,1,0.3,1)}
+.stackbox{padding:12px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel2);margin-bottom:6px}
+.stackbox .st{font-size:10px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between}
+#stackMini{display:flex;flex-direction:column;gap:3px;padding:8px 10px;background:var(--bg);border:1px solid var(--line);border-radius:4px}
+#stackMini .layer{height:11px;border-radius:2px;background:#1b2333;border:1px solid var(--line2);position:relative;cursor:pointer;transition:background .3s}
+#stackMini .layer .ltip{position:absolute;left:26px;top:-2px;background:var(--panel2);border:1px solid var(--line2);font-size:10px;white-space:nowrap;padding:1px 6px;border-radius:3px;display:none;z-index:5}
+#stackMini .layer:hover .ltip{display:block}
+#stackMini .layer.done{background:linear-gradient(90deg,var(--accent-soft),var(--accent));border-color:var(--accent);box-shadow:0 0 6px rgba(255,176,0,.3)}
+#stackMini .layer.cleared{background:linear-gradient(90deg,#1e7a4d,var(--ok));border-color:var(--ok)}
+#stackMini .layer.writable{height:16px;background:repeating-linear-gradient(45deg,#182136,#182136 6px,#1d2739 6px,#1d2739 12px);border-style:dashed;border-color:var(--ok-dim)}
+#stackMini .layer.writable.live{border-color:var(--ok);box-shadow:0 0 8px rgba(57,217,138,.4)}
+#stackMini .layer.newly{animation:layerin .5s cubic-bezier(0.16,1,0.3,1)}
+@keyframes layerin{0%{transform:translateX(18px);opacity:0}100%{transform:none;opacity:1}}
+#psRow{font-size:11px;margin-top:10px;padding:8px 10px;background:#0a1f14;border:1px solid var(--ok-dim);border-radius:4px;color:var(--ok);display:none;font-family:var(--mono)}
+#psRow b{color:var(--ok)}
+
+nav.docknav{margin-top:14px}
+.docksec{font-size:10px;letter-spacing:2px;color:var(--faint);text-transform:uppercase;margin:16px 0 6px}
+.navitem{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;cursor:pointer;border:1px solid transparent;margin-bottom:2px;transition:background .15s,border-color .15s}
+.navitem:hover{background:var(--panel2);border-color:var(--line2)}
+.navitem .n{font-family:var(--display);font-size:15px;color:var(--faint);width:26px;flex:none}
+.navitem .nt{font-size:12.5px;color:var(--dim);flex:1;line-height:1.3}
+.navitem.active .n{color:var(--accent)}
+.navitem.active{background:var(--panel2);border-color:var(--line2)}
+.navitem.active .nt{color:var(--fg)}
+.navitem .st{width:10px;height:10px;flex:none;border-radius:50%;border:1px solid var(--line2);background:var(--bg)}
+.navitem .st.done{background:var(--accent);border-color:var(--accent);box-shadow:0 0 6px rgba(255,176,0,.5)}
+.navitem .st.cleared{background:var(--ok);border-color:var(--ok)}
+.navitem .qbadge{font-size:10px;color:var(--ok);font-family:var(--mono)}
+.legend{margin-top:18px;padding-top:14px;border-top:1px dashed var(--line2)}
+.legend .lt{font-size:10px;letter-spacing:2px;color:var(--faint);text-transform:uppercase;margin-bottom:8px}
+.legend .lg{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--dim);padding:3px 0}
+.legend .sw{width:10px;height:10px;flex:none;border-radius:2px}
+.dockfoot{margin-top:16px;padding-top:12px;border-top:1px dashed var(--line2);font-size:10px;color:var(--faint);line-height:1.6}
+#burger{display:none}
+
+/* ---------- hero ---------- */
+.hero{padding:64px 0 40px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.boot{font-family:var(--mono);font-size:12.5px;color:var(--ok);margin-bottom:26px}
+.boot .bl{opacity:0;animation:bli .0s forwards}
+.boot .bl:nth-child(1){animation-delay:.1s}.boot .bl:nth-child(2){animation-delay:.5s}
+.boot .bl:nth-child(3){animation-delay:.9s}.boot .bl:nth-child(4){animation-delay:1.3s}
+.boot .bl:nth-child(5){animation-delay:1.7s}
+@keyframes bli{to{opacity:1}}
+.boot .warn{color:var(--deep)}
+.hero h1{font-family:var(--display);font-weight:400;font-size:clamp(44px,7vw,78px);line-height:.95;letter-spacing:1px;margin:10px 0 14px}
+.hero h1 .wh{color:var(--accent);text-shadow:0 0 22px rgba(255,176,0,.5)}
+.hero .sub{color:var(--dim);max-width:640px;font-size:14.5px}
+.hero .sub b{color:var(--fg)}
+.hstatus{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 30px}
+.hchip{font-size:11px;font-family:var(--mono);letter-spacing:1px;color:var(--dim);border:1px solid var(--line2);border-radius:3px;padding:6px 10px;background:var(--panel)}
+.hchip b{color:var(--accent);font-weight:400}
+.hchip b.ok{color:var(--ok)}
+#voyageHead{font-size:11px;letter-spacing:3px;color:var(--faint);text-transform:uppercase;margin-bottom:12px}
+.voyage{display:grid;grid-template-columns:1fr 1fr;gap:6px 26px;padding:0 0 8px}
+.waypoint{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--panel);cursor:pointer;transition:border-color .2s,transform .2s}
+.waypoint:hover{border-color:var(--accent);transform:translateX(3px)}
+.waypoint .wn{font-family:var(--display);font-size:18px;color:var(--accent);flex:none}
+.waypoint .wt{font-size:12.5px;line-height:1.25;color:var(--dim)}
+.waypoint .wt b{display:block;color:var(--fg);font-size:13px}
+.waypoint .wtag{margin-left:auto;flex:none}
+.waypoint.done .wn{color:var(--ok)}
+.waypoint.done .wt b{color:var(--ok)}
+
+/* ---------- part sections ---------- */
+.part{padding:70px 0 10px;scroll-margin-top:30px;position:relative}
+.part::before{content:"";position:absolute;left:-48px;top:70px;bottom:10px;width:3px;background:linear-gradient(180deg,var(--accent),transparent 70%);opacity:.25}
+.phead{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--line2);padding-bottom:14px;margin-bottom:26px}
+.pnum{font-family:var(--display);font-size:64px;line-height:.8;color:var(--line2);flex:none;text-shadow:0 0 14px rgba(255,176,0,.08)}
+.part.done .pnum{color:var(--accent);text-shadow:0 0 16px rgba(255,176,0,.45)}
+.ptitle{font-family:var(--display);font-weight:400;font-size:clamp(26px,3.6vw,40px);line-height:1.02;letter-spacing:.5px}
+.pmeta{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pmeta .m{font-size:10.5px;font-family:var(--mono);letter-spacing:1px;color:var(--faint);border:1px solid var(--line);border-radius:3px;padding:3px 8px;background:var(--panel)}
+.pmeta .m b{color:var(--accent);font-weight:400}
+.pactions{margin-left:auto;display:flex;gap:8px;align-items:center;flex:none}
+.part h2{font-family:var(--display);font-weight:400;font-size:29px;letter-spacing:.5px;color:var(--fg);margin:44px 0 12px;border-left:4px solid var(--accent);padding-left:12px}
+.part h3{font-family:var(--body);font-weight:700;font-size:16px;color:var(--accent);margin:30px 0 8px;letter-spacing:.3px}
+.part p{margin:10px 0;color:var(--fg)}
+.part li{margin:6px 0;color:var(--fg)}
+.part ul,.part ol{padding-left:24px;margin:10px 0}
+.part b{color:#fff}
+.part i{color:var(--dim)}
+hr.rule{border:none;border-top:1px dashed var(--line2);margin:34px 0}
+
+/* depth tags */
+.tag{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:1.5px;padding:2px 7px;border-radius:3px;vertical-align:middle;margin:0 2px;border:1px solid}
+.tag-deep{color:var(--deep);border-color:var(--deep);background:rgba(255,93,93,.08);text-shadow:0 0 8px rgba(255,93,93,.5)}
+.tag-recog{color:var(--recog);border-color:var(--recog);background:rgba(87,217,255,.08)}
+.tag-ref{color:var(--ref);border-color:var(--ref);background:rgba(154,164,178,.08)}
+.tag-adv{color:var(--adv);border-color:var(--adv);background:rgba(199,146,234,.08)}
+.wtag{font-family:var(--mono);font-size:8.5px;letter-spacing:1px;padding:2px 6px;border-radius:3px;border:1px solid}
+.wtag-deep{color:var(--deep);border-color:var(--deep)}
+.wtag-recog{color:var(--recog);border-color:var(--recog)}
+
+/* terminal code blocks */
+.term{margin:16px 0;border:1px solid var(--line2);border-radius:var(--radius);background:#0a0d13;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.termhead{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--panel2);border-bottom:1px solid var(--line);position:relative}
+.termhead .td{width:9px;height:9px;border-radius:50%;flex:none}
+.termhead .td1{background:#ff5d5d}.termhead .td2{background:#ffb000}.termhead .td3{background:#39d98a}
+.termhead .tname{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.5px}
+.termhead .copybtn{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--faint);background:none;border:1px solid var(--line2);border-radius:3px;padding:3px 9px;cursor:pointer;transition:all .15s}
+.termhead .copybtn:hover{color:var(--accent);border-color:var(--accent)}
+.termhead .copybtn.copied{color:var(--ok);border-color:var(--ok)}
+.term pre{margin:0;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.6;color:#c3cdda}
+.term pre .c{color:var(--faint)}
+.term pre .p{color:var(--ok)}
+.term pre .a{color:var(--accent)}
+.term pre .r{color:var(--deep)}
+.term pre .b{color:#fff;font-weight:600}
+.term pre .k{color:var(--recog)}
+
+/* tables */
+.tblwrap{overflow-x:auto;margin:16px 0;border:1px solid var(--line2);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:560px}
+thead th{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);text-align:left;background:var(--panel2);padding:10px 14px;border-bottom:1px solid var(--line2);white-space:nowrap}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--line);color:var(--fg);vertical-align:top;line-height:1.55}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:nth-child(even){background:rgba(255,255,255,.015)}
+tbody tr:hover{background:rgba(255,176,0,.04)}
+tbody td code{font-family:var(--mono);font-size:11.5px;color:var(--recog);background:rgba(87,217,255,.07);padding:1px 5px;border-radius:3px}
+td .tag{font-size:8.5px}
+
+/* cards */
+.idea,.lab,.warn,.ck,.note{border:1px solid;border-radius:var(--radius);padding:16px 18px;margin:20px 0;position:relative}
+.idea{border-color:var(--ok-dim);background:linear-gradient(180deg,rgba(57,217,138,.05),transparent)}
+.idea .lbl,.lab .lbl,.warn .lbl,.ck .lbl,.note .lbl{font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;display:block;margin-bottom:8px}
+.idea .lbl{color:var(--ok)}
+.idea p,.idea li{color:var(--fg)}
+.warn{border-color:var(--deep);background:linear-gradient(180deg,rgba(255,93,93,.06),transparent)}
+.warn .lbl{color:var(--deep)}
+.lab{border-color:var(--accent);background:linear-gradient(180deg,rgba(255,176,0,.06),transparent)}
+.lab .lbl{color:var(--accent)}
+.lab ol{padding-left:22px}
+.lab code,.warn code,.ck code,.note code{font-family:var(--mono);font-size:12px;color:var(--recog);background:rgba(87,217,255,.07);padding:1px 5px;border-radius:3px}
+.ck{border-color:var(--recog);background:linear-gradient(180deg,rgba(87,217,255,.05),transparent)}
+.ck .lbl{color:var(--recog)}
+.note{border-color:var(--line2);background:var(--panel)}
+.note .lbl{color:var(--faint)}
+details{margin:8px 0}
+details summary{cursor:pointer;color:var(--accent);font-size:13px;font-family:var(--mono);letter-spacing:.5px}
+details[open] summary{margin-bottom:10px}
+
+/* next/prev part nav */
+.breadcrumb{display:flex;justify-content:space-between;margin-top:56px;padding-top:18px;border-top:1px dashed var(--line2)}
+.breadcrumb a{font-family:var(--mono);font-size:12px;letter-spacing:1px;border:1px solid var(--line2);border-radius:4px;padding:8px 14px;transition:all .2s;color:var(--dim)}
+.breadcrumb a:hover{color:var(--accent);border-color:var(--accent)}
+.breadcrumb .next{margin-left:auto}
+
+/* ---------- diagrams ---------- */
+.pipeline{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0;margin:22px 0 6px;padding:22px 14px;border:1px solid var(--line2);border-radius:var(--radius);background:radial-gradient(600px 200px at 50% 0%,rgba(255,176,0,.05),transparent)}
+.pnode{border:1px solid var(--line2);border-radius:4px;background:var(--panel2);padding:8px 12px;text-align:center;min-width:86px}
+.pnode .pn1{font-family:var(--mono);font-size:12.5px;color:var(--fg)}
+.pnode .pn2{font-size:9px;color:var(--faint);letter-spacing:1px;margin-top:2px;font-family:var(--mono)}
+.pnode.hot{border-color:var(--accent);box-shadow:0 0 12px rgba(255,176,0,.25)}
+.pnode.hot .pn1{color:var(--accent)}
+.pnode.green{border-color:var(--ok)}
+.pnode.green .pn1{color:var(--ok)}
+.parrow{width:30px;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;margin:0 2px}
+.parrow::after{content:"";width:9px;height:9px;transform:rotate(45deg);border-top:1.5px solid var(--accent);border-right:1.5px solid var(--accent);flex:none}
+.parrow .flowdot{position:absolute;top:0;width:4px;height:4px;border-radius:50%;background:var(--accent);animation:flow 1.6s linear infinite;opacity:0}
+@keyframes flow{0%{top:0;opacity:0}20%{opacity:1}80%{opacity:1}100%{top:18px;opacity:0}}
+.pipeline .reglab{font-size:10px;color:var(--faint);text-align:center;margin-top:10px;font-family:var(--mono)}
+.pipeline .reglab b{color:var(--accent);font-weight:400}
+
+.stack-big{display:flex;flex-direction:column;gap:5px;margin:18px 0;padding:16px;border:1px solid var(--line2);border-radius:var(--radius);background:radial-gradient(500px 300px at 50% 100%,rgba(57,217,138,.05),transparent)}
+.sblayer{border:1px solid var(--line2);border-radius:4px;padding:9px 14px;display:flex;align-items:center;gap:10px;background:var(--panel);cursor:pointer;transition:all .25s;position:relative}
+.sblayer:hover{border-color:var(--accent);transform:translateX(4px)}
+.sblayer .sbn{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:1px;width:60px;flex:none}
+.sblayer .sbt{font-size:12.5px;color:var(--fg)}
+.sblayer .sbd{font-size:10.5px;color:var(--faint);margin-left:auto;text-align:right;font-family:var(--mono)}
+.sblayer.selected{border-color:var(--accent);box-shadow:0 0 14px rgba(255,176,0,.25)}
+.sblayer.writ{border-style:dashed;border-color:var(--ok-dim)}
+.sblayer.writ.live{border-color:var(--ok);box-shadow:0 0 16px rgba(57,217,138,.4)}
+.sblayer.writ .sbt b{color:var(--ok)}
+.sbdisc{margin-top:12px;padding:12px 14px;border:1px dashed var(--line2);border-radius:4px;font-size:12.5px;color:var(--dim);min-height:58px;font-family:var(--mono)}
+.sbdisc b{color:var(--fg)}
+.stack-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+
+/* lifecycle flow (part 3) */
+.life{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:18px 0;padding:18px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel)}
+.lstate{border:1px solid var(--line2);border-radius:4px;padding:7px 12px;font-family:var(--mono);font-size:12px;color:var(--fg);background:var(--bg);position:relative}
+.lstate .lcmd{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--accent);background:var(--panel);padding:0 5px;letter-spacing:1px;white-space:nowrap}
+.lstate.gone{color:var(--faint);border-style:dashed;text-decoration:line-through}
+.lstate.live{border-color:var(--ok);color:var(--ok);box-shadow:0 0 10px rgba(57,217,138,.25)}
+.larrow{color:var(--faint);font-size:12px;font-family:var(--mono)}
+
+/* bridge diagram (part 6) */
+.bridge{margin:18px 0;padding:20px;border:1px solid var(--line2);border-radius:var(--radius);background:linear-gradient(180deg,var(--panel),var(--bg))}
+.bridge .bnet{position:relative;border:1px dashed var(--line2);border-radius:8px;padding:30px 16px 16px;margin-top:26px}
+.bridge .bnet::before{content:"bridge network — docker0 (virtual switch)";position:absolute;top:-10px;left:14px;background:var(--bg);padding:0 8px;font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:1px}
+.bcontainer{display:inline-block;border:1px solid var(--recog);border-radius:4px;background:rgba(87,217,255,.05);padding:8px 12px;margin:0 10px;min-width:130px;text-align:center}
+.bcontainer .bn{font-family:var(--mono);font-size:12.5px;color:var(--recog)}
+.bcontainer .bi{font-size:10px;color:var(--faint);font-family:var(--mono);margin-top:2px}
+.bcontainer.hosted{border:1px solid var(--accent)}
+.bcontainer.hosted .bn{color:var(--accent)}
+.dnschip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--accent);border-radius:4px;background:rgba(255,176,0,.07);padding:6px 12px;font-family:var(--mono);font-size:12px;color:var(--accent);margin-top:14px}
+.dnschip b{color:#fff;font-weight:400}
+.bdns-note{font-size:11.5px;color:var(--dim);margin-top:12px}
+
+/* architecture diagram (part 8) */
+.arch{display:flex;align-items:stretch;gap:10px;margin:20px 0;flex-wrap:wrap;justify-content:center}
+.anode{border:1px solid var(--line2);border-radius:5px;padding:12px 14px;background:var(--panel2);min-width:150px;text-align:center;position:relative}
+.anode .an1{font-family:var(--mono);font-size:13px;color:var(--fg)}
+.anode .an2{font-size:10px;color:var(--faint);font-family:var(--mono);margin-top:3px;letter-spacing:.5px}
+.anode.edge{border-color:var(--accent)}
+.anode.edge .an1{color:var(--accent)}
+.anode.db{border-color:var(--ok)}
+.anode.db .an1{color:var(--ok)}
+.anode.cache{border-color:var(--recog)}
+.anode.cache .an1{color:var(--recog)}
+.anode .vchip{position:absolute;top:-9px;right:10px;background:var(--panel);border:1px solid var(--line2);font-family:var(--mono);font-size:8.5px;color:var(--faint);padding:0 5px;border-radius:3px;letter-spacing:1px}
+.astats{margin:14px 0 0;text-align:center;font-size:11px;color:var(--faint);font-family:var(--mono)}
+
+/* buttons */
+.btn{font-family:var(--mono);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;border:1px solid var(--accent);color:var(--accent);background:transparent;padding:9px 16px;border-radius:4px;cursor:pointer;transition:all .18s}
+.btn:hover{background:var(--accent);color:#0b0e14;box-shadow:0 0 18px rgba(255,176,0,.4)}
+.btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+.btn.ok{border-color:var(--ok);color:var(--ok)}
+.btn.ok:hover{background:var(--ok);color:#0b0e14;box-shadow:0 0 18px rgba(57,217,138,.4)}
+.btn.sm{padding:5px 10px;font-size:10.5px}
+
+/* quiz */
+.quiz{margin:22px 0;padding:18px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel);position:relative}
+.quiz .qlbl{font-family:var(--mono);font-size:10px;letter-spacing:2.5px;color:var(--accent);text-transform:uppercase;display:block;margin-bottom:14px}
+.q{position:relative}
+.q+.q{margin-top:22px;padding-top:20px;border-top:1px dashed var(--line2)}
+.qt{font-size:13.5px;color:var(--fg);margin-bottom:8px}
+.qt .qn{color:var(--accent);font-family:var(--mono)}
+.opts{display:grid;gap:6px}
+.opt{display:block;text-align:left;width:100%;font-family:var(--body);font-size:12.8px;color:var(--fg);background:var(--bg);border:1px solid var(--line2);border-radius:4px;padding:8px 12px;cursor:pointer;transition:all .15s;line-height:1.5}
+.opt:hover:not(:disabled){border-color:var(--accent);box-shadow:0 0 10px rgba(255,176,0,.15);transform:translateX(2px)}
+.opt:disabled{cursor:default}
+.opt.wrong{border-color:var(--deep);background:rgba(255,93,93,.08);color:#ffb9b9}
+.opt.right{border-color:var(--ok);background:rgba(57,217,138,.1);color:var(--ok)}
+.qe{display:none;margin-top:8px;font-size:12px;color:var(--dim);line-height:1.6;border-left:3px solid var(--line2);padding-left:10px}
+.qe.show{display:block;animation:fadein .4s}
+@keyframes fadein{from{opacity:0;transform:translateY(-3px)}to{opacity:1}}
+.qscore{position:absolute;top:14px;right:16px;font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:1px}
+.qscore b{color:var(--accent)}
+.qres{margin-top:14px;padding:10px 14px;border-radius:4px;font-family:var(--mono);font-size:12px;letter-spacing:.5px;display:none}
+.qres.show{display:block;animation:fadein .5s}
+.qres.pass{border:1px solid var(--ok);color:var(--ok);background:rgba(57,217,138,.07)}
+.qres.fail{border:1px solid var(--deep);color:#ffb9b9;background:rgba(255,93,93,.07)}
+
+/* flashcards */
+.deck{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin:20px 0}
+.card{perspective:1200px;height:190px;cursor:pointer}
+.card .inner{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(0.16,1,0.3,1);transform-style:preserve-3d}
+.card.flip .inner{transform:rotateY(180deg)}
+.card .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--line2);border-radius:6px;padding:14px;display:flex;flex-direction:column;overflow:auto}
+.card .front{background:var(--panel2)}
+.card .back{background:linear-gradient(180deg,var(--panel2),#0f1a10);transform:rotateY(180deg);border-color:var(--ok-dim)}
+.cardtier{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--faint);margin-bottom:8px;text-transform:uppercase}
+.card .qtext{font-size:13px;line-height:1.5;color:var(--fg);flex:1}
+.card .flip-hint{font-size:9px;color:var(--faint);font-family:var(--mono);letter-spacing:1.5px}
+.card.nailed{opacity:.45}
+.card.nailed .front,.card.nailed .back{border-color:#3d4a63}
+.card .back .qtext{color:var(--ok)}
+.card .nailedbtn{align-self:flex-end;margin-top:8px;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--faint);background:none;border:1px solid var(--line2);border-radius:3px;padding:3px 9px;cursor:pointer}
+.card .nailedbtn:hover{color:var(--ok);border-color:var(--ok)}
+.card .nailedbtn.n{border-color:var(--ok);color:var(--ok)}
+
+/* milestones */
+.mlist{margin:18px 0}
+.mile{display:flex;gap:14px;padding:14px 16px;border:1px solid var(--line2);border-radius:6px;background:var(--panel);cursor:pointer;transition:all .2s;align-items:flex-start}
+.mile+.mile{margin-top:10px}
+.mile:hover{border-color:var(--accent)}
+.mile .mbox{width:22px;height:22px;flex:none;border:2px solid var(--line2);border-radius:4px;margin-top:2px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;color:transparent;transition:all .2s}
+.mile.done .mbox{border-color:var(--ok);background:var(--ok);color:#0b0e14}
+.mile .mtitle{font-size:13.5px;color:var(--fg);cursor:pointer}
+.mile .mtitle b{color:var(--accent)}
+.mile .mpass{font-size:11.5px;color:var(--dim);margin-top:4px;line-height:1.55}
+.mile.done{background:linear-gradient(180deg,rgba(57,217,138,.06),var(--panel))}
+.mile.done .mpass{color:var(--ok)}
+
+/* duel columns part 12 */
+.duel{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.duel .col{border:1px solid var(--line2);border-radius:6px;padding:18px;background:var(--panel)}
+.duel .col h3{margin-top:0;font-size:14px}
+.duel .use{border-color:var(--ok-dim)}
+.duel .use h3{color:var(--ok)}
+.duel .skip{border-color:var(--deep)}
+.duel .skip h3{color:var(--deep)}
+.duel ul{padding-left:20px}
+.duel li{margin:6px 0;font-size:12.8px;line-height:1.55}
+
+/* footer */
+footer{margin-top:90px;padding-top:26px;border-top:1px dashed var(--line2);color:var(--faint);font-size:11.5px;line-height:1.8}
+footer b{color:var(--dim)}
+
+/* graduation overlay */
+#grad{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(4,6,10,.94);padding:20px;overflow:hidden}
+#grad.open{display:flex}
+#grad .gterm{width:min(680px,100%);border:1px solid var(--ok-dim);border-radius:8px;background:#070d09;box-shadow:0 0 60px rgba(57,217,138,.15);overflow:hidden;position:relative;z-index:2}
+#grad .ghead{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--ok-dim);font-family:var(--mono);font-size:11px;color:var(--ok);letter-spacing:1px}
+#grad .gbody{padding:22px;font-family:var(--mono);font-size:13px;color:var(--ok);line-height:1.9;max-height:70vh;overflow-y:auto}
+#grad .gbody .gl{opacity:0;animation:bli .3s forwards}
+#grad .gtitle{font-family:var(--display);font-size:46px;color:var(--ok);text-shadow:0 0 24px rgba(57,217,138,.6);line-height:1;margin:10px 0}
+#grad .gbtn{margin-top:16px}
+.ptcl{position:absolute;width:6px;height:6px;border-radius:2px;z-index:1;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:0}}
+#whaleSwim{position:absolute;bottom:40px;left:-140px;z-index:1;filter:drop-shadow(0 0 14px rgba(255,176,0,.5));animation:swim 14s linear infinite}
+@keyframes swim{from{left:-140px}70%,to{left:110vw}}
+
+/* misc */
+code.inline{font-family:var(--mono);font-size:12.5px;color:var(--recog);background:rgba(87,217,255,.07);padding:1px 6px;border-radius:3px}
+.kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line2);border-bottom-width:2px;border-radius:3px;padding:1px 6px;background:var(--panel)}
+.strong-sentence{color:#fff;background:linear-gradient(180deg,transparent 62%,rgba(255,176,0,.25) 62%)}
+
+@media (max-width:1020px){
+  #app{grid-template-columns:1fr}
+  #dock{position:fixed;left:0;top:0;transform:translateX(-105%);transition:transform .3s cubic-bezier(0.16,1,0.3,1);width:310px;box-shadow:20px 0 50px rgba(0,0,0,.5)}
+  #dock.open{transform:none}
+  #burger{display:flex;position:fixed;top:14px;left:14px;z-index:60;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line2);color:var(--accent);font-family:var(--mono);font-size:11px;letter-spacing:1.5px;padding:8px 12px;border-radius:4px;cursor:pointer}
+  main{padding:60px 22px 100px}
+  .part::before{display:none}
+  .voyage{grid-template-columns:1fr}
+  .duel{grid-template-columns:1fr}
+  .pactions{margin-left:0;width:100%;margin-top:10px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s !important;animation-iteration-count:1 !important;transition-duration:.001s !important}
+  html{scroll-behavior:auto}
+}
+
+</style>
+</head>
+<body>
+<div id="scanlines"></div>
+<div id="vignette"></div>
+<button id="burger">☰ MAP</button>
+<div id="backdrop"></div>
+
+<div id="app">
+
+<aside id="dock">
+  <div class="brand">
+    <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="var(--accent)" d="M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z"/>
+      <rect x="7" y="11" width="2" height="2" fill="var(--bg)"/><rect x="12" y="11" width="2" height="2" fill="var(--bg)"/><rect x="17" y="11" width="2" height="2" fill="var(--bg)"/>
+    </svg>
+    <div><div class="bname">THE CONTAINER SHIPYARD</div><div class="bsub">Docker · first-principles curriculum</div></div>
+  </div>
+
+  <div class="rankbox">
+    <div class="rk" id="rankNow">SWABBIE</div>
+    <div class="rkxp" id="rankXp"></div>
+    <div class="prbar"><i id="rankBar"></i></div>
+  </div>
+
+  <div class="stackbox">
+    <div class="st"><span>THE STACK — your container</span><span id="stackCount">0/14</span></div>
+    <div id="stackMini"></div>
+    <div id="psRow"><b>$ docker ps</b><br><span id="psRow2">—</span></div>
+  </div>
+
+  <nav class="docknav" id="docknav"></nav>
+
+  <div class="legend">
+    <div class="lt">Depth legend</div>
+    <div class="lg"><span class="sw" style="background:var(--deep);box-shadow:0 0 6px rgba(255,93,93,.6)"></span><span><b style="color:var(--deep)">DEEP</b> — core mental model. Prove it out loud.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--recog)"></span><span><b style="color:var(--recog)">RECOGNIZE</b> — read fluently; write with docs open.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--ref)"></span><span><b style="color:var(--ref)">REFERENCE</b> — know it exists. Never memorize.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--adv)"></span><span><b style="color:var(--adv)">ADVANCED</b> — return after Part 8.</span></div>
+  </div>
+
+  <div class="dockfoot" id="dockfoot"></div>
+</aside>
+
+<main>
+
+<div id="scanlines"></div>
+<div id="vignette"></div>
+<button id="burger">☰ MAP</button>
+<div id="backdrop"></div>
+
+<div id="app">
+
+<aside id="dock">
+  <div class="brand">
+    <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="var(--accent)" d="M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z"/>
+      <rect x="7" y="11" width="2" height="2" fill="var(--bg)"/><rect x="12" y="11" width="2" height="2" fill="var(--bg)"/><rect x="17" y="11" width="2" height="2" fill="var(--bg)"/>
+    </svg>
+    <div><div class="bname">THE CONTAINER SHIPYARD</div><div class="bsub">Docker · first-principles curriculum</div></div>
+  </div>
+
+  <div class="rankbox">
+    <div class="rk" id="rankNow">SWABBIE</div>
+    <div class="rkxp" id="rankXp"></div>
+    <div class="prbar"><i id="rankBar"></i></div>
+  </div>
+
+  <div class="stackbox">
+    <div class="st"><span>THE STACK — your container</span><span id="stackCount">0/14</span></div>
+    <div id="stackMini"><!-- layers injected by JS --></div>
+    <div id="psRow"><b>$ docker ps</b><br><span id="psRow2">—</span></div>
+  </div>
+
+  <nav class="docknav" id="docknav"><!-- nav injected by JS --></nav>
+
+  <div class="legend">
+    <div class="lt">Depth legend</div>
+    <div class="lg"><span class="sw" style="background:var(--deep);box-shadow:0 0 6px rgba(255,93,93,.6)"></span><span><b style="color:var(--deep)">DEEP</b> — core mental model. Prove it out loud.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--recog)"></span><span><b style="color:var(--recog)">RECOGNIZE</b> — read fluently; write with docs open.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--ref)"></span><span><b style="color:var(--ref)">REFERENCE</b> — know it exists. Never memorize.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--adv)"></span><span><b style="color:var(--adv)">ADVANCED</b> — return after Part 8.</span></div>
+  </div>
+
+  <div class="dockfoot" id="dockfoot"></div>
+</aside>
+
+<main>
+<section class="hero" id="part0">
+  <div class="boot">
+    <div class="bl">$ shipyard boot --curriculum docker-first-principles</div>
+    <div class="bl">STAGE 1: LOADING PARTS 0–14 ......... <span style="color:var(--ok)">OK</span></div>
+    <div class="bl">STAGE 2: MOUNTING DEPTH TAGS .......... <span style="color:var(--ok)">OK</span></div>
+    <div class="bl"><span class="warn">WARNING: the exercises ARE the curriculum. Skipping them is not allowed.</span></div>
+    <div class="bl">AWAITING CREW — 14 waypoints ahead. <span class="cursor" style="color:var(--accent)">▮</span></div>
+  </div>
+  <h1>DOCKER, UNDERSTOOD.<br><span class="wh">NOT JUST OPERATED.</span></h1>
+  <p class="sub">This is a first-principles curriculum rebuilt as a mission. Learn the core mental model <b>deeply</b>, reference the rest, and physically <b>build your own container</b> in the sidebar as you complete parts. Quizzes earn XP. Ranks go from <b>Swabbie</b> to <b>Harbor Master</b>. Finish all 14 parts and the shipyard ships your container.</p>
+  <div class="hstatus">
+    <div class="hchip">RANK <b id="hRank">SWABBIE</b></div>
+    <div class="hchip">XP <b id="hXp">0</b></div>
+    <div class="hchip">LAYERS <b id="hLayers">0/14</b></div>
+    <div class="hchip">QUIZZES CLEARED <b class="ok" id="hQuizzes">0</b></div>
+  </div>
+  <div id="voyageHead">THE VOYAGE — 14 WAYPOINTS</div>
+  <div class="voyage" id="voyage"><!-- injected by JS --></div>
+</section>
+
+<section class="part" id="p0">
+  <div class="phead"><div class="pnum">00</div>
+    <div><div class="ptitle">How to Use This Curriculum</div></div>
+    <div class="pactions"><button class="btn sm" data-done="p0">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>Briefing</h2>
+  <p>You are the <b>captain of a container shipyard</b>. Every part you complete drops one layer onto the stack beside you. Every quiz you pass earns XP. The central question of this whole voyage: <i>"What do I actually need to memorize?"</i></p>
+  <p><b style="color:var(--accent)">Answer: almost nothing.</b> You need to <i>understand</i> a small core and <i>reference</i> the rest. Four tags label every concept in the curriculum — this is your map legend:</p>
+
+  <div class="tblwrap"><table>
+    <thead><tr><th>Tag</th><th>Meaning</th><th>Your obligation</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag tag-deep">DEEP</span></td><td>Core mental model. Interviews and debugging depend on it.</td><td>Understand well enough to explain to someone else and reason about failures</td></tr>
+      <tr><td><span class="tag tag-recog">RECOGNIZE</span></td><td>Syntax/patterns you should read fluently</td><td>Recognize on sight; write with docs open</td></tr>
+      <tr><td><span class="tag tag-ref">REFERENCE</span></td><td>Look up when needed</td><td>Know it exists; never memorize</td></tr>
+      <tr><td><span class="tag tag-adv">ADVANCED</span></td><td>Useful later, not now</td><td>Skip on first pass; return after Part 8</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>The Rules of the Voyage</h2>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Rule</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Parts 1–2 are pure understanding — no typing needed.</td><td>They're the load-bearing core. Everything else is detail on top.</td></tr>
+      <tr><td>Parts 3–8 are hands-on — do <b>every</b> exercise.</td><td>The exercises <i>are</i> the curriculum.</td></tr>
+      <tr><td>Part 10 re-explains Parts 1–2 at the syscall level.</td><td>It will make everything before it click harder.</td></tr>
+      <tr><td>XP: +25 per completed part, +3 per quiz answer (first attempt only), +10 per milestone.</td><td>Ranks: Swabbie → Deckhand → Boatswain → First Mate → Docker Captain → Harbor Master.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note"><span class="lbl">Pace</span>
+  <p>At ~1 focused hour/day: <b>M1 in days 1–3, M2 days 4–6, M3 days 7–9, M4 days 10–15, M5 days 16–20, M6 ongoing review.</b> Faster is fine; skipping exercises is not.</p></div>
+</section>
+
+<section class="part" id="p1">
+  <div class="phead"><div class="pnum">01</div>
+    <div><div class="ptitle">The Problem Docker Solves</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span><span class="m">MODE <b>READ</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p1">MARK COMPLETE</button></div>
+  </div>
+
+  <p>You cannot understand a tool without understanding the pain that created it. Docker exists because of <b>three chronic problems</b> in shipping software.</p>
+
+  <h2>Problem 1: "Works on my machine"</h2>
+  <p>An application is never just your code. It is:</p>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">the-real-app.sh</span><button class="copybtn">COPY</button></div>
+  <pre><code><span class="c"># your code</span>
+  + language runtime <span class="a">(Python 3.11, Node 20...)</span>
+  + system libraries <span class="a">(libpq, openssl, glibc...)</span>
+  + OS-level config <span class="a">(env vars, locales, file paths)</span>
+  + external services <span class="a">(Postgres 15, Redis 7)</span>
+  + exact versions of ALL of the above</code></pre></div>
+  <p>Your laptop, your colleague's laptop, the CI server, and production each have a <i>different</i> combination of these. Software that works in one environment breaks in another for reasons that have nothing to do with your code. Before containers, teams wrote 40-page "setup guides" that were outdated the day they were written.</p>
+  <div class="idea"><span class="lbl">Docker's answer</span>
+  <p>Package the code <b>and its entire environment</b> into one artifact (an image) that runs identically everywhere.</p></div>
+
+  <h2>Problem 2: Dependency conflicts on shared machines</h2>
+  <p>App A needs Python 3.8 + library X v1. App B needs Python 3.12 + library X v3. Same server. Before containers you had fragile workarounds (virtualenvs solve Python packages but not system libraries; separate servers solve everything but waste money).</p>
+  <div class="idea"><span class="lbl">Docker's answer</span>
+  <p>Each app runs in its own <b>isolated filesystem</b> with its own dependencies. They share the machine but never see each other's files.</p></div>
+
+  <h2>Problem 3: Virtual machines are too heavy</h2>
+  <p>VMs solved both problems above — full isolation, reproducible environments — but at brutal cost:</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th></th><th>Virtual Machine</th><th>Container</th></tr></thead>
+    <tbody>
+      <tr><td>What's virtualized</td><td>Entire hardware → runs a full guest OS</td><td>Nothing — just an isolated <b>process</b> on the host kernel</td></tr>
+      <tr><td>Size</td><td>GBs (whole OS)</td><td>MBs (just app + deps)</td></tr>
+      <tr><td>Boot time</td><td>Minutes</td><td>Milliseconds</td></tr>
+      <tr><td>Density per host</td><td>Handfuls</td><td>Hundreds</td></tr>
+      <tr><td>Isolation strength</td><td>Strong (separate kernels)</td><td>Weaker (shared kernel)</td></tr>
+    </tbody>
+  </table></div>
+  <div class="warn"><span class="lbl">The single most common interview question in existence</span>
+  <p><b>This table IS the question.</b> Understand the "why" column, not just the numbers. The reason containers are light is the entire secret of Docker: <i>a container is not a small VM — it is a normal process that the kernel has been told to lie to.</i> More in Part 2.</p></div>
+
+  <h2>What Docker is NOT solving</h2>
+  <ul>
+    <li>It does not make your code faster (slight overhead, if anything).</li>
+    <li>It does not replace configuration management or CI/CD — it plugs into them.</li>
+    <li>It does not give VM-grade security isolation (shared kernel).</li>
+  </ul>
+
+  <div class="quiz" data-part="p1"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p0">← 00 · HOW TO</a><a class="next" href="#p2">02 · THE CORE MENTAL MODEL →</a></div>
+</section>
+
+<section class="part" id="p2">
+  <div class="phead"><div class="pnum">02</div>
+    <div><div class="ptitle">The Core Mental Model</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span><span class="m">MODE <b>READ</b></span><span class="m">★ <b>MOST IMPORTANT PART</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p2">MARK COMPLETE</button></div>
+  </div>
+
+  <p>This is the most important section in the document. Everything else is detail on top of these <b>four ideas</b>.</p>
+
+  <h2>Idea 1: A container is just a process</h2>
+  <p>Not a VM. Not a "lightweight OS." When you run a container, the host's Linux kernel starts an ordinary process — same as running <code class="inline">python app.py</code> directly — but wraps it in three kernel features:</p>
+  <ol>
+    <li><b style="color:var(--recog)">Namespaces</b> — control what the process can <i>see</i>. It gets its own view of the process tree (it thinks it's PID 1), its own network stack, its own hostname, its own filesystem root. Other processes on the host are invisible to it.</li>
+    <li><b style="color:var(--recog)">Cgroups</b> (control groups) — control what the process can <i>use</i>. Caps on CPU, memory, I/O.</li>
+    <li><b style="color:var(--recog)">A layered filesystem</b> (OverlayFS) — gives the process a private root filesystem assembled from the image's layers.</li>
+  </ol>
+  <div class="note"><span class="lbl">Litmus test of understanding</span>
+  <p>Run <code class="inline">ps aux</code> on a Linux host with a container running — you will see the container's process listed like any other. There is no "container" object in the kernel. <span class="strong-sentence">"Container" is just the name for a process launched with these isolation features.</span> If you internalize only one sentence from this entire curriculum, make it this one.</p></div>
+  <div class="idea"><span class="lbl">Consequence you'll rely on constantly</span>
+  <p><b>When the main process (PID 1) inside a container exits, the container stops.</b> A container is alive exactly as long as its process is. This explains 80% of "my container keeps exiting" confusion.</p></div>
+
+  <h2>Idea 2: An image is a frozen filesystem, built in layers</h2>
+  <p>An image is: a stack of <b>read-only filesystem layers</b> (each layer = the file changes made by one Dockerfile instruction), plus <b>metadata</b>: what command to run, env vars, exposed ports, working directory.</p>
+  <p>Think of it as a class; containers are instances. One image → many containers, <b>cheaply</b>, because containers don't copy the image. Instead:</p>
+
+  <div class="stack-big" id="stackBig">
+    <div class="sblayer writ" data-layer="w"><span class="sbn">WRITABLE</span><span class="sbt"><b>This container only</b> — all writes go here</span><span class="sbd">dies with <code class="inline">docker rm</code></span></div>
+    <div class="sblayer" data-layer="app"><span class="sbn">LAYER 3</span><span class="sbt">Your app code</span><span class="sbd">read-only · SHARED</span></div>
+    <div class="sblayer" data-layer="deps"><span class="sbn">LAYER 2</span><span class="sbt">pip install deps</span><span class="sbd">read-only · SHARED</span></div>
+    <div class="sblayer" data-layer="base"><span class="sbn">LAYER 1</span><span class="sbt">Ubuntu base files</span><span class="sbd">read-only · SHARED</span></div>
+    <div class="sbdisc" id="sbdisc">Hover or click a layer. Then press <b>▶ START</b> to run the container.</div>
+    <div class="stack-controls">
+      <button class="btn sm" id="sbStart">▶ START CONTAINER</button>
+      <button class="btn sm ok" id="sbWrite">✎ WRITE A FILE</button>
+      <button class="btn sm" id="sbRm">docker rm</button>
+      <span id="sbLog" style="font-family:var(--mono);font-size:11px;color:var(--dim);align-self:center;margin-left:6px"></span>
+    </div>
+  </div>
+
+  <h3>Consequences that fall out of this model</h3>
+  <ul>
+    <li><b>Starting a container is instant</b> — no copying, just add an empty writable layer on top.</li>
+    <li><b>Deleting a container deletes its writable layer.</b> Anything written inside a container is lost when the container is removed. This is why volumes exist (Part 5).</li>
+    <li><b>Layers are cached and shared</b> — ten images based on <code class="inline">python:3.12</code> store the Python layer once.</li>
+    <li><b>Layer ordering in a Dockerfile determines build speed</b> (Part 4's cache section).</li>
+  </ul>
+
+  <h2>Idea 3: The architecture — client, daemon, registry</h2>
+  <p><code class="inline">docker</code> the command you type is not Docker. It's a thin client.</p>
+  <div class="pipeline">
+    <div class="pnode"><div class="pn1">you</div><div class="pn2">human</div></div>
+    <div class="parrow"><span class="flowdot"></span></div>
+    <div class="pnode hot"><div class="pn1">docker CLI</div><div class="pn2">thin client</div></div>
+    <div class="parrow"><span class="flowdot"></span></div>
+    <div class="pnode"><div class="pn1">REST API</div><div class="pn2">HTTP</div></div>
+    <div class="parrow"><span class="flowdot"></span></div>
+    <div class="pnode hot"><div class="pn1">dockerd</div><div class="pn2">the daemon</div></div>
+    <div class="parrow"><span class="flowdot"></span></div>
+    <div class="pnode"><div class="pn1">containerd</div><div class="pn2">lifecycle mgr</div></div>
+    <div class="parrow"><span class="flowdot"></span></div>
+    <div class="pnode green"><div class="pn1">runc</div><div class="pn2">syscalls</div></div>
+    <div class="parrow"><span class="flowdot"></span></div>
+    <div class="pnode"><div class="pn1">kernel</div><div class="pn2">namespaces + cgroups</div></div>
+    <div class="reglab">⇅ <b>Registry</b> (Docker Hub, ECR, GHCR...) — pulls/pushes images</div>
+  </div>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Component</th><th>Role</th><th>Depth</th></tr></thead>
+    <tbody>
+      <tr><td><code>docker</code> CLI</td><td>Sends API requests to the daemon</td><td><span class="tag tag-deep">DEEP</span></td></tr>
+      <tr><td><code>dockerd</code></td><td>The daemon: manages images, containers, networks, volumes</td><td><span class="tag tag-deep">DEEP</span></td></tr>
+      <tr><td>Registry</td><td>Remote storage for images; <code>docker pull/push</code> talks to it. Docker Hub is the default, like PyPI is for pip</td><td><span class="tag tag-deep">DEEP</span></td></tr>
+      <tr><td><code>containerd</code></td><td>Lower-level container lifecycle manager the daemon delegates to</td><td><span class="tag tag-adv">ADVANCED — Part 10</span></td></tr>
+      <tr><td><code>runc</code></td><td>The tiny binary that actually makes the syscalls to create the isolated process</td><td><span class="tag tag-adv">ADVANCED — Part 10</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="warn"><span class="lbl">Why this matters practically</span>
+  <p>Because CLI and daemon talk over an API, the daemon can be remote — and it also explains why <b>everything you do requires the daemon to be running</b>. "Cannot connect to the Docker daemon" = the service isn't up — the #1 beginner error.</p></div>
+
+  <h2>Idea 4: The three nouns and their verbs</h2>
+  <p>Almost all Docker usage is manipulating three object types:</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Noun</th><th>What it is</th><th>Analogy</th></tr></thead>
+    <tbody>
+      <tr><td><b>Image</b></td><td>Read-only template (filesystem + metadata)</td><td>A class / a Git commit / an .exe installer</td></tr>
+      <tr><td><b>Container</b></td><td>A running (or stopped) instance of an image</td><td>An object / a running program</td></tr>
+      <tr><td><b>Registry</b></td><td>Remote image store</td><td>GitHub for images</td></tr>
+    </tbody>
+  </table></div>
+  <p>And the core lifecycle:</p>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">lifecycle.dot</span><button class="copybtn">COPY</button></div>
+  <pre><code>Dockerfile ──<span class="a">build</span>──▶ Image ──<span class="a">run</span>──▶ Container
+                        │▲
+                     <span class="a">push</span>│<span class="a">pull</span>
+                        ▼│
+                     Registry</code></pre></div>
+
+  <div class="ck"><span class="lbl">Checkpoint — do this before Part 3</span>
+  <p>Explain, out loud or in writing, without looking:</p>
+  <ol>
+    <li>Why is a container faster to start than a VM? <i>(Answer must involve "it's just a process" and "shared kernel.")</i></li>
+    <li>You write a file inside a running container, then <code class="inline">docker rm</code> it. Where did the file go and why?</li>
+    <li>Why can two containers on one host use conflicting versions of the same library?</li>
+  </ol>
+  <details><summary>REVEAL ANSWERS</summary>
+  <ol>
+    <li>A container doesn't boot an OS — the kernel is already running. Docker just starts one more process wrapped in namespaces, so boot is milliseconds vs minutes for a full guest OS.</li>
+    <li>It went into the container's writable layer (Part 2, Idea 2). <code class="inline">docker rm</code> deletes that layer — the file is gone forever, which is why volumes exist.</li>
+    <li>Each container has its own isolated filesystem (own MNT namespace + own layers). They share the host kernel but never each other's files.</li>
+  </ol></details>
+  <p style="margin-top:10px"><b style="color:var(--deep)">If you can't answer all three crisply, reread Part 2. Nothing later will stick without it.</b></p></div>
+
+  <div class="quiz" data-part="p2"><span class="qlbl">Checkpoint quiz — prove it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p1">← 01 · THE PROBLEM</a><a class="next" href="#p3">03 · CONTAINERS IN PRACTICE →</a></div>
+</section>
+
+<section class="part" id="p3">
+  <div class="phead"><div class="pnum">03</div>
+    <div><div class="ptitle">Containers in Practice</div>
+    <div class="pmeta"><span class="m">MODE <b>HANDS-ON</b></span><span class="m">REQUIRES <b>DOCKER INSTALLED</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p3">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Install Docker Desktop (Win/Mac) or Docker Engine (Linux), verify with <code class="inline">docker version</code> (should show both Client and Server — if Server errors, the daemon isn't running).</p>
+
+  <h2>3.1 <code class="inline">docker run</code> — the most important command <span class="tag tag-deep">DEEP</span></h2>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div>
+  <pre><code><span class="p">$</span> docker run -d -p 8080:80 --name web nginx</code></pre></div>
+
+  <p><b>What happens internally when you press Enter</b> — memorize this sequence. It's a classic interview question and the key to debugging. Watch it play out:</p>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">simulator — click RUN</span><button class="copybtn" data-sim-copy>COPY</button></div>
+  <pre id="simOut"><code><span class="c"># docker run -d -p 8080:80 --name web nginx</span>
+<span class="r">▮ press ▶ RUN to see the 6 internal steps</span></code></pre>
+  <div class="stack-controls" style="margin:0;padding:10px 16px;border-top:1px solid var(--line)">
+    <button class="btn sm" id="simRun">▶ RUN</button>
+    <button class="btn sm ok" id="simReset">RESET</button>
+  </div></div>
+
+  <h3>Flags worth understanding deeply — not memorizing</h3>
+  <p><i>Understand what <b>category of problem</b> each solves:</i></p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Flag</th><th>Why it exists</th><th>Depth</th></tr></thead>
+    <tbody>
+      <tr><td><code>-d</code></td><td>Run in background (server workloads)</td><td><span class="tag tag-deep">DEEP</span></td></tr>
+      <tr><td><code>-it</code></td><td>Interactive + terminal — for shells: <code>docker run -it ubuntu bash</code></td><td><span class="tag tag-deep">DEEP</span></td></tr>
+      <tr><td><code>-p HOST:CONTAINER</code></td><td>Containers are network-isolated by default; this punches a hole</td><td><span class="tag tag-deep">DEEP — Part 6</span></td></tr>
+      <tr><td><code>--name</code></td><td>Human name instead of random ID</td><td><span class="tag tag-recog">RECOGNIZE</span></td></tr>
+      <tr><td><code>-e KEY=val</code></td><td>Pass config via env vars (the standard way to configure containers)</td><td><span class="tag tag-deep">DEEP</span></td></tr>
+      <tr><td><code>--rm</code></td><td>Auto-delete container on exit — for throwaway runs</td><td><span class="tag tag-recog">RECOGNIZE</span></td></tr>
+      <tr><td><code>-v</code></td><td>Mount storage (Part 5)</td><td><span class="tag tag-deep">DEEP later</span></td></tr>
+      <tr><td><code>--network</code></td><td>Attach to a specific network (Part 6)</td><td><span class="tag tag-deep">DEEP later</span></td></tr>
+      <tr><td><code>--restart</code>, <code>--memory</code>, <code>--cpus</code></td><td>Production policies</td><td><span class="tag tag-ref">REFERENCE</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="warn"><span class="lbl">The classic "it's broken" moment</span>
+  <p><code class="inline">docker run ubuntu</code> exits instantly and beginners think it's broken. It isn't — <code class="inline">ubuntu</code>'s default command is <code class="inline">bash</code>, bash sees no attached terminal, exits, and per Idea 1 the container dies with its process. <b>Containers run <i>a process</i>, not "an OS".</b></p></div>
+
+  <h2>3.2 The container lifecycle <span class="tag tag-deep">DEEP CONCEPT</span> / <span class="tag tag-ref">REFERENCE SYNTAX</span></h2>
+  <div class="life">
+    <span class="lstate">created</span>
+    <span class="larrow">—start→</span>
+    <span class="lstate live" id="lStateRun">running</span>
+    <span class="larrow">—stop→</span>
+    <span class="lstate">stopped</span>
+    <span class="larrow">—rm→</span>
+    <span class="lstate gone">gone</span>
+  </div>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Command</th><th>Does</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td><code>docker ps</code> / <code>docker ps -a</code></td><td>List running / all containers</td><td><code>-a</code> matters: exited containers are invisible without it — a top source of "where did it go?"</td></tr>
+      <tr><td><code>docker stop X</code></td><td>Graceful stop: sends SIGTERM, waits 10s, then SIGKILL</td><td>Your app should handle SIGTERM</td></tr>
+      <tr><td><code>docker kill X</code></td><td>Immediate SIGKILL</td><td></td></tr>
+      <tr><td><code>docker start X</code></td><td>Restart a stopped container (same writable layer, data intact)</td><td></td></tr>
+      <tr><td><code>docker rm X</code></td><td>Delete container + its writable layer</td><td><code>docker rm -f</code> = stop and delete</td></tr>
+      <tr><td><code>docker restart X</code></td><td>stop + start</td><td></td></tr>
+    </tbody>
+  </table></div>
+  <p>Understand deeply the difference between <b>stopped</b> (process dead, filesystem layer still there — can restart, data intact) and <b>removed</b> (gone forever). Everything else here is <span class="tag tag-ref">REFERENCE</span>.</p>
+
+  <h2>3.3 Inspecting running containers <span class="tag tag-deep">DEEP — YOUR DEBUGGING TOOLKIT</span></h2>
+  <p>Four commands cover 90% of all Docker debugging. Learn these cold:</p>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div>
+  <pre><code><span class="p">$</span> docker logs -f web          <span class="c"># what the process wrote to stdout/stderr</span>
+<span class="p">$</span> docker exec -it web bash    <span class="c"># open a shell INSIDE the running container</span>
+<span class="p">$</span> docker inspect web          <span class="c"># full JSON: config, IP, mounts, state, exit code</span>
+<span class="p">$</span> docker stats                <span class="c"># live CPU/memory per container</span></code></pre></div>
+  <div class="idea"><span class="lbl">Key mental model for logs</span>
+  <p>Containers don't write log files by convention — <b>apps in containers log to stdout/stderr</b>, and Docker captures that stream. If your app writes to <code class="inline">/var/log/app.log</code> inside the container, <code class="inline">docker logs</code> shows nothing and the file dies with the container. This convention matters when you Dockerize Django/Node in Part 8.</p></div>
+  <div class="idea"><span class="lbl">Key mental model for exec</span>
+  <p>It starts an <b>additional process</b> inside the container's existing namespaces. That's why <code class="inline">exec</code> dies when the container stops, and why you can't <code class="inline">exec</code> into a stopped container.</p></div>
+
+  <div class="lab"><span class="lbl">Exercises — do all three</span>
+  <ol>
+    <li><code class="inline">docker run -d -p 8080:80 nginx</code>, open localhost:8080, then find the container in <code class="inline">docker ps</code>, read its logs, <code class="inline">exec</code> in and <code class="inline">cat /etc/nginx/nginx.conf</code>, stop it, prove with <code class="inline">ps -a</code> it still exists, remove it.</li>
+    <li>Run <code class="inline">docker run -it python:3.12 python</code> — you now have a Python REPL in a container. Exit. Explain why exiting the REPL stopped the container.</li>
+    <li>Run <code class="inline">docker run -d ubuntu</code> and explain why <code class="inline">docker ps</code> doesn't show it (then find it with <code class="inline">-a</code> and read its exit state in <code class="inline">inspect</code>).</li>
+  </ol></div>
+
+  <div class="quiz" data-part="p3"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p2">← 02 · MENTAL MODEL</a><a class="next" href="#p4">04 · IMAGES & DOCKERFILES →</a></div>
+</section>
+
+<section class="part" id="p4">
+  <div class="phead"><div class="pnum">04</div>
+    <div><div class="ptitle">Images &amp; Dockerfiles</div>
+    <div class="pmeta"><span class="m">MODE <b>HANDS-ON</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p4">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>4.1 What a Dockerfile is <span class="tag tag-deep">DEEP</span></h2>
+  <p>A Dockerfile is a build script: a sequence of instructions, each producing one image layer. <code class="inline">docker build</code> executes it top-to-bottom, snapshotting the filesystem after each step.</p>
+  <p>The canonical example — read every comment:</p>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">Dockerfile</span><button class="copybtn">COPY</button></div>
+  <pre><code><span class="c"># Every image starts FROM a base image (OS files + often a runtime).</span>
+<span class="b">FROM</span> python:3.12-slim
+
+<span class="c"># Set working directory for all following instructions (creates it if absent)</span>
+<span class="b">WORKDIR</span> /app
+
+<span class="c"># Copy ONLY the dependency manifest first — deliberate, see caching below</span>
+<span class="b">COPY</span> requirements.txt .
+
+<span class="c"># RUN executes a command AT BUILD TIME; its filesystem changes become a layer</span>
+<span class="b">RUN</span> pip install --no-cache-dir -r requirements.txt
+
+<span class="c"># Now copy the rest of the source code</span>
+<span class="b">COPY</span> . .
+
+<span class="c"># Documentation only — does NOT publish the port (see common mistakes)</span>
+<span class="b">EXPOSE</span> 8000
+
+<span class="c"># What to execute AT RUN TIME when a container starts. Exactly one CMD.</span>
+<span class="b">CMD</span> [<span class="a">"python"</span>, <span class="a">"manage.py"</span>, <span class="a">"runserver"</span>, <span class="a">"0.0.0.0:8000"</span>]</code></pre></div>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div>
+  <pre><code><span class="p">$</span> docker build -t myapp:1.0 .     <span class="c"># -t = name:tag;  . = build context (dir sent to daemon)</span></code></pre></div>
+
+  <h2>4.2 The instruction set — what to know at what depth</h2>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Instruction</th><th>Purpose</th><th>Depth</th></tr></thead>
+    <tbody>
+      <tr><td><code>FROM</code></td><td>Base image. Everything builds on something</td><td><span class="tag tag-deep">DEEP</span></td></tr>
+      <tr><td><code>RUN</code></td><td>Execute at <b>build</b> time (install packages, compile)</td><td><span class="tag tag-deep">DEEP</span></td></tr>
+      <tr><td><code>CMD</code></td><td>Default command at <b>run</b> time</td><td><span class="tag tag-deep">DEEP</span></td></tr>
+      <tr><td><code>COPY</code></td><td>Copy files from build context into image</td><td><span class="tag tag-deep">DEEP</span></td></tr>
+      <tr><td><code>WORKDIR</code></td><td>cd for all subsequent instructions</td><td><span class="tag tag-recog">RECOGNIZE</span></td></tr>
+      <tr><td><code>ENV</code></td><td>Set env var (build + run time)</td><td><span class="tag tag-recog">RECOGNIZE</span></td></tr>
+      <tr><td><code>EXPOSE</code></td><td><i>Documents</i> a port. Publishes nothing</td><td><span class="tag tag-recog">RECOGNIZE — famous gotcha</span></td></tr>
+      <tr><td><code>ENTRYPOINT</code></td><td>Fixed executable; CMD becomes its default args</td><td><span class="tag tag-recog">RECOGNIZE</span></td></tr>
+      <tr><td><code>ARG</code></td><td>Build-time-only variable</td><td><span class="tag tag-ref">REFERENCE</span></td></tr>
+      <tr><td><code>ADD</code></td><td>COPY + URL fetch + auto-untar. <b>Prefer COPY</b> — ADD's magic causes surprises</td><td><span class="tag tag-ref">REFERENCE</span></td></tr>
+      <tr><td><code>USER</code>, <code>HEALTHCHECK</code>, <code>LABEL</code></td><td>Production hygiene</td><td><span class="tag tag-ref">REFERENCE → Part 11</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="warn"><span class="lbl">RUN vs CMD is the classic confusion</span>
+  <p><b>RUN</b> happens once, during <code class="inline">docker build</code>, and bakes its result into the image. <b>CMD</b> happens every time a container starts, and bakes nothing. <code class="inline">RUN pip install</code> ✔ ; <code class="inline">CMD pip install</code> ✘ (would reinstall on every start).</p></div>
+
+  <h3>ENTRYPOINT vs CMD <span class="tag tag-recog">RECOGNIZE NOW</span> <span class="tag tag-deep">DEEP BY INTERVIEW TIME</span></h3>
+  <ul>
+    <li><code class="inline">CMD ["python", "app.py"]</code> — fully overridable: <code class="inline">docker run img bash</code> replaces it entirely.</li>
+    <li><code class="inline">ENTRYPOINT ["python"]</code> + <code class="inline">CMD ["app.py"]</code> — ENTRYPOINT is fixed; anything after <code class="inline">docker run img</code> replaces only CMD (the args). Pattern for CLI-tool images.</li>
+    <li>Always prefer the JSON/"exec" form <code class="inline">["a","b"]</code> over shell form <code class="inline">a b</code> — shell form wraps your process in <code class="inline">/bin/sh -c</code>, which then becomes PID 1 and <b>swallows SIGTERM</b>, breaking graceful shutdown. This detail is a strong interview signal.</li>
+  </ul>
+
+  <h2>4.3 Layer caching — the concept that makes builds fast or slow <span class="tag tag-deep">DEEP</span></h2>
+  <p>Rule: each instruction's layer is reused from cache <b>if the instruction is unchanged AND all previous layers were cache hits</b>. For <code class="inline">COPY</code>, "unchanged" means the copied files' checksums are identical. <b style="color:var(--deep)">First cache miss invalidates every layer after it.</b></p>
+  <p>This is why the canonical Dockerfile copies <code class="inline">requirements.txt</code> before the source code:</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Bad order</th><th>Good order</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>COPY . .</code><br><code>RUN pip install -r requirements.txt</code></td>
+        <td><code>COPY requirements.txt .</code><br><code>RUN pip install -r requirements.txt</code><br><code>COPY . .</code></td>
+      </tr>
+      <tr>
+        <td style="color:var(--deep)">→ ANY code edit busts the cache and re-runs pip install (minutes)</td>
+        <td style="color:var(--ok)">→ code edits only re-run the cheap final COPY; pip layer stays cached (seconds)</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <div class="idea"><span class="lbl">General principle</span>
+  <p><b>Order instructions from least-frequently-changing to most-frequently-changing.</b> This one idea is the difference between 3-second and 5-minute rebuild loops, and interviewers probe it.</p></div>
+  <p>Related <span class="tag tag-recog">RECOGNIZE</span>: <code class="inline">.dockerignore</code> — like <code class="inline">.gitignore</code>, excludes files from the build context. Always exclude <code class="inline">.git</code>, <code class="inline">node_modules</code>, <code class="inline">venv</code>, <code class="inline">__pycache__</code>, <code class="inline">.env</code>. Two reasons: smaller/faster context upload, and prevents junk (or secrets) from busting <code class="inline">COPY . .</code>'s cache or landing in the image.</p>
+
+  <h2>4.4 Image size &amp; multi-stage builds</h2>
+  <p>Why size matters: pull time on every deploy, disk, and <b>attack surface</b> (every binary in the image is exploitable surface).</p>
+  <p>Levers, in order of impact:</p>
+  <ol>
+    <li><b>Small base image</b> <span class="tag tag-deep">DEEP</span>: <code class="inline">python:3.12</code> (~1GB, full Debian) vs <code class="inline">python:3.12-slim</code> (~150MB) vs <code class="inline">alpine</code> (~50MB, but musl-libc causes subtle breakage with compiled Python wheels — for Python, slim is the pragmatic default; alpine shines for Go/static binaries).</li>
+    <li><b>Multi-stage builds</b> <span class="tag tag-deep">DEEP CONCEPT</span> <span class="tag tag-recog">RECOGNIZE SYNTAX</span>: build with heavy tooling, ship only the output.</li>
+  </ol>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">Dockerfile.multistage</span><button class="copybtn">COPY</button></div>
+  <pre><code><span class="c"># Stage 1: has compilers, dev headers — huge, and that's fine</span>
+<span class="b">FROM</span> node:20 <span class="b">AS</span> build
+<span class="b">WORKDIR</span> /app
+<span class="b">COPY</span> package*.json ./
+<span class="b">RUN</span> npm ci
+<span class="b">COPY</span> . .
+<span class="b">RUN</span> npm run build
+
+<span class="c"># Stage 2: final image — only the artifacts cross over</span>
+<span class="b">FROM</span> nginx:alpine
+<span class="b">COPY</span> --from=build /app/dist /usr/share/nginx/html</code></pre></div>
+  <p>Only the final stage ships. The 1GB of node_modules and compilers never leaves your machine. Understand the <i>why</i> (build-time deps ≠ run-time deps); the syntax you can copy from here forever.</p>
+  <ol start="3">
+    <li><b>Chain related RUNs</b> (<code class="inline">RUN apt-get update &amp;&amp; apt-get install -y X &amp;&amp; rm -rf /var/lib/apt/lists/*</code>) — because layers are additive: deleting a file in a later layer doesn't shrink the image, it just hides the file. <span class="tag tag-recog">RECOGNIZE</span></li>
+  </ol>
+
+  <h2>4.5 Tags and registries <span class="tag tag-deep">DEEP CONCEPT</span></h2>
+  <p><code class="inline">python:3.12-slim</code> = repository <code class="inline">python</code>, tag <code class="inline">3.12-slim</code>. A tag is a <b>movable pointer</b> to an image, exactly like a Git branch name — <b>not</b> a version guarantee. <code class="inline">latest</code> is just the default tag name; it is not "newest" and it <i>moves</i>, which is why production pins specific tags (or digests).</p>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div>
+  <pre><code><span class="p">$</span> docker pull redis:7           <span class="c"># registry → local</span>
+<span class="p">$</span> docker tag myapp:1.0 username/myapp:1.0
+<span class="p">$</span> docker push username/myapp:1.0   <span class="c"># local → registry (needs docker login)</span></code></pre></div>
+  <p>Full image name anatomy: <code class="inline">registry.example.com/team/app:tag</code> — no registry prefix means Docker Hub.</p>
+
+  <div class="lab"><span class="lbl">Exercises</span>
+  <ol>
+    <li>Write a Dockerfile for a "hello world" Flask/Express app from scratch, no copying. Build, run, hit it in the browser. <i>(Gotcha you WILL hit: the app must listen on <code class="inline">0.0.0.0</code>, not <code class="inline">127.0.0.1</code> — inside the container, localhost means the container. Part 6 explains why.)</i></li>
+    <li>Prove the cache rule: build twice (second is instant), touch a source file, rebuild, and identify from the output exactly which layers rebuilt. Then reorder COPY badly and watch dependency install re-run.</li>
+    <li>Compare <code class="inline">docker images</code> sizes: same app on <code class="inline">python:3.12</code> vs <code class="inline">3.12-slim</code>.</li>
+  </ol></div>
+
+  <div class="quiz" data-part="p4"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p3">← 03 · CONTAINERS</a><a class="next" href="#p5">05 · STORAGE →</a></div>
+</section>
+
+<section class="part" id="p5">
+  <div class="phead"><div class="pnum">05</div>
+    <div><div class="ptitle">Storage</div>
+    <div class="pmeta"><span class="m">MODE <b>HANDS-ON</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p5">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>5.1 The problem <span class="tag tag-deep">DEEP</span></h2>
+  <p>From Idea 2: <b>the container's writable layer dies with the container.</b> So how does a Postgres container keep data across upgrades? Answer: mount storage that lives <i>outside</i> the container's layer stack.</p>
+
+  <h2>5.2 The three mount types</h2>
+  <div class="tblwrap"><table>
+    <thead><tr><th></th><th>Volume</th><th>Bind mount</th><th>tmpfs</th></tr></thead>
+    <tbody>
+      <tr><td>What</td><td>Docker-managed directory on host (<code>/var/lib/docker/volumes/...</code>)</td><td>You map an explicit host path in</td><td>RAM-only</td></tr>
+      <tr><td>Syntax</td><td><code>-v pgdata:/var/lib/postgresql/data</code></td><td><code>-v $(pwd)/src:/app/src</code></td><td><code>--tmpfs /tmp</code></td></tr>
+      <tr><td>Use for</td><td><b style="color:var(--ok)">Data that must survive</b>: databases</td><td><b style="color:var(--ok)">Live dev</b>: edit code on host, container sees it instantly</td><td>Secrets/scratch</td></tr>
+      <tr><td>Depth</td><td><span class="tag tag-deep">DEEP</span></td><td><span class="tag tag-deep">DEEP</span></td><td><span class="tag tag-ref">REFERENCE</span></td></tr>
+    </tbody>
+  </table></div>
+  <p>How to tell them apart in <code class="inline">-v</code> syntax: <b>left side with a <code class="inline">/</code> or <code class="inline">.</code> = path = bind mount; bare name = volume</b> (created on first use).</p>
+  <div class="idea"><span class="lbl">Mental model</span>
+  <p>A mount <b>shadows</b> whatever the image had at that path — like mounting a USB drive over a directory. Writes to that path go to the volume/host, bypassing the writable layer entirely.</p></div>
+  <p>Named volumes survive <code class="inline">docker rm</code>; list with <code class="inline">docker volume ls</code>, delete with <code class="inline">docker volume rm</code>. <span class="tag tag-ref">REFERENCE</span></p>
+
+  <h2>5.3 The two workflows you'll actually use</h2>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div>
+  <pre><code><span class="c"># 1. Persistent database (volume)</span>
+<span class="p">$</span> docker run -d -v pgdata:/var/lib/postgresql/data \
+    -e POSTGRES_PASSWORD=dev postgres:16
+<span class="c"># rm the container, run again with same -v: data still there.</span>
+
+<span class="c"># 2. Dev loop (bind mount): host code live inside the container</span>
+<span class="p">$</span> docker run -v $(pwd):/app myapp</code></pre></div>
+  <div class="warn"><span class="lbl">Common mistakes</span>
+  <ul style="margin:6px 0 0">
+    <li>Bind-mounting <code class="inline">$(pwd)</code> over <code class="inline">/app</code> after the image already COPY'd code there → the mount <b>shadows</b> the image's copy. Fine in dev (that's the point), disaster if you do it in prod expecting image code to run.</li>
+    <li>Node.js specific: bind-mounting the project dir also shadows the image's <code class="inline">node_modules</code> with your host's (or with nothing). Standard fix: anonymous volume <code class="inline">-v /app/node_modules</code> to hole-punch it.</li>
+    <li>Forgetting the volume on a database container, then losing data on <code class="inline">rm</code>. Every official DB image's docs state the data path — <b>mount it</b>.</li>
+  </ul></div>
+
+  <div class="lab"><span class="lbl">Exercise</span>
+  <p>Run Postgres with a named volume, create a table, <code class="inline">docker rm -f</code> the container, start a fresh one with the same volume, and confirm the table survived. Then repeat without a volume and watch the data vanish. <b>Feeling that loss once is worth ten explanations.</b></p></div>
+
+  <div class="quiz" data-part="p5"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p4">← 04 · IMAGES</a><a class="next" href="#p6">06 · NETWORKING →</a></div>
+</section>
+
+<section class="part" id="p6">
+  <div class="phead"><div class="pnum">06</div>
+    <div><div class="ptitle">Networking</div>
+    <div class="pmeta"><span class="m">MODE <b>HANDS-ON</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p6">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>6.1 The model <span class="tag tag-deep">DEEP</span></h2>
+  <p>Each container gets its own <b>network namespace</b>: its own interfaces, its own IP, its own <code class="inline">localhost</code>. Three consequences that explain nearly every networking bug:</p>
+  <ol>
+    <li><b><code class="inline">localhost</code> inside a container is <i>that container</i></b>, not your machine, not other containers. <span style="color:var(--deep)">This is the #1 networking bug.</span></li>
+    <li>An app listening on <code class="inline">127.0.0.1</code> inside a container is unreachable from outside the container — it must bind <code class="inline">0.0.0.0</code>. (#2 bug — this is the exercise-1 gotcha from Part 4.)</li>
+    <li>Containers can't be reached from the host without explicit port publishing.</li>
+  </ol>
+
+  <h2>6.2 Bridge networks and DNS <span class="tag tag-deep">DEEP</span></h2>
+  <p>By default, containers attach to Docker's default <code class="inline">bridge</code> network — a virtual switch on the host. Containers on the same bridge can reach each other by IP.</p>
+  <div class="bridge">
+    <div style="text-align:center">
+      <span style="font-family:var(--mono);font-size:11px;color:var(--faint)">your machine — port publishing punches in from here</span>
+    </div>
+    <div class="bnet">
+      <span class="bcontainer hosted"><span class="bn">web · nginx</span><span class="bi">172.17.0.2 · :80</span></span>
+      <span class="bcontainer"><span class="bn">db · postgres</span><span class="bi">172.17.0.3 · :5432</span></span>
+      <span class="bcontainer"><span class="bn">api · myapp</span><span class="bi">172.17.0.4 · :8000</span></span>
+      <div style="text-align:center;margin-top:16px"><span class="dnschip">DNS ▶ <b>"db"</b> resolves automatically → postgres container</span></div>
+    </div>
+    <div class="bdns-note">But IPs change. The real mechanism you'll use: <b style="color:var(--fg)">on any user-created network, Docker runs an embedded DNS server, and container names become hostnames.</b> That's why your Django settings will say <code class="inline">HOST=db</code>.</div>
+  </div>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div>
+  <pre><code><span class="p">$</span> docker network create appnet
+<span class="p">$</span> docker run -d --network appnet --name db postgres:16
+<span class="p">$</span> docker run -d --network appnet --name api myapp
+<span class="c"># inside api, "db" resolves → the postgres container:
+#   DATABASE_HOST=db  ← this string is why your Django settings will say HOST=db</span></code></pre></div>
+  <div class="note"><span class="lbl">Gotcha</span>
+  <p>Name-based DNS works only on <b>user-defined</b> networks, not the default bridge — a classic gotcha. In practice this doesn't hurt you because Docker Compose creates a user network automatically — Part 7.</p></div>
+
+  <h2>6.3 Port publishing <span class="tag tag-deep">DEEP</span></h2>
+  <p><code class="inline">-p 8080:80</code> = "host's 8080 forwards to this container's 80" (implemented as NAT/iptables rules). Distinctions to keep straight:</p>
+  <ul>
+    <li>Container↔container traffic on a shared network <b>does not need <code class="inline">-p</code> at all</b> — they talk directly. <code class="inline">-p</code> is only for reaching a container <i>from the host/outside world</i>.</li>
+    <li><code class="inline">EXPOSE</code> in a Dockerfile publishes nothing (documentation only).</li>
+    <li><code class="inline">-p 8080:80</code> vs <code class="inline">-p 80:80</code>: left number is arbitrary and just has to be free on the host.</li>
+  </ul>
+
+  <h2>6.4 Other network drivers <span class="tag tag-ref">REFERENCE</span> <span class="tag tag-adv">ADVANCED</span></h2>
+  <p><code class="inline">host</code> (no isolation — container shares host's network stack; Linux-only, niche perf cases), <code class="inline">none</code> (no networking), <code class="inline">overlay</code> (multi-host — Swarm/K8s territory). Know they exist; bridge covers everything until orchestration.</p>
+
+  <div class="lab"><span class="lbl">Exercise</span>
+  <p>Create a network, run two containers on it (<code class="inline">nginx</code> named <code class="inline">web</code>, and <code class="inline">alpine</code> with <code class="inline">sleep 3000</code> named <code class="inline">probe</code>). <code class="inline">docker exec</code> into probe and <code class="inline">wget -qO- http://web</code> — you just used container DNS. Then try the same from a container on the <i>default</i> bridge and watch name resolution fail.</p></div>
+
+  <div class="quiz" data-part="p6"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p5">← 05 · STORAGE</a><a class="next" href="#p7">07 · DOCKER COMPOSE →</a></div>
+</section>
+
+<section class="part" id="p7">
+  <div class="phead"><div class="pnum">07</div>
+    <div><div class="ptitle">Docker Compose</div>
+    <div class="pmeta"><span class="m">MODE <b>HANDS-ON</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p7">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>7.1 What and why <span class="tag tag-deep">DEEP</span></h2>
+  <p>A real app is several containers (app + db + cache + proxy) plus networks, volumes, env vars, and startup order. Managing that with <code class="inline">docker run</code> commands is unmaintainable. Compose = <b>declare the whole stack in one YAML file; one command brings it up or down.</b> It's also <i>the</i> format for communicating "here's how to run this project" to other developers.</p>
+  <div class="idea"><span class="lbl">The key insight</span>
+  <p>Compose does nothing Docker can't — it's <b>orchestration sugar over the same API</b>. Every Compose key maps to a <code class="inline">docker run</code> flag you already know. That mapping is how you should read every Compose file.</p></div>
+
+  <h2>7.2 The canonical file, annotated <span class="tag tag-deep">DEEP STRUCTURE</span> <span class="tag tag-recog">RECOGNIZE KEYS</span></h2>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">docker-compose.yml</span><button class="copybtn">COPY</button></div>
+  <pre><code><span class="c"># docker-compose.yml</span>
+services:                      <span class="c"># each service = one container definition</span>
+  web:
+    build: .                   <span class="c"># build from local Dockerfile (vs image: for prebuilt)</span>
+    ports:
+      - <span class="a">"8000:8000"</span>            <span class="c"># = -p</span>
+    environment:               <span class="c"># = -e</span>
+      - DATABASE_HOST=db       <span class="c"># ← service name = DNS hostname (Part 6!)</span>
+    env_file: .env             <span class="c"># or load many from a file (keep secrets out of YAML)</span>
+    volumes:
+      - .:/app                 <span class="c"># bind mount for live dev</span>
+    depends_on:
+      db:
+        condition: service_healthy   <span class="c"># wait for db's healthcheck, not just its start</span>
+  db:
+    image: postgres:16
+    environment:
+      - POSTGRES_PASSWORD=<span class="a">${DB_PASSWORD}</span>   <span class="c"># interpolated from .env</span>
+    volumes:
+      - pgdata:/var/lib/postgresql/data    <span class="c"># named volume for persistence</span>
+    healthcheck:
+      test: [<span class="a">"CMD-SHELL"</span>, <span class="a">"pg_isready -U postgres"</span>]
+      interval: 5s
+      retries: 5
+
+volumes:
+  pgdata:                      <span class="c"># declare named volumes here</span></code></pre></div>
+  <p>Compose automatically creates a <b>user-defined network</b> for the project and attaches all services — which is why <code class="inline">DATABASE_HOST=db</code> just works with zero network config.</p>
+
+  <h2>7.3 Commands <span class="tag tag-recog">RECOGNIZE</span></h2>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div>
+  <pre><code><span class="p">$</span> docker compose up -d          <span class="c"># build if needed, create network/volumes, start all</span>
+<span class="p">$</span> docker compose up -d --build  <span class="c"># force rebuild (after Dockerfile/dependency changes)</span>
+<span class="p">$</span> docker compose logs -f web
+<span class="p">$</span> docker compose exec web bash
+<span class="p">$</span> docker compose ps
+<span class="p">$</span> docker compose down           <span class="c"># stop + remove containers &amp; network (volumes SURVIVE)</span>
+<span class="p">$</span> docker compose down -v        <span class="c"># ...and delete volumes (⚠ deletes your database)</span></code></pre></div>
+
+  <h2>7.4 The depends_on trap <span class="tag tag-deep">DEEP — EVERYONE HITS THIS</span></h2>
+  <p>Plain <code class="inline">depends_on: [db]</code> waits for the db <i>container to start</i>, not for Postgres to be <i>ready to accept connections</i>. Your app boots in 1s, Postgres initializes in 5s, app crashes with "connection refused."</p>
+  <p>Fixes, best-first: <b>(1)</b> healthcheck + <code class="inline">condition: service_healthy</code> as above; <b>(2)</b> retry logic in the app (what production-grade apps do anyway); <b>(3)</b> wait-for-it scripts (legacy).</p>
+
+  <div class="lab"><span class="lbl">Exercise</span>
+  <p>Convert Part 6's exercise into a compose file (nginx + an alpine sleeper on one network), then extend it: app service that reads an env var, db with volume + healthcheck. Bring it up, kill it, bring it back, verify persistence.</p></div>
+
+  <div class="quiz" data-part="p7"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p6">← 06 · NETWORKING</a><a class="next" href="#p8">08 · REAL PROJECT →</a></div>
+</section>
+
+<section class="part" id="p8">
+  <div class="phead"><div class="pnum">08</div>
+    <div><div class="ptitle">Real Project: Django + PostgreSQL + Redis + Nginx</div>
+    <div class="pmeta"><span class="m">MODE <b>HANDS-ON</b></span><span class="m">★ <b>THE PAYOFF</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p8">MARK COMPLETE</button></div>
+  </div>
+
+  <p>This part is the payoff. It exercises <b>every prior concept</b> in a stack you named. Build it yourself; the annotated reference below is for checking your work and for reuse.</p>
+
+  <h2>8.1 Architecture</h2>
+  <div class="arch">
+    <div class="anode edge"><div class="an1">browser</div><div class="an2">port 80</div></div>
+    <div class="parrow" style="align-self:center"></div>
+    <div class="anode"><div class="an1">Nginx</div><div class="an2">:80 · static + proxy</div><div class="vchip">SHARED VOLUME</div></div>
+    <div class="parrow" style="align-self:center"></div>
+    <div class="anode"><div class="an1">Django (gunicorn)</div><div class="an2">:8000 · app server</div></div>
+  </div>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Hop</th><th>How</th></tr></thead>
+    <tbody>
+      <tr><td>Nginx → static files</td><td>Served directly from a shared volume — no Django round-trip</td></tr>
+      <tr><td>Nginx → Django</td><td><code>proxy_pass http://web:8000</code> — compose DNS name (Part 6)</td></tr>
+      <tr><td>Django → Postgres</td><td>:5432 · data on named volume · <code>HOST=db</code> from env</td></tr>
+      <tr><td>Django → Redis</td><td>:6379 cache/celery · <code>redis://redis:6379/0</code></td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><span class="lbl">Why Nginx in front at all?</span>
+  <p>gunicorn is an application server — it <b>shouldn't</b> serve static files, terminate TLS, or absorb slow clients. This split is itself an interview question ("why not just gunicorn?").</p></div>
+
+  <h2>8.2 The Dockerfile (production-shaped)</h2>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">Dockerfile</span><button class="copybtn">COPY</button></div>
+  <pre><code><span class="b">FROM</span> python:3.12-slim
+
+<span class="c"># Python hygiene in containers:</span>
+<span class="b">ENV</span> PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1          <span class="c"># unbuffered → logs appear in `docker logs` in real time</span>
+
+<span class="b">WORKDIR</span> /app
+
+<span class="c"># system deps for psycopg (libpq); clean apt lists in the SAME layer (Part 4.4)</span>
+<span class="b">RUN</span> apt-get update &amp;&amp; apt-get install -y --no-install-recommends libpq5 \
+    &amp;&amp; rm -rf /var/lib/apt/lists/*
+
+<span class="c"># dependency layer first — cache optimization (Part 4.3)</span>
+<span class="b">COPY</span> requirements.txt .
+<span class="b">RUN</span> pip install --no-cache-dir -r requirements.txt
+
+<span class="b">COPY</span> . .
+
+<span class="c"># non-root user (Part 11)</span>
+<span class="b">RUN</span> useradd -m appuser &amp;&amp; chown -R appuser /app
+<span class="b">USER</span> appuser
+
+<span class="b">EXPOSE</span> 8000
+<span class="b">CMD</span> [<span class="a">"gunicorn"</span>, <span class="a">"config.wsgi:application"</span>, <span class="a">"--bind"</span>, <span class="a">"0.0.0.0:8000"</span>, <span class="a">"--workers"</span>, <span class="a">"3"</span>]</code></pre></div>
+  <p>Note what's applied: slim base, layer ordering, same-layer cleanup, 0.0.0.0 binding, exec-form CMD, non-root. <b>Every line traces back to a concept from Parts 4–6.</b></p>
+
+  <h2>8.3 docker-compose.yml</h2>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">docker-compose.yml</span><button class="copybtn">COPY</button></div>
+  <pre><code>services:
+  web:
+    build: .
+    env_file: .env
+    environment:
+      - DATABASE_HOST=db        <span class="c"># DNS names from Part 6</span>
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - static:/app/staticfiles <span class="c"># shared with nginx</span>
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    <span class="c"># NOTE: no ports: — only nginx faces the outside world</span>
+
+  db:
+    image: postgres:16
+    env_file: .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [<span class="a">"CMD-SHELL"</span>, <span class="a">"pg_isready -U ${POSTGRES_USER:-postgres}"</span>]
+      interval: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - <span class="a">"80:80"</span>
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - static:/staticfiles:ro
+    depends_on: [web]
+
+volumes:
+  pgdata:
+  static:</code></pre></div>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">nginx.conf</span><button class="copybtn">COPY</button></div>
+  <pre><code>server {
+    listen 80;
+    location /static/ { alias /staticfiles/; }
+    location / {
+        proxy_pass http://web:8000;          <span class="c"># "web" = compose DNS name</span>
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}</code></pre></div>
+  <p>Django settings changes (the ones people forget): <code class="inline">ALLOWED_HOSTS</code> must include your host; DB <code class="inline">HOST</code> comes from <code class="inline">DATABASE_HOST</code> env var; <code class="inline">STATIC_ROOT=/app/staticfiles</code>. Run migrations/collectstatic explicitly: <code class="inline">docker compose exec web python manage.py migrate</code> (or an entrypoint script in real deployments).</p>
+
+  <h2>8.4 The dev/prod split <span class="tag tag-recog">RECOGNIZE</span></h2>
+  <p>The file above is production-shaped. For development you overlay differences (bind-mounted code, runserver, exposed ports) in a <code class="inline">docker-compose.override.yml</code>, which <code class="inline">docker compose up</code> merges automatically. <b>Same images, different wiring</b> — this pattern is standard in real teams.</p>
+
+  <h2>8.5 Node.js variant — what changes</h2>
+  <p>Same skeleton; the deltas: <code class="inline">FROM node:20-slim</code>, copy <code class="inline">package*.json</code> → <code class="inline">RUN npm ci --omit=dev</code> → <code class="inline">COPY . .</code>, and in dev the <code class="inline">node_modules</code> hole-punch volume from Part 5.3. If there's a frontend build step, use the multi-stage pattern from Part 4.4 verbatim.</p>
+
+  <div class="ck"><span class="lbl">Definition of done</span>
+  <p>You can: bring the stack up from a clean machine with one command; explain the path of a request from browser to Django and back; destroy and recreate everything without losing DB data; explain why <code class="inline">web</code> has no <code class="inline">ports:</code> and why <code class="inline">DATABASE_HOST=db</code> resolves.</p></div>
+
+  <div class="quiz" data-part="p8"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p7">← 07 · COMPOSE</a><a class="next" href="#p9">09 · DEBUGGING PLAYBOOK →</a></div>
+</section>
+
+<section class="part" id="p9">
+  <div class="phead"><div class="pnum">09</div>
+    <div><div class="ptitle">The Debugging Playbook</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span><span class="m">MODE <b>REFERENCE</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p9">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Debugging Docker is <b>systematic, not magical</b>. The two mental models doing the work: <i>a container is a process</i> (Part 2) and <i>the request path</i> (Part 6).</p>
+
+  <h2>Container exits immediately / restart loops</h2>
+  <ol>
+    <li><code class="inline">docker ps -a</code> → read the <b>exit code</b>. <code class="inline">0</code> = process finished normally (did you give it a long-running command?). <code class="inline">1</code>/nonzero = app crashed. <code class="inline">137</code> = SIGKILL — either OOM-killed (check <code class="inline">docker inspect</code> → <code class="inline">OOMKilled: true</code>) or <code class="inline">docker kill</code>. <code class="inline">126/127</code> = command not executable / not found (typo in CMD, missing binary, wrong architecture).</li>
+    <li><code class="inline">docker logs &lt;id&gt;</code> → the app's dying words. This solves most cases.</li>
+    <li>Still opaque? Override the entrypoint to get a shell in the same image and run the command by hand: <code class="inline">docker run -it --entrypoint bash myimg</code>.</li>
+  </ol>
+
+  <h2>Can't reach the app from the browser</h2>
+  <p>Walk the path outside-in; test each hop:</p>
+  <ol>
+    <li>Is the container running and is the port published? (<code class="inline">docker ps</code> shows <code class="inline">0.0.0.0:8080-&gt;80</code>.)</li>
+    <li>Is the app listening on <code class="inline">0.0.0.0</code>, not <code class="inline">127.0.0.1</code>? (<code class="inline">docker exec</code> in, check with <code class="inline">ss -tlnp</code> or the app's config — <b style="color:var(--accent)">this is the answer 4 times out of 5</b>.)</li>
+    <li>Right port? Published container-port must match what the app actually binds.</li>
+    <li>From inside the container itself, does <code class="inline">curl localhost:8000</code> work? If yes, the app is fine and the problem is wiring; if no, it's the app.</li>
+  </ol>
+
+  <h2>Container A can't reach container B</h2>
+  <ol>
+    <li>Same network? <code class="inline">docker network inspect &lt;net&gt;</code> lists members.</li>
+    <li>Using the <i>service/container name</i> as hostname, not localhost? (<code class="inline">localhost</code> bug again.)</li>
+    <li>B actually up and healthy? Race condition? (Part 7.4.)</li>
+    <li>Test resolution from inside A: <code class="inline">docker exec -it A sh</code> → <code class="inline">ping b</code> / <code class="inline">nc -zv b 5432</code>.</li>
+  </ol>
+
+  <h2>Build fails / behaves stale</h2>
+  <ul>
+    <li>Read <b>which STEP failed</b> — the error is about that instruction's layer.</li>
+    <li>"Works on rebuild but changes don't appear" → stale cache or you edited a file excluded by <code class="inline">.dockerignore</code>; <code class="inline">docker compose up --build</code> or <code class="inline">docker build --no-cache</code> to prove/disprove.</li>
+    <li>File-not-found during COPY → path is relative to build context, and check <code class="inline">.dockerignore</code>.</li>
+  </ul>
+
+  <h2>Disk full <span class="tag tag-ref">REFERENCE</span></h2>
+  <p><code class="inline">docker system df</code> to see usage; <code class="inline">docker system prune</code> (add <code class="inline">-a</code> to also drop unused images; add <code class="inline">--volumes</code> only if you mean it).</p>
+
+  <div class="idea"><span class="lbl">The debugging habit</span>
+  <p>Before Googling, always run these three: <code class="inline">docker ps -a</code> (state + exit code), <code class="inline">docker logs</code> (why), <code class="inline">docker inspect</code> (config reality vs your assumption). Most "Docker bugs" are one of five things: <b>localhost confusion, 127.0.0.1 binding, missing volume, race with the DB, stale cache</b>. You now know all five.</p></div>
+
+  <div class="quiz" data-part="p9"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p8">← 08 · REAL PROJECT</a><a class="next" href="#p10">10 · INTERNALS →</a></div>
+</section>
+
+<section class="part" id="p10">
+  <div class="phead"><div class="pnum">10</div>
+    <div><div class="ptitle">Internals: What's Actually Happening</div>
+    <div class="pmeta"><span class="m">TAG <b>ADVANCED</b></span><span class="m">★ <b>INTERVIEW GOLD</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p10">MARK COMPLETE</button></div>
+  </div>
+
+  <div class="note"><span class="lbl">When to return</span>
+  <p>Return here <b>after Part 8</b>. This section upgrades Part 2's mental model to the mechanism level. Nothing here is needed to <i>use</i> Docker; all of it is what separates "I use Docker" from "I understand Docker" in a senior interview.</p></div>
+
+  <h2>10.1 Namespaces — the isolation mechanism</h2>
+  <p>A namespace is a kernel feature that gives a process a private view of one global resource. Docker uses six:</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>Namespace</th><th>Isolates</th><th>Effect in a container</th></tr></thead>
+    <tbody>
+      <tr><td><code>PID</code></td><td>Process tree</td><td>Container's process is PID 1; can't see host processes</td></tr>
+      <tr><td><code>NET</code></td><td>Network stack</td><td>Own interfaces, own IP, own ports, own localhost</td></tr>
+      <tr><td><code>MNT</code></td><td>Mount table</td><td>Own filesystem root</td></tr>
+      <tr><td><code>UTS</code></td><td>Hostname</td><td><code>hostname</code> shows container ID</td></tr>
+      <tr><td><code>IPC</code></td><td>Shared memory</td><td>Can't talk to host processes via IPC</td></tr>
+      <tr><td><code>USER</code></td><td>UID mapping</td><td>root inside can map to non-root outside <span class="tag tag-adv">ADVANCED</span></td></tr>
+    </tbody>
+  </table></div>
+  <p><b>Proof it's "just a process"</b>: on a Linux host, <code class="inline">docker inspect -f '{{.State.Pid}}' c</code> gives a host PID; <code class="inline">ls /proc/&lt;pid&gt;/ns/</code> shows its namespace handles. <code class="inline">docker exec</code> literally means "start a process and <i>join</i> these namespaces" (the <code class="inline">setns</code> syscall).</p>
+
+  <h2>10.2 Cgroups — the resource mechanism</h2>
+  <p>Namespaces control <b>visibility</b>; cgroups control <b>consumption</b>. <code class="inline">--memory=512m --cpus=1.5</code> writes limits into the cgroup filesystem (<code class="inline">/sys/fs/cgroup/...</code>), and the kernel enforces them. Exceed the memory limit → kernel OOM-killer terminates the process → <b>exit code 137</b>. That's the whole story behind Part 9's 137.</p>
+
+  <h2>10.3 OverlayFS — the image mechanism</h2>
+  <p>The union filesystem implementing Part 2's layer diagram. Mechanics worth knowing:</p>
+  <ul>
+    <li><b>lowerdir</b> = image layers (read-only, stacked), <b>upperdir</b> = container's writable layer, presented <b>merged</b>.</li>
+    <li>Reads fall through the stack top-down until a layer has the file.</li>
+    <li><b>Copy-on-write</b>: modifying a file from a lower layer first copies the whole file up to upperdir, then edits it. <i>(Hence: containers writing heavily to big files should use volumes — volumes bypass overlay entirely, which is also why DB data lives on volumes for <b>performance</b>, not just persistence.)</i></li>
+    <li>Deleting a lower-layer file creates a "whiteout" marker in upperdir — the file is hidden, not removed. This is the mechanical reason deleting files in a later Dockerfile layer doesn't shrink the image (Part 4.4).</li>
+  </ul>
+
+  <h2>10.4 The runtime stack: dockerd → containerd → runc</h2>
+  <ul>
+    <li><b style="color:var(--accent)">dockerd</b>: API server + the high-level features (builds, networks, volumes).</li>
+    <li><b style="color:var(--accent)">containerd</b>: container lifecycle supervisor (also used directly by Kubernetes — this is why "Kubernetes dropped Docker" headlines didn't mean what people thought: K8s dropped dockerd as a middleman and talks to containerd directly; your Docker-built images run unchanged).</li>
+    <li><b style="color:var(--accent)">runc</b>: small CLI that makes the actual syscalls — <code class="inline">clone()</code> with namespace flags, cgroup writes, <code class="inline">pivot_root</code> into the overlay mount, then <code class="inline">exec()</code> your CMD. Then it <i>exits</i>; a tiny shim keeps the container's stdio alive. runc implements the <b>OCI runtime spec</b>, and images follow the <b>OCI image spec</b> — which is why images are portable across Docker/Podman/Kubernetes/cloud runtimes.</li>
+  </ul>
+
+  <h2>10.5 <code class="inline">docker run</code>, the full internal answer</h2>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">interview-brain.txt</span><button class="copybtn">COPY</button></div>
+  <pre><code>CLI → REST API → dockerd resolves image (pull layers if missing, verify
+digests) → containerd creates container metadata → prepares overlay mount
+(image layers as lowerdirs + fresh upperdir) → allocates network namespace,
+veth pair into the bridge, IP from the bridge subnet, iptables NAT rules
+for -p → runc clones a process with new namespaces, applies cgroups,
+pivots root into the merged filesystem, drops capabilities, execs the CMD
+→ shim holds stdio/exit code → dockerd streams logs from the process's
+stdout. When PID 1 exits, the container is "exited" with that code.</code></pre></div>
+  <div class="idea"><span class="lbl">Senior bar</span>
+  <p>If you can deliver that paragraph <b>unprompted</b> and unpack any step on request, you're past most interview bars.</p></div>
+
+  <div class="quiz" data-part="p10"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p9">← 09 · DEBUGGING</a><a class="next" href="#p11">11 · PRODUCTION & SECURITY →</a></div>
+</section>
+
+<section class="part" id="p11">
+  <div class="phead"><div class="pnum">11</div>
+    <div><div class="ptitle">Production &amp; Security</div>
+    <div class="pmeta"><span class="m">TAG <b>SELECTIVELY DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p11">MARK COMPLETE</button></div>
+  </div>
+
+  <p>The subset that's actually expected of a developer (ops teams own the rest):</p>
+  <ol>
+    <li><b>Don't run as root</b> <span class="tag tag-deep">DEEP</span>. Default is root-in-container; a container escape then means root-adjacent on the host (shared kernel!). The <code class="inline">USER appuser</code> lines in Part 8 are the fix. <b>This is the single most-asked Docker security question.</b></li>
+    <li><b>Never bake secrets into images</b> <span class="tag tag-deep">DEEP</span>. No passwords in Dockerfile ENV/COPY — layers are readable by anyone with the image (<code class="inline">docker history</code> shows all). Inject at runtime: env vars/env_file at minimum; secret managers in real prod.</li>
+    <li><b>Pin versions</b> <span class="tag tag-deep">DEEP CONCEPT</span>. <code class="inline">FROM python:3.12-slim</code>, <code class="inline">postgres:16</code> — never <code class="inline">latest</code> in anything that redeploys. Tags move (Part 4.5); unpinned = unreproducible.</li>
+    <li><b>Resource limits</b> <span class="tag tag-recog">RECOGNIZE</span>: <code class="inline">--memory</code>/<code class="inline">--cpus</code> (or compose <code class="inline">deploy.resources</code>) so one leaking container can't starve the host.</li>
+    <li><b>Healthchecks + restart policy</b> <span class="tag tag-recog">RECOGNIZE</span>: <code class="inline">HEALTHCHECK</code> / compose <code class="inline">healthcheck</code> + <code class="inline">restart: unless-stopped</code> = self-healing at the single-host level.</li>
+    <li><b>Log to stdout, stay stateless</b> <span class="tag tag-deep">DEEP AS DESIGN PRINCIPLE</span>: containers should be disposable — all state in volumes/external services, all logs on stdout. This is what makes horizontal scaling and orchestration possible, and it's the philosophical core of "cloud-native."</li>
+    <li>Image scanning (<code class="inline">docker scout</code>, trivy), read-only root fs, dropped capabilities — <span class="tag tag-ref">REFERENCE/ADVANCED</span>: know the terms.</li>
+  </ol>
+
+  <div class="quiz" data-part="p11"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p10">← 10 · INTERNALS</a><a class="next" href="#p12">12 · WHEN NOT TO USE DOCKER →</a></div>
+</section>
+
+<section class="part" id="p12">
+  <div class="phead"><div class="pnum">12</div>
+    <div><div class="ptitle">When Docker Is and Isn't the Right Tool</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p12">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Genuinely strong candidates can argue <b>against</b> the tool.</p>
+  <div class="duel">
+    <div class="col use">
+      <h3>USE IT WHEN</h3>
+      <ul>
+        <li>Multi-service dev environments (the Part 8 stack — its best everyday use)</li>
+        <li>Parity between dev/CI/prod</li>
+        <li>Deploying to any container platform</li>
+        <li>Running two conflicting stacks on one machine</li>
+        <li>Onboarding ("clone, <code class="inline">docker compose up</code>, done")</li>
+        <li>Shipping software to strangers' machines</li>
+      </ul>
+    </div>
+    <div class="col skip">
+      <h3>SKIP OR QUESTION IT WHEN</h3>
+      <ul>
+        <li>Simple scripts/single static binaries — a Go binary or a cron script may need nothing</li>
+        <li>GUI/desktop apps — wrong tool</li>
+        <li>Extreme performance/hardware coupling (HFT, GPU quirks, kernel modules) — the abstraction costs you</li>
+        <li>Hard multi-tenant security isolation — shared kernel; hostile workloads want VMs (or gVisor/Firecracker — recognize the names)</li>
+        <li>Windows/macOS <i>native</i> targets — Linux containers only run natively on Linux; Docker Desktop runs a hidden Linux VM (worth knowing: this is why file-heavy bind mounts are slow on Mac)</li>
+        <li>A solo dev on a tiny app with no deployment story — Docker adds a layer of indirection you must debug; adopt it when the pain it removes exceeds the pain it adds</li>
+      </ul>
+    </div>
+  </div>
+  <p>Also honest to know: <b>Compose is single-host.</b> Multi-host scheduling, autoscaling, rolling deploys = orchestrators (Kubernetes). Docker is the packaging + runtime; K8s is fleet management of the same containers.</p>
+
+  <div class="quiz" data-part="p12"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p11">← 11 · PROD & SEC</a><a class="next" href="#p13">13 · INTERVIEW PREP →</a></div>
+</section>
+
+<section class="part" id="p13">
+  <div class="phead"><div class="pnum">13</div>
+    <div><div class="ptitle">Interview Preparation</div>
+    <div class="pmeta"><span class="m">MODE <b>FLIP-CARDS</b></span><span class="m">★ <b>ANSWER ALOUD</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p13">MARK COMPLETE</button></div>
+  </div>
+
+  <p>You've already built the answers; this consolidates them. <b>Answer each question aloud before flipping the card.</b> Nail a card and it dims. Every card maps to the section where you built the answer.</p>
+
+  <div class="note"><span class="lbl">Format tip</span>
+  <p>For each concept answer in the shape <b style="color:var(--accent)">WHAT → WHY IT EXISTS → ONE CONCRETE CONSEQUENCE</b>. That structure alone sounds senior.</p></div>
+
+  <div class="deck" id="deck"><!-- cards injected by JS --></div>
+
+  <div class="breadcrumb"><a href="#p12">← 12 · NO-DOCKER</a><a class="next" href="#p14">14 · MILESTONES & GRADUATION →</a></div>
+</section>
+
+<section class="part" id="p14">
+  <div class="phead"><div class="pnum">14</div>
+    <div><div class="ptitle">Milestones &amp; Self-Assessment</div>
+    <div class="pmeta"><span class="m">MODE <b>CHECKLIST</b></span><span class="m">★ <b>GRADUATION</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p14">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Six milestones = six layers of proof. Check each off honestly — when all six drop, <b>the shipyard ships your container</b>.</p>
+
+  <div class="mlist" id="mlist"><!-- milestones injected by JS --></div>
+
+  <div class="breadcrumb" style="margin-top:0"><a href="#p13">← 13 · INTERVIEW PREP</a></div>
+</section>
+
+<footer>
+  <b>ABOUT THIS BUILD:</b> The Container Shipyard is a faithful interactive conversion of the first-principles Docker curriculum — every concept, table, code block, exercise and interview question preserved. Progress lives in your browser (localStorage). Built as a single file — copy it anywhere, it runs offline.<br>
+  <b>THE ONE RULE:</b> a container is just a process. Remember that and you'll never drown.
+</footer>
+
+
+</main>
+</div>
+<div id="grad"><div class="gterm"><div class="ghead">▲ SHIPYARD DEPLOYMENT — ALL MILESTONES CROSSED</div><div class="gbody"></div></div></div>
+
+<script>
+// generated from docker-curriculum.html - do not hand-edit
+window.SHIPYARD_DATA={
+meta:{tech:"docker",title:"The Container Shipyard - Docker: A First-Principles Curriculum",brand:"THE CONTAINER SHIPYARD",tagline:"Docker - first-principles curriculum",storageKey:"shipyard-v1"},
+parts:[
+ {id:"p0",num:"00",title:"How to Use This Curriculum",tag:null},
+ {id:"p1",num:"01",title:"The Problem Docker Solves",tag:"DEEP"},
+ {id:"p2",num:"02",title:"The Core Mental Model",tag:"DEEP"},
+ {id:"p3",num:"03",title:"Containers in Practice",tag:"DEEP"},
+ {id:"p4",num:"04",title:"Images & Dockerfiles",tag:"DEEP"},
+ {id:"p5",num:"05",title:"Storage",tag:"DEEP"},
+ {id:"p6",num:"06",title:"Networking",tag:"DEEP"},
+ {id:"p7",num:"07",title:"Docker Compose",tag:"DEEP"},
+ {id:"p8",num:"08",title:"Real Project: Django+Postgres+Redis+Nginx",tag:"DEEP"},
+ {id:"p9",num:"09",title:"The Debugging Playbook",tag:"DEEP"},
+ {id:"p10",num:"10",title:"Internals: What's Actually Happening",tag:"ADVANCED"},
+ {id:"p11",num:"11",title:"Production & Security",tag:"DEEP"},
+ {id:"p12",num:"12",title:"When Docker Is and Isn't the Right Tool",tag:"DEEP"},
+ {id:"p13",num:"13",title:"Interview Preparation",tag:"DEEP"},
+ {id:"p14",num:"14",title:"Milestones & Self-Assessment",tag:"DEEP"}
+],
+quiz:{
+p1:[
+ {q:"An application is never just your code. Which of these is NOT part of \"the app\" per the curriculum?",o:["The language runtime (Python 3.11, Node 20)","The system libraries (libpq, openssl, glibc)","OS-level config (env vars, locales, file paths)","The GPU model installed on the machine"],a:3,e:"The ingredients: code + runtime + system libraries + OS config + external services + exact versions of ALL of the above. GPU model is hardware, not part of the app's environment."},
+ {q:"At the core: why is a container lighter than a VM?",o:["It runs a compressed guest OS","It's just an isolated process on the shared host kernel","It ships without libraries","It only packages your code"],a:1,e:"No guest OS, no hardware virtualization. The kernel is already running — the container is one more process it starts. Milliseconds, not minutes."},
+ {q:"Which of these does Docker NOT solve?",o:["Reproducible environments","Dependency conflicts on shared machines","VM-grade security isolation","Shipping identical environments everywhere"],a:2,e:"Containers share the host kernel — isolation is weaker than VMs. Docker is not a security boundary for hostile workloads."},
+ {q:"Typical density per host — VMs vs containers?",o:["About equal","Handfuls of VMs vs hundreds of containers","Containers are 2x denser","One VM per container"],a:1,e:"VMs boot a full guest OS each (GBs, minutes); containers are processes (MBs, milliseconds) — hence hundreds per host."}
+],
+p2:[
+ {q:"A container is best described as…",o:["A small virtual machine","A normal process wrapped in namespaces, cgroups and a layered filesystem","A lightweight operating system","A kernel module"],a:1,e:"There is no 'container' object in the kernel. Run ps aux on the host — the container's process is listed like any other."},
+ {q:"Which kernel feature controls what a process can USE (CPU, memory, I/O)?",o:["Namespaces","Cgroups","OverlayFS","iptables"],a:1,e:"Namespaces = what it can SEE. Cgroups = what it can USE. One sentence; interview gold."},
+ {q:"The main process inside a container (PID 1) exits. What happens?",o:["The container restarts automatically","The container stops — alive exactly as long as its process","It pauses until restarted","Nothing — other processes keep it alive"],a:1,e:"This one fact explains 80% of 'my container keeps exiting' confusion."},
+ {q:"You write a file inside a running container, then docker rm it. Where did the file go?",o:["Saved to the registry","It was in the writable layer — gone forever","Moved to a volume automatically","Cached on the host"],a:1,e:"All writes land in the container's writable layer, which rm deletes. This is exactly why volumes exist (Part 5)."},
+ {q:"Which component actually makes the syscalls that create the isolated process?",o:["The docker CLI","dockerd","runc","The registry"],a:2,e:"runc is the tiny binary that calls clone() with namespace flags. dockerd delegates to containerd, which hands off to runc."}
+],
+p3:[
+ {q:"You run `docker run ubuntu` and it exits instantly. Why?",o:["The image is corrupt","Its default command is bash — no TTY attached, so bash exits and the container dies with its process","You need -d for it to stay up","Ubuntu images are invalid"],a:1,e:"Containers run a process, not 'an OS'. Give it one: docker run -it ubuntu bash."},
+ {q:"docker stop X sends…",o:["SIGKILL immediately","SIGTERM, waits 10s, then SIGKILL","SIGINT then detaches","A pause signal"],a:1,e:"A 10-second graceful window — your app should handle SIGTERM and shut down cleanly."},
+ {q:"After docker stop, the container is…",o:["Gone forever","Stopped but restorable, data intact","Automatically deleted","Paused"],a:1,e:"Stopped = process dead, writable layer still there (can restart). Removed = gone forever. The whole lifecycle is that difference."},
+ {q:"Which opens a shell inside a RUNNING container?",o:["docker attach","docker exec -it web bash","docker start -it web","docker run --init"],a:1,e:"exec starts an ADDITIONAL process inside the container's existing namespaces — that's also why you can't exec into a stopped one."},
+ {q:"Your app writes logs to /var/log/app.log inside the container, but docker logs shows nothing. Why?",o:["docker logs only captures stdout/stderr — and the file dies with the container","The file is encrypted","docker logs requires -a","app.log is a reserved name"],a:0,e:"Container convention: log to stdout/stderr. Docker captures that stream; a log file inside the container dies with it."}
+],
+p4:[
+ {q:"RUN vs CMD — the correct mental model:",o:["They're the same thing","RUN executes once at build time and bakes results; CMD runs at every container start and bakes nothing","CMD is build-time, RUN is run-time","Neither matters much"],a:1,e:"RUN pip install ✔ (once, baked into a layer). CMD pip install ✘ (would reinstall on every start)."},
+ {q:"During a build, the FIRST cache miss…",o:["Only that layer rebuilds; following layers stay cached","Invalidates every layer after it","Restarts the build from scratch","Is silently ignored"],a:1,e:"A layer is reused only if the instruction is unchanged AND all previous layers were hits. First miss kills the tail."},
+ {q:"Why does the canonical Dockerfile COPY requirements.txt before the source code?",o:["Smaller build context","So the pip layer stays cached when you edit code — rebuilds take seconds, not minutes","It's required syntax","Faster downloads"],a:1,e:"Order instructions least→most frequently-changing. Code edits then only re-run the cheap final COPY."},
+ {q:"CMD [\"python\",\"app.py\"] — you run `docker run img bash`. What runs?",o:["bash — CMD is fully overridable","python app.py with bash as an argument","An error is raised","python, then bash"],a:0,e:"CMD is fully overridable. ENTRYPOINT is fixed — and with ENTRYPOINT+CMD, args after the image name replace only CMD."},
+ {q:"EXPOSE 8000 in a Dockerfile…",o:["Publishes port 8000 on the host","Is documentation only — publishes nothing","Opens the host firewall","Mounts the port"],a:1,e:"The famous gotcha: publishing happens at run time with -p (or compose ports:). EXPOSE only documents."}
+],
+p5:[
+ {q:"Which mount type survives docker rm?",o:["tmpfs","A named volume","The writable layer","A bind mount to a file you deleted"],a:1,e:"Named volumes live outside the layer stack, managed by Docker — they survive rm. tmpfs dies at stop; the writable layer dies at rm."},
+ {q:"In -v pgdata:/var/lib/postgresql/data, pgdata is…",o:["A host path (bind mount)","A named volume, created on first use","A container name","A network alias"],a:1,e:"Left side bare name = volume. Left side with a / or . = host path = bind mount."},
+ {q:"Why do databases live on volumes for PERFORMANCE too, not just persistence?",o:["Volumes bypass OverlayFS copy-on-write","Volumes sit on faster disks","Cgroups prioritize volumes","SSD vs HDD"],a:0,e:"Copy-on-write copies the whole file before editing — heavy DB writes on the overlay would crawl. Volumes bypass the overlay entirely."},
+ {q:"In dev you bind-mount $(pwd) over /app. The image's COPY'd code is…",o:["Merged with your host files","Shadowed by the mount — the host's copy wins","Deleted","Immutable"],a:1,e:"A mount shadows the image content at that path. That's the point in dev; a disaster in prod if you expected image code to run."}
+],
+p6:[
+ {q:"Inside a container, localhost refers to…",o:["Your machine","That container itself","The bridge network","The registry"],a:1,e:"The #1 networking bug. Each container has its own network namespace — its own interfaces, IP, and localhost."},
+ {q:"To be reachable from outside, an app inside a container must listen on…",o:["127.0.0.1","0.0.0.0","localhost","The container ID"],a:1,e:"Bug #2: 127.0.0.1 binds only inside the container. 0.0.0.0 binds all interfaces so the published port can reach it."},
+ {q:"Two containers on the SAME user-defined network need -p to talk to each other?",o:["Yes — always","No — -p is only for reaching containers from the host/outside world","Only during startup","Only if they use DNS"],a:1,e:"Container↔container traffic on a shared network is direct. -p punches a hole from the outside world."},
+ {q:"Name-based DNS (container names become hostnames) works on…",o:["The default bridge network","User-defined networks (compose creates one automatically)","The host network","No network"],a:1,e:"Classic gotcha: DNS by name works only on user-defined networks — but compose gives you one for free."}
+],
+p7:[
+ {q:"Plain depends_on: [db] waits for…",o:["Postgres to accept connections","The db CONTAINER to start — not readiness","The healthcheck to pass","Nothing at all"],a:1,e:"The trap: container start ≠ service ready. Your app boots in 1s, Postgres initializes in 5s → 'connection refused'."},
+ {q:"The best fix for the depends_on trap:",o:["healthcheck + condition: service_healthy","retries: 10","Delay startup by 5 seconds","depends_on: started"],a:0,e:"Best-first: (1) healthcheck + service_healthy, (2) retry logic in the app, (3) wait-for-it scripts (legacy)."},
+ {q:"docker compose down — your named volumes…",o:["Are deleted","Survive — deleted only with down -v","Are backed up","Are ignored"],a:1,e:"down removes containers + network, volumes survive. down -v ALSO deletes volumes — and your database."},
+ {q:"Compose is best understood as…",o:["A different container runtime","Orchestration sugar over the same Docker API — every key maps to a docker run flag","A replacement for Kubernetes","A registry client"],a:1,e:"That mapping is how you should read every compose file."}
+],
+p8:[
+ {q:"Why does Nginx sit in front of gunicorn?",o:["Nginx is faster at Python","An app server shouldn't serve static files, terminate TLS, or absorb slow clients","Django can't bind ports","DNS requires it"],a:1,e:"The split is itself an interview question — 'why not just gunicorn?'. Each tier does what it's actually for."},
+ {q:"Why does the web service have NO ports: in the Part 8 compose file?",o:["Only nginx faces the outside world","Memory limits","Compose forbids ports with depends_on","The browser blocks it"],a:0,e:"web is reachable by name on the compose network; only nginx publishes :80. No -p needed between containers (Part 6)."},
+ {q:"ENV PYTHONUNBUFFERED=1 does what inside a container?",o:["Speeds up Python imports","Makes logs appear in docker logs in real time","Disables the pip cache","Forces .pyc generation"],a:1,e:"Buffered output sits in the process buffer — unbuffered means docker logs streams live."}
+],
+p9:[
+ {q:"Exit code 137 means…",o:["Normal completion","SIGKILL — OOM-killed or docker kill","Command not found","Wrong architecture"],a:1,e:"137 = 128+9 (SIGKILL). Check docker inspect → OOMKilled: true. 126/127 = command not executable/not found."},
+ {q:"The debugging habit — always run these three first:",o:["docker ps -a, docker logs, docker inspect","docker version, docker info, docker stats","docker pull, docker run, docker tag","docker exec, docker stop, docker rm"],a:0,e:"State + exit code → why → config reality vs your assumption. Most bugs are five known causes; you now know all five."},
+ {q:"4 times out of 5, the browser can't reach the app because…",o:["The base image is wrong","The app binds 127.0.0.1 instead of 0.0.0.0","SSH keys are missing","The registry is down"],a:1,e:"Then: published port mismatch; then curl from inside the container to split app-vs-wiring."}
+],
+p10:[
+ {q:"Namespaces vs cgroups in one sentence:",o:["Namespaces control what a process SEES; cgroups control what it USES","Namespaces limit CPU; cgroups hide processes","They're the same thing","Namespaces are for files; cgroups for networks"],a:0,e:"That one sentence is Tier-3 interview gold."},
+ {q:"docker exec works via the ___ syscall.",o:["clone","setns — joining the container's existing namespaces","pivot_root","execve"],a:1,e:"exec literally means 'start a process and join these namespaces' — the setns syscall."},
+ {q:"Copy-on-write: you modify a file from a lower (image) layer. What happens first?",o:["The whole file is copied up to the writable layer, then edited","The file is edited in place in the lower layer","A whiteout marker is created","The layer is rebuilt"],a:0,e:"That's why heavy writers belong on volumes — they bypass the copy entirely (performance, not just persistence)."},
+ {q:"runc implements the ___ spec — why images work on Docker, Podman and K8s alike.",o:["OCI runtime","ISO 27001","POSIX","Docker API"],a:0,e:"OCI runtime + OCI image specs = portability across every container runtime."}
+],
+p11:[
+ {q:"The single most-asked Docker security question:",o:["Don't run as root — a container escape then means root-adjacent on the host","Use alpine for everything","Disable cgroups","Never use the bridge network"],a:0,e:"Shared kernel: container root is dangerously close to host root. The USER appuser lines in Part 8 are the fix."},
+ {q:"Why must secrets never be baked into images?",o:["Layers are readable by anyone with the image — docker history shows all","ENV vars are stripped at runtime","The registry deletes them","It slows the build"],a:0,e:"Inject at runtime: env vars / env_file at minimum; secret managers in real prod."},
+ {q:"Why is the latest tag dangerous in production?",o:["It's a movable pointer, not a version — unpinned means unreproducible","It's always outdated","It can't be pulled","It's slower to download"],a:0,e:"Tags move like Git branches (Part 4.5). Production pins specific tags — or digests."}
+],
+p12:[
+ {q:"Which is a legitimate reason to SKIP Docker?",o:["A multi-service dev environment","Two conflicting stacks on one machine","A simple Go binary or cron script","Onboarding new developers"],a:2,e:"Also: GUI/desktop apps, extreme performance/hardware coupling, hostile multi-tenant isolation, native Windows/macOS targets, tiny solo apps with no deployment story."},
+ {q:"You need multi-host scheduling, autoscaling, rolling deploys. Docker/Compose alone…",o:["Handles that fine","Is single-host — this is orchestrator (Kubernetes) territory","Just needs more volumes","Switches backends"],a:1,e:"Docker is the packaging + runtime; K8s is fleet management of the same containers."},
+ {q:"Docker Desktop on macOS actually runs…",o:["Containers natively on macOS","A hidden Linux VM — which is why file-heavy bind mounts are slow on Mac","WASM","Windows containers transparently"],a:1,e:"Linux containers only run natively on Linux. The hidden VM is also the cause of slow bind mounts on Mac."}
+]
+},
+cards:[
+{t:"TIER 1 — EXPECTED OF EVERYONE",q:"1 · Container vs VM — and WHY containers are lighter.",a:"VM = full guest OS on virtualized hardware (GBs, minutes, handfuls per host). Container = a process on the shared host kernel wrapped in namespaces + cgroups (MBs, milliseconds, hundreds per host). The word 'kernel' must appear. (Parts 1, 2-Idea-1)"},
+{t:"TIER 1",q:"2 · Image vs container.",a:"Image = read-only layered filesystem + metadata (a class). Container = running instance with its own writable layer (an object). One image → many containers, cheaply, no copying. (Part 2-Idea-2)"},
+{t:"TIER 1",q:"3 · What happens when you run docker run?",a:"Mid-level: CLI → daemon → pull if missing → writable layer on image layers → bridge IP → -p NAT → process starts in its own namespaces/cgroups. Senior: overlay mount prep, veth pair, runc clone + pivot_root, shim holds stdio, exit code when PID 1 exits. (Parts 3.1, 10.5)"},
+{t:"TIER 1",q:"4 · RUN vs CMD vs ENTRYPOINT.",a:"RUN = build-time, baked in once. CMD = run-time default, fully overridable. ENTRYPOINT = fixed executable; CMD becomes its default args. Prefer JSON/exec form — shell form wraps in /bin/sh -c, which becomes PID 1 and swallows SIGTERM. (Part 4.2)"},
+{t:"TIER 1",q:"5 · How do containers persist data?",a:"The writable layer dies with the container. Volumes (Docker-managed) and bind mounts (host path) live outside the layer stack and survive rm. tmpfs = RAM only. (Part 5)"},
+{t:"TIER 1",q:"6 · How do two containers talk?",a:"Same user-defined network + container name as hostname (embedded DNS). No -p needed between containers — -p is only host/outside → container. Names work only on user networks; compose gives you one free. (Part 6)"},
+{t:"TIER 1",q:"7 · What is Docker Compose and why?",a:"Declare the whole stack (services, networks, volumes, env, order) in one YAML; one command brings it up or down. Orchestration sugar over the same API — every key maps to a docker run flag. (Part 7.1)"},
+{t:"TIER 2 — DIFFERENTIATORS",q:"8 · How does layer caching work; structure a Dockerfile for fast builds?",a:"A layer is reused only if the instruction is unchanged AND all previous layers were hits; the first miss invalidates everything after it. Order instructions least→most frequently-changing: requirements.txt before code. (Part 4.3)"},
+{t:"TIER 2",q:"9 · Multi-stage builds — problem and mechanism.",a:"Build-time deps ≠ run-time deps. Stage 1 compiles with heavy tooling; the final stage COPY --from=build only the artifacts. The 1GB of node_modules never ships. (Part 4.4)"},
+{t:"TIER 2",q:"10 · Why is latest dangerous?",a:"A tag is a movable pointer, like a Git branch — not a version. latest moves; unpinned = unreproducible deployments. Pin specific tags or digests. (Parts 4.5, 11-3)"},
+{t:"TIER 2",q:"11 · depends_on doesn't do what people think — explain and fix.",a:"Plain depends_on waits for the container to START, not readiness. App boots in 1s, DB needs 5s → connection refused. Fix: healthcheck + condition: service_healthy; app-side retry; wait-for-it scripts (legacy). (Part 7.4)"},
+{t:"TIER 2",q:"12 · Exit code 137 — walk the diagnosis.",a:"137 = SIGKILL (128+9). Either OOM-killed (docker inspect → OOMKilled: true; cgroup memory limit; kernel OOM-killer) or docker kill. Contrast: 126/127 = bad command, 0 = normal exit. (Parts 9, 10.2)"},
+{t:"TIER 2",q:"13 · Docker security concerns?",a:"Running as root (escape → root-adjacent on a shared kernel), secrets baked into readable layers (docker history), unpinned tags, no resource limits, no healthchecks/restart. Fixes: USER, secrets at runtime, pinning, --memory/--cpus, HEALTHCHECK. (Part 11)"},
+{t:"TIER 3 — SENIOR SIGNAL",q:"14 · Namespaces vs cgroups — one sentence each.",a:"'Namespaces control what a process SEES; cgroups control what it USES.' (Parts 10.1–10.2)"},
+{t:"TIER 3",q:"15 · How does OverlayFS / copy-on-write work; one practical consequence.",a:"lowerdir (image layers, read-only) + upperdir (writable) presented merged. Reads fall through top-down. Writes copy the whole file up first (CoW). Consequence: heavy DB writers go on volumes; deleting in a later layer just whiteouts — it doesn't shrink the image. (Part 10.3)"},
+{t:"TIER 3",q:"16 · dockerd vs containerd vs runc; what 'Kubernetes dropped Docker' actually meant.",a:"dockerd = API server + high-level features. containerd = lifecycle supervisor — what K8s actually talks to now. runc = the tiny CLI making the real syscalls (OCI runtime spec). K8s dropped dockerd as the middleman; your Docker-built images run unchanged. (Part 10.4)"},
+{t:"TIER 3",q:"17 · When would you NOT use Docker?",a:"Simple scripts/static binaries; GUI apps; extreme perf or hardware coupling (HFT, GPU quirks, kernel modules); hostile multi-tenant isolation (VMs, gVisor/Firecracker); native Windows/macOS targets; a tiny solo app with no deployment story. Compose is single-host; orchestrators do fleets. (Part 12)"},
+{t:"TIER 3",q:"18 · Why must PID 1 handle SIGTERM; shell vs exec form.",a:"docker stop = SIGTERM, then SIGKILL after 10s. Shell form (/bin/sh -c) makes sh PID 1, which swallows SIGTERM — your app never sees it and gets SIGKILL'd. Exec form makes YOUR app PID 1, so it can shut down gracefully. (Parts 3.2, 4.2)"}
+],
+miles:[
+ {id:"m1",title:"Milestone 1 · Mental model",pass:"Pass: the three checkpoint questions in Part 2, plus run/inspect/exec/logs on a container without notes. <b>(Parts 1–3; ~days 1–3)</b>"},
+ {id:"m2",title:"Milestone 2 · Images",pass:"Pass: write a Dockerfile for a toy app from a blank editor; predict which layers rebuild after a given edit. <b>(Part 4; ~days 4–6)</b>"},
+ {id:"m3",title:"Milestone 3 · State & wiring",pass:"Pass: the Postgres-survives-rm exercise; diagnose a 'connection refused' between two containers in under 5 minutes. <b>(Parts 5–6; ~days 7–9)</b>"},
+ {id:"m4",title:"Milestone 4 · Compose & the real stack",pass:"Pass: Django+Postgres+Redis+Nginx up from scratch; destroy/recreate with data intact; explain every line of your compose file. <b>(Parts 7–8; ~days 10–15)</b>"},
+ {id:"m5",title:"Milestone 5 · Depth",pass:"Pass: debug an unseen broken container using only the Part 9 tree; deliver the Part 10.5 narration; give two honest 'don't use Docker' cases. <b>(Parts 9–12; ~days 16–20)</b>"},
+ {id:"m6",title:"Milestone 6 · Interview-ready",pass:"Pass: all Tier 1–2 aloud without notes; Tier 3 with at most a glance. <b>(Part 13; ongoing review)</b>"}
+],
+sim:[
+ {t:900,l:'<span class="a">cli</span> POST /containers/create {"Image":"nginx:latest","name":"web"}'},
+ {t:1300,l:'<span class="a">daemon</span> image "nginx:latest" not in local cache → pulling from Docker Hub'},
+ {t:1150,l:'<span class="a">daemon</span> pulling: ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿ 100% · 4/4 layers downloaded (one bar per layer)'},
+ {t:1000,l:'<span class="a">daemon</span> container created: writable layer + bridge interface + IP 172.17.0.2'},
+ {t:950,l:'<span class="a">daemon</span> port mapping: host 8080 → container 80 (iptables NAT)'},
+ {t:1100,l:'<span class="a">runc</span> starting "nginx" as PID 1 in new namespaces + cgroups'},
+ {t:900,l:'<span class="a">cli</span> -d → detached. container id: a1b2c3d4e5f6'},
+ {t:400,l:'<span class="ok">STATUS</span> running · web listening 0.0.0.0:80 · published on host :8080'}
+],
+stackInfo:{
+    w:"<b>WRITABLE LAYER</b> — created only when the container starts. ALL writes land here, invisible to other containers. When you <b>docker rm</b> the container, this layer — and everything in it — is destroyed. That's why volumes exist (Part 5).",
+    app:"<b>LAYER 3 · your app code</b> — the files you COPY into the image. Read-only at runtime: the running container cannot modify it (to change it, rebuild the image). Shared with every container from this image.",
+    deps:"<b>LAYER 2 · pip install deps</b> — one Dockerfile instruction = one layer. Cached on disk: ten images built on python:3.12 share this layer once (Part 4's cache rules).",
+    base:"<b>LAYER 1 · Ubuntu base files</b> — the bottom. Everything builds on FROM. Read-only and shared, so starting a container costs nothing: no copying, just an empty writable layer on top."
+}
+};
+
+</script>
+<script>
+(function(){
+"use strict";
+
+"use strict";
+/* ================= DATA ================= */
+var META=(window.SHIPYARD_DATA&&SHIPYARD_DATA.meta)||{};
+var PARTS=SHIPYARD_DATA.parts||[];
+var QUIZ=SHIPYARD_DATA.quiz||{};
+var CARDS=SHIPYARD_DATA.cards||[];
+var MILES=SHIPYARD_DATA.miles||[];
+var RANKS=[[0,"SWABBIE"],[100,"DECKHAND"],[200,"BOATSWAIN"],[300,"FIRST MATE"],[420,"DOCKER CAPTAIN"],[540,"HARBOR MASTER"]];
+
+/* ================= STATE ================= */
+var KEY=META.storageKey||("shipyard:"+(META.tech||"x")+":v1");
+var D=JSON.parse(localStorage.getItem(KEY)||"null");
+if(!D||typeof D!=="object"){D={done:{},quiz:{},milestones:{},nailed:{},xp:0,graduated:false};}
+function save(){localStorage.setItem(KEY,JSON.stringify(D));}
+function addXp(n){D.xp=(D.xp||0)+n;}
+function rankFor(xp){var r=RANKS[0];for(var i=0;i<RANKS.length;i++){if(xp>=RANKS[i][0])r=RANKS[i];}return r;}
+function nextRank(xp){for(var i=0;i<RANKS.length;i++){if(xp<RANKS[i][0])return RANKS[i];}return null;}
+function refreshAll(){renderStack();renderNav();renderVoyage();renderHero();renderQuizzes();renderDeck();renderMilestones();}
+
+/* ================= RENDER: STACK ================= */
+function renderStack(){
+  var el=document.getElementById("stackMini");if(!el)return;
+  var h="";
+  for(var i=1;i<PARTS.length;i++){
+    var p=PARTS[i],cls="layer"+(D.done[p.id]?" done":"")+(clearedPart(p.id)?" cleared":"");
+    if(D.done[p.id]&&clearedPart(p.id))cls="layer cleared";
+    h+='<div class="'+cls+'" data-nav="'+p.id+'"><span class="ltip">PART '+p.num+' · '+p.title+'</span></div>';
+  }
+  el.innerHTML=h;
+  el.querySelectorAll(".layer[data-nav]").forEach(function(l){l.addEventListener("click",function(){goto(l.getAttribute("data-nav"));});});
+  var w=el.querySelector(".writable");if(!w){var wd=document.createElement("div");wd.className="layer writable";el.insertBefore(wd,el.firstChild);}
+  var wr=el.querySelector(".writable");
+  if(allDone()){wr.classList.add("live");}
+  document.getElementById("stackCount").textContent=doneCount()+"/14";
+  var ps=document.getElementById("psRow");
+  if(D.graduated){ps.style.display="block";document.getElementById("psRow2").textContent="web  RUNNING  0.0.0.0:80→80   uptime ∞   (yours — every layer earned)";}
+  else ps.style.display="none";
+}
+function allDone(){return PARTS.slice(1).every(function(p){return D.done[p.id];});}
+function doneCount(){return PARTS.slice(1).filter(function(p){return D.done[p.id];}).length;}
+function clearedPart(id){var q=D.quiz[id];return q&&q.best>=70;}
+
+/* ================= RENDER: NAV ================= */
+function renderNav(){
+  var nav=document.getElementById("docknav");if(!nav)return;
+  var h='<div class="docksec">Curriculum</div>';
+  for(var i=0;i<PARTS.length;i++){
+    var p=PARTS[i];
+    var st=D.done[p.id]?"done":(D.quiz[p.id]&&D.quiz[p.id].best>=70?"cleared":"");
+    h+='<div class="navitem" data-nav="'+p.id+'"><span class="n">'+p.num+'</span><span class="nt">'+p.title+'</span><span class="st '+st+'"></span>'+(D.quiz[p.id]&&D.quiz[p.id].best>=0?'<span class="qbadge">★'+D.quiz[p.id].best+'</span>':'')+'</div>';
+  }
+  nav.innerHTML=h;
+  nav.querySelectorAll(".navitem").forEach(function(n){n.addEventListener("click",function(){goto(n.getAttribute("data-nav"));});});
+}
+
+/* ================= RENDER: VOYAGE ================= */
+function renderVoyage(){
+  var v=document.getElementById("voyage");if(!v)return;
+  var h="";
+  for(var i=0;i<PARTS.length;i++){
+    var p=PARTS[i];
+    var t=p.tag?"<span class='wtag wtag-"+p.tag.toLowerCase()+"'>"+p.tag+"</span>":"";
+    h+='<div class="waypoint'+(D.done[p.id]?" done":"")+'" data-nav="'+p.id+'"><span class="wn">'+p.num+'</span><span class="wt"><b>'+p.title+'</b>'+(p.tag?'<span style="color:var(--faint);font-size:10.5px">'+p.tag+' · learning path waypoint</span>':'<span style="color:var(--faint);font-size:10.5px">mission briefing</span>')+'</span>'+t+'</div>';
+  }
+  v.innerHTML=h;
+  v.querySelectorAll(".waypoint").forEach(function(w){w.addEventListener("click",function(){goto(w.getAttribute("data-nav"));});});
+}
+
+/* ================= RENDER: HERO STATUS ================= */
+function renderHero(){
+  var r=rankFor(D.xp),nr=nextRank(D.xp);
+  var el=document.getElementById("rankNow");if(el)el.textContent=r[1];
+  var e2=document.getElementById("hRank");if(e2)e2.textContent=r[1];
+  var e3=document.getElementById("hXp");if(e3)e3.textContent=D.xp;
+  document.getElementById("hLayers").textContent=doneCount()+"/14";
+  var qc=0;for(var k in QUIZ){if(D.quiz[k]&&D.quiz[k].best>=70)qc++;}
+  document.getElementById("hQuizzes").textContent=qc;
+  var rx=document.getElementById("rankXp");
+  if(nr){var lo=r[0],hi=nr[0];rx.textContent=D.xp+" XP · "+Math.round((D.xp-lo)/(hi-lo)*100)+"% of the way to "+nr[1];var bar=document.getElementById("rankBar");if(bar)bar.style.width=Math.min(100,Math.round((D.xp-lo)/(hi-lo)*100))+"%";}
+  else{rx.textContent=D.xp+" XP · MAX RANK · the yard is yours";var bar2=document.getElementById("rankBar");if(bar2)bar2.style.width="100%";}
+  var foot=document.getElementById("dockfoot");
+  foot.innerHTML="layers laid: <b style='color:var(--accent)'>"+doneCount()+"/14</b><br>quizzes ★≥70%: <b style='color:var(--ok)'>"+qc+"/"+Object.keys(QUIZ).length+"</b><br>milestones: <b style='color:var(--ok)'>"+Object.keys(D.milestones).length+"/6</b><br>"+(D.graduated?"<span style='color:var(--ok)'>SHIPPED "+(new Date()).getFullYear()+"</span>":"awaiting launch");
+}
+
+/* ================= QUIZZES ================= */
+function renderQuizzes(){
+  document.querySelectorAll(".quiz").forEach(function(qz){
+    var pid=qz.getAttribute("data-part");
+    var wrap=qz.querySelector(".qwrap");
+    if(qz._rendered===pid){updateQuizScore(qz,pid);return;}
+    qz._rendered=pid;
+    var qs=QUIZZES()[pid];if(!qs){return;}
+    var h="";
+    qs.forEach(function(qu,i){
+      var st=D.quiz[pid]&&D.quiz[pid].first&&D.quiz[pid].first[i];
+      var ow="",cls="";
+      if(st===true||st===false){
+        qu.o.forEach(function(o,j){
+          if(j===qu.a){cls="opt right";}else if(st===false){cls="opt wrong";}else{cls="";}
+          ow+='<button class="opt '+cls+'" disabled>'+o+'</button>';
+        });
+      }else{
+        qu.o.forEach(function(o,j){ow+='<button class="opt" data-q="'+i+'" data-o="'+j+'">'+o+'</button>';});
+      }
+      h+='<div class="q"><p class="qt"><span class="qn">Q'+(i+1)+'.</span> '+qu.q+'</p><div class="opts">'+ow+'</div><p class="qe'+(st===true||st===false?' show':'')+'">'+qu.e+'</p></div>';
+    });
+    wrap.innerHTML=h;
+    wrap.querySelectorAll(".opt[data-q]").forEach(function(btn){
+      btn.addEventListener("click",function(){answer(pid,parseInt(btn.getAttribute("data-q")),parseInt(btn.getAttribute("data-o")),btn);});
+    });
+    updateQuizScore(qz,pid);
+  });
+}
+function QUIZZES(){return QUIZ;}
+function answer(pid,qi,oi,btn){
+  var qs=QUIZZES()[pid],q=qs[qi];
+  var first=!D.quiz[pid]||!D.quiz[pid].tried;
+  var qd=D.quiz[pid]||{first:[],correct:0,total:qs.length,tried:false,best:0};
+  if(!qd.tried)qd.tried=true;
+  var right=(oi===q.a);
+  if(first){qd.first[qi]=(right?1:0);if(right){addXp(3);}}
+  if(first&&right){qd.correct=(qd.correct||0)+1;}
+  var qz=btn.closest(".quiz");
+  btn.closest(".opts").querySelectorAll(".opt").forEach(function(o){o.disabled=true;if(o===btn)o.classList.add(right?"right":"wrong");else if(o.getAttribute("data-o")==q.a)o.classList.add("right");});
+  var qe=btn.closest(".q").querySelector(".qe");qe.classList.add("show");
+  if(first){
+    D.quiz[pid]=qd;
+    save();renderHero();renderStack();renderNav();
+  }else{
+    D.quiz[pid]=qd;save();
+  }
+  var answered=qd.first.filter(function(x){return x===0||x===1;}).length;
+  var correctNow=qd.first.reduce(function(s,v){return s+(v===1?1:0);},0);
+  var pct=Math.round(correctNow/qs.length*100);
+  if(pct>qd.best)qd.best=pct;
+  updateQuizScore(qz,pid);
+  if(answered>=qs.length){finishQuiz(qz,pid,qd,pct,first);}
+  refreshAll();
+}
+function updateQuizScore(qz,pid){
+  var qd=D.quiz[pid];var qs=QUIZZES()[pid];
+  var sc=qz.querySelector(".qscore b");if(sc){if(qd&&qd.best>=0&&qs){sc.textContent=qd.best+"%";}else{sc.textContent="—";}}
+}
+function finishQuiz(qz,pid,qd,pct,first){
+  var res=qz.querySelector(".qres");
+  var pass=pct>=70;
+  var xpGain=first?qd.correct*3:0;
+  res.className="qres show "+(pass?"pass":"fail");
+  res.innerHTML=(pass?"✔ CHECKPOINT CLEARED — "+pct+"%":"✘ "+pct+"% — re-read the section, then re-run the quiz")
+  +" · best "+qd.best+"%"+(xpGain>0?" · <b>+"+xpGain+" XP</b>":"");
+  renderHero();renderStack();renderNav();
+  if(pass&&!qz._celebrated){qz._celebrated=true;}
+}
+
+/* ================= FLASHCARDS ================= */
+function renderDeck(){
+  var deck=document.getElementById("deck");if(!deck||deck._rendered)return;
+  deck._rendered=true;
+  var h="";
+  CARDS.forEach(function(c,i){
+    var nailed=!!D.nailed[i];
+    h+='<div class="card'+(nailed?" nailed":"")+'" data-c="'+i+'">'
+       +'<div class="inner"><div class="face front"><span class="cardtier">'+c.t+'</span><div class="qtext">'+c.q+'</div><span class="flip-hint">CLICK TO REVEAL</span></div>'
+       +'<div class="face back"><span class="cardtier" style="color:var(--ok)">answer</span><div class="qtext">'+c.a+'</div><button class="nailedbtn'+(nailed?" n":"")+'">'+(nailed?"✓ NAILED":"NAIL IT")+'</button></div></div></div>';
+  });
+  deck.innerHTML=h;
+  deck.querySelectorAll(".card").forEach(function(cd){
+    cd.addEventListener("click",function(ev){
+      if(ev.target.classList.contains("nailedbtn")){
+        var i=parseInt(cd.getAttribute("data-c"));
+        D.nailed[i]=!D.nailed[i];save();
+        cd.classList.toggle("nailed");cd.querySelector(".nailedbtn").classList.toggle("n");
+        return;
+      }
+      cd.classList.toggle("flip");
+    });
+  });
+}
+
+/* ================= MILESTONES ================= */
+function renderMilestones(){
+  var ml=document.getElementById("mlist");if(!ml||ml._rendered)return;
+  ml._rendered=true;
+  var h="";
+  MILES.forEach(function(m){
+    var done=!!D.milestones[m.id];
+    h+='<div class="mile'+(done?" done":"")+'" data-m="'+m.id+'"><div class="mbox">✓</div><div><div class="mtitle"><b>'+m.title+'</b></div><div class="mpass">'+m.pass+'</div></div></div>';
+  });
+  ml.innerHTML=h;
+  ml.querySelectorAll(".mile").forEach(function(mi){
+    mi.addEventListener("click",function(){
+      var id=mi.getAttribute("data-m");
+      if(D.milestones[id]){
+        delete D.milestones[id];
+      }else{
+        D.milestones[id]=true;addXp(10);
+      }
+      save();renderMilestones();renderHero();renderStack();renderNav();
+      checkGraduation();
+    });
+  });
+}
+function checkGraduation(){
+  if(!MILES.length)return;
+  if(MILES.every(function(m){return D.milestones[m.id];})&&!D.graduated){
+    D.graduated=true;save();
+    setTimeout(graduation,600);
+  }
+}
+
+/* ================= GRADUATION ================= */
+function graduation(){
+  var g=document.getElementById("grad");
+  var lines=[
+    "> verifying layer p1 ... OK","> verifying layer p2 ... OK","> verifying layer p3 ... OK",
+    "> verifying layer p4 ... OK","> verifying layer p5 ... OK","> verifying layer p6 ... OK",
+    "> verifying layer p7 ... OK","> verifying layer p8 ... OK","> verifying layer p9 ... OK",
+    "> verifying layer p10 ... OK","> verifying layer p11 ... OK","> verifying layer p12 ... OK",
+    "> verifying layer p13 ... OK","> verifying layer p14 ... OK",
+    "> mounting writable layer ... OK","> attaching bridge network ... OK",
+    "> running PID 1 ... OK",""
+  ];
+  var body=g.querySelector(".gbody");
+  body.innerHTML="";
+  var rank=rankFor(D.xp)[1];
+  lines.forEach(function(l,i){
+    var div=document.createElement("div");div.className="gl";div.style.animationDelay=(i*0.22)+"s";
+    div.textContent=l;body.appendChild(div);
+  });
+  var title=document.createElement("div");title.className="gtitle gl";title.style.animationDelay=(lines.length*0.22)+"s";
+  title.textContent="CONTAINER DEPLOYED 🐳";
+  body.appendChild(title);
+  var sub=document.createElement("div");sub.className="gl";sub.style.animationDelay=(lines.length*0.22+0.3)+"s";
+  sub.innerHTML="RANK: <b>"+rank+"</b> · all "+doneCount()+" layers laid · every milestone crossed. The shipyard ships what you built."
+  +"<br><br><i>Remember the one rule: a container is just a process.</i>";
+  body.appendChild(sub);
+  var btn=document.createElement("button");btn.className="btn ok gbtn gl";btn.style.animationDelay=(lines.length*0.22+0.8)+"s";
+  btn.textContent="BACK TO THE DECK";btn.addEventListener("click",function(){g.classList.remove("open");});
+  body.appendChild(btn);
+  g.classList.add("open");
+  confetti();
+  renderStack();renderHero();
+}
+function confetti(){
+  var g=document.getElementById("grad");
+  var colors=["#ffb000","#39d98a","#57d9ff","#ff5d5d"];
+  for(var i=0;i<46;i++){
+    var p=document.createElement("span");p.className="ptcl";
+    p.style.left=Math.random()*100+"%";p.style.top="-10px";
+    p.style.background=colors[i%colors.length];
+    p.style.animationDuration=(2.4+Math.random()*2.6)+"s";
+    p.style.animationDelay=(Math.random()*1.4)+"s";
+    p.style.width=(4+Math.random()*5)+"px";p.style.height=(4+Math.random()*8)+"px";
+    g.appendChild(p);
+    setTimeout(function(el){el.remove();},9000);
+  }
+}
+
+/* ================= SIMULATOR (Part 3.1) ================= */
+var SIMSTEPS=SHIPYARD_DATA.sim||[];
+var simTimer=null;
+function simLine(text){
+  var out=document.getElementById("simOut");
+  var div=document.createElement("div");div.innerHTML=text;
+  div.style.opacity=0;div.style.animation="bli .2s forwards";
+  out.appendChild(div);
+  out.scrollTop=out.scrollHeight;
+}
+function simClear(){
+  var out=document.getElementById("simOut");
+  out.innerHTML='<code style="color:var(--faint)"># docker run -d -p 8080:80 --name web nginx</code>';
+}
+function simRun(){
+  if(simTimer||!SIMSTEPS.length)return;
+  simClear();
+  var i=0;
+  simTimer=setInterval(function(){
+    if(i>=SIMSTEPS.length){clearInterval(simTimer);simTimer=null;return;}
+    var s=SIMSTEPS[i];simLine(s.l);i++;
+  },Math.min.apply(null,[700]));
+  var t=0;
+  SIMSTEPS.forEach(function(s,idx){t+=s.t;setTimeout(simLine.bind(null,s.l),t);});
+  simTimer=setTimeout(function(){simTimer=null;},t+300);
+}
+
+/* ================= INTERACTIVE STACK (Part 2) ================= */
+function setupBigStack(){
+  var big=document.getElementById("stackBig");if(!big||big._bound)return;
+  big._bound=true;
+  var disc=document.getElementById("sbdisc");
+  var info=SHIPYARD_DATA.stackInfo||{};
+  big.querySelectorAll(".sblayer").forEach(function(ly){
+    ly.addEventListener("click",function(){
+      big.querySelectorAll(".sblayer").forEach(function(x){x.classList.remove("selected");});
+      ly.classList.add("selected");
+      disc.innerHTML=info[ly.getAttribute("data-layer")]||"That layer is sealed in the image. Read the part to unlock its story.";
+    });
+  });
+  var running=false,writes=0;
+  var log=document.getElementById("sbLog");
+  var wr=big.querySelector(".writ");
+  var btnStart=document.getElementById("sbStart"),btnWrite=document.getElementById("sbWrite"),btnRm=document.getElementById("sbRm");
+  btnStart.addEventListener("click",function(){
+    if(running){log.textContent="already running";return;}
+    running=true;writes=0;
+    wr.classList.add("live");
+    log.textContent="PID 1 started · container RUNNING";
+    btnWrite.disabled=false;
+  });
+  btnWrite.addEventListener("click",function(){
+    if(!running){log.textContent="start the container first";return;}
+    writes++;
+    wr.style.animation="none";wr.offsetHeight;wr.style.animation="layerin .3s";
+    log.textContent="write #"+writes+" → writable layer ("+(writes*40)+"KB)";
+  });
+  btnRm.addEventListener("click",function(){
+    if(!running){log.textContent="nothing to remove";return;}
+    running=false;
+    wr.classList.remove("live");
+    log.textContent="docker rm → writable layer destroyed · "+writes+" file(s) gone. forever.";
+    btnWrite.disabled=true;
+  });
+}
+
+/* ================= COPY BUTTONS ================= */
+function setupCopy(){
+  document.querySelectorAll(".copybtn").forEach(function(btn){
+    if(btn._bound)return;btn._bound=true;
+    btn.addEventListener("click",function(){
+      var pre=btn.closest(".term").querySelector("pre");
+      var txt=pre?pre.textContent:"";
+      var done=function(){btn.textContent="COPIED ✓";btn.classList.add("copied");setTimeout(function(){btn.textContent="COPY";btn.classList.remove("copied");},1500);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,function(){fallback(txt,done);});}
+      else{fallback(txt,done);}
+    });
+  });
+}
+function fallback(txt,done){
+  var ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";
+  document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e){}
+  ta.remove();done();
+}
+
+/* ================= NAV / SCROLLSPY ================= */
+function goto(id){
+  var el=document.getElementById(id);
+  if(!el)return;
+  el.scrollIntoView({behavior:"smooth",block:"start"});
+  closeDock();
+  var nav=document.querySelectorAll(".navitem");
+  nav.forEach(function(n){n.classList.toggle("active",n.getAttribute("data-nav")===id);});
+}
+function closeDock(){
+  document.getElementById("dock").classList.remove("open");
+  document.getElementById("backdrop").classList.remove("open");
+}
+function setupScrollspy(){
+  var nav=document.getElementById("docknav");
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        nav.querySelectorAll(".navitem").forEach(function(n){n.classList.toggle("active",n.getAttribute("data-nav")===en.target.id);});
+      }
+    });
+  },{rootMargin:"-20% 0px -60% 0px"});
+  document.querySelectorAll(".part").forEach(function(p){obs.observe(p);});
+}
+
+/* ================= BRANDING / EASTER EGG ================= */
+var konami=[38,38,40,40,37,39,37,39,66,65],kpos=0;
+var whaleCount=0;
+function whaleMode(){
+  var w=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  w.setAttribute("id","whaleSwim");w.setAttribute("width","110");w.setAttribute("height","55");w.setAttribute("viewBox","0 0 24 24");
+  w.innerHTML='<path fill="none" stroke="#57d9ff" stroke-width="1.4" d="M4 12c0-4 2.5-7 6-8 3.5 1 6 4 6 8 1.5-1 3-1.5 5-1-1 3-3 5-6 5H6c-1 0-1.5.5-2 1z" stroke-linejoin="round"/><circle cx="8" cy="10" r=".7" fill="#57d9ff"/><path d="M6 20l7-3" stroke="#57d9ff" stroke-width="1" stroke-linecap="round"/>';
+  document.body.appendChild(w);
+  whaleCount++;
+  setTimeout(function(){w.remove();},16000);
+}
+document.addEventListener("keydown",function(ev){
+  if(ev.key==="ArrowUp"&&konami[kpos]===38)kpos++;
+  else if(ev.key==="ArrowDown"&&konami[kpos]===40)kpos++;
+  else if(ev.key==="ArrowLeft"&&konami[kpos]===37)kpos++;
+  else if(ev.key==="ArrowRight"&&konami[kpos]===39)kpos++;
+  else if(ev.key.toLowerCase()==="b"&&konami[kpos]===66)kpos++;
+  else if(ev.key.toLowerCase()==="a"&&konami[kpos]===65)kpos++;
+  else kpos=0;
+  if(kpos===konami.length){kpos=0;whaleMode();whaleMode();var t=document.createElement("div");t.textContent="WHALE MODE ENGAGED";t.style.cssText="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;font-family:var(--mono);color:#57d9ff;border:1px solid #57d9ff;background:rgba(10,14,22,.9);padding:8px 16px;border-radius:4px;letter-spacing:2px;font-size:12px;";document.body.appendChild(t);setTimeout(function(){t.remove();},2200);}
+});
+
+/* ================= DONE BUTTONS ================= */
+function setupDone(){
+  document.querySelectorAll("[data-done]").forEach(function(btn){
+    if(btn._bound)return;btn._bound=true;
+    var pid=btn.getAttribute("data-done");
+    btn.textContent=D.done[pid]?"✔ COMPLETE":"MARK COMPLETE";
+    btn.classList.toggle("ok",!!D.done[pid]);
+    btn.addEventListener("click",function(){
+      if(D.done[pid]){delete D.done[pid];}
+      else{D.done[pid]=true;addXp(25);
+        var part=document.getElementById(pid);if(part)part.classList.add("done");
+      }
+      save();refreshAll();
+      btn.textContent=D.done[pid]?"✔ COMPLETE":"MARK COMPLETE";
+      btn.classList.toggle("ok",!!D.done[pid]);
+    });
+  });
+  PARTS.forEach(function(p){
+    var el=document.getElementById(p.id);
+    if(el&&D.done[p.id])el.classList.add("done");
+  });
+}
+
+/* ================= BURGER ================= */
+document.getElementById("burger").addEventListener("click",function(){
+  var d=document.getElementById("dock");
+  var open=d.classList.toggle("open");
+  document.getElementById("backdrop").classList.toggle("open",open);
+});
+document.getElementById("backdrop").addEventListener("click",closeDock);
+
+/* ================= BOOT ================= */
+function applyMeta(){
+  var t=document.querySelector("title");if(t&&META.title)t.textContent=META.title;
+  var bn=document.querySelector(".bname");if(bn&&META.brand)bn.textContent=META.brand;
+  var bs=document.querySelector(".bsub");if(bs&&META.tagline)bs.textContent=META.tagline;
+  if(META.accent){
+    var h=META.accent.replace("#","");
+    var r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+    var m=function(v){return Math.max(0,Math.round(v*0.62));};
+    var st=document.documentElement.style;
+    st.setProperty("--accent",META.accent);
+    st.setProperty("--accent-soft","rgb("+m(r)+","+m(g)+","+m(b)+")");
+  }
+}
+window.addEventListener("load",function(){
+  applyMeta();
+  refreshAll();
+  setupBigStack();
+  setupCopy();
+  setupDone();
+  setupScrollspy();
+  var simBtn=document.getElementById("simRun");if(simBtn){simBtn.addEventListener("click",simRun);}
+  var simRst=document.getElementById("simReset");if(simRst){simRst.addEventListener("click",function(){if(simTimer){clearTimeout(simTimer);simTimer=null;}simClear();});}
+  checkGraduation();
+});
+
+})();
+
+</script>
+</body>
+</html>

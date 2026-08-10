@@ -1,0 +1,2409 @@
+<!DOCTYPE html>
+<html lang="en" data-render="img">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The HTML/CSS Shipyard - HTML &amp; CSS: A First-Principles Curriculum">
+<meta property="og:description" content="HTML &amp; CSS · the document tree · the cascade · layout — a first-principles interactive curriculum, one portable HTML file, runs offline.">
+<meta property="og:image" content="assets/og/htmlcss.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%23ff6b6b%22 d=%22M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z%22/%3E%3C/svg%3E">
+<meta name="contract" content="shipyard-htmlcss@1">
+<title>The HTML/CSS Shipyard - HTML &amp; CSS: A First-Principles Curriculum</title>
+<style>
+
+:root{
+  --bg:#0b0e14; --bg2:#0e1119; --panel:#10141d; --panel2:#141927;
+  --line:#232c3d; --line2:#2e3a52;
+  --fg:#d6dee8; --dim:#8b96a8; --faint:#5b6577;
+  --accent:#ffb000; --accent-soft:#b37b00;
+  --ok:#39d98a; --ok-dim:#1e7a4d;
+  --deep:#ff5d5d; --recog:#57d9ff; --ref:#9aa4b2; --adv:#c792ea;
+  --display:'VT323', 'Courier New', monospace;
+  --body:'Space Mono', 'Consolas', monospace;
+  --mono:'IBM Plex Mono', 'Consolas', monospace;
+  --radius:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--body); font-size:15px; line-height:1.65;
+  background-image:
+    radial-gradient(1200px 600px at 80% -10%, rgba(255,176,0,.05), transparent 60%),
+    radial-gradient(900px 500px at -10% 30%, rgba(87,217,255,.04), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+::selection{background:var(--accent);color:#0b0e14}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-shadow:0 0 8px rgba(255,176,0,.6)}
+#scanlines{position:fixed;inset:0;pointer-events:none;z-index:9990;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px);opacity:.5}
+#vignette{position:fixed;inset:0;pointer-events:none;z-index:9989;
+  background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.45) 100%)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+
+/* ---------- layout ---------- */
+#app{display:grid;grid-template-columns:310px 1fr;min-height:100vh}
+main{padding:0 48px 120px;max-width:1060px;min-width:0}
+#backdrop{position:fixed;inset:0;background:rgba(5,7,11,.7);z-index:49;display:none}
+#backdrop.open{display:block}
+
+/* ---------- sidebar dock ---------- */
+#dock{position:sticky;top:0;height:100vh;overflow-y:auto;overflow-x:hidden;
+  background:linear-gradient(180deg,var(--panel) 0%, #0d1119 100%);
+  border-right:1px solid var(--line);padding:22px 18px 30px;z-index:50}
+.brand{display:flex;align-items:center;gap:10px;padding-bottom:16px;border-bottom:1px dashed var(--line2)}
+.brand svg{flex:none;filter:drop-shadow(0 0 6px rgba(255,176,0,.4))}
+.brand .bname{font-family:var(--display);font-size:22px;line-height:1;letter-spacing:.5px;color:var(--accent)}
+.brand .bsub{font-size:10px;color:var(--faint);letter-spacing:2px;text-transform:uppercase}
+.rankbox{margin:14px 0;padding:12px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel2)}
+.rankbox .rk{font-family:var(--display);font-size:21px;color:var(--accent);line-height:1}
+.rankbox .rkxp{font-size:11px;color:var(--dim);margin-top:2px}
+.prbar{height:8px;border:1px solid var(--line2);background:var(--bg);border-radius:4px;margin-top:8px;overflow:hidden}
+.prbar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-soft),var(--accent));width:0%;transition:width .6s cubic-bezier(0.16,1,0.3,1)}
+.stackbox{padding:12px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel2);margin-bottom:6px}
+.stackbox .st{font-size:10px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between}
+#stackMini{display:flex;flex-direction:column;gap:3px;padding:8px 10px;background:var(--bg);border:1px solid var(--line);border-radius:4px}
+#stackMini .layer{height:11px;border-radius:2px;background:#1b2333;border:1px solid var(--line2);position:relative;cursor:pointer;transition:background .3s}
+#stackMini .layer .ltip{position:absolute;left:26px;top:-2px;background:var(--panel2);border:1px solid var(--line2);font-size:10px;white-space:nowrap;padding:1px 6px;border-radius:3px;display:none;z-index:5}
+#stackMini .layer:hover .ltip{display:block}
+#stackMini .layer.done{background:linear-gradient(90deg,var(--accent-soft),var(--accent));border-color:var(--accent);box-shadow:0 0 6px rgba(255,176,0,.3)}
+#stackMini .layer.cleared{background:linear-gradient(90deg,#1e7a4d,var(--ok));border-color:var(--ok)}
+#stackMini .layer.writable{height:16px;background:repeating-linear-gradient(45deg,#182136,#182136 6px,#1d2739 6px,#1d2739 12px);border-style:dashed;border-color:var(--ok-dim)}
+#stackMini .layer.writable.live{border-color:var(--ok);box-shadow:0 0 8px rgba(57,217,138,.4)}
+#stackMini .layer.newly{animation:layerin .5s cubic-bezier(0.16,1,0.3,1)}
+@keyframes layerin{0%{transform:translateX(18px);opacity:0}100%{transform:none;opacity:1}}
+#psRow{font-size:11px;margin-top:10px;padding:8px 10px;background:#0a1f14;border:1px solid var(--ok-dim);border-radius:4px;color:var(--ok);display:none;font-family:var(--mono)}
+#psRow b{color:var(--ok)}
+
+nav.docknav{margin-top:14px}
+.docksec{font-size:10px;letter-spacing:2px;color:var(--faint);text-transform:uppercase;margin:16px 0 6px}
+.navitem{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;cursor:pointer;border:1px solid transparent;margin-bottom:2px;transition:background .15s,border-color .15s}
+.navitem:hover{background:var(--panel2);border-color:var(--line2)}
+.navitem .n{font-family:var(--display);font-size:15px;color:var(--faint);width:26px;flex:none}
+.navitem .nt{font-size:12.5px;color:var(--dim);flex:1;line-height:1.3}
+.navitem.active .n{color:var(--accent)}
+.navitem.active{background:var(--panel2);border-color:var(--line2)}
+.navitem.active .nt{color:var(--fg)}
+.navitem .st{width:10px;height:10px;flex:none;border-radius:50%;border:1px solid var(--line2);background:var(--bg)}
+.navitem .st.done{background:var(--accent);border-color:var(--accent);box-shadow:0 0 6px rgba(255,176,0,.5)}
+.navitem .st.cleared{background:var(--ok);border-color:var(--ok)}
+.navitem .qbadge{font-size:10px;color:var(--ok);font-family:var(--mono)}
+.legend{margin-top:18px;padding-top:14px;border-top:1px dashed var(--line2)}
+.legend .lt{font-size:10px;letter-spacing:2px;color:var(--faint);text-transform:uppercase;margin-bottom:8px}
+.legend .lg{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--dim);padding:3px 0}
+.legend .sw{width:10px;height:10px;flex:none;border-radius:2px}
+.dockfoot{margin-top:16px;padding-top:12px;border-top:1px dashed var(--line2);font-size:10px;color:var(--faint);line-height:1.6}
+#burger{display:none}
+
+/* ---------- hero ---------- */
+.hero{padding:64px 0 40px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.boot{font-family:var(--mono);font-size:12.5px;color:var(--ok);margin-bottom:26px}
+.boot .bl{opacity:0;animation:bli .0s forwards}
+.boot .bl:nth-child(1){animation-delay:.1s}.boot .bl:nth-child(2){animation-delay:.5s}
+.boot .bl:nth-child(3){animation-delay:.9s}.boot .bl:nth-child(4){animation-delay:1.3s}
+.boot .bl:nth-child(5){animation-delay:1.7s}
+@keyframes bli{to{opacity:1}}
+.boot .warn{color:var(--deep)}
+.hero h1{font-family:var(--display);font-weight:400;font-size:clamp(44px,7vw,78px);line-height:.95;letter-spacing:1px;margin:10px 0 14px}
+.hero h1 .wh{color:var(--accent);text-shadow:0 0 22px rgba(255,176,0,.5)}
+.hero .sub{color:var(--dim);max-width:640px;font-size:14.5px}
+.hero .sub b{color:var(--fg)}
+.hstatus{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 30px}
+.hchip{font-size:11px;font-family:var(--mono);letter-spacing:1px;color:var(--dim);border:1px solid var(--line2);border-radius:3px;padding:6px 10px;background:var(--panel)}
+.hchip b{color:var(--accent);font-weight:400}
+.hchip b.ok{color:var(--ok)}
+#voyageHead{font-size:11px;letter-spacing:3px;color:var(--faint);text-transform:uppercase;margin-bottom:12px}
+.voyage{display:grid;grid-template-columns:1fr 1fr;gap:6px 26px;padding:0 0 8px}
+.waypoint{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--panel);cursor:pointer;transition:border-color .2s,transform .2s}
+.waypoint:hover{border-color:var(--accent);transform:translateX(3px)}
+.waypoint .wn{font-family:var(--display);font-size:18px;color:var(--accent);flex:none}
+.waypoint .wt{font-size:12.5px;line-height:1.25;color:var(--dim)}
+.waypoint .wt b{display:block;color:var(--fg);font-size:13px}
+.waypoint .wtag{margin-left:auto;flex:none}
+.waypoint.done .wn{color:var(--ok)}
+.waypoint.done .wt b{color:var(--ok)}
+
+/* ---------- part sections ---------- */
+.part{padding:70px 0 10px;scroll-margin-top:30px;position:relative}
+.part::before{content:"";position:absolute;left:-48px;top:70px;bottom:10px;width:3px;background:linear-gradient(180deg,var(--accent),transparent 70%);opacity:.25}
+.phead{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--line2);padding-bottom:14px;margin-bottom:26px}
+.pnum{font-family:var(--display);font-size:64px;line-height:.8;color:var(--line2);flex:none;text-shadow:0 0 14px rgba(255,176,0,.08)}
+.part.done .pnum{color:var(--accent);text-shadow:0 0 16px rgba(255,176,0,.45)}
+.ptitle{font-family:var(--display);font-weight:400;font-size:clamp(26px,3.6vw,40px);line-height:1.02;letter-spacing:.5px}
+.pmeta{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pmeta .m{font-size:10.5px;font-family:var(--mono);letter-spacing:1px;color:var(--faint);border:1px solid var(--line);border-radius:3px;padding:3px 8px;background:var(--panel)}
+.pmeta .m b{color:var(--accent);font-weight:400}
+.pactions{margin-left:auto;display:flex;gap:8px;align-items:center;flex:none}
+.part h2{font-family:var(--display);font-weight:400;font-size:29px;letter-spacing:.5px;color:var(--fg);margin:44px 0 12px;border-left:4px solid var(--accent);padding-left:12px}
+.part h3{font-family:var(--body);font-weight:700;font-size:16px;color:var(--accent);margin:30px 0 8px;letter-spacing:.3px}
+.part p{margin:10px 0;color:var(--fg)}
+.part li{margin:6px 0;color:var(--fg)}
+.part ul,.part ol{padding-left:24px;margin:10px 0}
+.part b{color:#fff}
+.part i{color:var(--dim)}
+hr.rule{border:none;border-top:1px dashed var(--line2);margin:34px 0}
+
+/* depth tags */
+.tag{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:1.5px;padding:2px 7px;border-radius:3px;vertical-align:middle;margin:0 2px;border:1px solid}
+.tag-deep{color:var(--deep);border-color:var(--deep);background:rgba(255,93,93,.08);text-shadow:0 0 8px rgba(255,93,93,.5)}
+.tag-recog{color:var(--recog);border-color:var(--recog);background:rgba(87,217,255,.08)}
+.tag-ref{color:var(--ref);border-color:var(--ref);background:rgba(154,164,178,.08)}
+.tag-adv{color:var(--adv);border-color:var(--adv);background:rgba(199,146,234,.08)}
+.wtag{font-family:var(--mono);font-size:8.5px;letter-spacing:1px;padding:2px 6px;border-radius:3px;border:1px solid}
+.wtag-deep{color:var(--deep);border-color:var(--deep)}
+.wtag-recog{color:var(--recog);border-color:var(--recog)}
+
+/* terminal code blocks */
+.term{margin:16px 0;border:1px solid var(--line2);border-radius:var(--radius);background:#0a0d13;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.termhead{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--panel2);border-bottom:1px solid var(--line);position:relative}
+.termhead .td{width:9px;height:9px;border-radius:50%;flex:none}
+.termhead .td1{background:#ff5d5d}.termhead .td2{background:#ffb000}.termhead .td3{background:#39d98a}
+.termhead .tname{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.5px}
+.termhead .copybtn{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--faint);background:none;border:1px solid var(--line2);border-radius:3px;padding:3px 9px;cursor:pointer;transition:all .15s}
+.termhead .copybtn:hover{color:var(--accent);border-color:var(--accent)}
+.termhead .copybtn.copied{color:var(--ok);border-color:var(--ok)}
+.term pre{margin:0;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.6;color:#c3cdda}
+.term pre .c{color:var(--faint)}
+.term pre .p{color:var(--ok)}
+.term pre .a{color:var(--accent)}
+.term pre .r{color:var(--deep)}
+.term pre .b{color:#fff;font-weight:600}
+.term pre .k{color:var(--recog)}
+
+/* tables */
+.tblwrap{overflow-x:auto;margin:16px 0;border:1px solid var(--line2);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:560px}
+thead th{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);text-align:left;background:var(--panel2);padding:10px 14px;border-bottom:1px solid var(--line2);white-space:nowrap}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--line);color:var(--fg);vertical-align:top;line-height:1.55}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:nth-child(even){background:rgba(255,255,255,.015)}
+tbody tr:hover{background:rgba(255,176,0,.04)}
+tbody td code{font-family:var(--mono);font-size:11.5px;color:var(--recog);background:rgba(87,217,255,.07);padding:1px 5px;border-radius:3px}
+td .tag{font-size:8.5px}
+
+/* cards */
+.idea,.lab,.warn,.ck,.note{border:1px solid;border-radius:var(--radius);padding:16px 18px;margin:20px 0;position:relative}
+.idea{border-color:var(--ok-dim);background:linear-gradient(180deg,rgba(57,217,138,.05),transparent)}
+.idea .lbl,.lab .lbl,.warn .lbl,.ck .lbl,.note .lbl{font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;display:block;margin-bottom:8px}
+.idea .lbl{color:var(--ok)}
+.idea p,.idea li{color:var(--fg)}
+.warn{border-color:var(--deep);background:linear-gradient(180deg,rgba(255,93,93,.06),transparent)}
+.warn .lbl{color:var(--deep)}
+.lab{border-color:var(--accent);background:linear-gradient(180deg,rgba(255,176,0,.06),transparent)}
+.lab .lbl{color:var(--accent)}
+.lab ol{padding-left:22px}
+.lab code,.warn code,.ck code,.note code{font-family:var(--mono);font-size:12px;color:var(--recog);background:rgba(87,217,255,.07);padding:1px 5px;border-radius:3px}
+.ck{border-color:var(--recog);background:linear-gradient(180deg,rgba(87,217,255,.05),transparent)}
+.ck .lbl{color:var(--recog)}
+.note{border-color:var(--line2);background:var(--panel)}
+.note .lbl{color:var(--faint)}
+details{margin:8px 0}
+details summary{cursor:pointer;color:var(--accent);font-size:13px;font-family:var(--mono);letter-spacing:.5px}
+details[open] summary{margin-bottom:10px}
+
+/* next/prev part nav */
+.breadcrumb{display:flex;justify-content:space-between;margin-top:56px;padding-top:18px;border-top:1px dashed var(--line2)}
+.breadcrumb a{font-family:var(--mono);font-size:12px;letter-spacing:1px;border:1px solid var(--line2);border-radius:4px;padding:8px 14px;transition:all .2s;color:var(--dim)}
+.breadcrumb a:hover{color:var(--accent);border-color:var(--accent)}
+.breadcrumb .next{margin-left:auto}
+
+/* ---------- diagrams ---------- */
+.pipeline{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0;margin:22px 0 6px;padding:22px 14px;border:1px solid var(--line2);border-radius:var(--radius);background:radial-gradient(600px 200px at 50% 0%,rgba(255,176,0,.05),transparent)}
+.pnode{border:1px solid var(--line2);border-radius:4px;background:var(--panel2);padding:8px 12px;text-align:center;min-width:86px}
+.pnode .pn1{font-family:var(--mono);font-size:12.5px;color:var(--fg)}
+.pnode .pn2{font-size:9px;color:var(--faint);letter-spacing:1px;margin-top:2px;font-family:var(--mono)}
+.pnode.hot{border-color:var(--accent);box-shadow:0 0 12px rgba(255,176,0,.25)}
+.pnode.hot .pn1{color:var(--accent)}
+.pnode.green{border-color:var(--ok)}
+.pnode.green .pn1{color:var(--ok)}
+.parrow{width:30px;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;margin:0 2px}
+.parrow::after{content:"";width:9px;height:9px;transform:rotate(45deg);border-top:1.5px solid var(--accent);border-right:1.5px solid var(--accent);flex:none}
+.parrow .flowdot{position:absolute;top:0;width:4px;height:4px;border-radius:50%;background:var(--accent);animation:flow 1.6s linear infinite;opacity:0}
+@keyframes flow{0%{top:0;opacity:0}20%{opacity:1}80%{opacity:1}100%{top:18px;opacity:0}}
+.pipeline .reglab{font-size:10px;color:var(--faint);text-align:center;margin-top:10px;font-family:var(--mono)}
+.pipeline .reglab b{color:var(--accent);font-weight:400}
+
+.stack-big{display:flex;flex-direction:column;gap:5px;margin:18px 0;padding:16px;border:1px solid var(--line2);border-radius:var(--radius);background:radial-gradient(500px 300px at 50% 100%,rgba(57,217,138,.05),transparent)}
+.sblayer{border:1px solid var(--line2);border-radius:4px;padding:9px 14px;display:flex;align-items:center;gap:10px;background:var(--panel);cursor:pointer;transition:all .25s;position:relative}
+.sblayer:hover{border-color:var(--accent);transform:translateX(4px)}
+.sblayer .sbn{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:1px;width:60px;flex:none}
+.sblayer .sbt{font-size:12.5px;color:var(--fg)}
+.sblayer .sbd{font-size:10.5px;color:var(--faint);margin-left:auto;text-align:right;font-family:var(--mono)}
+.sblayer.selected{border-color:var(--accent);box-shadow:0 0 14px rgba(255,176,0,.25)}
+.sblayer.writ{border-style:dashed;border-color:var(--ok-dim)}
+.sblayer.writ.live{border-color:var(--ok);box-shadow:0 0 16px rgba(57,217,138,.4)}
+.sblayer.writ .sbt b{color:var(--ok)}
+.sbdisc{margin-top:12px;padding:12px 14px;border:1px dashed var(--line2);border-radius:4px;font-size:12.5px;color:var(--dim);min-height:58px;font-family:var(--mono)}
+.sbdisc b{color:var(--fg)}
+.stack-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+
+/* lifecycle flow (part 3) */
+.life{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:18px 0;padding:18px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel)}
+.lstate{border:1px solid var(--line2);border-radius:4px;padding:7px 12px;font-family:var(--mono);font-size:12px;color:var(--fg);background:var(--bg);position:relative}
+.lstate .lcmd{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--accent);background:var(--panel);padding:0 5px;letter-spacing:1px;white-space:nowrap}
+.lstate.gone{color:var(--faint);border-style:dashed;text-decoration:line-through}
+.lstate.live{border-color:var(--ok);color:var(--ok);box-shadow:0 0 10px rgba(57,217,138,.25)}
+.larrow{color:var(--faint);font-size:12px;font-family:var(--mono)}
+
+/* bridge diagram (part 6) */
+.bridge{margin:18px 0;padding:20px;border:1px solid var(--line2);border-radius:var(--radius);background:linear-gradient(180deg,var(--panel),var(--bg))}
+.bridge .bnet{position:relative;border:1px dashed var(--line2);border-radius:8px;padding:30px 16px 16px;margin-top:26px}
+.bridge .bnet::before{content:"bridge network — docker0 (virtual switch)";position:absolute;top:-10px;left:14px;background:var(--bg);padding:0 8px;font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:1px}
+.bcontainer{display:inline-block;border:1px solid var(--recog);border-radius:4px;background:rgba(87,217,255,.05);padding:8px 12px;margin:0 10px;min-width:130px;text-align:center}
+.bcontainer .bn{font-family:var(--mono);font-size:12.5px;color:var(--recog)}
+.bcontainer .bi{font-size:10px;color:var(--faint);font-family:var(--mono);margin-top:2px}
+.bcontainer.hosted{border:1px solid var(--accent)}
+.bcontainer.hosted .bn{color:var(--accent)}
+.dnschip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--accent);border-radius:4px;background:rgba(255,176,0,.07);padding:6px 12px;font-family:var(--mono);font-size:12px;color:var(--accent);margin-top:14px}
+.dnschip b{color:#fff;font-weight:400}
+.bdns-note{font-size:11.5px;color:var(--dim);margin-top:12px}
+
+/* architecture diagram (part 8) */
+.arch{display:flex;align-items:stretch;gap:10px;margin:20px 0;flex-wrap:wrap;justify-content:center}
+.anode{border:1px solid var(--line2);border-radius:5px;padding:12px 14px;background:var(--panel2);min-width:150px;text-align:center;position:relative}
+.anode .an1{font-family:var(--mono);font-size:13px;color:var(--fg)}
+.anode .an2{font-size:10px;color:var(--faint);font-family:var(--mono);margin-top:3px;letter-spacing:.5px}
+.anode.edge{border-color:var(--accent)}
+.anode.edge .an1{color:var(--accent)}
+.anode.db{border-color:var(--ok)}
+.anode.db .an1{color:var(--ok)}
+.anode.cache{border-color:var(--recog)}
+.anode.cache .an1{color:var(--recog)}
+.anode .vchip{position:absolute;top:-9px;right:10px;background:var(--panel);border:1px solid var(--line2);font-family:var(--mono);font-size:8.5px;color:var(--faint);padding:0 5px;border-radius:3px;letter-spacing:1px}
+.astats{margin:14px 0 0;text-align:center;font-size:11px;color:var(--faint);font-family:var(--mono)}
+
+/* buttons */
+.btn{font-family:var(--mono);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;border:1px solid var(--accent);color:var(--accent);background:transparent;padding:9px 16px;border-radius:4px;cursor:pointer;transition:all .18s}
+.btn:hover{background:var(--accent);color:#0b0e14;box-shadow:0 0 18px rgba(255,176,0,.4)}
+.btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+.btn.ok{border-color:var(--ok);color:var(--ok)}
+.btn.ok:hover{background:var(--ok);color:#0b0e14;box-shadow:0 0 18px rgba(57,217,138,.4)}
+.btn.sm{padding:5px 10px;font-size:10.5px}
+
+/* quiz */
+.quiz{margin:22px 0;padding:18px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel);position:relative}
+.quiz .qlbl{font-family:var(--mono);font-size:10px;letter-spacing:2.5px;color:var(--accent);text-transform:uppercase;display:block;margin-bottom:14px}
+.q{position:relative}
+.q+.q{margin-top:22px;padding-top:20px;border-top:1px dashed var(--line2)}
+.qt{font-size:13.5px;color:var(--fg);margin-bottom:8px}
+.qt .qn{color:var(--accent);font-family:var(--mono)}
+.opts{display:grid;gap:6px}
+.opt{display:block;text-align:left;width:100%;font-family:var(--body);font-size:12.8px;color:var(--fg);background:var(--bg);border:1px solid var(--line2);border-radius:4px;padding:8px 12px;cursor:pointer;transition:all .15s;line-height:1.5}
+.opt:hover:not(:disabled){border-color:var(--accent);box-shadow:0 0 10px rgba(255,176,0,.15);transform:translateX(2px)}
+.opt:disabled{cursor:default}
+.opt.wrong{border-color:var(--deep);background:rgba(255,93,93,.08);color:#ffb9b9}
+.opt.right{border-color:var(--ok);background:rgba(57,217,138,.1);color:var(--ok)}
+.qe{display:none;margin-top:8px;font-size:12px;color:var(--dim);line-height:1.6;border-left:3px solid var(--line2);padding-left:10px}
+.qe.show{display:block;animation:fadein .4s}
+@keyframes fadein{from{opacity:0;transform:translateY(-3px)}to{opacity:1}}
+.qscore{position:absolute;top:14px;right:16px;font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:1px}
+.qscore b{color:var(--accent)}
+.qres{margin-top:14px;padding:10px 14px;border-radius:4px;font-family:var(--mono);font-size:12px;letter-spacing:.5px;display:none}
+.qres.show{display:block;animation:fadein .5s}
+.qres.pass{border:1px solid var(--ok);color:var(--ok);background:rgba(57,217,138,.07)}
+.qres.fail{border:1px solid var(--deep);color:#ffb9b9;background:rgba(255,93,93,.07)}
+
+/* flashcards */
+.deck{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin:20px 0}
+.card{perspective:1200px;height:190px;cursor:pointer}
+.card .inner{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(0.16,1,0.3,1);transform-style:preserve-3d}
+.card.flip .inner{transform:rotateY(180deg)}
+.card .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--line2);border-radius:6px;padding:14px;display:flex;flex-direction:column;overflow:auto}
+.card .front{background:var(--panel2)}
+.card .back{background:linear-gradient(180deg,var(--panel2),#0f1a10);transform:rotateY(180deg);border-color:var(--ok-dim)}
+.cardtier{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--faint);margin-bottom:8px;text-transform:uppercase}
+.card .qtext{font-size:13px;line-height:1.5;color:var(--fg);flex:1}
+.card .flip-hint{font-size:9px;color:var(--faint);font-family:var(--mono);letter-spacing:1.5px}
+.card.nailed{opacity:.45}
+.card.nailed .front,.card.nailed .back{border-color:#3d4a63}
+.card .back .qtext{color:var(--ok)}
+.card .nailedbtn{align-self:flex-end;margin-top:8px;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--faint);background:none;border:1px solid var(--line2);border-radius:3px;padding:3px 9px;cursor:pointer}
+.card .nailedbtn:hover{color:var(--ok);border-color:var(--ok)}
+.card .nailedbtn.n{border-color:var(--ok);color:var(--ok)}
+
+/* milestones */
+.mlist{margin:18px 0}
+.mile{display:flex;gap:14px;padding:14px 16px;border:1px solid var(--line2);border-radius:6px;background:var(--panel);cursor:pointer;transition:all .2s;align-items:flex-start}
+.mile+.mile{margin-top:10px}
+.mile:hover{border-color:var(--accent)}
+.mile .mbox{width:22px;height:22px;flex:none;border:2px solid var(--line2);border-radius:4px;margin-top:2px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;color:transparent;transition:all .2s}
+.mile.done .mbox{border-color:var(--ok);background:var(--ok);color:#0b0e14}
+.mile .mtitle{font-size:13.5px;color:var(--fg);cursor:pointer}
+.mile .mtitle b{color:var(--accent)}
+.mile .mpass{font-size:11.5px;color:var(--dim);margin-top:4px;line-height:1.55}
+.mile.done{background:linear-gradient(180deg,rgba(57,217,138,.06),var(--panel))}
+.mile.done .mpass{color:var(--ok)}
+
+/* duel columns part 12 */
+.duel{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.duel .col{border:1px solid var(--line2);border-radius:6px;padding:18px;background:var(--panel)}
+.duel .col h3{margin-top:0;font-size:14px}
+.duel .use{border-color:var(--ok-dim)}
+.duel .use h3{color:var(--ok)}
+.duel .skip{border-color:var(--deep)}
+.duel .skip h3{color:var(--deep)}
+.duel ul{padding-left:20px}
+.duel li{margin:6px 0;font-size:12.8px;line-height:1.55}
+
+/* footer */
+footer{margin-top:90px;padding-top:26px;border-top:1px dashed var(--line2);color:var(--faint);font-size:11.5px;line-height:1.8}
+footer b{color:var(--dim)}
+
+/* graduation overlay */
+#grad{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(4,6,10,.94);padding:20px;overflow:hidden}
+#grad.open{display:flex}
+#grad .gterm{width:min(680px,100%);border:1px solid var(--ok-dim);border-radius:8px;background:#070d09;box-shadow:0 0 60px rgba(57,217,138,.15);overflow:hidden;position:relative;z-index:2}
+#grad .ghead{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--ok-dim);font-family:var(--mono);font-size:11px;color:var(--ok);letter-spacing:1px}
+#grad .gbody{padding:22px;font-family:var(--mono);font-size:13px;color:var(--ok);line-height:1.9;max-height:70vh;overflow-y:auto}
+#grad .gbody .gl{opacity:0;animation:bli .3s forwards}
+#grad .gtitle{font-family:var(--display);font-size:46px;color:var(--ok);text-shadow:0 0 24px rgba(57,217,138,.6);line-height:1;margin:10px 0}
+#grad .gbtn{margin-top:16px}
+.ptcl{position:absolute;width:6px;height:6px;border-radius:2px;z-index:1;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:0}}
+#whaleSwim{position:absolute;bottom:40px;left:-140px;z-index:1;filter:drop-shadow(0 0 14px rgba(255,176,0,.5));animation:swim 14s linear infinite}
+@keyframes swim{from{left:-140px}70%,to{left:110vw}}
+
+/* misc */
+code.inline{font-family:var(--mono);font-size:12.5px;color:var(--recog);background:rgba(87,217,255,.07);padding:1px 6px;border-radius:3px}
+.kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line2);border-bottom-width:2px;border-radius:3px;padding:1px 6px;background:var(--panel)}
+.strong-sentence{color:#fff;background:linear-gradient(180deg,transparent 62%,rgba(255,176,0,.25) 62%)}
+
+@media (max-width:1020px){
+  #app{grid-template-columns:1fr}
+  #dock{position:fixed;left:0;top:0;transform:translateX(-105%);transition:transform .3s cubic-bezier(0.16,1,0.3,1);width:310px;box-shadow:20px 0 50px rgba(0,0,0,.5)}
+  #dock.open{transform:none}
+  #burger{display:flex;position:fixed;top:14px;left:14px;z-index:60;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line2);color:var(--accent);font-family:var(--mono);font-size:11px;letter-spacing:1.5px;padding:8px 12px;border-radius:4px;cursor:pointer}
+  main{padding:60px 22px 100px}
+  .part::before{display:none}
+  .voyage{grid-template-columns:1fr}
+  .duel{grid-template-columns:1fr}
+  .pactions{margin-left:0;width:100%;margin-top:10px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s !important;animation-iteration-count:1 !important;transition-duration:.001s !important}
+  html{scroll-behavior:auto}
+}
+
+</style>
+</head>
+<body>
+<div id="scanlines"></div><div id="vignette"></div>
+<button id="burger">&#9776; MAP</button><div id="backdrop"></div>
+<div id="app">
+<aside id="dock">
+  <div class="brand">
+    <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="var(--accent)" d="M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z"/>
+      <rect x="7" y="11" width="2" height="2" fill="var(--bg)"/><rect x="12" y="11" width="2" height="2" fill="var(--bg)"/><rect x="17" y="11" width="2" height="2" fill="var(--bg)"/>
+    </svg>
+    <div><div class="bname">THE HTML/CSS SHIPYARD</div><div class="bsub">HTML &amp; CSS · the document tree · the cascade · layout</div></div>
+  </div>
+
+  <div class="rankbox">
+    <div class="rk" id="rankNow">SWABBIE</div>
+    <div class="rkxp" id="rankXp"></div>
+    <div class="prbar"><i id="rankBar"></i></div>
+  </div>
+
+  <div class="stackbox">
+    <div class="st"><span>THE STACK — your container</span><span id="stackCount">0/14</span></div>
+    <div id="stackMini"></div>
+    <div id="psRow"><b>$ docker ps</b><br><span id="psRow2">—</span></div>
+  </div>
+
+  <nav class="docknav" id="docknav"></nav>
+
+  <div class="legend">
+    <div class="lt">Depth legend</div>
+    <div class="lg"><span class="sw" style="background:var(--deep);box-shadow:0 0 6px rgba(255,93,93,.6)"></span><span><b style="color:var(--deep)">DEEP</b> — core mental model. Prove it out loud.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--recog)"></span><span><b style="color:var(--recog)">RECOGNIZE</b> — read fluently; write with docs open.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--ref)"></span><span><b style="color:var(--ref)">REFERENCE</b> — know it exists. Never memorize.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--adv)"></span><span><b style="color:var(--adv)">ADVANCED</b> — return after Part 8.</span></div>
+  </div>
+
+  <div class="dockfoot" id="dockfoot"></div>
+</aside>
+
+<main>
+<section class="hero" id="part0">
+  <div class="boot"><div class="bl">$ shipyard boot --curriculum htmlcss-first-principles</div>
+    <div class="bl">STAGE 1: LOADING PARTS 0–14 ......... <span style="color:var(--ok)">OK</span></div>
+    <div class="bl">STAGE 2: MOUNTING DEPTH TAGS .......... <span style="color:var(--ok)">OK</span></div>
+    <div class="bl"><span class="warn">WARNING: the cascade decides who wins — and it has a fixed order, every time.</span></div>
+    <div class="bl">AWAITING CREW — 14 waypoints ahead. <span class="cursor" style="color:var(--accent)">▮</span></div>
+  </div>
+  <h1>HTML & CSS, UNDERSTOOD.<br><span class="wh">NOT JUST PLACED.</span></h1>
+  <p class="sub">This is a first-principles curriculum rebuilt as a mission. Learn the core mental model <b>deeply</b> — the document is a tree, everything is a box, and the cascade settles every argument in a fixed order — reference the rest, and physically <b>build the shipyard&#39;s container</b> in the sidebar as you complete parts. Quizzes earn XP. Ranks go from <b>Swabbie</b> to <b>Harbor Master</b>. Finish all 14 parts and the shipyard ships your container.</p>
+  <div class="hstatus">
+    <div class="hchip">RANK <b id="hRank">SWABBIE</b></div>
+    <div class="hchip">XP <b id="hXp">0</b></div>
+    <div class="hchip">LAYERS <b id="hLayers">0/14</b></div>
+    <div class="hchip">QUIZZES CLEARED <b class="ok" id="hQuizzes">0</b></div>
+  </div>
+  <div id="voyageHead">THE VOYAGE — 14 WAYPOINTS</div>
+  <div class="voyage" id="voyage"></div>
+</section>
+
+<section class="part" id="p0">
+  <div class="phead"><div class="pnum">00</div>
+    <div><div class="ptitle">How to Use This Curriculum</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p0">MARK COMPLETE</button></div>
+  </div>
+
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>Part 1   Where HTML &amp; CSS came from        [DEEP — read, don't skip]
+Part 2   The core mental model             [DEEP — most important part]
+Part 3   HTML as meaning, not appearance
+Part 4   CSS fundamentals: cascade &amp; values
+Part 5   Layout: flow, flexbox, grid, positioning
+Part 6   Responsive &amp; modern CSS
+Part 7   Visual craft: type, color, motion
+Part 8   Real project: a full responsive page
+Part 9   Debugging playbook (DevTools)
+Part 10  Internals: the rendering pipeline
+Part 11  Production: performance, architecture, a11y
+Part 12  When to hand-write CSS and when not to
+Part 13  Interview preparation
+Part 14  Milestones</code></pre></div>
+
+  <div class="breadcrumb"><a class="next" href="#p1">01 · WHERE HTML &amp; CSS CAME FROM &rarr;</a></div>
+</section>
+
+<section class="part" id="p1">
+  <div class="phead"><div class="pnum">01</div>
+    <div><div class="ptitle">Where HTML &amp; CSS Came From</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p1">MARK COMPLETE</button></div>
+  </div>
+
+  <p>You cannot understand why CSS behaves so strangely without knowing what it was designed for. Almost every "weird" behaviour is a deliberate decision made for a document, not an app.</p>
+
+<h2>The lineage</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Year</th><th>What happened</th><th>Why it still affects you</th></tr></thead><tbody><tr><td>1989–91</td><td>Tim Berners-Lee, at CERN, invents HTML to share <b>physics papers</b> between researchers</td><td>HTML's native shape is a *document*: headings, paragraphs, lists, links. Not screens, not components. Every fight you have with CSS layout is a fight against a document format doing app work</td></tr><tr><td>1993–95</td><td>Mosaic, then Netscape. Browsers compete by inventing <b>presentational tags</b>: <code class="inline">&lt;font&gt;</code>, <code class="inline">&lt;center&gt;</code>, <code class="inline">&lt;blink&gt;</code>, plus layout-by-<code class="inline">&lt;table&gt;</code></td><td>Presentation and content got tangled. Changing a site's font meant editing every page. This pain is *the reason CSS exists*</td></tr><tr><td>1994</td><td>Håkon Wium Lie proposes <b>Cascading Style Sheets</b>; CSS1 ships 1996</td><td>The word "cascading" is the core idea: many sources of style (browser default, author, user) merge by rules, rather than one winning outright</td></tr><tr><td>1998–2005</td><td>CSS2, then the <b>browser wars</b> and IE6's near-monopoly. Standards support is inconsistent for a decade</td><td>Why the "hacks era" existed, and why <code class="inline">float</code>-based layout — a property invented for *wrapping text around an image* — became the layout system for 15 years</td></tr><tr><td>2004–08</td><td>Mozilla, Opera, Apple form <b>WHATWG</b> because W3C was pushing XHTML2 (a clean break that ignored real-world pages). WHATWG writes HTML5 instead</td><td>The decisive principle of the web: <b>don't break existing pages</b>. Browsers must render 1996 HTML forever. This is why HTML is famously forgiving and why nothing is ever removed</td></tr><tr><td>2014</td><td>HTML5 finalized; semantic elements, forms, media, canvas</td><td>The "living standard" model — HTML has no versions now, it just evolves</td></tr><tr><td>2012–2017</td><td><b>Flexbox</b> and <b>Grid</b> ship: the first layout systems actually designed for layout</td><td>The single biggest change in CSS history. Everything you read pre-2017 (float grids, clearfix, 12-column frameworks) is obsolete</td></tr><tr><td>2016–now</td><td>Custom properties, <code class="inline">clamp()</code>, <code class="inline">:has()</code>, container queries, cascade layers, <code class="inline">:is()</code>, subgrid</td><td>"Modern CSS" isn't a style — it's that the platform now natively does what needed JS or preprocessors for a decade</td></tr></tbody></table></div>
+
+<h2>The three ideas actually invented here</h2>
+
+<ol><li><b>Separation of content from presentation.</b> HTML says what a thing *is*; CSS says how it *looks*. This is why an <code class="inline">&lt;h1&gt;</code> styled to look small is still a heading to Google and to a screen reader — and why "make it look like X" is never a reason to pick a tag.</li></ol>
+
+<ol><li><b>The cascade.</b> Style comes from multiple stakeholders (browser defaults, the author, the user's own preferences and accessibility settings) and merges predictably. CSS is not a rendering command list; it's a *negotiation*, and specificity is the negotiation's arithmetic.</li></ol>
+
+<ol><li><b>Graceful degradation as a design axiom.</b> An unknown tag renders as inline text; an unknown CSS property is silently dropped. Nothing errors. This is why the web scales across 30 years of browsers — and why your typo fails *silently* instead of shouting, which is the single most annoying thing about learning CSS.</li></ol>
+
+<h2>The thing worth saying in an interview</h2>
+
+<p>CSS is often called badly designed. The more accurate claim: <b>CSS was correctly designed for a problem that changed.</b> It was built to style flowing documents on unknown screen sizes with unknown fonts, where the author does not control the viewport. That constraint — *the author cannot know the canvas* — is why CSS is declarative, why boxes size themselves from content, and why "vertical centering was hard" for 20 years. Flexbox and Grid didn't fix a broken language; they added the missing primitive for a use case (application layout) that didn't exist in 1996.</p>
+
+<div class="quiz" data-part="p1"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p0">&larr; 00 · HOW TO USE THIS CURRICULUM</a><a class="next" href="#p2">02 · THE CORE MENTAL MODEL &rarr;</a></div>
+</section>
+
+<section class="part" id="p2">
+  <div class="phead"><div class="pnum">02</div>
+    <div><div class="ptitle">The Core Mental Model</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p2">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Four ideas. Everything else in this document is detail on top of these.</p>
+
+<h2>Idea 1: The document is a tree, and the browser builds it before it styles it</h2>
+
+<p>Your HTML text is parsed into the <b>DOM</b> — a tree of nodes. Your CSS is parsed into the <b>CSSOM</b>. The browser combines them into a <b>render tree</b> of only the visible boxes, then computes <b>layout</b> (where every box goes), then <b>paints</b> pixels, then <b>composites</b> layers.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>HTML text ──parse──▶ DOM  ┐
+                          ├──▶ Render tree ──▶ Layout ──▶ Paint ──▶ Composite
+CSS text  ──parse──▶ CSSOM ┘                    (geometry)  (pixels)  (GPU)</code></pre></div>
+
+<p>Consequences you will rely on constantly:</p>
+
+<ul><li>CSS selectors match against the <b>tree</b>, which is why you can only style descendants and (now, with <code class="inline">:has()</code>) limited ancestors — not "the element before this one."</li></ul>
+
+<ul><li><code class="inline">display: none</code> removes a box from the render tree entirely (no geometry, no paint). <code class="inline">visibility: hidden</code> keeps the box in layout. <code class="inline">opacity: 0</code> keeps it in layout *and* paint. Three ways to "hide" with three different costs and three different accessibility outcomes.</li></ul>
+
+<ul><li>Changing geometry (width, top, font-size) forces <b>layout</b> recalculation — expensive. Changing only <code class="inline">transform</code>/<code class="inline">opacity</code> can skip to compositing — cheap. This one fact drives all CSS animation performance advice (Part 10).</li></ul>
+
+<h2>Idea 2: Everything is a box, and the box model is the arithmetic</h2>
+
+<p>Every element generates at least one rectangular box: <b>content → padding → border → margin</b>, inside-out.</p>
+
+<p>The historical trap: by default, <code class="inline">width</code> sets the *content* width, so padding and border are *added on top*. Set <code class="inline">width: 200px; padding: 20px</code> and you occupy 240px. This surprised everyone for a decade, so:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>*, *::before, *::after { box-sizing: border-box; }</code></pre></div>
+
+<p><code class="inline">border-box</code> makes <code class="inline">width</code> mean the *border-box* width — padding and border included. This single line goes at the top of every stylesheet you will ever write. Understand *why* it exists; that's the [DEEP] part. [RECOGNIZE] the syntax.</p>
+
+<p>The other half of Idea 2: boxes are either <b>block</b> (take full available width, stack vertically) or <b>inline</b> (flow with text, ignore width/height and vertical margins). <code class="inline">display</code> changes which. Nearly all "why won't this element take a height?" confusion is an inline box being asked to behave like a block one.</p>
+
+<h2>Idea 3: Normal flow is a layout system, and it's usually right</h2>
+
+<p>Before you position anything, the browser already lays out your document: blocks stack top to bottom filling their parent's width, inline content flows left to right and wraps. This is <b>normal flow</b>, and it is *responsive by default* — that's what a document format buys you.</p>
+
+<p>The mental discipline: <b>fight flow only when you have a reason.</b> Most beginner CSS is a pile of <code class="inline">position: absolute</code>, fixed pixel widths, and <code class="inline">float</code> fixing problems created by the previous fix. The professional move is to stay in flow, and reach for flexbox/grid to arrange *within* flow.</p>
+
+<p>Corollary that explains a lot of pain: <b>height and width are not symmetric.</b> A block box's width is given by its parent (fill available); its height is given by its content (fit content). That asymmetry is deliberate — pages scroll vertically, so vertical space is unbounded and horizontal space is fixed. It's why <code class="inline">width: 50%</code> always works and <code class="inline">height: 50%</code> often silently does nothing (percentage heights need a definite parent height to resolve against).</p>
+
+<h2>Idea 4: The cascade decides who wins, in a fixed order</h2>
+
+<p>When several rules set the same property on the same element, the winner is decided by walking these in order and stopping at the first tiebreak:</p>
+
+<ol><li><b>Origin &amp; importance</b> — browser defaults &lt; author styles &lt; author <code class="inline">!important</code> &lt; user <code class="inline">!important</code></li></ol>
+
+<ol><li><b>Cascade layers</b> (<code class="inline">@layer</code>) — later layers beat earlier ones [ADVANCED]</li></ol>
+
+<ol><li><b>Specificity</b> — counted as three numbers: <code class="inline">(IDs, classes/attributes/pseudo-classes, elements)</code>. <code class="inline">#nav .item a</code> = (1,1,1). Compared left to right; a single ID beats any number of classes</li></ol>
+
+<ol><li><b>Source order</b> — last one wins</li></ol>
+
+<p>Then, separately: <b>inheritance.</b> Some properties (<code class="inline">color</code>, <code class="inline">font-*</code>, <code class="inline">line-height</code>) inherit to descendants; most (<code class="inline">border</code>, <code class="inline">padding</code>, <code class="inline">background</code>) don't. An element with no matching rule for an inheritable property takes its parent's *computed* value.</p>
+
+<p>Why the design matters: this is what "cascading" means. The browser's defaults, your stylesheet, and the user's accessibility overrides all coexist, and specificity is the referee. Understanding this is what separates "I add <code class="inline">!important</code> until it works" from "I know exactly which rule is winning and why."</p>
+
+<h2>Checkpoint — before Part 3</h2>
+
+<p>Answer without looking:</p>
+
+<ol><li>You set <code class="inline">height: 100%</code> on a <code class="inline">&lt;div&gt;</code> and nothing happens. Give the mechanical reason.</li></ol>
+
+<ol><li><code class="inline">#sidebar p { color: red }</code> and <code class="inline">.warning.big.urgent.critical { color: blue }</code> both match a paragraph. Which wins, and why is that arguably a bad design in your codebase?</li></ol>
+
+<ol><li>Why does <code class="inline">display: none</code> cost less to animate away from than <code class="inline">opacity: 0</code>? (Trick question — answer in terms of the pipeline.)</li></ol>
+
+<ol><li>Why is HTML forgiving of a missing closing tag but CSS silent about a misspelled property?</li></ol>
+
+<div class="quiz" data-part="p2"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p1">&larr; 01 · WHERE HTML &amp; CSS CAME FROM</a><a class="next" href="#p3">03 · HTML AS MEANING, NOT APPEARANCE &rarr;</a></div>
+</section>
+
+<section class="part" id="p3">
+  <div class="phead"><div class="pnum">03</div>
+    <div><div class="ptitle">HTML as Meaning, Not Appearance</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p3">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>3.1 The one rule [DEEP]</h2>
+
+<p>**Choose tags by what the content *is*, never by how it looks.** Appearance is CSS's job entirely. This isn't purity — it has four concrete payoffs: screen readers navigate by structure, search engines rank by structure, browsers give you free behaviour (a <code class="inline">&lt;button&gt;</code> is focusable, keyboard-activatable, and announced as a button; a styled <code class="inline">&lt;div&gt;</code> is none of those and you'd have to reimplement all three), and future restyling doesn't require re-tagging.</p>
+
+<h2>3.2 The set that matters [RECOGNIZE, with [DEEP] on the concept]</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Category</th><th>Elements</th><th>The point</th></tr></thead><tbody><tr><td>Document structure</td><td><code class="inline">header</code>, <code class="inline">nav</code>, <code class="inline">main</code>, <code class="inline">section</code>, <code class="inline">article</code>, <code class="inline">aside</code>, <code class="inline">footer</code></td><td>These are <b>landmarks</b>; assistive tech jumps between them. Exactly one <code class="inline">&lt;main&gt;</code> per page</td></tr><tr><td>Headings</td><td><code class="inline">h1</code>–<code class="inline">h6</code></td><td>An <b>outline</b>, not sizes. Never skip levels for visual reasons. A screen-reader user's primary navigation is the heading list</td></tr><tr><td>Text</td><td><code class="inline">p</code>, <code class="inline">ul</code>/<code class="inline">ol</code>/<code class="inline">li</code>, <code class="inline">strong</code>, <code class="inline">em</code>, <code class="inline">blockquote</code>, <code class="inline">code</code>, <code class="inline">time</code></td><td><code class="inline">strong</code>/<code class="inline">em</code> carry *meaning* (importance/stress); <code class="inline">b</code>/<code class="inline">i</code> are purely visual and mostly legacy</td></tr><tr><td>Links vs buttons</td><td><code class="inline">a[href]</code> navigates; <code class="inline">button</code> acts</td><td>Getting this wrong is the most common accessibility bug on the web</td></tr><tr><td>Media</td><td><code class="inline">img[alt]</code>, <code class="inline">picture</code>, <code class="inline">video</code>, <code class="inline">svg</code></td><td><code class="inline">alt</code> is mandatory. Empty <code class="inline">alt=""</code> is correct for purely decorative images — that's a real distinction, not a cop-out</td></tr><tr><td>Forms</td><td><code class="inline">form</code>, <code class="inline">label[for]</code>, <code class="inline">input</code>, <code class="inline">select</code>, <code class="inline">textarea</code>, <code class="inline">fieldset</code>, <code class="inline">button</code></td><td>See below</td></tr><tr><td>Tables</td><td><code class="inline">table</code>, <code class="inline">thead</code>, <code class="inline">tbody</code>, <code class="inline">th[scope]</code>, <code class="inline">caption</code></td><td>Still correct — for *tabular data*. Never for layout</td></tr><tr><td>Generic</td><td><code class="inline">div</code> (block), <code class="inline">span</code> (inline)</td><td>Legitimate when there is genuinely no semantic meaning, only a styling hook. Not a sin — just not a default</td></tr></tbody></table></div>
+
+<h2>3.3 Forms deserve their own section [DEEP]</h2>
+
+<p>Forms are where HTML gives you the most for free and where most hand-rolled UIs regress:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">html</span><button class="copybtn">COPY</button></div><pre><code>&lt;form&gt;
+  &lt;label for="email"&gt;Work email&lt;/label&gt;
+  &lt;input id="email" name="email" type="email" required
+         autocomplete="email" inputmode="email"&gt;
+
+  &lt;label for="qty"&gt;Quantity&lt;/label&gt;
+  &lt;input id="qty" name="qty" type="number" min="1" max="99"&gt;
+
+  &lt;button type="submit"&gt;Create account&lt;/button&gt;
+&lt;/form&gt;</code></pre></div>
+
+<p>What you got without writing JS: keyboard support, browser autofill, mobile keyboards matched to the input type, native validation, password-manager integration, and a label that both describes the field to a screen reader *and* expands its click target. The <code class="inline">for</code>/<code class="inline">id</code> pairing is the single highest-value line in the snippet.</p>
+
+<p>Common mistakes: <code class="inline">&lt;div onclick&gt;</code> instead of <code class="inline">&lt;button&gt;</code>; placeholder used *as* a label (it disappears on typing and fails contrast); <code class="inline">type="submit"</code> omitted so Enter doesn't submit; and inputs with no <code class="inline">name</code>, which silently submit nothing.</p>
+
+<h2>3.4 Accessibility is mostly a byproduct [DEEP as principle]</h2>
+
+<p>If you use correct elements, label your inputs, keep a sane heading outline, write real <code class="inline">alt</code> text, and never remove focus outlines without replacing them, you have most of WCAG for free. ARIA attributes are for the cases where no native element expresses what you're building — and <b>the first rule of ARIA is not to use ARIA if a native element exists.</b> Bad ARIA is worse than none.</p>
+
+<h2>3.5 Exercise</h2>
+
+<p>Take a page you've shipped in one of your React projects. Strip every class attribute and view it with CSS disabled. If the resulting bare document doesn't read as a sensible outline — heading levels in order, nav distinguishable from content, forms labelled — your HTML is doing no semantic work, and everything downstream (SEO, a11y, and your own ability to style it) is harder than it needs to be.</p>
+
+<div class="quiz" data-part="p3"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p2">&larr; 02 · THE CORE MENTAL MODEL</a><a class="next" href="#p4">04 · CSS FUNDAMENTALS: CASCADE &amp; VALUES &rarr;</a></div>
+</section>
+
+<section class="part" id="p4">
+  <div class="phead"><div class="pnum">04</div>
+    <div><div class="ptitle">CSS Fundamentals: Cascade &amp; Values</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p4">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>4.1 Selectors [RECOGNIZE the list, DEEP on strategy]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>.card                    /* class — your default tool, 99% of styling */
+<span class="c">#checkout                /* id — high specificity, avoid for styling */</span>
+button[type="submit"]    /* attribute */
+.card &gt; .title           /* direct child */
+.card .title             /* any descendant */
+li + li                  /* next sibling — great for "all but first" spacing */
+:hover :focus-visible    /* state. focus-visible ≈ keyboard-only focus ring */
+:nth-child(2n)           /* structural */
+::before ::after         /* generated content (needs `content:`) */
+:is(h1,h2,h3)            /* grouping, takes the highest specificity inside */
+:where(h1,h2,h3)         /* grouping with ZERO specificity — ideal for resets */
+.card:has(img)           /* parent selector — genuinely new power, 2023+ */</code></pre></div>
+
+<p>The strategy that matters more than the syntax: <b>keep specificity low and flat.</b> Prefer a single class. Deep selectors (<code class="inline">.page .sidebar ul li a span</code>) are brittle — they encode your HTML structure into your CSS, so a markup change breaks styling in a distant file. This is exactly the problem BEM, CSS Modules, and Tailwind each solve differently (Part 11).</p>
+
+<h2>4.2 Custom properties [DEEP — this is where modern CSS starts]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>:root {
+  --space: 8px;
+  --brand: oklch(65% 0.18 250);
+  --radius: 6px;
+}
+.card { padding: calc(var(--space) * 2); border-radius: var(--radius); }</code></pre></div>
+
+<p>Not just variables — they <b>inherit and are live</b>. A custom property set on a parent cascades to descendants, can be overridden per-component or per-media-query, and can be read and written from JS. That's why theming (dark mode, per-tenant brands) is now a CSS problem, not a build problem:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>:root { --bg: white; --fg: #111; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0d1117; --fg: #e6edf3; } }
+body { background: var(--bg); color: var(--fg); }</code></pre></div>
+
+<p>Sass variables cannot do this — they're compiled away before the browser sees them. Understanding *that* difference is the [DEEP] part.</p>
+
+<h2>4.3 Values and units [DEEP on the model, REFERENCE the list]</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Unit</th><th>Relative to</th><th>Use for</th></tr></thead><tbody><tr><td><code class="inline">px</code></td><td>Nothing (absolute-ish)</td><td>Borders, tiny fixed details</td></tr><tr><td><code class="inline">rem</code></td><td>Root font size</td><td><b>Almost everything</b>: type, spacing, radii. Respects user font-size preference</td></tr><tr><td><code class="inline">em</code></td><td>*This element's* font size</td><td>Spacing that should scale with local text (e.g. padding inside a button)</td></tr><tr><td><code class="inline">%</code></td><td>Depends on property — width→parent width, but padding/margin *always* → parent <b>width</b>, even vertically</td><td>Fluid widths. The vertical-percentage-uses-width quirk is a classic gotcha</td></tr><tr><td><code class="inline">ch</code></td><td>Width of "0"</td><td>Max line length for readability (~60–75ch)</td></tr><tr><td><code class="inline">vw</code>/<code class="inline">vh</code></td><td>Viewport</td><td>Full-screen sections. Use <code class="inline">dvh</code>/<code class="inline">svh</code> on mobile — <code class="inline">100vh</code> is broken by mobile browser chrome, a bug that plagued the web for years</td></tr><tr><td><code class="inline">fr</code></td><td>Free space in a grid</td><td>Grid tracks only</td></tr></tbody></table></div>
+
+<p>The reason to default to <code class="inline">rem</code> rather than <code class="inline">px</code>: a user who sets a larger browser font for legibility gets a proportionally larger UI. Hardcoded <code class="inline">px</code> type ignores them. That is an accessibility decision disguised as a unit choice.</p>
+
+<p>Modern functions you'll actually use [RECOGNIZE]: <code class="inline">calc()</code>, <code class="inline">min()</code>, <code class="inline">max()</code>, and above all <code class="inline">clamp(min, preferred, max)</code> — which replaces most media queries for sizing:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>h1 { font-size: clamp(1.75rem, 5vw, 3.5rem); }   /* fluid, bounded, no breakpoints */</code></pre></div>
+
+<h2>4.4 Common mistakes at this level</h2>
+
+<ul><li><code class="inline">!important</code> used as a tool rather than an emergency. It's a signal your specificity is out of control; fix the cause.</li></ul>
+
+<ul><li>Styling by ID, then being unable to override it anywhere.</li></ul>
+
+<ul><li>Removing <code class="inline">outline</code> on focus with nothing to replace it — instantly makes a site unusable by keyboard.</li></ul>
+
+<ul><li>Reaching for a preprocessor for nesting and variables, both of which are now native.</li></ul>
+
+<div class="quiz" data-part="p4"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p3">&larr; 03 · HTML AS MEANING, NOT APPEARANCE</a><a class="next" href="#p5">05 · LAYOUT: FLOW, FLEXBOX, GRID, POSITIONING &rarr;</a></div>
+</section>
+
+<section class="part" id="p5">
+  <div class="phead"><div class="pnum">05</div>
+    <div><div class="ptitle">Layout: Flow, Flexbox, Grid, Positioning</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p5">MARK COMPLETE</button></div>
+  </div>
+
+  <p>This part is the one that changes your working life. Post-2017 CSS has exactly <b>two</b> layout systems, and picking the right one makes most layout problems evaporate.</p>
+
+<h2>5.1 The choice [DEEP]</h2>
+
+<div class="tblwrap"><table><thead><tr><th></th><th>Flexbox</th><th>Grid</th></tr></thead><tbody><tr><td>Dimensions</td><td><b>One axis</b> at a time (a row *or* a column)</td><td><b>Two axes</b> simultaneously</td></tr><tr><td>Sizing driven by</td><td>Content — items size themselves, then distribute leftover space</td><td>The container — you define the tracks, items fill them</td></tr><tr><td>Use when</td><td>Distributing a variable number of items along a line: nav bars, toolbars, button rows, card internals, centering</td><td>You need alignment in *both* directions: page shells, dashboards, card galleries, forms</td></tr><tr><td>Mental image</td><td>Beads on a wire</td><td>Graph paper</td></tr></tbody></table></div>
+
+<p>The heuristic that resolves 90% of cases: <b>is the number of items unknown and their arrangement essentially one-dimensional? Flex. Do you want rows AND columns to line up? Grid.</b> They nest freely — a grid page shell whose cells contain flex rows is the most common real structure on the web.</p>
+
+<h2>5.2 Flexbox mental model [DEEP]</h2>
+
+<p>One container, one <b>main axis</b> (set by <code class="inline">flex-direction</code>), one perpendicular <b>cross axis</b>. Then:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>.bar {
+  display: flex;
+  flex-direction: row;      /* main axis = horizontal */
+  justify-content: space-between;  /* distribute along MAIN */
+  align-items: center;      /* align along CROSS */
+  gap: 1rem;                /* spacing — never use margins for this anymore */
+  flex-wrap: wrap;          /* allow a second line */
+}</code></pre></div>
+
+<p>The one rule everybody gets backwards: **<code class="inline">justify-*</code> works on the main axis, <code class="inline">align-*</code> on the cross axis.** Flip <code class="inline">flex-direction</code> to <code class="inline">column</code> and they swap meaning. Internalize *that*, not the property names.</p>
+
+<p>On children, the shorthand worth understanding rather than copying: <code class="inline">flex: &lt;grow&gt; &lt;shrink&gt; &lt;basis&gt;</code>.</p>
+
+<ul><li><code class="inline">flex: 1</code> → "grow to share leftover space equally, and let me shrink" — the everyday value.</li></ul>
+
+<ul><li><code class="inline">flex: 0 0 auto</code> → "don't grow, don't shrink, size to content" — for things like icons that must keep their size.</li></ul>
+
+<ul><li><code class="inline">min-width: 0</code> on a flex child is the fix for the notorious "long text refuses to shrink and overflows my layout" bug — flex items won't shrink below their content's minimum size unless you tell them they may.</li></ul>
+
+<p>Centering, since it's the historical punchline: <code class="inline">display:flex; align-items:center; justify-content:center</code> — and it now works for any content, any size, both axes. Twenty years of hacks, replaced by three lines.</p>
+
+<h2>5.3 Grid mental model [DEEP]</h2>
+
+<p>You define tracks; items land in cells.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+}</code></pre></div>
+
+<p>Read that middle line closely, because it is the single most useful line in modern CSS: *make as many columns as fit, each at least 240px, sharing space equally.* That is a fully responsive card grid — <b>with no media queries at all.</b> Understanding <code class="inline">minmax()</code> + <code class="inline">auto-fill</code> + <code class="inline">1fr</code> gives you more responsive power than any framework's grid classes.</p>
+
+<p>For page shells, named areas make the intent readable:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>.shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-areas: "sidebar header" "sidebar main";
+  min-height: 100dvh;
+}
+.shell &gt; nav    { grid-area: sidebar; }
+.shell &gt; header { grid-area: header; }
+.shell &gt; main   { grid-area: main; }</code></pre></div>
+
+<p><code class="inline">fr</code> is the concept to actually understand: it's a share of *leftover* space after fixed tracks and gaps are subtracted — which is why <code class="inline">1fr</code> behaves better than <code class="inline">%</code> (percentages don't account for <code class="inline">gap</code> and cause the classic 1px overflow).</p>
+
+<h2>5.4 Positioning [RECOGNIZE, with two [DEEP] traps]</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Value</th><th>Behaviour</th></tr></thead><tbody><tr><td><code class="inline">static</code></td><td>Default; in flow</td></tr><tr><td><code class="inline">relative</code></td><td>In flow, offset visually, <b>and becomes a positioning context for absolute children</b></td></tr><tr><td><code class="inline">absolute</code></td><td>Removed from flow; positioned against nearest positioned ancestor</td></tr><tr><td><code class="inline">fixed</code></td><td>Against the viewport</td></tr><tr><td><code class="inline">sticky</code></td><td>In flow until it hits a scroll threshold, then pins. Needs a threshold (<code class="inline">top: 0</code>) and an ancestor that isn't clipping overflow</td></tr></tbody></table></div>
+
+<p>Trap 1: <code class="inline">position: absolute</code> with no positioned ancestor anchors to the page, not the component you meant. <code class="inline">position: relative</code> on the parent is the fix, and this pairing is one of the most-used idioms in CSS.</p>
+
+<p>Trap 2: <b><code class="inline">z-index</code> only works on positioned (or flex/grid) items, and only within its stacking context.</b> A child with <code class="inline">z-index: 9999</code> can never escape above a sibling whose parent has a lower <code class="inline">z-index</code>. When z-index "doesn't work," the answer is almost always a stacking context you didn't know you created (<code class="inline">transform</code>, <code class="inline">opacity &lt; 1</code>, <code class="inline">filter</code>, and <code class="inline">will-change</code> all create one). Part 10 explains the mechanism.</p>
+
+<h2>5.5 Exercises</h2>
+
+<ol><li>Build a nav bar: logo left, links centre, button right — with flex only, no margins for spacing.</li></ol>
+
+<ol><li>Build a responsive card grid with the <code class="inline">auto-fill</code>/<code class="inline">minmax</code> line above, then resize the window and watch the column count change without a single media query.</li></ol>
+
+<ol><li>Build a dashboard shell with a fixed sidebar and scrollable main using grid + <code class="inline">100dvh</code>.</li></ol>
+
+<ol><li>Deliberately break z-index: nest a <code class="inline">z-index: 9999</code> element inside a <code class="inline">transform</code>ed parent and explain why it's still behind its uncle element.</li></ol>
+
+<div class="quiz" data-part="p5"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p4">&larr; 04 · CSS FUNDAMENTALS: CASCADE &amp; VALUES</a><a class="next" href="#p6">06 · RESPONSIVE &amp; MODERN CSS &rarr;</a></div>
+</section>
+
+<section class="part" id="p6">
+  <div class="phead"><div class="pnum">06</div>
+    <div><div class="ptitle">Responsive &amp; Modern CSS</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p6">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>6.1 The premise [DEEP]</h2>
+
+<p>Responsive design isn't a technique, it's an acknowledgement: <b>you do not know the canvas.</b> Screen size, font size, input type, colour scheme, connection speed, and language are all decided by the user. CSS was designed for exactly this uncertainty (Part 1), so the modern approach is to *let content dictate layout* rather than enumerating device sizes.</p>
+
+<p>Practical consequence: <b>breakpoints should come from your content, not from device names.</b> "iPhone width" is a moving target and there are hundreds of devices. Resize until the layout looks wrong; put a breakpoint there.</p>
+
+<h2>6.2 The toolkit, best-first</h2>
+
+<ol><li><b>Intrinsic sizing, no queries at all</b> — <code class="inline">auto-fill</code>/<code class="inline">minmax</code>, <code class="inline">flex-wrap</code>, <code class="inline">clamp()</code>, <code class="inline">min()</code>/<code class="inline">max()</code>, <code class="inline">max-width</code> on text containers. Most responsiveness should come from here. [DEEP]</li></ol>
+
+<ol><li><b>Container queries</b> — respond to the *component's* width, not the viewport's. This is the correct model for component-based codebases like yours: a card in a sidebar and the same card in a main column should style themselves, not depend on page context. [DEEP concept, RECOGNIZE syntax]</li></ol>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>.card-wrap { container-type: inline-size; }
+@container (min-width: 400px) { .card { grid-template-columns: 120px 1fr; } }</code></pre></div>
+
+<ol><li><b>Media queries</b> — still right for genuinely page-level shifts and for user preferences: [RECOGNIZE]</li></ol>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>@media (min-width: 48rem) { ... }              /* mobile-first: add complexity upward */
+@media (prefers-color-scheme: dark) { ... }    /* respect the OS setting */
+@media (prefers-reduced-motion: reduce) { ... }/* an accessibility obligation, not a nicety */</code></pre></div>
+
+<p>Mobile-first (<code class="inline">min-width</code>) rather than desktop-first is the default because the mobile layout is usually the simpler base, so you're *adding* rules as space allows rather than undoing them.</p>
+
+<h2>6.3 Common mistakes</h2>
+
+<ul><li>Fixed heights on anything containing text — text reflows at every screen size and in every language (German words are long, and your bilingual EN/HI work makes this concrete).</li></ul>
+
+<ul><li><code class="inline">100vh</code> on mobile (use <code class="inline">dvh</code>), and pixel media queries that ignore user font scaling (use <code class="inline">rem</code>).</li></ul>
+
+<ul><li>Hiding content on mobile with <code class="inline">display: none</code> and calling it responsive — it's still downloaded, and you've removed information rather than adapting it.</li></ul>
+
+<ul><li>Testing only by resizing a desktop window: that never tests touch targets (min ~44px), hover-less interaction, or real device font rendering.</li></ul>
+
+<div class="quiz" data-part="p6"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p5">&larr; 05 · LAYOUT: FLOW, FLEXBOX, GRID, POSITIONING</a><a class="next" href="#p7">07 · VISUAL CRAFT: TYPE, COLOUR, MOTION &rarr;</a></div>
+</section>
+
+<section class="part" id="p7">
+  <div class="phead"><div class="pnum">07</div>
+    <div><div class="ptitle">Visual Craft: Type, Colour, Motion</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p7">MARK COMPLETE</button></div>
+  </div>
+
+  <p>This part is where "technically correct" becomes "looks professional." It's mostly a small number of decisions made *systematically* instead of ad hoc.</p>
+
+<h2>7.1 Systems beat one-offs [DEEP as principle]</h2>
+
+<p>Amateur CSS picks values per element (13px here, 17px there, #4a90d9 in one place and #4b91da in another). Professional CSS defines <b>scales</b> once and only uses values from them:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>:root {
+  /* spacing: one 4px-based scale, nothing off-scale */
+  --s1:.25rem; --s2:.5rem; --s3:.75rem; --s4:1rem; --s6:1.5rem; --s8:2rem; --s12:3rem;
+  /* type: a ratio-based ramp, not arbitrary sizes */
+  --t-sm:.875rem; --t-base:1rem; --t-lg:1.25rem; --t-xl:1.75rem; --t-2xl:2.5rem;
+}</code></pre></div>
+
+<p>This is exactly what Tailwind's <code class="inline">p-4</code>/<code class="inline">text-lg</code> classes are — a design-token scale with a naming convention. Knowing that lets you read Tailwind as CSS rather than as magic, and lets you build the same discipline without it.</p>
+
+<h2>7.2 Typography [DEEP — highest visual ROI]</h2>
+
+<p>Four decisions carry most of the result: a <b>line length</b> of 60–75 characters (<code class="inline">max-width: 65ch</code>), a <b>line height</b> near 1.5 for body and ~1.1 for large headings, a <b>type scale</b> with clear jumps (not 16/17/18px), and <b>font loading</b> that doesn't cause invisible text (<code class="inline">font-display: swap</code>) or layout shift.</p>
+
+<h2>7.3 Colour [RECOGNIZE, one [DEEP] rule]</h2>
+
+<p>The [DEEP] rule is <b>contrast</b>: 4.5:1 for body text, 3:1 for large text and UI boundaries. Not optional, and trivially checkable in DevTools. Beyond that: define semantic tokens (<code class="inline">--surface</code>, <code class="inline">--text</code>, <code class="inline">--border</code>, <code class="inline">--accent</code>) rather than raw colours at call sites, so dark mode is a token swap. Modern colour spaces (<code class="inline">oklch()</code>) give perceptually even lightness steps, which is why palettes built in them look consistent while HSL ramps don't. [ADVANCED]</p>
+
+<h2>7.4 Motion [RECOGNIZE]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">css</span><button class="copybtn">COPY</button></div><pre><code>.btn { transition: background-color .15s ease, transform .15s ease; }
+.btn:active { transform: translateY(1px); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }</code></pre></div>
+
+<p>Rules: animate <b>only <code class="inline">transform</code> and <code class="inline">opacity</code></b> (Part 10 explains why — everything else forces layout or paint); 150–250ms for UI feedback; motion should explain a change (where did this come from?), never decorate. And always honour <code class="inline">prefers-reduced-motion</code> — for some users motion causes actual nausea.</p>
+
+<div class="quiz" data-part="p7"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p6">&larr; 06 · RESPONSIVE &amp; MODERN CSS</a><a class="next" href="#p8">08 · REAL PROJECT: A FULL RESPONSIVE PAGE &rarr;</a></div>
+</section>
+
+<section class="part" id="p8">
+  <div class="phead"><div class="pnum">08</div>
+    <div><div class="ptitle">Real Project: A Full Responsive Page</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p8">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Build this by hand, no framework, no utility classes. The point is that afterwards you'll know precisely what Tailwind or a component library is doing for you.</p>
+
+<p><b>Spec:</b> a product landing page with</p>
+
+<ol><li>A sticky header: logo, nav, CTA (flex)</li></ol>
+
+<ol><li>A hero with fluid type (<code class="inline">clamp</code>) and a two-column layout that stacks on narrow screens (grid + one breakpoint)</li></ol>
+
+<ol><li>A feature card grid, responsive with <b>no media query</b> (<code class="inline">auto-fill</code>/<code class="inline">minmax</code>)</li></ol>
+
+<ol><li>A pricing table with a highlighted tier (grid, <code class="inline">:has()</code> or a class for the highlight)</li></ol>
+
+<ol><li>A real form: labelled inputs, native validation, visible focus states, error styling via <code class="inline">:invalid</code> / <code class="inline">:user-invalid</code></li></ol>
+
+<ol><li>A footer with grouped link columns</li></ol>
+
+<ol><li>Dark mode via custom properties + <code class="inline">prefers-color-scheme</code>, plus a manual toggle using a <code class="inline">data-theme</code> attribute on <code class="inline">&lt;html&gt;</code></li></ol>
+
+<ol><li>Zero fixed heights, zero <code class="inline">!important</code>, zero IDs used for styling</li></ol>
+
+<p><b>Definition of done:</b> it works from 320px to 2560px; the whole page is navigable and operable by keyboard alone with a visible focus ring at every step; the heading outline is sensible with CSS disabled; every colour pair passes contrast; and there is exactly one media query and one breakpoint value in the whole file.</p>
+
+<p>Then the reflection step that matters most: rebuild the *same* page with Tailwind and write down, honestly, which parts got faster and which parts got harder to reason about. You'll be making that trade-off for the rest of your career; make it with evidence.</p>
+
+<div class="quiz" data-part="p8"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p7">&larr; 07 · VISUAL CRAFT: TYPE, COLOUR, MOTION</a><a class="next" href="#p9">09 · DEBUGGING PLAYBOOK &rarr;</a></div>
+</section>
+
+<section class="part" id="p9">
+  <div class="phead"><div class="pnum">09</div>
+    <div><div class="ptitle">Debugging Playbook</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p9">MARK COMPLETE</button></div>
+  </div>
+
+  <p>CSS debugging is systematic. Nearly every bug is one of six things, and DevTools tells you which within seconds.</p>
+
+<h2>The four DevTools panels that matter</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Panel</th><th>Answers</th></tr></thead><tbody><tr><td><b>Elements → Styles</b></td><td>Which rules match, in cascade order, with overridden values struck through. This is where "why isn't my rule applying" is *always* answered</td></tr><tr><td><b>Elements → Computed</b></td><td>The final value after cascade, inheritance, and unit resolution — plus which rule won. When Styles is a mess, Computed is the truth</td></tr><tr><td><b>Box model diagram</b></td><td>Actual content/padding/border/margin numbers. Ends all "why is there a gap" arguments</td></tr><tr><td><b>Layout tab</b></td><td>Overlays grid/flex lines, track sizes, and gaps directly on the page. Turn this on whenever a grid misbehaves</td></tr></tbody></table></div>
+
+<h2>The decision tree</h2>
+
+<p><b>My rule isn't applying.</b> In order: (1) does the selector actually match? — check Styles; if the rule isn't listed at all, your selector is wrong, not your property. (2) Is it struck through? Something more specific won — read the winner. (3) Is it listed and not struck but still no effect? Then either the property doesn't apply to that display type (e.g. <code class="inline">height</code> on an inline element, <code class="inline">justify-content</code> on a non-flex parent) or you misspelled the value, which CSS drops silently.</p>
+
+<p><b>There's an unexplained gap.</b> Candidates: default <code class="inline">margin</code> on <code class="inline">h1</code>/<code class="inline">p</code>/<code class="inline">ul</code> (browser defaults, see Computed); <b>margin collapsing</b> between adjacent/parent-child block margins; inline-block whitespace between elements; or a <code class="inline">line-height</code> taller than the content. Flex/grid <code class="inline">gap</code> avoids most of this by design.</p>
+
+<p><b>Something overflows horizontally.</b> A fixed-width child, a long unbreakable string (fix: <code class="inline">min-width: 0</code> on flex children, <code class="inline">overflow-wrap: anywhere</code> on text), an image without <code class="inline">max-width: 100%</code>, or <code class="inline">100%</code> + padding without <code class="inline">border-box</code>.</p>
+
+<p><b>z-index isn't working.</b> Is the element positioned? Is it in the same stacking context as the thing you want to beat? Walk up the ancestors looking for <code class="inline">transform</code>, <code class="inline">opacity &lt; 1</code>, <code class="inline">filter</code>, <code class="inline">will-change</code>, or a lower <code class="inline">z-index</code> — the culprit is one of those (Part 10.3).</p>
+
+<p><b><code class="inline">position: sticky</code> isn't sticking.</b> No threshold set, or an ancestor has <code class="inline">overflow: hidden/auto</code>, or the parent is shorter than the sticky element's travel.</p>
+
+<p><b>It works on desktop, breaks on mobile.</b> <code class="inline">100vh</code>, hover-only interactions, touch targets under 44px, or a viewport meta tag missing entirely.</p>
+
+<h2>The habit</h2>
+
+<p>Before searching: read <b>Styles</b> (what matched), read <b>Computed</b> (what won), read the <b>box model</b> (actual geometry). If you can't reproduce a bug in a minimal isolated snippet, you don't yet understand it — and reducing it is usually what reveals the cause.</p>
+
+<div class="quiz" data-part="p9"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p8">&larr; 08 · REAL PROJECT: A FULL RESPONSIVE PAGE</a><a class="next" href="#p10">10 · INTERNALS: THE RENDERING PIPELINE &rarr;</a></div>
+</section>
+
+<section class="part" id="p10">
+  <div class="phead"><div class="pnum">10</div>
+    <div><div class="ptitle">Internals: The Rendering Pipeline</div>
+    <div class="pmeta"><span class="m">TAG <b>ADVANCED</b></span><span class="m">★ <b>INTERVIEW GOLD</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p10">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Return here after Part 8. This upgrades Part 2's model to mechanism.</p>
+
+<h2>10.1 The pipeline, precisely</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>Parse HTML → DOM
+Parse CSS  → CSSOM
+DOM + CSSOM → Style (compute every property for every element)
+            → Layout / "reflow" (geometry: size and position of every box)
+            → Paint (fill pixels into layers: text, colours, shadows, borders)
+            → Composite (assemble layers, often on the GPU)</code></pre></div>
+
+<p>The performance rule falls straight out of this: <b>the later in the pipeline your change starts, the cheaper it is.</b> Changing <code class="inline">width</code> or <code class="inline">font-size</code> invalidates Layout and everything after it. Changing <code class="inline">background-color</code> skips Layout but repaints. Changing <code class="inline">transform</code> or <code class="inline">opacity</code> on a composited layer can skip both and only recomposite. That is the entire reason "animate transform and opacity, not top/left/width" is universal advice — not superstition, pipeline arithmetic.</p>
+
+<h2>10.2 Layout thrash [ADVANCED]</h2>
+
+<p>Layout is normally batched until the frame ends. But reading a geometry property (<code class="inline">offsetHeight</code>, <code class="inline">getBoundingClientRect()</code>, <code class="inline">scrollTop</code>) forces the browser to flush pending layout *now* so it can answer you. Alternating write → read → write → read in a JS loop forces a synchronous layout every iteration — "layout thrashing," a classic cause of jank. Fix: batch all reads, then all writes.</p>
+
+<p>This is the highest-value CSS internals fact for a JS developer, and it's the bridge to the JavaScript curriculum's performance section.</p>
+
+<h2>10.3 Stacking contexts and containing blocks [ADVANCED, explains two big mysteries]</h2>
+
+<ul><li>A <b>stacking context</b> is a self-contained z-ordering scope. Created by the root element, any positioned element with a <code class="inline">z-index</code>, and — surprisingly — <code class="inline">opacity &lt; 1</code>, <code class="inline">transform</code>, <code class="inline">filter</code>, <code class="inline">will-change</code>, <code class="inline">isolation: isolate</code>. Children can only order *within* their context, never across it. This is the mechanical answer to every "z-index: 9999 doesn't work" question.</li></ul>
+
+<ul><li>A <b>containing block</b> is the rectangle an element's percentages and offsets resolve against: normally the parent's content box, but for <code class="inline">absolute</code> it's the nearest positioned ancestor's padding box, and for <code class="inline">fixed</code> it's the viewport — *unless* an ancestor has <code class="inline">transform</code>/<code class="inline">filter</code>/<code class="inline">will-change</code>, which makes *it* the containing block instead. That last exception is why "my fixed header stopped being fixed" happens.</li></ul>
+
+<h2>10.4 Why the parser blocks [ADVANCED]</h2>
+
+<p>CSS is <b>render-blocking</b> by design: rendering with unstyled content then restyling would flash. Classic <code class="inline">&lt;script&gt;</code> is <b>parser-blocking</b> because it might <code class="inline">document.write</code>. Hence: stylesheets in <code class="inline">&lt;head&gt;</code>, scripts with <code class="inline">defer</code> (or at the end of body), and critical CSS inlined for first paint. Every "put your scripts at the bottom" rule is downstream of this one design decision.</p>
+
+<h2>10.5 The interview-grade narration</h2>
+
+<p>*"The browser streams HTML into a DOM while fetching and parsing CSS into a CSSOM. Those combine to compute styles for every element, which feeds layout — computing the geometry of every box — then paint, then composite. Style and layout are the expensive phases, so cheap animations are the ones that only touch compositing: transform and opacity. Reading layout properties from JS mid-mutation forces an early synchronous layout, which is where jank usually comes from."*</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">simulator — click RUN</span></div><pre id="simOut"><span cl/></pre><div class="stack-controls" style="margin:0;padding:10px 16px;border-top:1px solid var(--line)"><button class="btn sm" id="simRun">&#9654; RUN</button><button class="btn sm ok" id="simReset">RESET</button></div></div>
+
+<div class="quiz" data-part="p10"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p9">&larr; 09 · DEBUGGING PLAYBOOK</a><a class="next" href="#p11">11 · PRODUCTION: PERFORMANCE, ARCHITECTURE, ACCESSIBILITY &rarr;</a></div>
+</section>
+
+<section class="part" id="p11">
+  <div class="phead"><div class="pnum">11</div>
+    <div><div class="ptitle">Production: Performance, Architecture, Accessibility</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p11">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>11.1 The metrics that are actually graded [DEEP]</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Metric</th><th>Means</th><th>CSS levers</th></tr></thead><tbody><tr><td><b>LCP</b> (Largest Contentful Paint)</td><td>When the main content appears</td><td>Inline critical CSS, preload hero image and fonts, avoid render-blocking imports</td></tr><tr><td><b>CLS</b> (Cumulative Layout Shift)</td><td>How much content jumps around</td><td>Always set <code class="inline">width</code>/<code class="inline">height</code> (or <code class="inline">aspect-ratio</code>) on images, reserve space for ads/embeds, <code class="inline">font-display: optional</code>/<code class="inline">swap</code> with matched fallback metrics</td></tr><tr><td><b>INP</b> (Interaction to Next Paint)</td><td>Responsiveness to input</td><td>Mostly JS, but heavy CSS (huge selectors, giant layout trees) contributes</td></tr></tbody></table></div>
+
+<p><code class="inline">@import</code> in CSS is the one thing to actively avoid: it serializes downloads and delays first paint.</p>
+
+<h2>11.2 Architecture: the real trade-off [DEEP — this is a senior conversation]</h2>
+
+<p>Every CSS methodology exists to solve <b>one</b> problem: CSS is globally scoped, so names collide and nobody can safely delete anything.</p>
+
+<div class="tblwrap"><table><thead><tr><th>Approach</th><th>How it scopes</th><th>Cost</th></tr></thead><tbody><tr><td><b>BEM</b> naming</td><td>Convention (<code class="inline">.card__title--large</code>)</td><td>Discipline-only; verbose; nothing enforces it</td></tr><tr><td><b>CSS Modules / scoped styles</b></td><td>Build-time unique class names</td><td>Needs a build step; styles live per-component</td></tr><tr><td><b>Utility CSS (Tailwind)</b></td><td>No custom names at all — compose primitives in markup</td><td>Markup gets noisy; your design system becomes config; refactoring is find-and-replace in HTML</td></tr><tr><td><b>CSS-in-JS</b></td><td>Runtime/compile-time scoping in JS</td><td>Runtime cost, SSR complexity; largely losing ground</td></tr><tr><td><b>Native <code class="inline">@layer</code> + <code class="inline">:where()</code> + nesting</b></td><td>The platform doing it natively</td><td>Newest, least tooling — increasingly the default answer</td></tr></tbody></table></div>
+
+<p>The honest summary for an interview: utility CSS won mainstream adoption because <b>naming things is the expensive part</b> and it eliminates the naming step while guaranteeing your values come from a scale. It trades readable markup for deletable styles. There is no universally correct choice; there is a correct choice per team size and per lifespan of the code.</p>
+
+<h2>11.3 Accessibility checks that catch most issues [RECOGNIZE]</h2>
+
+<p>Tab through the entire page (every interactive element reachable, visible focus ring, logical order); check contrast; verify with CSS off that the outline reads; confirm every image has considered <code class="inline">alt</code>; confirm no information is conveyed by colour alone; run Lighthouse/axe — knowing that automated tools catch maybe a third of real issues.</p>
+
+<div class="quiz" data-part="p11"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p10">&larr; 10 · INTERNALS: THE RENDERING PIPELINE</a><a class="next" href="#p12">12 · WHEN TO HAND-WRITE CSS AND WHEN NOT TO &rarr;</a></div>
+</section>
+
+<section class="part" id="p12">
+  <div class="phead"><div class="pnum">12</div>
+    <div><div class="ptitle">When to Hand-Write CSS and When Not To</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p12">MARK COMPLETE</button></div>
+  </div>
+
+  <p><b>Hand-write / own the CSS when:</b> it's a marketing or landing page where visual distinctiveness is the product; you're building a design system others consume; performance budget is tight; or the site is small enough that a build step is overhead.</p>
+
+<p><b>Reach for a utility framework when:</b> an app UI with many similar components, a team that needs consistency without a design-system owner, and you value velocity over markup readability. (This is your situation on most of your side projects, and it's a defensible default — as long as you can read the CSS underneath, which is what this curriculum is for.)</p>
+
+<p><b>Reach for a component library (shadcn/ui, Radix, Mantine) when:</b> you need accessible interactive primitives — combobox, dialog, date picker, menu. Building an accessible dialog or listbox correctly from scratch is genuinely hard (focus trapping, ARIA state, keyboard model, screen-reader announcements) and is almost never worth doing yourself.</p>
+
+<p><b>Don't write CSS at all when:</b> the deliverable is a document (use Markdown), an email (a different, hostile subset of CSS — use a tested template), or a PDF/report where a document tool is the right output.</p>
+
+<p>And the honest limitations: CSS still has no proper parent selector for arbitrary conditions (<code class="inline">:has()</code> is close but not complete), no native masonry (in progress), and styling native form controls (<code class="inline">select</code>, date inputs, file inputs) remains inconsistent — those are the three places where you'll legitimately need JS or a library rather than CSS skill.</p>
+
+<div class="quiz" data-part="p12"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p11">&larr; 11 · PRODUCTION: PERFORMANCE, ARCHITECTURE, ACCESSIBILITY</a><a class="next" href="#p13">13 · INTERVIEW PREPARATION &rarr;</a></div>
+</section>
+
+<section class="part" id="p13">
+  <div class="phead"><div class="pnum">13</div>
+    <div><div class="ptitle">Interview Preparation</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p13">MARK COMPLETE</button></div>
+  </div>
+
+  <p><b>Tier 1 — expected:</b></p>
+
+<ol><li>Box model, and what <code class="inline">box-sizing: border-box</code> changes and why it exists. (Part 2)</li></ol>
+
+<ol><li>How the cascade resolves conflicts; how specificity is calculated. (Part 2, 4)</li></ol>
+
+<ol><li>Inline vs block vs inline-block. (Part 2)</li></ol>
+
+<ol><li>Flexbox vs Grid — when each, in one sentence each. (Part 5.1)</li></ol>
+
+<ol><li>How would you centre a div, horizontally and vertically? (Part 5.2 — and mention it was hard for 20 years and why.)</li></ol>
+
+<ol><li>Semantic HTML: why it matters beyond aesthetics. (Part 3.1)</li></ol>
+
+<ol><li><code class="inline">position</code> values, and what <code class="inline">relative</code> does that people forget. (Part 5.4)</li></ol>
+
+<p><b>Tier 2 — differentiators:</b></p>
+
+<ol><li>What is a stacking context and why does <code class="inline">z-index: 9999</code> sometimes fail? (Part 10.3)</li></ol>
+
+<ol><li>Explain margin collapsing. (Part 9)</li></ol>
+
+<ol><li><code class="inline">rem</code> vs <code class="inline">em</code> vs <code class="inline">px</code> — and the accessibility argument. (Part 4.3)</li></ol>
+
+<ol><li>How do you build a responsive card grid with no media queries? (Part 5.3)</li></ol>
+
+<ol><li>Custom properties vs Sass variables — the meaningful difference. (Part 4.2)</li></ol>
+
+<ol><li>Mobile-first: what it means mechanically, not just conceptually. (Part 6.2)</li></ol>
+
+<ol><li>How do you make a site keyboard accessible? (Parts 3, 11.3)</li></ol>
+
+<p><b>Tier 3 — senior signal:</b></p>
+
+<ol><li>Walk me through the browser rendering pipeline. (Part 10.1, 10.5)</li></ol>
+
+<ol><li>Why animate <code class="inline">transform</code> instead of <code class="inline">left</code>? (Part 10.1)</li></ol>
+
+<ol><li>What is layout thrashing and how do you avoid it? (Part 10.2)</li></ol>
+
+<ol><li>Why is CSS render-blocking, and what do you do about it? (Part 10.4)</li></ol>
+
+<ol><li>Compare BEM, CSS Modules, and utility CSS — what problem are they all solving? (Part 11.2)</li></ol>
+
+<ol><li>What was CSS designed for, and which of its quirks are consequences of that design? (Part 1)</li></ol>
+
+<p>Answer shape that reads senior: <b>what it is → why it exists → one concrete consequence you've hit.</b></p>
+
+<p>If you can deliver these aloud — WHAT → WHY IT EXISTS → ONE CONCRETE CONSEQUENCE — you are interview-ready. Answer before flipping; nailed cards dim.</p>
+<div class="deck" id="deck"><!-- cards injected by JS --></div>
+
+  <div class="breadcrumb"><a href="#p12">&larr; 12 · WHEN TO HAND-WRITE CSS AND WHEN NOT TO</a><a class="next" href="#p14">14 · MILESTONES &rarr;</a></div>
+</section>
+
+<section class="part" id="p14">
+  <div class="phead"><div class="pnum">14</div>
+    <div><div class="ptitle">Milestones</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p14">MARK COMPLETE</button></div>
+  </div>
+
+  <p><b>M1 — Model (Parts 1–2).</b> Pass: the four checkpoint questions in Part 2, unaided.</p>
+
+<p><b>M2 — Markup (Part 3).</b> Pass: an existing page of yours re-marked-up semantically, readable with CSS disabled, forms fully labelled.</p>
+
+<p><b>M3 — Cascade &amp; values (Part 4).</b> Pass: given three competing selectors, predict the winner and the computed value; theme a component entirely with custom properties.</p>
+
+<p><b>M4 — Layout (Part 5).</b> Pass: build nav / card grid / dashboard shell from scratch with no reference; correctly diagnose a z-index and an overflow bug.</p>
+
+<p><b>M5 — The page (Parts 6–8).</b> Pass: the Part 8 landing page meeting every "definition of done" criterion, plus the Tailwind comparison written out.</p>
+
+<p><b>M6 — Depth (Parts 9–12).</b> Pass: debug an unfamiliar broken layout using only the Part 9 tree; deliver the Part 10.5 narration; argue both sides of the utility-CSS question.</p>
+
+<p>Pace at ~1 hour/day: M1 days 1–2, M2 days 3–4, M3 days 5–7, M4 days 8–12, M5 days 13–18, M6 days 19–24. The exercises are the curriculum; reading Part 5 without building the three layouts teaches you nothing durable.</p>
+
+<p>Six milestones = six layers of proof. When all six drop, the shipyard ships your container.</p>
+<div class="mlist" id="mlist"><!-- milestones injected by JS --></div>
+
+  <div class="breadcrumb"><a href="#p13">&larr; 13 · INTERVIEW PREPARATION</a></div>
+</section><footer>
+  <b>ABOUT THIS BUILD:</b> The HTML/CSS Shipyard is a faithful interactive conversion of the first-principles HTML & CSS curriculum — every concept, table, code block and exercise preserved. Progress lives in your browser (localStorage). Built as a single file — copy it anywhere, it runs offline.<br>
+  <b>THE ONE RULE:</b> everything is a box, and the cascade settles every argument in a fixed order.
+</footer>
+</main>
+</div>
+<div id="grad"><div class="gterm"><div class="ghead">&#9650; SHIPYARD DEPLOYMENT — ALL MILESTONES CROSSED</div><div class="gbody"></div></div></div>
+<script>
+// generated by build.mjs from htmlcss-curriculum.md + build/pedagogy/htmlcss.mjs - do not hand-edit
+window.SHIPYARD_DATA={
+meta:{
+ "tech": "htmlcss",
+ "title": "The HTML/CSS Shipyard - HTML & CSS: A First-Principles Curriculum",
+ "brand": "THE HTML/CSS SHIPYARD",
+ "tagline": "HTML & CSS · the document tree · the cascade · layout",
+ "storageKey": "shipyard:htmlcss:v1",
+ "accent": "#ff6b6b"
+},
+parts:[
+ {
+  "id": "p0",
+  "num": "00",
+  "title": "How to Use This Curriculum",
+  "tag": null
+ },
+ {
+  "id": "p1",
+  "num": "01",
+  "title": "Where HTML & CSS Came From",
+  "tag": "DEEP"
+ },
+ {
+  "id": "p2",
+  "num": "02",
+  "title": "The Core Mental Model",
+  "tag": "DEEP"
+ },
+ {
+  "id": "p3",
+  "num": "03",
+  "title": "HTML as Meaning, Not Appearance",
+  "tag": null
+ },
+ {
+  "id": "p4",
+  "num": "04",
+  "title": "CSS Fundamentals: Cascade & Values",
+  "tag": null
+ },
+ {
+  "id": "p5",
+  "num": "05",
+  "title": "Layout: Flow, Flexbox, Grid, Positioning",
+  "tag": null
+ },
+ {
+  "id": "p6",
+  "num": "06",
+  "title": "Responsive & Modern CSS",
+  "tag": null
+ },
+ {
+  "id": "p7",
+  "num": "07",
+  "title": "Visual Craft: Type, Colour, Motion",
+  "tag": null
+ },
+ {
+  "id": "p8",
+  "num": "08",
+  "title": "Real Project: A Full Responsive Page",
+  "tag": null
+ },
+ {
+  "id": "p9",
+  "num": "09",
+  "title": "Debugging Playbook",
+  "tag": "DEEP"
+ },
+ {
+  "id": "p10",
+  "num": "10",
+  "title": "Internals: The Rendering Pipeline",
+  "tag": "ADVANCED"
+ },
+ {
+  "id": "p11",
+  "num": "11",
+  "title": "Production: Performance, Architecture, Accessibility",
+  "tag": null
+ },
+ {
+  "id": "p12",
+  "num": "12",
+  "title": "When to Hand-Write CSS and When Not To",
+  "tag": "DEEP"
+ },
+ {
+  "id": "p13",
+  "num": "13",
+  "title": "Interview Preparation",
+  "tag": null
+ },
+ {
+  "id": "p14",
+  "num": "14",
+  "title": "Milestones",
+  "tag": null
+ }
+],
+quiz:{
+ "p1": [
+  {
+   "q": "HTML was invented:",
+   "o": [
+    "By Tim Berners-Lee at CERN (1989) — hypertext to share physics papers; CSS followed in 1996 to separate content from presentation",
+    "By Netscape in 1995",
+    "By the W3C in 1994",
+    "As part of HTTP/2"
+   ],
+   "a": 0,
+   "e": "TBL at CERN, 1989: the document web. CSS arrived 1996 (Lie & Bos) — the separation of meaning (HTML) from appearance (CSS) is the founding idea."
+  },
+  {
+   "q": "HTML is:",
+   "o": [
+    "A markup language — it describes document structure and meaning, not behaviour",
+    "A programming language",
+    "A styling language",
+    "A query language"
+   ],
+   "a": 0,
+   "e": "No logic, no state. Elements describe meaning; browser + CSS decide appearance; JS adds behaviour."
+  },
+  {
+   "q": "The standards context that matters:",
+   "o": [
+    "The HTML Living Standard (WHATWG) — the web keeps moving, and browsers implement to it rather than frozen specs",
+    "HTML is frozen at 4.01",
+    "Only the W3C can change HTML",
+    "Standards are cosmetic"
+   ],
+   "a": 0,
+   "e": "HTML is a living standard: features ship in browsers first, get standardised after — the opposite of frozen legacy specs."
+  },
+  {
+   "q": "When a design is “just divs”, the lost layer is:",
+   "o": [
+    "MEANING — divs carry no semantics; screen readers, search and future you lose the document’s outline",
+    "Speed",
+    "Colour",
+    "Cascade"
+   ],
+   "a": 0,
+   "e": "Every div is a box until you give it meaning; semantics is the layer that survives any visual redesign."
+  }
+ ],
+ "p2": [
+  {
+   "q": "The browser renders pages by:",
+   "o": [
+    "Building a DOM TREE first, then styling it — CSS targets nodes of that tree",
+    "Styling the HTML text directly",
+    "Rendering in source order instantly",
+    "Asking the server for pixels"
+   ],
+   "a": 0,
+   "e": "HTML → parsed into a tree of elements; CSS selectors match nodes; layout and paint follow. Idea 1: the tree comes first."
+  },
+  {
+   "q": "The box model arithmetic:",
+   "o": [
+    "content + padding + border (+ margin) — box-sizing: border-box moves padding/border INSIDE the width",
+    "width includes margin by default",
+    "padding never affects total size",
+    "border is free"
+   ],
+   "a": 0,
+   "e": "With border-box, width = everything up to the border — the only sane default for real layouts."
+  },
+  {
+   "q": "Normal flow is:",
+   "o": [
+    "A real layout system — block elements stack, inline flows along the line — and it is usually right; flex/grid are refinements, not replacements",
+    "A bug to be worked around",
+    "Deprecated",
+    "Only for paragraphs"
+   ],
+   "a": 0,
+   "e": "Idea 3: normal flow handles most pages correctly. Reach for positioning only when flow genuinely can’t."
+  },
+  {
+   "q": "The cascade decides winners in this order:",
+   "o": [
+    "Important + origin → specificity → source order — more specific selectors win; ties go to the later rule",
+    "File order only",
+    "Selector length",
+    "Alphabetical"
+   ],
+   "a": 0,
+   "e": "Idea 4: importance/origin first (author !important beats normal), then specificity, then source order. Inline styles beat selectors (except !important)."
+  }
+ ],
+ "p3": [
+  {
+   "q": "Semantic HTML is:",
+   "o": [
+    "Meaning over appearance — header/main/section/article/nav describe structure; the browser and assistive tech consume the OUTLINE",
+    "A styling preference",
+    "Required only for SEO",
+    "The same as using divs"
+   ],
+   "a": 0,
+   "e": "The element map is the document’s outline. Semantic elements also ship free behaviour (landmark roles, default margins)."
+  },
+  {
+   "q": "Forms done right require:",
+   "o": [
+    "label tied via for/id, a name on every field, correct type + required/pattern validation, aria-describedby for help text",
+    "Only a submit button",
+    "Tables for layout",
+    "JS validation exclusively"
+   ],
+   "a": 0,
+   "e": "Labels are the click target AND the accessibility name. Validation belongs in HTML first, JS as enhancement."
+  },
+  {
+   "q": "Accessibility is mostly:",
+   "o": [
+    "A byproduct — correct headings, alt text, focus styles and contrast come free from structure; the audits mostly check the structure you already should have",
+    "A plugin",
+    "A CSS class",
+    "Only for government sites"
+   ],
+   "a": 0,
+   "e": "Keyboard navigation, readable outline, visible focus: all follow from semantic, well-formed documents."
+  },
+  {
+   "q": "alt text exists for:",
+   "o": [
+    "The blind — describe what the image MEANS in context, not what it literally shows",
+    "SEO keywords",
+    "Designers",
+    "Lazy loading"
+   ],
+   "a": 0,
+   "e": "Meaning, not description: a graph’s alt summarises the finding, not the axes."
+  }
+ ],
+ "p4": [
+  {
+   "q": "The selector strategy that scales:",
+   "o": [
+    "Class-based with LOW specificity — avoid IDs for styling; :is()/:where() keep specificity sensible",
+    "IDs everywhere",
+    "Universal selectors only",
+    "Deep descendant chains"
+   ],
+   "a": 0,
+   "e": "Low-specificity classes keep every later rule winnable. Deep chains (div .a .b .c) become specificity debt."
+  },
+  {
+   "q": "Custom properties are:",
+   "o": [
+    "Design tokens — --x declared on :root, inherited down the tree, overridable at any level (but not inside media queries)",
+    "A preprocessor feature",
+    "Runtime variables",
+    "Deprecated"
+   ],
+   "a": 0,
+   "e": "This is where modern CSS starts: one token change re-themes a whole app. They compose with calc() and can’t be read by media queries — plan for that."
+  },
+  {
+   "q": "rem vs em:",
+   "o": [
+    "rem = root em (stable); em compounds at every nesting level — use rem for spacing/type scale, em for element-relative sizes",
+    "rem is always wrong",
+    "They are identical",
+    "em is absolute"
+   ],
+   "a": 0,
+   "e": "em compounds through nested rules and surprises; rem is the predictable scale. Together with clamp() they replace most px maths."
+  },
+  {
+   "q": "Two rules same specificity — who wins?",
+   "o": [
+    "Source order: the LATER rule wins",
+    "The shorter rule",
+    "The first rule, always",
+    "The browser decides randomly"
+   ],
+   "a": 0,
+   "e": "Specificity tie → later in the stylesheet wins. That is why “undo” rules must come after the rules they undo."
+  }
+ ],
+ "p5": [
+  {
+   "q": "Choosing a layout tool:",
+   "o": [
+    "Flow for what flow does; FLEXBOX for 1-D arrangement of content; GRID for 2-D container-driven structure; absolute positioning as the escape hatch",
+    "Grid for everything",
+    "Flexbox for everything",
+    "Tables were never a layout"
+   ],
+   "a": 0,
+   "e": "Flex = content-sized, one axis, per-item control. Grid = container-sized, tracks and areas. Each has a mental model; pick by the constraint that actually binds."
+  },
+  {
+   "q": "The flexbox mental model:",
+   "o": [
+    "main axis vs cross axis — justify-content places along main, align-items along cross; flex-grow/shrink/basis decide how space is claimed",
+    "Flex has one axis only",
+    "align-items controls the main axis",
+    "gap only works in Grid"
+   ],
+   "a": 0,
+   "e": "If you can state the axis for each property, flexbox stops surprising you."
+  },
+  {
+   "q": "The grid mental model:",
+   "o": [
+    "Tracks (columns/rows) with fr units, named template areas, and alignment — the container owns the layout, not the items",
+    "Grid items position themselves",
+    "fr is a font unit",
+    "Grid cannot mix sizes"
+   ],
+   "a": 0,
+   "e": "grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) — one line, fluid responsive layout, no media query."
+  },
+  {
+   "q": "The two positioning traps:",
+   "o": [
+    "absolute removes the box from flow (its containing block is the nearest positioned ancestor); sticky needs a scroll container and a top value",
+    "absolute stays in flow",
+    "sticky works without top",
+    "fixed is relative to the page only"
+   ],
+   "a": 0,
+   "e": "Both traps are “works nowhere else, works here” surprises — check the containing block, check the scroll parent."
+  }
+ ],
+ "p6": [
+  {
+   "q": "The responsive premise:",
+   "o": [
+    "Respond to the VIEWPORT and the device — design systems that reflow; mobile-first makes constraints explicit",
+    "Detect the browser with JS",
+    "One desktop layout is fine",
+    "Media queries are the only tool"
+   ],
+   "a": 0,
+   "e": "Intrinsic sizes, wrapping, clamp() and container queries come BEFORE media queries — media queries fill the gaps, not the plan."
+  },
+  {
+   "q": "The best-first toolkit:",
+   "o": [
+    "Intrinsic sizing (min/max-content), flex-wrap, grid auto-fit/minmax, clamp() type, fluid spacing, srcset — media queries LAST",
+    "Fixed px widths",
+    "A media query per device",
+    "iframe resizing"
+   ],
+   "a": 0,
+   "e": "Layout should shrink and grow on its own; breakpoints only patch where intrinsic behaviour can’t."
+  },
+  {
+   "q": "A common responsive mistake:",
+   "o": [
+    "Setting min-width in px on containers — breaks any viewport below it; prefer minmax(0, ...) and flexible tracks",
+    "Too much fluidity",
+    "Using rem",
+    "Using gap"
+   ],
+   "a": 0,
+   "e": "min-width: 960px is how desktop-only pages happen. Grid’s minmax(0, 1fr) is the anti-overflow weapon."
+  },
+  {
+   "q": "Images that never overflow:",
+   "o": [
+    "max-width: 100%; height: auto — plus width/height attributes (or aspect-ratio) to reserve layout space",
+    "width: 100vw",
+    "object-fit on spans",
+    "img { display: none } until loaded"
+   ],
+   "a": 0,
+   "e": "Missing dimensions cause CLS (cumulative layout shift) — reserve space, set aspect ratios, lazy-load below the fold."
+  }
+ ],
+ "p7": [
+  {
+   "q": "Systems beat one-offs:",
+   "o": [
+    "Tokens (type/colour/space) → components → pages — a small design system beats bespoke pixels every time",
+    "Every page bespoke",
+    "One-off styles are faster forever",
+    "Systems kill creativity"
+   ],
+   "a": 0,
+   "e": "Consistency is a feature: users learn one scale, one rhythm, one vocabulary across the whole product."
+  },
+  {
+   "q": "Typography is the highest visual ROI:",
+   "o": [
+    "A modular type scale (e.g. 1.25 ratio), 1.4–1.6 line-height, 45–75ch measure — type alone carries a design",
+    "More fonts = better",
+    "font-size: 16px everywhere",
+    "Line-height is a luxury"
+   ],
+   "a": 0,
+   "e": "Type is ~90% of the page’s visual weight. Get the scale, spacing and measure right and the design lands."
+  },
+  {
+   "q": "Colour’s one DEEP rule:",
+   "o": [
+    "CONTRAST — text must pass 4.5:1 against its background (WCAG AA); hue choice is taste, contrast is law",
+    "Use every colour in the palette",
+    "Black on white only",
+    "Contrast is a designer luxury"
+   ],
+   "a": 0,
+   "e": "The audit tools check contrast, not taste. If a color pair fails, no visual argument rescues it."
+  },
+  {
+   "q": "Motion defaults:",
+   "o": [
+    "150–300ms, ease-out, one or two properties at a time — and honour prefers-reduced-motion",
+    "Longer is classier",
+    "Animate everything",
+    "Motion is forbidden"
+   ],
+   "a": 0,
+   "e": "Motion communicates state (which element changed); slow or constant motion just annoys. 300ms of ease-out is the default taste."
+  }
+ ],
+ "p8": [
+  {
+   "q": "Building the full page starts with:",
+   "o": [
+    "The semantic STRUCTURE — outline first, then tokens, then sections, then polish; verify in DevTools constantly",
+    "Colours first",
+    "Fonts first",
+    "A framework"
+   ],
+   "a": 0,
+   "e": "Structure first means the page is accessible and extensible before it is pretty."
+  },
+  {
+   "q": "CSS order that scales:",
+   "o": [
+    "Mobile-first: base styles, then media queries that ADD complexity at wider widths",
+    "Desktop-first always",
+    "One giant file",
+    "Inline styles everywhere"
+   ],
+   "a": 0,
+   "e": "Mobile-first means the constrained case is the default — extension beats correction."
+  },
+  {
+   "q": "Form validation states must be:",
+   "o": [
+    "Visible, labelled, and matching HTML validation — :invalid/:valid plus aria-describedby help text and focus management",
+    "Silent until submit",
+    "Colour-only",
+    "A JS library’s job alone"
+   ],
+   "a": 0,
+   "e": ":​placeholder-shown + :invalid distinguish untouched from wrong — the difference between helpful and hostile forms."
+  },
+  {
+   "q": "The final pass audits:",
+   "o": [
+    "Keyboard navigation, contrast (4.5:1), zoom to 200%, Lighthouse/axe — measure, then fix the real findings",
+    "Only looks",
+    "Browser compatibility pages",
+    "Nothing — ship it"
+   ],
+   "a": 0,
+   "e": "The audits are quick; the findings are honest. A keyboard-walkable, high-contrast page is the baseline, not the bonus."
+  }
+ ],
+ "p9": [
+  {
+   "q": "The four DevTools panels that matter:",
+   "o": [
+    "Elements (styles + box), Computed (what actually won), Network (what loaded), Performance (what janked) — Computed answers cascade fights instantly",
+    "Console only",
+    "Only the Elements tab exists",
+    "Screenshots panel"
+   ],
+   "a": 0,
+   "e": "Never guess who won a cascade fight — the Computed panel tells you the winner and why."
+  },
+  {
+   "q": "The debugging decision tree:",
+   "o": [
+    "Is it a BOX problem, a CASCADE problem, or a SOURCE problem? Check computed styles before touching code",
+    "Rewrite the file",
+    "Ask the design tool",
+    "Random changes until it works"
+   ],
+   "a": 0,
+   "e": "Box: inspect the box model. Cascade: inspect computed + matched selectors. Source: is it even loaded?"
+  },
+  {
+   "q": "An element is smaller than expected. First move:",
+   "o": [
+    "Inspect the box model panel — border-box vs content-box and padding explain most sizing mysteries",
+    "Increase width",
+    "Add !important",
+    "Delete the stylesheet"
+   ],
+   "a": 0,
+   "e": "The box panel shows content/padding/border/margin live — the arithmetic is visible, not guessed."
+  },
+  {
+   "q": "A style will not apply no matter what:",
+   "o": [
+    "Check the cascade order: specificity (IDs/classes count), then source order, then inline styles and !important — the Computed panel names the culprit",
+    "It is a browser bug",
+    "CSS is broken",
+    "Use more !important"
+   ],
+   "a": 0,
+   "e": "Winners are decided by importance → specificity → order. The panel lists which selector won and where it lives."
+  }
+ ],
+ "p10": [
+  {
+   "q": "The rendering pipeline, in order:",
+   "o": [
+    "HTML → DOM tree; CSS → style (cascade + resolved values) → layout (boxes measured) → paint → composite",
+    "Paint → layout → style",
+    "DOM → paint → style",
+    "Style is optional"
+   ],
+   "a": 0,
+   "e": "The interview-grade narration: tokenize → parse → style → layout → paint → composite. Each stage feeds the next."
+  },
+  {
+   "q": "Layout thrash is:",
+   "o": [
+    "Reading a layout value right after writing forces a synchronous relayout — batch your DOM reads and writes",
+    "A paint-only problem",
+    "A GPU issue",
+    "Impossible in modern browsers"
+   ],
+   "a": 0,
+   "e": "JS reads like scrollHeight/offsetWidth mid-write-loop force reflow every time — the classic jank source."
+  },
+  {
+   "q": "z-index only works:",
+   "o": [
+    "INSIDE the nearest stacking context — transform/filter/opacity create them, so z-index decisions are local, not global",
+    "Globally, anywhere",
+    "On any element",
+    "Only on fixed elements"
+   ],
+   "a": 0,
+   "e": "A transformed ancestor traps its children’s z-index. Two “z-index: 9999” fixes fight inside different contexts — the mystery behind most stacking bugs."
+  },
+  {
+   "q": "The parser blocks on:",
+   "o": [
+    "CSS (render-blocking) and non-deferred JS — defer/async scripts stop blocking; <script> mid-body blocks parsing until executed",
+    "Images only",
+    "Web fonts",
+    "Nothing anymore"
+   ],
+   "a": 0,
+   "e": "CSS blocks first paint; classic scripts block parsing. async = fire when ready; defer = after parsing, in order. Fonts trigger FOIT unless you plan for it."
+  }
+ ],
+ "p11": [
+  {
+   "q": "The metrics actually graded:",
+   "o": [
+    "LCP (largest content painted), INP (interaction latency), CLS (layout shift) — and each has a fix: preload, defer work, reserve space",
+    "Hits per second",
+    "FPS only",
+    "File size only"
+   ],
+   "a": 0,
+   "e": "LCP: image sizes + preload. INP: keep main thread free. CLS: width/height on media + stable fonts."
+  },
+  {
+   "q": "CSS architecture’s real trade-off:",
+   "o": [
+    "Consistency + speed of change vs file size + constraint — utilities (Tailwind) vs BEM vs composition; the senior conversation is cost/consistency, not dogma",
+    "Always utilities",
+    "Always BEM",
+    "CSS files are irrelevant"
+   ],
+   "a": 0,
+   "e": "Pick the system your team will actually keep consistent; measure the cost over a year, not a week."
+  },
+  {
+   "q": "The accessibility checks that catch most issues:",
+   "o": [
+    "axe/Lighthouse scan + keyboard-only walk + focus visibility + label audit — most failures are found by these four",
+    "Screen-reader poetry",
+    "Eye-tracking",
+    "Colour picking"
+   ],
+   "a": 0,
+   "e": "Automated scans catch ~30%; the keyboard walk catches the rest. Both together: most of the way."
+  },
+  {
+   "q": "Performance starts at:",
+   "o": [
+    "The critical request chain — fewer, smaller, later — then images, then fonts, then JS payload",
+    "Spinning manufacturers’ lies",
+    "A CDN",
+    "A framework"
+   ],
+   "a": 0,
+   "e": "First paint cares about the chain: HTML → critical CSS → first image. Shipping less, shipping later, wins every time."
+  }
+ ],
+ "p12": [
+  {
+   "q": "Hand-writing CSS wins when:",
+   "o": [
+    "The surface is bespoke and small — custom UI, tight design control, few pages; the file is the system",
+    "The team is large",
+    "There are 40 components",
+    "Always"
+   ],
+   "a": 0,
+   "e": "Hand-written wins on small, design-heavy surfaces where every pixel is deliberate."
+  },
+  {
+   "q": "A framework (or utility layer) wins when:",
+   "o": [
+    "Rapid product iteration — consistency + speed across many screens; tokens keep brand identity anyway",
+    "Never",
+    "Only for marketing sites",
+    "Only with a backend"
+   ],
+   "a": 0,
+   "e": "When screens outnumber hours, the framework’s constraint is the point: your team ships consistent fast."
+  },
+  {
+   "q": "The honest trade-off to name:",
+   "o": [
+    "Build size and debugging surface vs consistency and speed — and conventions matter more than either tool",
+    "Size is the only factor",
+    "Debugging is easy everywhere",
+    "Frameworks have no cost"
+   ],
+   "a": 0,
+   "e": "Whatever you pick, the decision is about your team’s consistency cost over a year — that is the senior framing."
+  },
+  {
+   "q": "What survives every framework change:",
+   "o": [
+    "The semantic layer — real elements, a real outline, tokens as custom properties. The DOM is the contract; frameworks come and go around it",
+    "The utility classes",
+    "The build config",
+    "The component names"
+   ],
+   "a": 0,
+   "e": "Structure is portable; framework-specific markup is not. Your pages’ meaning outlives any stack."
+  }
+ ]
+},
+cards:[
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "1 ▶ The box model — and why border-box is the sane default.",
+  "a": "content + padding + border (+ margin). box-sizing: border-box puts padding/border inside the declared width — no more “width + 32px” arithmetic. (Part 2, Idea 2)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "2 ▶ The cascade order — who wins, and when.",
+  "a": "Important + origin first, then specificity, then source order. Inline styles beat selectors (except !important). A tie goes to the later rule. (Part 2, Idea 4)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "3 ▶ Specificity in one breath.",
+  "a": "IDs > classes/attrs/pseudo-classes > elements. :is()/:where() let you write complex selectors with LOW specificity — keep yours low so later rules can win. (Part 4.1)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "4 ▶ rem vs em — and the only sane spacing rule.",
+  "a": "rem = root em (predictable); em compounds at every nesting level. Use rem for the type/space scale, em only when something should size relative to ITSELF. (Part 4.3)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "5 ▶ Flexbox in one axis — which property controls which axis.",
+  "a": "justify-content = MAIN axis placement; align-items = CROSS axis. flex-grow/shrink/basis decide how space is split. State the axis first, then the property. (Part 5.2)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "6 ▶ Grid vs flex — the actual selector.",
+  "a": "Flex: 1-D, content-sized, items decide. Grid: 2-D, container-sized, tracks decide. auto-fit/minmax(240px, 1fr) = fluid responsive without media queries. (Part 5.3)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "7 ▶ Custom properties — what they are and where they fail.",
+  "a": "Design tokens: declared on :root, inherited, overridable at any level, composable with calc(). They do NOT work inside media queries — precompute what breakpoints need. (Part 4.2)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "8 ▶ The semantic element set that carries the outline.",
+  "a": "header, main, nav, section, article, aside, footer, h1→h6, figure, time, address — the landmarks assistive tech and search use. Every div is a box until you give it meaning. (Part 3.1)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "9 ▶ Forms: the four things every field needs.",
+  "a": "A label (for/id), a name, a correct type, and HTML validation (required/pattern) — plus aria-describedby for help text. Labels are click targets AND accessibility names. (Part 3.3)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "10 ▶ The colour law that is not taste.",
+  "a": "Contrast: 4.5:1 for normal text, 3:1 for large text (WCAG AA). Hue is taste; contrast is law — every audit tool checks it. (Part 7.3)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "11 ▶ The rendering pipeline, named in order.",
+  "a": "HTML → DOM tree; CSS → style (cascade + resolved values) → layout (boxes measured) → paint → composite. The interview-grade narration starts here. (Part 10.1)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "12 ▶ Layout thrash — the one-line explanation.",
+  "a": "A JS read after a write forces a SYNCHRONOUS relayout. Batch your DOM reads and writes; one forced reflow a frame is fine, a loop is jank. (Part 10.2)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "13 ▶ Stacking contexts — why z-index stops working.",
+  "a": "z-index only orders elements INSIDE the same stacking context. transform/filter/opacity/position create new ones — so “z-index: 9999” loses to a transformed ancestor’s context. (Part 10.3)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "14 ▶ The parser-blocks rules.",
+  "a": "CSS blocks rendering. Classic scripts block parsing — defer runs after parsing in order, async fires when ready. Images and fonts do not block parsing, only paint. (Part 10.4)"
+ },
+ {
+  "t": "TIER 3 - SENIOR SIGNAL",
+  "q": "15 ▶ LCP / INP / CLS — what each measures and its fix.",
+  "a": "LCP: largest content → preload + image sizes. INP: interaction latency → keep the main thread free. CLS: layout shift → reserve space (width/height, stable fonts). (Part 11.1)"
+ },
+ {
+  "t": "TIER 3 - SENIOR SIGNAL",
+  "q": "16 ▶ The CSS architecture trade-off — as a senior frames it.",
+  "a": "Consistency + change-speed vs file size + constraint: utilities (Tailwind), BEM, or composition. The decision is your team’s consistency cost over a year, not tool dogma. (Part 11.2)"
+ },
+ {
+  "t": "TIER 3 - SENIOR SIGNAL",
+  "q": "17 ▶ The responsive default that kills breakpoints.",
+  "a": "Intrinsic sizing + flex-wrap + grid auto-fit/minmax + clamp() — layout that reflows by itself; media queries fill the residual gaps. Mobile-first makes the constrained case the default. (Part 6)"
+ },
+ {
+  "t": "TIER 3 - SENIOR SIGNAL",
+  "q": "18 ▶ When to hand-write CSS and when not to.",
+  "a": "Hand-write: bespoke, small, design-heavy surfaces. Framework/utilities: many screens racing to consistency. Either way the semantic layer and tokens survive the choice. (Part 12)"
+ }
+],
+miles:[
+ {
+  "id": "m1",
+  "title": "Milestone 1 ▶ Model",
+  "pass": "Pass: the Part 2 checkpoint aloud — DOM tree, box arithmetic, normal flow, and the cascade order from memory. <b>(Parts 1–2; ~days 1–3)</b>"
+ },
+ {
+  "id": "m2",
+  "title": "Milestone 2 ▶ Semantics",
+  "pass": "Pass: write the full outline of a real page (landmarks, headings, forms with labels) without looking at a design. <b>(Part 3; days 4–6)</b>"
+ },
+ {
+  "id": "m3",
+  "title": "Milestone 3 ▶ Fundamentals",
+  "pass": "Pass: build a token layer (type/colour/space as custom properties) and settle five specificity puzzles using the Computed panel. <b>(Part 4; days 7–12)</b>"
+ },
+ {
+  "id": "m4",
+  "title": "Milestone 4 ▶ Layout",
+  "pass": "Pass: a fluid layout with flex + grid that survives 360px→1440px with no breakpoint below 720px. <b>(Parts 5–6; days 13–16)</b>"
+ },
+ {
+  "id": "m5",
+  "title": "Milestone 5 ▶ Craft & project",
+  "pass": "Pass: the full responsive page — semantic structure, type scale, 4.5:1 contrast, reduced-motion honoured, keyboard-navigable. <b>(Parts 7–8; days 17–25)</b>"
+ },
+ {
+  "id": "m6",
+  "title": "Milestone 6 ▶ Depth",
+  "pass": "Pass: narrate the rendering pipeline in order; fix a real layout-thrash and a stacking-context bug; argue when you would NOT hand-write CSS. <b>(Parts 9–12; days 26–30)</b>"
+ }
+],
+sim:[
+ {
+  "t": 700,
+  "l": "<span class=\"a\">cli</span> GET /index.html — 1.1 MB → 78 KB transferred (gzip)"
+ },
+ {
+  "t": 1000,
+  "l": "<span class=\"a\">parse</span> HTML → DOM tree: tokens → nodes — 14ms, one pass"
+ },
+ {
+  "t": 1100,
+  "l": "<span class=\"a\">style</span> cascade + custom props resolved: 9,214 rules → 1,402 matched"
+ },
+ {
+  "t": 1200,
+  "l": "<span class=\"a\">layout</span> boxes measured: flex + grid + clamp() resolved — 31ms"
+ },
+ {
+  "t": 900,
+  "l": "<span class=\"a\">paint</span> layers rasterised — 12 composited layers"
+ },
+ {
+  "t": 900,
+  "l": "<span class=\"a\">composite</span> frame sent to GPU — 60fps steady"
+ },
+ {
+  "t": 1000,
+  "l": "<span class=\"a\">metric</span> LCP 0.9s · INP 12ms · CLS 0.00 — Core Web Vitals: all green"
+ },
+ {
+  "t": 800,
+  "l": "<span class=\"ok\">OK</span> shipped. 4.5:1 everywhere. keyboard-navigable."
+ }
+]
+
+};
+
+</script>
+<script>
+(function(){
+"use strict";
+
+"use strict";
+/* ================= DATA ================= */
+var META=(window.SHIPYARD_DATA&&SHIPYARD_DATA.meta)||{};
+var PARTS=SHIPYARD_DATA.parts||[];
+var QUIZ=SHIPYARD_DATA.quiz||{};
+var CARDS=SHIPYARD_DATA.cards||[];
+var MILES=SHIPYARD_DATA.miles||[];
+var RANKS=[[0,"SWABBIE"],[100,"DECKHAND"],[200,"BOATSWAIN"],[300,"FIRST MATE"],[420,"DOCKER CAPTAIN"],[540,"HARBOR MASTER"]];
+
+/* ================= STATE ================= */
+var KEY=META.storageKey||("shipyard:"+(META.tech||"x")+":v1");
+var D=JSON.parse(localStorage.getItem(KEY)||"null");
+if(!D||typeof D!=="object"){D={done:{},quiz:{},milestones:{},nailed:{},xp:0,graduated:false};}
+function save(){localStorage.setItem(KEY,JSON.stringify(D));}
+function addXp(n){D.xp=(D.xp||0)+n;}
+function rankFor(xp){var r=RANKS[0];for(var i=0;i<RANKS.length;i++){if(xp>=RANKS[i][0])r=RANKS[i];}return r;}
+function nextRank(xp){for(var i=0;i<RANKS.length;i++){if(xp<RANKS[i][0])return RANKS[i];}return null;}
+function refreshAll(){renderStack();renderNav();renderVoyage();renderHero();renderQuizzes();renderDeck();renderMilestones();}
+
+/* ================= RENDER: STACK ================= */
+function renderStack(){
+  var el=document.getElementById("stackMini");if(!el)return;
+  var h="";
+  for(var i=1;i<PARTS.length;i++){
+    var p=PARTS[i],cls="layer"+(D.done[p.id]?" done":"")+(clearedPart(p.id)?" cleared":"");
+    if(D.done[p.id]&&clearedPart(p.id))cls="layer cleared";
+    h+='<div class="'+cls+'" data-nav="'+p.id+'"><span class="ltip">PART '+p.num+' · '+p.title+'</span></div>';
+  }
+  el.innerHTML=h;
+  el.querySelectorAll(".layer[data-nav]").forEach(function(l){l.addEventListener("click",function(){goto(l.getAttribute("data-nav"));});});
+  var w=el.querySelector(".writable");if(!w){var wd=document.createElement("div");wd.className="layer writable";el.insertBefore(wd,el.firstChild);}
+  var wr=el.querySelector(".writable");
+  if(allDone()){wr.classList.add("live");}
+  document.getElementById("stackCount").textContent=doneCount()+"/14";
+  var ps=document.getElementById("psRow");
+  if(D.graduated){ps.style.display="block";document.getElementById("psRow2").textContent="web  RUNNING  0.0.0.0:80→80   uptime ∞   (yours — every layer earned)";}
+  else ps.style.display="none";
+}
+function allDone(){return PARTS.slice(1).every(function(p){return D.done[p.id];});}
+function doneCount(){return PARTS.slice(1).filter(function(p){return D.done[p.id];}).length;}
+function clearedPart(id){var q=D.quiz[id];return q&&q.best>=70;}
+
+/* ================= RENDER: NAV ================= */
+function renderNav(){
+  var nav=document.getElementById("docknav");if(!nav)return;
+  var h='<div class="docksec">Curriculum</div>';
+  for(var i=0;i<PARTS.length;i++){
+    var p=PARTS[i];
+    var st=D.done[p.id]?"done":(D.quiz[p.id]&&D.quiz[p.id].best>=70?"cleared":"");
+    h+='<div class="navitem" data-nav="'+p.id+'"><span class="n">'+p.num+'</span><span class="nt">'+p.title+'</span><span class="st '+st+'"></span>'+(D.quiz[p.id]&&D.quiz[p.id].best>=0?'<span class="qbadge">★'+D.quiz[p.id].best+'</span>':'')+'</div>';
+  }
+  nav.innerHTML=h;
+  nav.querySelectorAll(".navitem").forEach(function(n){n.addEventListener("click",function(){goto(n.getAttribute("data-nav"));});});
+}
+
+/* ================= RENDER: VOYAGE ================= */
+function renderVoyage(){
+  var v=document.getElementById("voyage");if(!v)return;
+  var h="";
+  for(var i=0;i<PARTS.length;i++){
+    var p=PARTS[i];
+    var t=p.tag?"<span class='wtag wtag-"+p.tag.toLowerCase()+"'>"+p.tag+"</span>":"";
+    h+='<div class="waypoint'+(D.done[p.id]?" done":"")+'" data-nav="'+p.id+'"><span class="wn">'+p.num+'</span><span class="wt"><b>'+p.title+'</b>'+(p.tag?'<span style="color:var(--faint);font-size:10.5px">'+p.tag+' · learning path waypoint</span>':'<span style="color:var(--faint);font-size:10.5px">mission briefing</span>')+'</span>'+t+'</div>';
+  }
+  v.innerHTML=h;
+  v.querySelectorAll(".waypoint").forEach(function(w){w.addEventListener("click",function(){goto(w.getAttribute("data-nav"));});});
+}
+
+/* ================= RENDER: HERO STATUS ================= */
+function renderHero(){
+  var r=rankFor(D.xp),nr=nextRank(D.xp);
+  var el=document.getElementById("rankNow");if(el)el.textContent=r[1];
+  var e2=document.getElementById("hRank");if(e2)e2.textContent=r[1];
+  var e3=document.getElementById("hXp");if(e3)e3.textContent=D.xp;
+  document.getElementById("hLayers").textContent=doneCount()+"/14";
+  var qc=0;for(var k in QUIZ){if(D.quiz[k]&&D.quiz[k].best>=70)qc++;}
+  document.getElementById("hQuizzes").textContent=qc;
+  var rx=document.getElementById("rankXp");
+  if(nr){var lo=r[0],hi=nr[0];rx.textContent=D.xp+" XP · "+Math.round((D.xp-lo)/(hi-lo)*100)+"% of the way to "+nr[1];var bar=document.getElementById("rankBar");if(bar)bar.style.width=Math.min(100,Math.round((D.xp-lo)/(hi-lo)*100))+"%";}
+  else{rx.textContent=D.xp+" XP · MAX RANK · the yard is yours";var bar2=document.getElementById("rankBar");if(bar2)bar2.style.width="100%";}
+  var foot=document.getElementById("dockfoot");
+  foot.innerHTML="layers laid: <b style='color:var(--accent)'>"+doneCount()+"/14</b><br>quizzes ★≥70%: <b style='color:var(--ok)'>"+qc+"/"+Object.keys(QUIZ).length+"</b><br>milestones: <b style='color:var(--ok)'>"+Object.keys(D.milestones).length+"/6</b><br>"+(D.graduated?"<span style='color:var(--ok)'>SHIPPED "+(new Date()).getFullYear()+"</span>":"awaiting launch");
+}
+
+/* ================= QUIZZES ================= */
+function renderQuizzes(){
+  document.querySelectorAll(".quiz").forEach(function(qz){
+    var pid=qz.getAttribute("data-part");
+    var wrap=qz.querySelector(".qwrap");
+    if(qz._rendered===pid){updateQuizScore(qz,pid);return;}
+    qz._rendered=pid;
+    var qs=QUIZZES()[pid];if(!qs){return;}
+    var h="";
+    qs.forEach(function(qu,i){
+      var st=D.quiz[pid]&&D.quiz[pid].first&&D.quiz[pid].first[i];
+      var ow="",cls="";
+      if(st===true||st===false){
+        qu.o.forEach(function(o,j){
+          if(j===qu.a){cls="opt right";}else if(st===false){cls="opt wrong";}else{cls="";}
+          ow+='<button class="opt '+cls+'" disabled>'+o+'</button>';
+        });
+      }else{
+        qu.o.forEach(function(o,j){ow+='<button class="opt" data-q="'+i+'" data-o="'+j+'">'+o+'</button>';});
+      }
+      h+='<div class="q"><p class="qt"><span class="qn">Q'+(i+1)+'.</span> '+qu.q+'</p><div class="opts">'+ow+'</div><p class="qe'+(st===true||st===false?' show':'')+'">'+qu.e+'</p></div>';
+    });
+    wrap.innerHTML=h;
+    wrap.querySelectorAll(".opt[data-q]").forEach(function(btn){
+      btn.addEventListener("click",function(){answer(pid,parseInt(btn.getAttribute("data-q")),parseInt(btn.getAttribute("data-o")),btn);});
+    });
+    updateQuizScore(qz,pid);
+  });
+}
+function QUIZZES(){return QUIZ;}
+function answer(pid,qi,oi,btn){
+  var qs=QUIZZES()[pid],q=qs[qi];
+  var first=!D.quiz[pid]||!D.quiz[pid].tried;
+  var qd=D.quiz[pid]||{first:[],correct:0,total:qs.length,tried:false,best:0};
+  if(!qd.tried)qd.tried=true;
+  var right=(oi===q.a);
+  if(first){qd.first[qi]=(right?1:0);if(right){addXp(3);}}
+  if(first&&right){qd.correct=(qd.correct||0)+1;}
+  var qz=btn.closest(".quiz");
+  btn.closest(".opts").querySelectorAll(".opt").forEach(function(o){o.disabled=true;if(o===btn)o.classList.add(right?"right":"wrong");else if(o.getAttribute("data-o")==q.a)o.classList.add("right");});
+  var qe=btn.closest(".q").querySelector(".qe");qe.classList.add("show");
+  if(first){
+    D.quiz[pid]=qd;
+    save();renderHero();renderStack();renderNav();
+  }else{
+    D.quiz[pid]=qd;save();
+  }
+  var answered=qd.first.filter(function(x){return x===0||x===1;}).length;
+  var correctNow=qd.first.reduce(function(s,v){return s+(v===1?1:0);},0);
+  var pct=Math.round(correctNow/qs.length*100);
+  if(pct>qd.best)qd.best=pct;
+  updateQuizScore(qz,pid);
+  if(answered>=qs.length){finishQuiz(qz,pid,qd,pct,first);}
+  refreshAll();
+}
+function updateQuizScore(qz,pid){
+  var qd=D.quiz[pid];var qs=QUIZZES()[pid];
+  var sc=qz.querySelector(".qscore b");if(sc){if(qd&&qd.best>=0&&qs){sc.textContent=qd.best+"%";}else{sc.textContent="—";}}
+}
+function finishQuiz(qz,pid,qd,pct,first){
+  var res=qz.querySelector(".qres");
+  var pass=pct>=70;
+  var xpGain=first?qd.correct*3:0;
+  res.className="qres show "+(pass?"pass":"fail");
+  res.innerHTML=(pass?"✔ CHECKPOINT CLEARED — "+pct+"%":"✘ "+pct+"% — re-read the section, then re-run the quiz")
+  +" · best "+qd.best+"%"+(xpGain>0?" · <b>+"+xpGain+" XP</b>":"");
+  renderHero();renderStack();renderNav();
+  if(pass&&!qz._celebrated){qz._celebrated=true;}
+}
+
+/* ================= FLASHCARDS ================= */
+function renderDeck(){
+  var deck=document.getElementById("deck");if(!deck||deck._rendered)return;
+  deck._rendered=true;
+  var h="";
+  CARDS.forEach(function(c,i){
+    var nailed=!!D.nailed[i];
+    h+='<div class="card'+(nailed?" nailed":"")+'" data-c="'+i+'">'
+       +'<div class="inner"><div class="face front"><span class="cardtier">'+c.t+'</span><div class="qtext">'+c.q+'</div><span class="flip-hint">CLICK TO REVEAL</span></div>'
+       +'<div class="face back"><span class="cardtier" style="color:var(--ok)">answer</span><div class="qtext">'+c.a+'</div><button class="nailedbtn'+(nailed?" n":"")+'">'+(nailed?"✓ NAILED":"NAIL IT")+'</button></div></div></div>';
+  });
+  deck.innerHTML=h;
+  deck.querySelectorAll(".card").forEach(function(cd){
+    cd.addEventListener("click",function(ev){
+      if(ev.target.classList.contains("nailedbtn")){
+        var i=parseInt(cd.getAttribute("data-c"));
+        D.nailed[i]=!D.nailed[i];save();
+        cd.classList.toggle("nailed");cd.querySelector(".nailedbtn").classList.toggle("n");
+        return;
+      }
+      cd.classList.toggle("flip");
+    });
+  });
+}
+
+/* ================= MILESTONES ================= */
+function renderMilestones(){
+  var ml=document.getElementById("mlist");if(!ml||ml._rendered)return;
+  ml._rendered=true;
+  var h="";
+  MILES.forEach(function(m){
+    var done=!!D.milestones[m.id];
+    h+='<div class="mile'+(done?" done":"")+'" data-m="'+m.id+'"><div class="mbox">✓</div><div><div class="mtitle"><b>'+m.title+'</b></div><div class="mpass">'+m.pass+'</div></div></div>';
+  });
+  ml.innerHTML=h;
+  ml.querySelectorAll(".mile").forEach(function(mi){
+    mi.addEventListener("click",function(){
+      var id=mi.getAttribute("data-m");
+      if(D.milestones[id]){
+        delete D.milestones[id];
+      }else{
+        D.milestones[id]=true;addXp(10);
+      }
+      save();renderMilestones();renderHero();renderStack();renderNav();
+      checkGraduation();
+    });
+  });
+}
+function checkGraduation(){
+  if(!MILES.length)return;
+  if(MILES.every(function(m){return D.milestones[m.id];})&&!D.graduated){
+    D.graduated=true;save();
+    setTimeout(graduation,600);
+  }
+}
+
+/* ================= GRADUATION ================= */
+function graduation(){
+  var g=document.getElementById("grad");
+  var lines=[
+    "> verifying layer p1 ... OK","> verifying layer p2 ... OK","> verifying layer p3 ... OK",
+    "> verifying layer p4 ... OK","> verifying layer p5 ... OK","> verifying layer p6 ... OK",
+    "> verifying layer p7 ... OK","> verifying layer p8 ... OK","> verifying layer p9 ... OK",
+    "> verifying layer p10 ... OK","> verifying layer p11 ... OK","> verifying layer p12 ... OK",
+    "> verifying layer p13 ... OK","> verifying layer p14 ... OK",
+    "> mounting writable layer ... OK","> attaching bridge network ... OK",
+    "> running PID 1 ... OK",""
+  ];
+  var body=g.querySelector(".gbody");
+  body.innerHTML="";
+  var rank=rankFor(D.xp)[1];
+  lines.forEach(function(l,i){
+    var div=document.createElement("div");div.className="gl";div.style.animationDelay=(i*0.22)+"s";
+    div.textContent=l;body.appendChild(div);
+  });
+  var title=document.createElement("div");title.className="gtitle gl";title.style.animationDelay=(lines.length*0.22)+"s";
+  title.textContent="CONTAINER DEPLOYED 🐳";
+  body.appendChild(title);
+  var sub=document.createElement("div");sub.className="gl";sub.style.animationDelay=(lines.length*0.22+0.3)+"s";
+  sub.innerHTML="RANK: <b>"+rank+"</b> · all "+doneCount()+" layers laid · every milestone crossed. The shipyard ships what you built."
+  +"<br><br><i>Remember the one rule: a container is just a process.</i>";
+  body.appendChild(sub);
+  var btn=document.createElement("button");btn.className="btn ok gbtn gl";btn.style.animationDelay=(lines.length*0.22+0.8)+"s";
+  btn.textContent="BACK TO THE DECK";btn.addEventListener("click",function(){g.classList.remove("open");});
+  body.appendChild(btn);
+  g.classList.add("open");
+  confetti();
+  renderStack();renderHero();
+}
+function confetti(){
+  var g=document.getElementById("grad");
+  var colors=["#ffb000","#39d98a","#57d9ff","#ff5d5d"];
+  for(var i=0;i<46;i++){
+    var p=document.createElement("span");p.className="ptcl";
+    p.style.left=Math.random()*100+"%";p.style.top="-10px";
+    p.style.background=colors[i%colors.length];
+    p.style.animationDuration=(2.4+Math.random()*2.6)+"s";
+    p.style.animationDelay=(Math.random()*1.4)+"s";
+    p.style.width=(4+Math.random()*5)+"px";p.style.height=(4+Math.random()*8)+"px";
+    g.appendChild(p);
+    setTimeout(function(el){el.remove();},9000);
+  }
+}
+
+/* ================= SIMULATOR (Part 3.1) ================= */
+var SIMSTEPS=SHIPYARD_DATA.sim||[];
+var simTimer=null;
+function simLine(text){
+  var out=document.getElementById("simOut");
+  var div=document.createElement("div");div.innerHTML=text;
+  div.style.opacity=0;div.style.animation="bli .2s forwards";
+  out.appendChild(div);
+  out.scrollTop=out.scrollHeight;
+}
+function simClear(){
+  var out=document.getElementById("simOut");
+  out.innerHTML='<code style="color:var(--faint)"># docker run -d -p 8080:80 --name web nginx</code>';
+}
+function simRun(){
+  if(simTimer||!SIMSTEPS.length)return;
+  simClear();
+  var i=0;
+  simTimer=setInterval(function(){
+    if(i>=SIMSTEPS.length){clearInterval(simTimer);simTimer=null;return;}
+    var s=SIMSTEPS[i];simLine(s.l);i++;
+  },Math.min.apply(null,[700]));
+  var t=0;
+  SIMSTEPS.forEach(function(s,idx){t+=s.t;setTimeout(simLine.bind(null,s.l),t);});
+  simTimer=setTimeout(function(){simTimer=null;},t+300);
+}
+
+/* ================= INTERACTIVE STACK (Part 2) ================= */
+function setupBigStack(){
+  var big=document.getElementById("stackBig");if(!big||big._bound)return;
+  big._bound=true;
+  var disc=document.getElementById("sbdisc");
+  var info=SHIPYARD_DATA.stackInfo||{};
+  big.querySelectorAll(".sblayer").forEach(function(ly){
+    ly.addEventListener("click",function(){
+      big.querySelectorAll(".sblayer").forEach(function(x){x.classList.remove("selected");});
+      ly.classList.add("selected");
+      disc.innerHTML=info[ly.getAttribute("data-layer")]||"That layer is sealed in the image. Read the part to unlock its story.";
+    });
+  });
+  var running=false,writes=0;
+  var log=document.getElementById("sbLog");
+  var wr=big.querySelector(".writ");
+  var btnStart=document.getElementById("sbStart"),btnWrite=document.getElementById("sbWrite"),btnRm=document.getElementById("sbRm");
+  btnStart.addEventListener("click",function(){
+    if(running){log.textContent="already running";return;}
+    running=true;writes=0;
+    wr.classList.add("live");
+    log.textContent="PID 1 started · container RUNNING";
+    btnWrite.disabled=false;
+  });
+  btnWrite.addEventListener("click",function(){
+    if(!running){log.textContent="start the container first";return;}
+    writes++;
+    wr.style.animation="none";wr.offsetHeight;wr.style.animation="layerin .3s";
+    log.textContent="write #"+writes+" → writable layer ("+(writes*40)+"KB)";
+  });
+  btnRm.addEventListener("click",function(){
+    if(!running){log.textContent="nothing to remove";return;}
+    running=false;
+    wr.classList.remove("live");
+    log.textContent="docker rm → writable layer destroyed · "+writes+" file(s) gone. forever.";
+    btnWrite.disabled=true;
+  });
+}
+
+/* ================= COPY BUTTONS ================= */
+function setupCopy(){
+  document.querySelectorAll(".copybtn").forEach(function(btn){
+    if(btn._bound)return;btn._bound=true;
+    btn.addEventListener("click",function(){
+      var pre=btn.closest(".term").querySelector("pre");
+      var txt=pre?pre.textContent:"";
+      var done=function(){btn.textContent="COPIED ✓";btn.classList.add("copied");setTimeout(function(){btn.textContent="COPY";btn.classList.remove("copied");},1500);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,function(){fallback(txt,done);});}
+      else{fallback(txt,done);}
+    });
+  });
+}
+function fallback(txt,done){
+  var ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";
+  document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e){}
+  ta.remove();done();
+}
+
+/* ================= NAV / SCROLLSPY ================= */
+function goto(id){
+  var el=document.getElementById(id);
+  if(!el)return;
+  el.scrollIntoView({behavior:"smooth",block:"start"});
+  closeDock();
+  var nav=document.querySelectorAll(".navitem");
+  nav.forEach(function(n){n.classList.toggle("active",n.getAttribute("data-nav")===id);});
+}
+function closeDock(){
+  document.getElementById("dock").classList.remove("open");
+  document.getElementById("backdrop").classList.remove("open");
+}
+function setupScrollspy(){
+  var nav=document.getElementById("docknav");
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        nav.querySelectorAll(".navitem").forEach(function(n){n.classList.toggle("active",n.getAttribute("data-nav")===en.target.id);});
+      }
+    });
+  },{rootMargin:"-20% 0px -60% 0px"});
+  document.querySelectorAll(".part").forEach(function(p){obs.observe(p);});
+}
+
+/* ================= BRANDING / EASTER EGG ================= */
+var konami=[38,38,40,40,37,39,37,39,66,65],kpos=0;
+var whaleCount=0;
+function whaleMode(){
+  var w=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  w.setAttribute("id","whaleSwim");w.setAttribute("width","110");w.setAttribute("height","55");w.setAttribute("viewBox","0 0 24 24");
+  w.innerHTML='<path fill="none" stroke="#57d9ff" stroke-width="1.4" d="M4 12c0-4 2.5-7 6-8 3.5 1 6 4 6 8 1.5-1 3-1.5 5-1-1 3-3 5-6 5H6c-1 0-1.5.5-2 1z" stroke-linejoin="round"/><circle cx="8" cy="10" r=".7" fill="#57d9ff"/><path d="M6 20l7-3" stroke="#57d9ff" stroke-width="1" stroke-linecap="round"/>';
+  document.body.appendChild(w);
+  whaleCount++;
+  setTimeout(function(){w.remove();},16000);
+}
+document.addEventListener("keydown",function(ev){
+  if(ev.key==="ArrowUp"&&konami[kpos]===38)kpos++;
+  else if(ev.key==="ArrowDown"&&konami[kpos]===40)kpos++;
+  else if(ev.key==="ArrowLeft"&&konami[kpos]===37)kpos++;
+  else if(ev.key==="ArrowRight"&&konami[kpos]===39)kpos++;
+  else if(ev.key.toLowerCase()==="b"&&konami[kpos]===66)kpos++;
+  else if(ev.key.toLowerCase()==="a"&&konami[kpos]===65)kpos++;
+  else kpos=0;
+  if(kpos===konami.length){kpos=0;whaleMode();whaleMode();var t=document.createElement("div");t.textContent="WHALE MODE ENGAGED";t.style.cssText="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;font-family:var(--mono);color:#57d9ff;border:1px solid #57d9ff;background:rgba(10,14,22,.9);padding:8px 16px;border-radius:4px;letter-spacing:2px;font-size:12px;";document.body.appendChild(t);setTimeout(function(){t.remove();},2200);}
+});
+
+/* ================= DONE BUTTONS ================= */
+function setupDone(){
+  document.querySelectorAll("[data-done]").forEach(function(btn){
+    if(btn._bound)return;btn._bound=true;
+    var pid=btn.getAttribute("data-done");
+    btn.textContent=D.done[pid]?"✔ COMPLETE":"MARK COMPLETE";
+    btn.classList.toggle("ok",!!D.done[pid]);
+    btn.addEventListener("click",function(){
+      if(D.done[pid]){delete D.done[pid];}
+      else{D.done[pid]=true;addXp(25);
+        var part=document.getElementById(pid);if(part)part.classList.add("done");
+      }
+      save();refreshAll();
+      btn.textContent=D.done[pid]?"✔ COMPLETE":"MARK COMPLETE";
+      btn.classList.toggle("ok",!!D.done[pid]);
+    });
+  });
+  PARTS.forEach(function(p){
+    var el=document.getElementById(p.id);
+    if(el&&D.done[p.id])el.classList.add("done");
+  });
+}
+
+/* ================= BURGER ================= */
+document.getElementById("burger").addEventListener("click",function(){
+  var d=document.getElementById("dock");
+  var open=d.classList.toggle("open");
+  document.getElementById("backdrop").classList.toggle("open",open);
+});
+document.getElementById("backdrop").addEventListener("click",closeDock);
+
+/* ================= BOOT ================= */
+function applyMeta(){
+  var t=document.querySelector("title");if(t&&META.title)t.textContent=META.title;
+  var bn=document.querySelector(".bname");if(bn&&META.brand)bn.textContent=META.brand;
+  var bs=document.querySelector(".bsub");if(bs&&META.tagline)bs.textContent=META.tagline;
+  if(META.accent){
+    var h=META.accent.replace("#","");
+    var r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+    var m=function(v){return Math.max(0,Math.round(v*0.62));};
+    var st=document.documentElement.style;
+    st.setProperty("--accent",META.accent);
+    st.setProperty("--accent-soft","rgb("+m(r)+","+m(g)+","+m(b)+")");
+  }
+}
+window.addEventListener("load",function(){
+  applyMeta();
+  refreshAll();
+  setupBigStack();
+  setupCopy();
+  setupDone();
+  setupScrollspy();
+  var simBtn=document.getElementById("simRun");if(simBtn){simBtn.addEventListener("click",simRun);}
+  var simRst=document.getElementById("simReset");if(simRst){simRst.addEventListener("click",function(){if(simTimer){clearTimeout(simTimer);simTimer=null;}simClear();});}
+  checkGraduation();
+});
+
+})();
+
+</script>
+</body>
+</html>

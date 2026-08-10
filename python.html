@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en" data-render="img">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The Python Shipyard - Python: A First-Principles Curriculum">
+<meta property="og:description" content="Python · object model · mutability · protocols — a first-principles interactive curriculum, one portable HTML file, runs offline.">
+<meta property="og:image" content="assets/og/python.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%2316b981%22 d=%22M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z%22/%3E%3C/svg%3E">
+<meta name="contract" content="shipyard-python@1">
+<title>The Python Shipyard - Python: A First-Principles Curriculum</title>
+<link rel="stylesheet" href="assets/shipyard.css">
+</head>
+<body>
+<div id="scanlines"></div><div id="vignette"></div>
+<button id="burger">&#9776; MAP</button><div id="backdrop"></div>
+<div id="app">
+<aside id="dock">
+  <div class="brand">
+    <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="var(--accent)" d="M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z"/>
+      <rect x="7" y="11" width="2" height="2" fill="var(--bg)"/><rect x="12" y="11" width="2" height="2" fill="var(--bg)"/><rect x="17" y="11" width="2" height="2" fill="var(--bg)"/>
+    </svg>
+    <div><div class="bname">THE PYTHON SHIPYARD</div><div class="bsub">Python · object model · mutability · protocols</div></div>
+  </div>
+
+  <div class="rankbox">
+    <div class="rk" id="rankNow">SWABBIE</div>
+    <div class="rkxp" id="rankXp"></div>
+    <div class="prbar"><i id="rankBar"></i></div>
+  </div>
+
+  <div class="stackbox">
+    <div class="st"><span>THE STACK — your container</span><span id="stackCount">0/14</span></div>
+    <div id="stackMini"></div>
+    <div id="psRow"><b>$ docker ps</b><br><span id="psRow2">—</span></div>
+  </div>
+
+  <nav class="docknav" id="docknav"></nav>
+
+  <div class="legend">
+    <div class="lt">Depth legend</div>
+    <div class="lg"><span class="sw" style="background:var(--deep);box-shadow:0 0 6px rgba(255,93,93,.6)"></span><span><b style="color:var(--deep)">DEEP</b> — core mental model. Prove it out loud.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--recog)"></span><span><b style="color:var(--recog)">RECOGNIZE</b> — read fluently; write with docs open.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--ref)"></span><span><b style="color:var(--ref)">REFERENCE</b> — know it exists. Never memorize.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--adv)"></span><span><b style="color:var(--adv)">ADVANCED</b> — return after Part 8.</span></div>
+  </div>
+
+  <div class="dockfoot" id="dockfoot"></div>
+</aside>
+
+<main>
+<section class="hero" id="part0">
+  <div class="boot"><div class="bl">$ shipyard boot --curriculum python-first-principles</div>
+    <div class="bl">STAGE 1: LOADING PARTS 0–14 ......... <span style="color:var(--ok)">OK</span></div>
+    <div class="bl">STAGE 2: MOUNTING DEPTH TAGS .......... <span style="color:var(--ok)">OK</span></div>
+    <div class="bl"><span class="warn">WARNING: names are labels, not boxes. Most Python bugs are Idea 1 wearing a costume.</span></div>
+    <div class="bl">AWAITING CREW — 14 waypoints ahead. <span class="cursor" style="color:var(--accent)">▮</span></div>
+  </div>
+  <h1>PYTHON, UNDERSTOOD.<br><span class="wh">NOT JUST SNIPPED.</span></h1>
+  <p class="sub">This is a first-principles curriculum rebuilt as a mission. Learn the object model <b>deeply</b> — names are labels, not boxes; mutability divides all surprising behaviour — reference the rest, and physically <b>build the shipyard&#39;s container</b> in the sidebar as you complete parts. Quizzes earn XP. Ranks go from <b>Swabbie</b> to <b>Harbor Master</b>. Finish all 14 parts and the shipyard ships your container.</p>
+  <div class="hstatus">
+    <div class="hchip">RANK <b id="hRank">SWABBIE</b></div>
+    <div class="hchip">XP <b id="hXp">0</b></div>
+    <div class="hchip">LAYERS <b id="hLayers">0/14</b></div>
+    <div class="hchip">QUIZZES CLEARED <b class="ok" id="hQuizzes">0</b></div>
+  </div>
+  <div id="voyageHead">THE VOYAGE — 14 WAYPOINTS</div>
+  <div class="voyage" id="voyage"></div>
+</section>
+
+<section class="part" id="p0">
+  <div class="phead"><div class="pnum">00</div>
+    <div><div class="ptitle">How to Use This Curriculum</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p0">MARK COMPLETE</button></div>
+  </div>
+
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>Part 1   Where Python came from                 [DEEP — explains its values]
+Part 2   The core mental model                  [DEEP — most important part]
+Part 3   The built-in data types and when to use each
+Part 4   Functions, closures, decorators, generators
+Part 5   Objects and the data model (dunder protocols)
+Part 6   Errors, control flow, context managers
+Part 7   Modules, packages, environments, project layout
+Part 8   Real projects: an ETL pipeline + a FastAPI service
+Part 9   Debugging playbook
+Part 10  Internals: CPython, the GIL, concurrency
+Part 11  Production: typing, testing, packaging, performance
+Part 12  When not to use Python
+Part 13  Interview preparation
+Part 14  Milestones</code></pre></div>
+
+  <div class="breadcrumb"><a class="next" href="#p1">01 · WHERE PYTHON CAME FROM &rarr;</a></div>
+</section>
+
+<section class="part" id="p1">
+  <div class="phead"><div class="pnum">01</div>
+    <div><div class="ptitle">Where Python Came From</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p1">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Python's design is unusually *intentional*, and knowing the intent explains why it looks the way it does.</p>
+
+<h2>The lineage</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Year</th><th>What happened</th><th>Why it still affects you</th></tr></thead><tbody><tr><td>Dec 1989</td><td>Guido van Rossum starts it as a Christmas-break project at CWI (Amsterdam), as a successor to <b>ABC</b> — a teaching language he admired but found limited</td><td>ABC gave Python its readability obsession, indentation-as-syntax, and high-level built-in types. Python was designed to be *read*, from day one</td></tr><tr><td>1991</td><td>First public release. Named after <b>Monty Python's Flying Circus</b>, not the snake</td><td>The reason docs and tutorials use <code class="inline">spam</code>/<code class="inline">eggs</code></td></tr><tr><td>1994–2000</td><td>Python 1.x. Lambda, map, filter, reduce arrive (borrowed from Lisp) — Guido never loved them</td><td>Why Python has functional tools but comprehensions are considered more Pythonic</td></tr><tr><td>2000</td><td>Python 2.0: list comprehensions, garbage collection for cycles, Unicode support begins. <b>PEP process</b> established</td><td>PEPs are why the language evolves by written, debated proposals rather than by committee or vendor whim</td></tr><tr><td>2001</td><td>Tim Peters' <b>"Zen of Python"</b> (<code class="inline">import this</code>)</td><td>"There should be one — and preferably only one — obvious way to do it." The explicit anti-Perl, anti-JavaScript design stance</td></tr><tr><td>2008</td><td><b>Python 3.0</b> breaks backward compatibility to fix text/bytes, integer division, and print</td><td>The great schism — a *twelve-year* migration that ended in 2020. Compare with JS's "never break the web": Python chose correctness over compatibility and paid for it in a decade of ecosystem split</td></tr><tr><td>2006–2015</td><td>numpy, scipy, pandas, scikit-learn. Python quietly wins scientific computing</td><td>Not because Python is fast — because it's a <b>great glue language</b>: readable syntax over C/Fortran numerical cores. The speed lives in C; Python orchestrates</td></tr><tr><td>2014–now</td><td>Type hints (PEP 484, 2014), asyncio (3.4), f-strings (3.6), dataclasses (3.7), walrus (3.8), pattern matching (3.10)</td><td>Python absorbed static typing *optionally* — annotations that tooling reads and the runtime ignores</td></tr><tr><td>2020–now</td><td>3.11+ delivers large real speedups; work on removing the GIL (PEP 703) is underway</td><td>The historical "Python is slow" and "Python can't do threads" claims are being actively dismantled — say so carefully and with dates in interviews</td></tr></tbody></table></div>
+
+<h2>The three ideas actually invented (or chosen) here</h2>
+
+<ol><li><b>Readability as a language-level constraint.</b> Indentation *is* syntax — you cannot write badly-formatted Python. That was a deliberate bet that code is read far more often than written, and it's why Python became the default teaching and scripting language.</li></ol>
+
+<ol><li><b>One obvious way.</b> Deliberately fewer features and idioms than Perl or C++. This is why "Pythonic" is a meaningful word: the community holds that there's usually a right way, and follows PEP 8 near-universally.</li></ol>
+
+<ol><li><b>Glue, not engine.</b> Python's biggest win — scientific computing and AI — came from being pleasant to write *around* fast C libraries. <code class="inline">numpy</code>, <code class="inline">pandas</code>, <code class="inline">torch</code>: all C/C++/CUDA underneath. Understanding this reframes "Python is slow" into "Python is slow at loops and fast at orchestrating vectorized C" — which is precisely the lesson you need for your pandas work: <b>the loop you write in Python is the bottleneck; the operation you hand to pandas is not.</b></li></ol>
+
+<h2>The framing that reads senior</h2>
+
+<p>*"Python optimized for programmer time over machine time, and for reading over writing. Its dominance in data and AI isn't about performance — it's that it's the most pleasant available interface to fast native code. And unlike JavaScript, it was willing to break backward compatibility to fix its mistakes, which cost the ecosystem twelve painful years but left a cleaner language."*</p>
+
+<div class="quiz" data-part="p1"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p0">&larr; 00 · HOW TO USE THIS CURRICULUM</a><a class="next" href="#p2">02 · THE CORE MENTAL MODEL &rarr;</a></div>
+</section>
+
+<section class="part" id="p2">
+  <div class="phead"><div class="pnum">02</div>
+    <div><div class="ptitle">The Core Mental Model</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p2">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Five ideas. If you get Idea 1 and 2, most Python bugs become predictable.</p>
+
+<h2>Idea 1: Everything is an object, and names are labels — not boxes</h2>
+
+<p>This is *the* Python model, and it differs from how most people first imagine variables.</p>
+
+<p>A variable is not a container holding a value. It is a <b>name bound to an object</b>. Assignment binds a name; it never copies.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>a = [1, 2, 3]
+b = a            # b is another NAME for the SAME list object
+b.append(4)
+a                # [1, 2, 3, 4]
+
+x = 5
+y = x            # both name the same int object
+y = 6            # rebinds y to a DIFFERENT object; x is untouched</code></pre></div>
+
+<p>Why both behave "differently": nothing about assignment differed. What differed is <b>mutability</b> — you can change a list in place, so both names see the change; you cannot change an int in place, so <code class="inline">y = 6</code> had to create/point to a new object.</p>
+
+<p>Everything is an object, including functions, classes, and modules — so they can be passed around, stored in lists, and given attributes. <code class="inline">id(obj)</code> shows identity; <code class="inline">is</code> compares identity while <code class="inline">==</code> compares value. (<code class="inline">a is b</code> for small ints and short strings can be surprisingly <code class="inline">True</code> due to interning — an implementation detail, never rely on it.)</p>
+
+<h2>Idea 2: Mutable vs immutable is the dividing line for all surprising behaviour</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Immutable</th><th>Mutable</th></tr></thead><tbody><tr><td><code class="inline">int</code>, <code class="inline">float</code>, <code class="inline">str</code>, <code class="inline">bytes</code>, <code class="inline">tuple</code>, <code class="inline">frozenset</code>, <code class="inline">bool</code>, <code class="inline">None</code></td><td><code class="inline">list</code>, <code class="inline">dict</code>, <code class="inline">set</code>, most class instances, <code class="inline">bytearray</code></td></tr></tbody></table></div>
+
+<p>Three consequences you will hit for real:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code><span class="c"># 1. The mutable default argument — the most famous Python trap</span>
+def add(item, target=[]):        # this list is created ONCE, at definition
+    target.append(item); return target
+add(1); add(2)                   # [1, 2]  ← shared across calls!
+def add(item, target=None):      # the fix
+    target = [] if target is None else target
+
+<span class="c"># 2. Functions can mutate your arguments (pass-by-object-reference)</span>
+def clean(rows): rows.sort()     # caller's list is now reordered
+
+<span class="c"># 3. Copies are shallow by default</span>
+import copy
+shallow = original.copy()        # nested objects still shared
+deep = copy.deepcopy(original)   # fully independent</code></pre></div>
+
+<p>Only immutable objects can be dict keys or set members — because hashing requires the value not to change. That's the whole reason tuples exist alongside lists.</p>
+
+<h2>Idea 3: Iteration is a protocol, and laziness is everywhere</h2>
+
+<p><code class="inline">for x in thing</code> does not need a list. It calls <code class="inline">iter(thing)</code> to get an iterator, then <code class="inline">next()</code> repeatedly until <code class="inline">StopIteration</code>. Anything implementing that protocol is iterable — files, dict views, generators, database cursors, custom classes.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>with open('big.csv') as f:        # a file IS an iterator of lines
+    for line in f:               # streams, never loads the whole file
+        process(line)</code></pre></div>
+
+<p>This is why Python handles data larger than memory gracefully, and why <code class="inline">range(10_000_000)</code> costs nothing (it computes on demand rather than building a list). Generators (Part 4) are how you write your own lazy pipelines — directly relevant to any ETL work.</p>
+
+<h2>Idea 4: Scope is LEGB, and assignment creates a local</h2>
+
+<p>Name lookup order: <b>L</b>ocal → <b>E</b>nclosing → <b>G</b>lobal → <b>B</b>uiltins.</p>
+
+<p>The rule that trips everyone: <b>assigning to a name anywhere in a function makes it local for the entire function</b>, even before the assignment line.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>count = 0
+def bump():
+    count += 1        # UnboundLocalError — `count` is local because it's assigned here
+def bump_ok():
+    global count      # explicit, and usually a design smell
+    count += 1</code></pre></div>
+
+<p>Preferred fix: don't mutate globals — return values instead. <code class="inline">nonlocal</code> exists for closures. Note the philosophy: Python makes you *say* you're reaching outward, matching "explicit is better than implicit."</p>
+
+<h2>Idea 5: Duck typing — behaviour matters, not type</h2>
+
+<p>Python doesn't check what something *is*; it tries what you asked and fails if unsupported. "If it quacks like a duck." Consequence: functions work with anything supporting the needed operations — a real strength for composition. Also why <code class="inline">try/except</code> (EAFP: easier to ask forgiveness than permission) is idiomatic where other languages check types first.</p>
+
+<p>Type hints (Part 11) don't change this — the runtime ignores them entirely. They're for tooling and for humans.</p>
+
+<h2>Checkpoint — before Part 3</h2>
+
+<p>Without running anything:</p>
+
+<ol><li><code class="inline">def f(x=[])</code> — explain precisely what goes wrong and when the list is created.</li></ol>
+
+<ol><li><code class="inline">a = [1,2]; b = a; b = b + [3]</code> — what is <code class="inline">a</code>, and why does it differ from <code class="inline">b.append(3)</code>?</li></ol>
+
+<ol><li>Why can a tuple be a dict key but a list cannot?</li></ol>
+
+<ol><li>Why does <code class="inline">for line in open(f)</code> handle a 10GB file when <code class="inline">open(f).readlines()</code> doesn't?</li></ol>
+
+<ol><li>Why does <code class="inline">count += 1</code> inside a function raise <code class="inline">UnboundLocalError</code> when <code class="inline">print(count)</code> alone wouldn't?</li></ol>
+
+<div class="quiz" data-part="p2"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p1">&larr; 01 · WHERE PYTHON CAME FROM</a><a class="next" href="#p3">03 · BUILT-IN DATA TYPES AND WHEN TO USE EACH &rarr;</a></div>
+</section>
+
+<section class="part" id="p3">
+  <div class="phead"><div class="pnum">03</div>
+    <div><div class="ptitle">Built-in Data Types and When to Use Each</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p3">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>3.1 The four workhorses [DEEP — the trade-offs, not the methods]</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Type</th><th>Ordered</th><th>Mutable</th><th>Lookup cost</th><th>Use when</th></tr></thead><tbody><tr><td><code class="inline">list</code></td><td>Yes</td><td>Yes</td><td>O(n) search, O(1) index</td><td>Ordered sequence you'll modify; the default collection</td></tr><tr><td><code class="inline">tuple</code></td><td>Yes</td><td>No</td><td>O(n) search</td><td>Fixed records ("a row"), dict keys, safe returns of multiple values</td></tr><tr><td><code class="inline">dict</code></td><td>Insertion order (3.7+)</td><td>Yes</td><td><b>O(1)</b> by key</td><td>Lookups by key, grouping, counting, JSON-shaped data</td></tr><tr><td><code class="inline">set</code></td><td>No</td><td>Yes</td><td><b>O(1)</b> membership</td><td>Uniqueness, membership tests, set algebra (diffs between two ID lists)</td></tr></tbody></table></div>
+
+<p>The single most valuable performance instinct in Python: <b><code class="inline">x in some_list</code> is O(n); <code class="inline">x in some_set</code> is O(1).</b> Turning a list into a set before a loop of membership checks converts an accidental O(n²) into O(n). This is the most common real speedup in data-cleaning scripts, and it's the kind of thing that turns a 40-minute job into 4 seconds.</p>
+
+<h2>3.2 Strings [DEEP on immutability + Unicode]</h2>
+
+<p>Immutable — every "modification" creates a new string. So building a string in a loop with <code class="inline">+=</code> is O(n²); use <code class="inline">''.join(parts)</code>. Text is <code class="inline">str</code> (Unicode code points); bytes are <code class="inline">bytes</code>. <code class="inline">encode()</code> goes str→bytes, <code class="inline">decode()</code> goes bytes→str. This distinction *is* the Python 3 break (Part 1), and it's why you must specify <code class="inline">encoding='utf-8'</code> when reading files — a <code class="inline">UnicodeDecodeError</code> on a client CSV is the single most common data-work error in India-facing work with mixed-encoding exports.</p>
+
+<p>f-strings are the modern default: <code class="inline">f"{name}: {total:,.2f}"</code> — and <code class="inline">f"{value=}"</code> for debugging.</p>
+
+<h2>3.3 Comprehensions [DEEP — the Pythonic transformation idiom]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>opens   = [c['id'] for c in cases if c['status'] == 'open']      # list
+by_id   = {c['id']: c for c in cases}                            # dict
+courts  = {c['court'] for c in cases}                            # set
+lazy    = (expensive(c) for c in cases)                          # GENERATOR — nothing runs yet</code></pre></div>
+
+<p>Read these as SQL, since that's your native language: <code class="inline">[expr for row in table if cond]</code> is <code class="inline">SELECT expr FROM table WHERE cond</code>. Prefer comprehensions over <code class="inline">map</code>/<code class="inline">filter</code> (more readable, and Guido's own preference). Stop at two levels of nesting — beyond that, write a loop or a generator function; clarity wins.</p>
+
+<h2>3.4 The standard library pieces that carry real work [RECOGNIZE]</h2>
+
+<p><code class="inline">collections.Counter</code> (frequency counts in one line), <code class="inline">defaultdict</code> (grouping without key checks), <code class="inline">pathlib.Path</code> (path handling that isn't string surgery), <code class="inline">datetime</code>/<code class="inline">zoneinfo</code> (always store UTC, convert at the edges), <code class="inline">decimal.Decimal</code> (money — never float, same lesson as JS), <code class="inline">itertools</code> (<code class="inline">groupby</code>, <code class="inline">chain</code>, <code class="inline">islice</code>, <code class="inline">batched</code>), <code class="inline">json</code>, <code class="inline">csv</code>, <code class="inline">re</code>, <code class="inline">dataclasses</code>, <code class="inline">enum</code>, <code class="inline">logging</code>.</p>
+
+<div class="quiz" data-part="p3"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p2">&larr; 02 · THE CORE MENTAL MODEL</a><a class="next" href="#p4">04 · FUNCTIONS, CLOSURES, DECORATORS, GENERATORS &rarr;</a></div>
+</section>
+
+<section class="part" id="p4">
+  <div class="phead"><div class="pnum">04</div>
+    <div><div class="ptitle">Functions, Closures, Decorators, Generators</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p4">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>4.1 Parameters, properly [DEEP]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>def fetch(table, *cols, limit=100, offset=0, **filters):
+    ...
+fetch('cases', 'id', 'court', limit=50, status='open')</code></pre></div>
+
+<p><code class="inline">*args</code> collects extra positionals into a tuple; <code class="inline">**kwargs</code> collects extra keywords into a dict. Keyword-only parameters (after <code class="inline">*</code>) are a design tool: they force call sites to be self-documenting, which matters for functions with several similar arguments. Type hints belong here (Part 11), and the mutable-default trap from Idea 2 lives here.</p>
+
+<h2>4.2 Closures [DEEP]</h2>
+
+<p>Same mechanism as JavaScript: a nested function retains access to the enclosing scope's names.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>def make_validator(required):
+    def validate(row):
+        return [f for f in required if not row.get(f)]   # `required` retained
+    return validate
+check = make_validator(['case_no', 'court'])</code></pre></div>
+
+<p>Python's version of the classic closure bug is <b>late binding</b>: closures capture the *name*, not the value at creation time.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>fns = [lambda: i for i in range(3)]
+[f() for f in fns]              # [2, 2, 2]  — all see the final i
+fns = [lambda i=i: i for i in range(3)]   # bind at definition → [0, 1, 2]</code></pre></div>
+
+<h2>4.3 Decorators [DEEP concept, RECOGNIZE syntax]</h2>
+
+<p>A decorator is a function that takes a function and returns a replacement. <code class="inline">@</code> is just sugar: <code class="inline">f = deco(f)</code>.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>import functools, time, logging
+
+def timed(fn):
+    @functools.wraps(fn)                     # preserve __name__, docstring
+    def wrapper(*args, **kwargs):
+        t0 = time.perf_counter()
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            logging.info("%s took %.2fs", fn.__name__, time.perf_counter() - t0)
+    return wrapper
+
+@timed
+def load_cases(path): ...</code></pre></div>
+
+<p>Why they exist: <b>cross-cutting concerns</b> — timing, logging, retries, caching, auth, transactions — that you don't want duplicated in every function body. Once you see this, FastAPI's <code class="inline">@app.get(...)</code>, pytest's <code class="inline">@fixture</code>, and <code class="inline">@functools.lru_cache</code> all stop being magic and become "a function wrapping my function." That single realization is worth the whole section, and it's a strong interview answer.</p>
+
+<h2>4.4 Generators [DEEP — the ETL tool]</h2>
+
+<p>A function with <code class="inline">yield</code> returns a generator: it produces values lazily, suspending and resuming, holding one item in memory at a time.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>def read_rows(path):
+    with open(path, encoding='utf-8') as f:
+        for line in f:
+            yield parse(line)                      # one row at a time
+
+def valid(rows):
+    for r in rows:
+        if r['amount'] &gt; 0: yield r
+
+def enriched(rows):
+    for r in rows:
+        yield {**r, 'gst': r['amount'] * 0.18}
+
+for row in enriched(valid(read_rows('huge.csv'))):  # a streaming pipeline
+    write(row)                                       # constant memory, any file size</code></pre></div>
+
+<p>That composition is the correct shape for any ETL work, and it's the strongest argument for understanding the iteration protocol from Idea 3. Compare with the pandas approach: pandas loads everything into memory but vectorizes the operations. Knowing when to stream (huge files, row-independent logic) versus vectorize (fits in memory, columnar math) is a real engineering judgment — and one that will come up when you talk about data pipelines in a BA/technical interview.</p>
+
+<div class="quiz" data-part="p4"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p3">&larr; 03 · BUILT-IN DATA TYPES AND WHEN TO USE EACH</a><a class="next" href="#p5">05 · OBJECTS AND THE DATA MODEL &rarr;</a></div>
+</section>
+
+<section class="part" id="p5">
+  <div class="phead"><div class="pnum">05</div>
+    <div><div class="ptitle">Objects and the Data Model</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p5">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>5.1 Classes when they're warranted [DEEP as judgment]</h2>
+
+<p>Python does not require classes. A module of functions is often better. Use a class when you have <b>state plus behaviour that belong together</b> and multiple instances. Don't use one as a namespace for stateless functions — that's a Java habit, and un-Pythonic.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>from dataclasses import dataclass, field
+from decimal import Decimal
+
+@dataclass
+class Invoice:
+    number: str
+    amount: Decimal
+    items: list[str] = field(default_factory=list)   # ← Idea 2, enforced by dataclasses
+    def with_gst(self) -&gt; Decimal:
+        return self.amount * Decimal('1.18')</code></pre></div>
+
+<p><code class="inline">@dataclass</code> generates <code class="inline">__init__</code>, <code class="inline">__repr__</code>, and <code class="inline">__eq__</code>. For records — which is most of what data work needs — it removes nearly all boilerplate. Note <code class="inline">default_factory</code>: the dataclass API *forces* you to avoid the mutable-default trap, which tells you how common that bug is.</p>
+
+<h2>5.2 The data model: dunder methods are protocols [DEEP — this is Python's real secret]</h2>
+
+<p>Python's built-in syntax is defined in terms of methods your objects can implement. <code class="inline">len(x)</code> calls <code class="inline">x.__len__()</code>. <code class="inline">a + b</code> calls <code class="inline">a.__add__(b)</code>. <code class="inline">for x in y</code> calls <code class="inline">y.__iter__()</code>. <code class="inline">with x:</code> calls <code class="inline">x.__enter__()</code>/<code class="inline">__exit__()</code>. <code class="inline">x[k]</code> calls <code class="inline">__getitem__</code>.</p>
+
+<p>So "Pythonic" design means: <b>implement the protocol and your object works with the whole language.</b></p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>class CaseList:
+    def __init__(self, cases): self._cases = cases
+    def __len__(self):  return len(self._cases)          # len()
+    def __iter__(self): return iter(self._cases)         # for, list(), unpacking
+    def __getitem__(self, i): return self._cases[i]      # indexing, slicing
+    def __repr__(self):  return f"CaseList({len(self)} cases)"   # debugging</code></pre></div>
+
+<p>That object now works in <code class="inline">for</code>, <code class="inline">len()</code>, <code class="inline">in</code>, comprehensions, and <code class="inline">list()</code> — with no inheritance. This is duck typing (Idea 5) formalized, and it's how pandas DataFrames and numpy arrays feel native. If you can explain "the data model is a set of protocols, not an inheritance hierarchy," you're ahead of most Python interviewees.</p>
+
+<h2>5.3 Properties, inheritance, composition [RECOGNIZE]</h2>
+
+<p><code class="inline">@property</code> turns a method into an attribute access — so you can add validation or computation later without changing every call site. Inheritance: use it for genuine "is-a" specialization; prefer composition (holding collaborators) otherwise. <code class="inline">abc.ABC</code> for defining an interface contract. Python's MRO and multiple inheritance are [ADVANCED] — know that <code class="inline">super()</code> follows a linearized order and leave the details until needed.</p>
+
+<div class="quiz" data-part="p5"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p4">&larr; 04 · FUNCTIONS, CLOSURES, DECORATORS, GENERATORS</a><a class="next" href="#p6">06 · ERRORS, CONTROL FLOW, CONTEXT MANAGERS &rarr;</a></div>
+</section>
+
+<section class="part" id="p6">
+  <div class="phead"><div class="pnum">06</div>
+    <div><div class="ptitle">Errors, Control Flow, Context Managers</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p6">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>6.1 Exceptions are normal control flow [DEEP]</h2>
+
+<p>In Python, exceptions are not exceptional. <code class="inline">StopIteration</code> ends every <code class="inline">for</code> loop; <code class="inline">KeyError</code> is how dicts report a miss. The idiom is <b>EAFP</b> — try it, handle failure — rather than LBYL (check first), because checking-then-acting has race conditions and reads worse.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>try:
+    row = parse(line)
+except ValueError as e:                       # catch SPECIFIC exceptions
+    logging.warning("skipping bad row %r: %s", line, e)
+    continue
+except (KeyError, TypeError):
+    raise                                     # re-raise what you can't handle
+else:
+    save(row)                                 # ran only if no exception
+finally:
+    counter += 1                              # always runs</code></pre></div>
+
+<p>The rules that matter: <b>never bare <code class="inline">except:</code></b> (it swallows <code class="inline">KeyboardInterrupt</code> and every bug you haven't thought of); catch the narrowest exception you can actually handle; and never silence an exception without logging it. <code class="inline">raise NewError(...) from e</code> preserves the original cause in the traceback — the difference between a debuggable error and a mystery.</p>
+
+<p>Define your own for domain failures (<code class="inline">class ValidationError(Exception)</code>) so callers can distinguish "the data was bad" from "the network died."</p>
+
+<h2>6.2 Context managers [DEEP]</h2>
+
+<p><code class="inline">with</code> guarantees cleanup even on exception — the mechanism behind file handles, DB connections and transactions, locks, and temp directories.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>with open(src, encoding='utf-8') as f, open(dst, 'w', newline='') as out:
+    ...                                       # both closed no matter what happens
+
+from contextlib import contextmanager
+@contextmanager
+def timed(label):
+    t0 = time.perf_counter()
+    try: yield
+    finally: logging.info("%s: %.2fs", label, time.perf_counter() - t0)
+
+with timed("load"): load_cases(path)</code></pre></div>
+
+<p>The reason this exists rather than manual <code class="inline">try/finally</code>: resource leaks are invisible until production. If you're writing <code class="inline">.close()</code> by hand, you're writing a future bug.</p>
+
+<h2>6.3 Modern control flow [RECOGNIZE]</h2>
+
+<p>Walrus <code class="inline">:=</code> for assign-and-test (<code class="inline">while (chunk := f.read(8192)):</code>), <code class="inline">match/case</code> for structural pattern matching on shaped data (genuinely good for parsing API responses, overkill as a switch statement), and <code class="inline">enumerate</code>/<code class="inline">zip</code> instead of index arithmetic — <code class="inline">for i, row in enumerate(rows, start=1)</code> is the idiomatic counted loop.</p>
+
+<div class="quiz" data-part="p6"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p5">&larr; 05 · OBJECTS AND THE DATA MODEL</a><a class="next" href="#p7">07 · MODULES, PACKAGES, ENVIRONMENTS &rarr;</a></div>
+</section>
+
+<section class="part" id="p7">
+  <div class="phead"><div class="pnum">07</div>
+    <div><div class="ptitle">Modules, Packages, Environments</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p7">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>7.1 Imports [DEEP enough to stop the errors]</h2>
+
+<p>A module is a file; a package is a directory. <code class="inline">import x</code> binds a *module object* to a name — modules are objects too (Idea 1), and they're executed once and cached in <code class="inline">sys.modules</code>.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>from pathlib import Path              # specific name — preferred
+import pandas as pd                   # conventional alias
+from .models import Invoice           # relative, inside a package</code></pre></div>
+
+<p>Never <code class="inline">from x import *</code> (pollutes the namespace, breaks tooling, hides origins). The <code class="inline">if __name__ == "__main__":</code> guard exists because importing a module *runs* it — the guard separates "run as a script" from "imported as a library," which is what lets the same file be both.</p>
+
+<p>Import errors are the #1 beginner blocker, and the cause is almost always <b>where you ran python from</b>, not your code: Python resolves imports against <code class="inline">sys.path</code>, which starts with the script's directory. Running <code class="inline">python src/main.py</code> versus <code class="inline">python -m src.main</code> produces different <code class="inline">sys.path</code> and thus different results. Use <code class="inline">-m</code> for packages.</p>
+
+<h2>7.2 Environments [DEEP — non-negotiable hygiene]</h2>
+
+<p>Every project gets its own isolated interpreter and dependency set. Installing globally guarantees version conflicts between projects — the same problem Docker solves at the OS level, solved here at the language level. (Worth noting the parallel explicitly: venv is to Python packages what a container is to system libraries. Neither replaces the other, which is why Dockerized Python still uses a venv or a clean base image.)</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">bash</span><button class="copybtn">COPY</button></div><pre><code>python -m venv .venv &amp;&amp; source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+pip freeze &gt; requirements.txt        # crude: pins everything including transitive deps</code></pre></div>
+
+<p>Modern tooling worth adopting: <b>uv</b> (very fast installs, resolves and locks properly) or Poetry/PDM, with dependencies declared in <code class="inline">pyproject.toml</code> — the current standard, replacing <code class="inline">setup.py</code> and loose <code class="inline">requirements.txt</code>. Pin versions for anything deployed.</p>
+
+<h2>7.3 Project layout [RECOGNIZE]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>project/
+  pyproject.toml          # deps, tool config (ruff, mypy, pytest), build metadata
+  src/myapp/
+    __init__.py
+    config.py             # env-var driven settings, no secrets in code
+    models.py
+    pipeline.py
+    cli.py
+  tests/
+    test_pipeline.py
+  .env                    # gitignored</code></pre></div>
+
+<p><code class="inline">src/</code> layout prevents accidentally importing your package from the working directory instead of the installed copy — which is how "it works on my machine but not in CI" happens in Python.</p>
+
+<div class="quiz" data-part="p7"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p6">&larr; 06 · ERRORS, CONTROL FLOW, CONTEXT MANAGERS</a><a class="next" href="#p8">08 · REAL PROJECTS &rarr;</a></div>
+</section>
+
+<section class="part" id="p8">
+  <div class="phead"><div class="pnum">08</div>
+    <div><div class="ptitle">Real Projects</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p8">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Two projects, chosen because they're the shapes of work you'd actually be paid for and the shapes that show up in a technical BA portfolio.</p>
+
+<h2>8.1 Project A — a production-shaped ETL pipeline</h2>
+
+<p><b>Spec:</b> a CLI that ingests messy tabular data and lands it in a database, correctly.</p>
+
+<ol><li><b>Extract</b> — read a CSV *and* an API endpoint (<code class="inline">httpx</code> or <code class="inline">requests</code>), streaming the CSV with a generator (Part 4.4), handling encoding explicitly.</li></ol>
+
+<ol><li><b>Validate</b> — a schema check with clear per-row errors, using <code class="inline">pydantic</code> or dataclasses plus your own validators. Bad rows go to a rejects file with reasons, never silently dropped. This is your S2T-mapping instinct expressed in code.</li></ol>
+
+<ol><li><b>Transform</b> — normalize dates to UTC (<code class="inline">datetime</code> + <code class="inline">zoneinfo</code>), money as <code class="inline">Decimal</code>, text trimmed and case-normalized, IDs deduplicated with a <code class="inline">set</code>.</li></ol>
+
+<ol><li><b>Load</b> — upsert into Postgres (<code class="inline">psycopg</code>) inside a transaction with a context manager, batched — not row-by-row.</li></ol>
+
+<ol><li><b>Observe</b> — <code class="inline">logging</code> (not <code class="inline">print</code>) with levels, a run summary (rows in / loaded / rejected / duration), and a non-zero exit code on failure.</li></ol>
+
+<ol><li><b>Configure</b> — <code class="inline">argparse</code> for CLI args, env vars for credentials, nothing secret in code.</li></ol>
+
+<ol><li><b>Test</b> — pytest covering validation rules and transforms with fixtures; no DB needed for those.</li></ol>
+
+<p><b>Definition of done:</b> it runs on a 500MB file without exhausting memory; a malformed row can't kill the run; re-running it twice produces the same database state (idempotent); and someone else can run it from the README alone.</p>
+
+<p>Then the reflection: rewrite the transform step in pandas and compare — lines of code, memory, speed, and readability. That comparison is the actual lesson about when to stream and when to vectorize.</p>
+
+<h2>8.2 Project B — a FastAPI service</h2>
+
+<p><b>Spec:</b> wrap Project A's logic in an API. Routes to trigger a run, check status, and query results. Pydantic models for request/response validation. Dependency injection for the DB session. Proper status codes and error responses. Background task for the long-running job. <code class="inline">/health</code>. Auto-generated OpenAPI docs (which you get free — a genuinely useful thing to show a stakeholder). Then containerize it with the Docker curriculum's Part 8 Dockerfile.</p>
+
+<p>Why this pairing: A teaches you data correctness, generators, errors, and the standard library; B teaches you typing in anger (FastAPI *uses* your type hints at runtime for validation, the one place annotations aren't ignored), async, and service shape. Together they're a portfolio piece that maps directly onto a technical BA / analytics-engineering conversation.</p>
+
+<div class="quiz" data-part="p8"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p7">&larr; 07 · MODULES, PACKAGES, ENVIRONMENTS</a><a class="next" href="#p9">09 · DEBUGGING PLAYBOOK &rarr;</a></div>
+</section>
+
+<section class="part" id="p9">
+  <div class="phead"><div class="pnum">09</div>
+    <div><div class="ptitle">Debugging Playbook</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p9">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>Read the traceback correctly</h2>
+
+<p>Python tracebacks are printed <b>oldest call first, error last</b>. So read from the <b>bottom up</b>: the last line is the exception and message, the line above it is where it happened, and the frames above that are how you got there. Most people skim the top and miss that the answer is at the bottom.</p>
+
+<h2>The decision tree</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Error</th><th>What it actually means</th><th>First move</th></tr></thead><tbody><tr><td><code class="inline">AttributeError: 'NoneType' has no attribute 'x'</code></td><td>Something returned <code class="inline">None</code> — usually a function with no <code class="inline">return</code>, or a lookup that missed</td><td>Print/inspect the object one step earlier</td></tr><tr><td><code class="inline">KeyError</code> / <code class="inline">IndexError</code></td><td>The key/index isn't there</td><td><code class="inline">dict.get(k, default)</code>; check the actual keys, don't assume the API's shape</td></tr><tr><td><code class="inline">TypeError: ... not callable</code> / wrong arg count</td><td>Name shadowing (you assigned over a function), or a signature mismatch</td><td>Check what the name is bound to</td></tr><tr><td><code class="inline">UnboundLocalError</code></td><td>Idea 4 — assignment made it local</td><td>Don't mutate globals; pass and return</td></tr><tr><td><code class="inline">ImportError</code> / <code class="inline">ModuleNotFoundError</code></td><td><code class="inline">sys.path</code>, wrong env, or circular import</td><td>Confirm the active venv; use <code class="inline">python -m</code>; check for a cycle</td></tr><tr><td><code class="inline">UnicodeDecodeError</code></td><td>Wrong encoding assumption on input</td><td>Specify <code class="inline">encoding=</code>; try <code class="inline">utf-8-sig</code> for Excel exports with a BOM</td></tr><tr><td>Wrong numbers, no error</td><td>Float arithmetic, integer division, timezone-naive datetimes, or silent coercion</td><td><code class="inline">Decimal</code> for money, UTC everywhere, assert your assumptions</td></tr><tr><td>Mysteriously shared state</td><td>Idea 2 — mutable default or an aliased object</td><td>Search for <code class="inline">=[]</code>/<code class="inline">={}</code> in signatures; <code class="inline">copy.deepcopy</code> to test the hypothesis</td></tr></tbody></table></div>
+
+<h2>Tools</h2>
+
+<p><code class="inline">breakpoint()</code> drops you into pdb at that line — <code class="inline">n</code> next, <code class="inline">s</code> step in, <code class="inline">c</code> continue, <code class="inline">p expr</code> print, <code class="inline">l</code> list, <code class="inline">w</code> where. Learning six pdb commands beats a hundred print statements, and it's the habit that most speeds up debugging. Beyond that: <code class="inline">logging</code> with levels instead of <code class="inline">print</code> (you can leave it in and turn it down), <code class="inline">pytest -x --pdb</code> to drop into the debugger at the first failure, <code class="inline">dis.dis(fn)</code> when you want to see what Python actually does (Part 10), and <code class="inline">cProfile</code> before optimizing anything — <b>measure, never guess</b>, because Python performance intuitions are wrong more often than right.</p>
+
+<div class="quiz" data-part="p9"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p8">&larr; 08 · REAL PROJECTS</a><a class="next" href="#p10">10 · INTERNALS &rarr;</a></div>
+</section>
+
+<section class="part" id="p10">
+  <div class="phead"><div class="pnum">10</div>
+    <div><div class="ptitle">Internals</div>
+    <div class="pmeta"><span class="m">TAG <b>ADVANCED</b></span><span class="m">★ <b>INTERVIEW GOLD</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p10">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>10.1 CPython: what running Python actually does</h2>
+
+<p><code class="inline">python script.py</code> → the source is parsed to an AST → compiled to <b>bytecode</b> (cached as <code class="inline">.pyc</code> in <code class="inline">__pycache__</code>) → executed by a <b>stack-based virtual machine</b> loop. There's no machine-code compilation in CPython (that's PyPy's JIT, or Numba, or Cython).</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>import dis
+dis.dis(lambda x: x + 1)     # see the actual bytecode instructions</code></pre></div>
+
+<p>This is why Python loops are slow: every operation goes through the interpreter loop with dynamic type dispatch and object allocation, where C would be a couple of instructions. And why the fix is not "write cleverer Python" but "hand the loop to C" — numpy/pandas vectorization, exactly the Part 1 glue-language point.</p>
+
+<h2>10.2 Memory: reference counting plus a cycle collector</h2>
+
+<p>CPython frees an object the moment its <b>reference count</b> hits zero — which is why memory is released promptly and deterministically, unlike JS's GC. A separate generational collector handles <b>reference cycles</b> (<code class="inline">a.b = b; b.a = a</code>), which counting alone can never free.</p>
+
+<p>Practical consequences: hold no references you don't need (a list of 10M objects is 10M live objects); <code class="inline">__slots__</code> cuts per-instance memory noticeably for many small objects [ADVANCED]; <code class="inline">weakref</code> for caches that shouldn't keep things alive; and "memory not released" usually means a lingering reference — a module-level cache, a closure, or an exception traceback holding frames.</p>
+
+<h2>10.3 The GIL, explained properly [DEEP for interviews]</h2>
+
+<p>The <b>Global Interpreter Lock</b> allows only one thread to execute Python bytecode at a time in a CPython process. Its purpose is to make reference counting thread-safe cheaply.</p>
+
+<p>The consequence that actually matters:</p>
+
+<div class="tblwrap"><table><thead><tr><th>Workload</th><th>Bound by</th><th>Use</th><th>Why</th></tr></thead><tbody><tr><td>Network calls, DB queries, file I/O, API requests</td><td><b>I/O</b></td><td><code class="inline">threading</code> or <code class="inline">asyncio</code></td><td>The GIL is *released* during I/O waits, so threads genuinely overlap</td></tr><tr><td>Number crunching, parsing, image processing</td><td><b>CPU</b></td><td><code class="inline">multiprocessing</code> (or numpy, which releases the GIL in C)</td><td>Separate processes = separate GILs = real parallelism</td></tr></tbody></table></div>
+
+<p>So the accurate claim is not "Python can't do concurrency" — it's "<b>Python threads don't give you CPU parallelism, but they do give you I/O concurrency.</b>" Being able to state exactly that, with the release-during-I/O detail, is a strong senior signal. Add the current context: 3.13 ships an experimental free-threaded build (PEP 703), so the GIL is being actively removed — a claim to make with dates attached rather than as settled fact.</p>
+
+<h2>10.4 asyncio's model [ADVANCED]</h2>
+
+<p>Same shape as JavaScript's event loop: single-threaded cooperative multitasking. <code class="inline">await</code> yields control back to the loop while waiting. The difference from JS is that Python's is <b>opt-in</b> — you must run an event loop and use async-aware libraries. Which produces the classic beginner failure: one blocking call (<code class="inline">requests</code>, <code class="inline">time.sleep</code>, heavy CPU work) inside an async function stalls the entire loop. Rule: <code class="inline">async</code> code must use async libraries all the way down (<code class="inline">httpx</code>/<code class="inline">asyncpg</code>, <code class="inline">asyncio.sleep</code>), or offload blocking work to a thread/process executor.</p>
+
+<p>Choose asyncio for thousands of concurrent connections (a web service like Project B); choose threads for a few dozen blocking calls (simpler, no library rewrite); choose processes for CPU work.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">simulator — click RUN</span></div><pre id="simOut"><span cl/></pre><div class="stack-controls" style="margin:0;padding:10px 16px;border-top:1px solid var(--line)"><button class="btn sm" id="simRun">&#9654; RUN</button><button class="btn sm ok" id="simReset">RESET</button></div></div>
+
+<div class="quiz" data-part="p10"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p9">&larr; 09 · DEBUGGING PLAYBOOK</a><a class="next" href="#p11">11 · PRODUCTION &rarr;</a></div>
+</section>
+
+<section class="part" id="p11">
+  <div class="phead"><div class="pnum">11</div>
+    <div><div class="ptitle">Production</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p11">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>11.1 Type hints [DEEP as a decision]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>def load(path: Path, *, limit: int | None = None) -&gt; list[Invoice]: ...</code></pre></div>
+
+<p>The runtime <b>ignores</b> these (with the notable exception of frameworks like FastAPI and pydantic, which read them deliberately). Their value is tooling: mypy/pyright catch errors before runtime, editors autocomplete accurately, and signatures document themselves. Their cost is verbosity and occasional fights with complex generics.</p>
+
+<p>Pragmatic policy: annotate all function signatures at module boundaries, skip local variables where the type is obvious, and run mypy in CI. Same caveat as TypeScript — <b>types are not runtime validation.</b> Validate external data (API payloads, CSVs, env vars) with pydantic; annotations alone guarantee nothing about what arrives.</p>
+
+<h2>11.2 Testing [RECOGNIZE]</h2>
+
+<p>pytest: plain functions, plain <code class="inline">assert</code>, fixtures for setup, <code class="inline">parametrize</code> for table-driven cases (which will feel natural given how you think about test cases as a BA):</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button class="copybtn">COPY</button></div><pre><code>import pytest
+@pytest.mark.parametrize("raw,expected", [("1,200.50", 1200.50), ("₹0", 0.0)])
+def test_parse_amount(raw, expected):
+    assert parse_amount(raw) == expected</code></pre></div>
+
+<p>Test the logic that would embarrass you if wrong: validation rules, transforms, edge cases, money and date handling. Don't chase coverage percentages; chase the cases you'd write in a UAT test plan.</p>
+
+<h2>11.3 Performance, in order [DEEP as discipline]</h2>
+
+<ol><li><b>Measure</b> (<code class="inline">cProfile</code>, <code class="inline">time.perf_counter</code>) — the bottleneck is almost never where you assumed.</li></ol>
+
+<ol><li><b>Fix the algorithm</b> — the set-vs-list membership fix (Part 3.1) beats every micro-optimization.</li></ol>
+
+<ol><li><b>Vectorize or push into C</b> — numpy/pandas/Polars, so the loop runs in C, not the interpreter.</li></ol>
+
+<ol><li><b>Parallelize</b> correctly per the GIL table (10.3).</li></ol>
+
+<ol><li>Only then reach for PyPy, Cython, or a rewrite of the hot path in another language.</li></ol>
+
+<h2>11.4 Security &amp; operational hygiene [RECOGNIZE]</h2>
+
+<p>Never <code class="inline">eval</code>/<code class="inline">exec</code> on input; never build SQL by string concatenation — <b>parameterize</b> (<code class="inline">cur.execute("... WHERE id = %s", (id,))</code>), which given your SQL background is the habit to carry over most strictly; secrets in env vars, never in code or git; pin dependencies and audit them (<code class="inline">pip-audit</code>); validate all external input; and log without leaking PII. And use <code class="inline">ruff</code> — one fast tool that replaces linting and formatting, and ends all style debate.</p>
+
+<div class="quiz" data-part="p11"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p10">&larr; 10 · INTERNALS</a><a class="next" href="#p12">12 · WHEN NOT TO USE PYTHON &rarr;</a></div>
+</section>
+
+<section class="part" id="p12">
+  <div class="phead"><div class="pnum">12</div>
+    <div><div class="ptitle">When Not to Use Python</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p12">MARK COMPLETE</button></div>
+  </div>
+
+  <p><b>Right tool when:</b> data work, analysis, ETL, and ML (no real competition); automation and scripting; APIs and backends where developer speed beats raw throughput; glue between systems; anywhere readability and hiring matter more than milliseconds.</p>
+
+<p><b>Wrong or questionable when:</b></p>
+
+<ul><li><b>CPU-bound hot loops</b> where the work can't be vectorized or pushed to C — Go, Rust, C++, or Java will be an order of magnitude faster.</li></ul>
+
+<ul><li><b>Hard real-time or memory-constrained</b> systems — GC pauses, interpreter overhead, and per-object memory cost rule it out.</li></ul>
+
+<ul><li><b>Browser frontends</b> — you'd be fighting the platform; JS/TS is the native answer (PyScript/WASM exists but is niche).</li></ul>
+
+<ul><li><b>Mobile apps</b> — no first-class story.</li></ul>
+
+<ul><li><b>Shipping a binary to non-technical users</b> — packaging a Python app for end users is genuinely painful (PyInstaller helps and still hurts); Go's single static binary is the contrast.</li></ul>
+
+<ul><li><b>Very large codebases without discipline</b> — dynamic typing plus late-bound everything means refactoring is riskier than in a statically typed language. Type hints plus mypy mitigate but don't eliminate this.</li></ul>
+
+<p>Honest weaknesses worth naming in an interview: the GIL for CPU parallelism, packaging and environment management as a historically bad experience, startup time, and memory overhead per object. Being able to list those makes your enthusiasm credible rather than naive.</p>
+
+<div class="quiz" data-part="p12"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p11">&larr; 11 · PRODUCTION</a><a class="next" href="#p13">13 · INTERVIEW PREPARATION &rarr;</a></div>
+</section>
+
+<section class="part" id="p13">
+  <div class="phead"><div class="pnum">13</div>
+    <div><div class="ptitle">Interview Preparation</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p13">MARK COMPLETE</button></div>
+  </div>
+
+  <p><b>Tier 1 — expected:</b></p>
+
+<ol><li><code class="inline">list</code> vs <code class="inline">tuple</code> vs <code class="inline">dict</code> vs <code class="inline">set</code> — and the complexity of a membership test in each. (Part 3.1)</li></ol>
+
+<ol><li>Mutable vs immutable, and the mutable default argument trap. (Part 2, Idea 2)</li></ol>
+
+<ol><li>Is Python pass-by-value or pass-by-reference? (Trick — it's pass-by-object-reference; explain via Idea 1.)</li></ol>
+
+<ol><li>What a comprehension is; when you'd use a generator instead. (Parts 3.3, 4.4)</li></ol>
+
+<ol><li><code class="inline">is</code> vs <code class="inline">==</code>. (Idea 1)</li></ol>
+
+<ol><li>How exceptions work; why bare <code class="inline">except</code> is wrong. (Part 6.1)</li></ol>
+
+<ol><li><code class="inline">*args</code> / <code class="inline">**kwargs</code>. (Part 4.1)</li></ol>
+
+<ol><li>What <code class="inline">if __name__ == "__main__"</code> does and why. (Part 7.1)</li></ol>
+
+<p><b>Tier 2 — differentiators:</b></p>
+
+<ol><li>Explain the GIL, and when you'd use threads vs processes vs asyncio. (Part 10.3)</li></ol>
+
+<ol><li>What is a decorator, and write one. (Part 4.3)</li></ol>
+
+<ol><li>Generators vs lists — memory and use cases. (Part 4.4)</li></ol>
+
+<ol><li>Shallow vs deep copy. (Idea 2)</li></ol>
+
+<ol><li>What <code class="inline">with</code> does and why it beats <code class="inline">try/finally</code>. (Part 6.2)</li></ol>
+
+<ol><li>Dunder methods — what does implementing <code class="inline">__iter__</code> and <code class="inline">__len__</code> buy you? (Part 5.2)</li></ol>
+
+<ol><li>LEGB scope, and why <code class="inline">count += 1</code> raises <code class="inline">UnboundLocalError</code>. (Idea 4)</li></ol>
+
+<ol><li>Do type hints affect runtime? Where's the exception? (Part 11.1)</li></ol>
+
+<p><b>Tier 3 — senior signal:</b></p>
+
+<ol><li>What happens when you run a <code class="inline">.py</code> file? (Part 10.1 — AST, bytecode, VM loop, <code class="inline">.pyc</code>)</li></ol>
+
+<ol><li>How does CPython manage memory, and what leaks? (Part 10.2)</li></ol>
+
+<ol><li>Why are Python loops slow, and what do you actually do about it? (Parts 1, 10.1, 11.3)</li></ol>
+
+<ol><li>Why did Python 3 break compatibility, and what did that cost? (Part 1 — contrast with JS's "never break the web")</li></ol>
+
+<ol><li>When is Python the wrong choice? (Part 12)</li></ol>
+
+<ol><li>Streaming vs vectorizing a large transform — how do you decide? (Parts 4.4, 8.1)</li></ol>
+
+<p><b>Answer shape:</b> what it is → why it exists → one concrete consequence you've hit. And for anything about the GIL or performance, attach a version number — "as of 3.13 there's an experimental free-threaded build" is the difference between current and stale knowledge.</p>
+
+<p>If you can deliver these aloud — with the WHAT → WHY IT EXISTS → ONE CONCRETE CONSEQUENCE shape — you are interview-ready. Answer before flipping; nailed cards dim.</p>
+<div class="deck" id="deck"><!-- cards injected by JS --></div>
+
+  <div class="breadcrumb"><a href="#p12">&larr; 12 · WHEN NOT TO USE PYTHON</a><a class="next" href="#p14">14 · MILESTONES &rarr;</a></div>
+</section>
+
+<section class="part" id="p14">
+  <div class="phead"><div class="pnum">14</div>
+    <div><div class="ptitle">Milestones</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p14">MARK COMPLETE</button></div>
+  </div>
+
+  <p><b>M1 — Model (Parts 1–2).</b> Pass: the five Part 2 checkpoint questions, unaided, out loud.</p>
+
+<p><b>M2 — Data types (Part 3).</b> Pass: choose the right structure for five described problems and justify each on complexity; convert a nested loop into a set-based O(n) version.</p>
+
+<p><b>M3 — Functions (Parts 4–5).</b> Pass: write a <code class="inline">@retry</code> decorator and a streaming generator pipeline from scratch; explain what implementing <code class="inline">__iter__</code> gives you.</p>
+
+<p><b>M4 — Robustness (Parts 6–7).</b> Pass: a script with proper exception handling, logging, a context manager, and a clean project layout that installs in a fresh venv from <code class="inline">pyproject.toml</code>.</p>
+
+<p><b>M5 — Projects (Part 8).</b> Pass: the ETL pipeline meeting every "definition of done" item, plus the pandas comparison written out; the FastAPI service running in a container.</p>
+
+<p><b>M6 — Depth (Parts 9–12).</b> Pass: debug an unfamiliar failing script from the traceback alone; deliver the GIL answer with the threads/processes/asyncio table from memory; argue two cases where Python is the wrong tool.</p>
+
+<p>Pace at ~1 hour/day: M1 days 1–3, M2 days 4–6, M3 days 7–12, M4 days 13–16, M5 days 17–25, M6 days 26–30.</p>
+
+<p><b>One note on sequencing with your pandas study:</b> finish M1–M3 here before going deeper into pandas. Almost every pandas confusion — views vs copies, <code class="inline">SettingWithCopyWarning</code>, why <code class="inline">apply</code> is slow, why chained indexing fails — is a Part 2 problem (names, objects, mutability, and vectorization) wearing a DataFrame costume. The base language pays for itself immediately there.</p>
+
+<p>Six milestones = six layers of proof, mapped to the curriculum&#39;s day plan. When all six drop, the shipyard ships your container.</p>
+<div class="mlist" id="mlist"><!-- milestones injected by JS --></div>
+
+  <div class="breadcrumb"><a href="#p13">&larr; 13 · INTERVIEW PREPARATION</a></div>
+</section><footer>
+  <b>ABOUT THIS BUILD:</b> The Python Shipyard is a faithful interactive conversion of the first-principles Python curriculum — every concept, table, code block and exercise preserved. Progress lives in your browser (localStorage). Built as a single file — copy it anywhere, it runs offline.<br>
+  <b>THE ONE RULE:</b> a name is a label, not a box. Hold that and Python never surprises you.
+</footer>
+</main>
+</div>
+<div id="grad"><div class="gterm"><div class="ghead">&#9650; SHIPYARD DEPLOYMENT — ALL MILESTONES CROSSED</div><div class="gbody"></div></div></div>
+<script src="data/python.js"></script>
+<script src="assets/shipyard.js"></script>
+</body>
+</html>
