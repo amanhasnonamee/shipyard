@@ -1,0 +1,3017 @@
+<!DOCTYPE html>
+<html lang="en" data-render="img">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The SQL Shipyard - SQL: A First-Principles Curriculum">
+<meta property="og:description" content="SQL · relational model · three-valued logic · query engine — a first-principles interactive curriculum, one portable HTML file, runs offline.">
+<meta property="og:image" content="assets/og/sql.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%233b82f6%22 d=%22M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z%22/%3E%3C/svg%3E">
+<meta name="contract" content="shipyard-sql@1">
+<title>The SQL Shipyard - SQL: A First-Principles Curriculum</title>
+<style>
+
+:root{
+  --bg:#0b0e14; --bg2:#0e1119; --panel:#10141d; --panel2:#141927;
+  --line:#232c3d; --line2:#2e3a52;
+  --fg:#d6dee8; --dim:#8b96a8; --faint:#5b6577;
+  --accent:#ffb000; --accent-soft:#b37b00;
+  --ok:#39d98a; --ok-dim:#1e7a4d;
+  --deep:#ff5d5d; --recog:#57d9ff; --ref:#9aa4b2; --adv:#c792ea;
+  --display:'VT323', 'Courier New', monospace;
+  --body:'Space Mono', 'Consolas', monospace;
+  --mono:'IBM Plex Mono', 'Consolas', monospace;
+  --radius:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--body); font-size:15px; line-height:1.65;
+  background-image:
+    radial-gradient(1200px 600px at 80% -10%, rgba(255,176,0,.05), transparent 60%),
+    radial-gradient(900px 500px at -10% 30%, rgba(87,217,255,.04), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+::selection{background:var(--accent);color:#0b0e14}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-shadow:0 0 8px rgba(255,176,0,.6)}
+#scanlines{position:fixed;inset:0;pointer-events:none;z-index:9990;
+  background:repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px);opacity:.5}
+#vignette{position:fixed;inset:0;pointer-events:none;z-index:9989;
+  background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.45) 100%)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+
+/* ---------- layout ---------- */
+#app{display:grid;grid-template-columns:310px 1fr;min-height:100vh}
+main{padding:0 48px 120px;max-width:1060px;min-width:0}
+#backdrop{position:fixed;inset:0;background:rgba(5,7,11,.7);z-index:49;display:none}
+#backdrop.open{display:block}
+
+/* ---------- sidebar dock ---------- */
+#dock{position:sticky;top:0;height:100vh;overflow-y:auto;overflow-x:hidden;
+  background:linear-gradient(180deg,var(--panel) 0%, #0d1119 100%);
+  border-right:1px solid var(--line);padding:22px 18px 30px;z-index:50}
+.brand{display:flex;align-items:center;gap:10px;padding-bottom:16px;border-bottom:1px dashed var(--line2)}
+.brand svg{flex:none;filter:drop-shadow(0 0 6px rgba(255,176,0,.4))}
+.brand .bname{font-family:var(--display);font-size:22px;line-height:1;letter-spacing:.5px;color:var(--accent)}
+.brand .bsub{font-size:10px;color:var(--faint);letter-spacing:2px;text-transform:uppercase}
+.rankbox{margin:14px 0;padding:12px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel2)}
+.rankbox .rk{font-family:var(--display);font-size:21px;color:var(--accent);line-height:1}
+.rankbox .rkxp{font-size:11px;color:var(--dim);margin-top:2px}
+.prbar{height:8px;border:1px solid var(--line2);background:var(--bg);border-radius:4px;margin-top:8px;overflow:hidden}
+.prbar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-soft),var(--accent));width:0%;transition:width .6s cubic-bezier(0.16,1,0.3,1)}
+.stackbox{padding:12px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel2);margin-bottom:6px}
+.stackbox .st{font-size:10px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between}
+#stackMini{display:flex;flex-direction:column;gap:3px;padding:8px 10px;background:var(--bg);border:1px solid var(--line);border-radius:4px}
+#stackMini .layer{height:11px;border-radius:2px;background:#1b2333;border:1px solid var(--line2);position:relative;cursor:pointer;transition:background .3s}
+#stackMini .layer .ltip{position:absolute;left:26px;top:-2px;background:var(--panel2);border:1px solid var(--line2);font-size:10px;white-space:nowrap;padding:1px 6px;border-radius:3px;display:none;z-index:5}
+#stackMini .layer:hover .ltip{display:block}
+#stackMini .layer.done{background:linear-gradient(90deg,var(--accent-soft),var(--accent));border-color:var(--accent);box-shadow:0 0 6px rgba(255,176,0,.3)}
+#stackMini .layer.cleared{background:linear-gradient(90deg,#1e7a4d,var(--ok));border-color:var(--ok)}
+#stackMini .layer.writable{height:16px;background:repeating-linear-gradient(45deg,#182136,#182136 6px,#1d2739 6px,#1d2739 12px);border-style:dashed;border-color:var(--ok-dim)}
+#stackMini .layer.writable.live{border-color:var(--ok);box-shadow:0 0 8px rgba(57,217,138,.4)}
+#stackMini .layer.newly{animation:layerin .5s cubic-bezier(0.16,1,0.3,1)}
+@keyframes layerin{0%{transform:translateX(18px);opacity:0}100%{transform:none;opacity:1}}
+#psRow{font-size:11px;margin-top:10px;padding:8px 10px;background:#0a1f14;border:1px solid var(--ok-dim);border-radius:4px;color:var(--ok);display:none;font-family:var(--mono)}
+#psRow b{color:var(--ok)}
+
+nav.docknav{margin-top:14px}
+.docksec{font-size:10px;letter-spacing:2px;color:var(--faint);text-transform:uppercase;margin:16px 0 6px}
+.navitem{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;cursor:pointer;border:1px solid transparent;margin-bottom:2px;transition:background .15s,border-color .15s}
+.navitem:hover{background:var(--panel2);border-color:var(--line2)}
+.navitem .n{font-family:var(--display);font-size:15px;color:var(--faint);width:26px;flex:none}
+.navitem .nt{font-size:12.5px;color:var(--dim);flex:1;line-height:1.3}
+.navitem.active .n{color:var(--accent)}
+.navitem.active{background:var(--panel2);border-color:var(--line2)}
+.navitem.active .nt{color:var(--fg)}
+.navitem .st{width:10px;height:10px;flex:none;border-radius:50%;border:1px solid var(--line2);background:var(--bg)}
+.navitem .st.done{background:var(--accent);border-color:var(--accent);box-shadow:0 0 6px rgba(255,176,0,.5)}
+.navitem .st.cleared{background:var(--ok);border-color:var(--ok)}
+.navitem .qbadge{font-size:10px;color:var(--ok);font-family:var(--mono)}
+.legend{margin-top:18px;padding-top:14px;border-top:1px dashed var(--line2)}
+.legend .lt{font-size:10px;letter-spacing:2px;color:var(--faint);text-transform:uppercase;margin-bottom:8px}
+.legend .lg{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--dim);padding:3px 0}
+.legend .sw{width:10px;height:10px;flex:none;border-radius:2px}
+.dockfoot{margin-top:16px;padding-top:12px;border-top:1px dashed var(--line2);font-size:10px;color:var(--faint);line-height:1.6}
+#burger{display:none}
+
+/* ---------- hero ---------- */
+.hero{padding:64px 0 40px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.boot{font-family:var(--mono);font-size:12.5px;color:var(--ok);margin-bottom:26px}
+.boot .bl{opacity:0;animation:bli .0s forwards}
+.boot .bl:nth-child(1){animation-delay:.1s}.boot .bl:nth-child(2){animation-delay:.5s}
+.boot .bl:nth-child(3){animation-delay:.9s}.boot .bl:nth-child(4){animation-delay:1.3s}
+.boot .bl:nth-child(5){animation-delay:1.7s}
+@keyframes bli{to{opacity:1}}
+.boot .warn{color:var(--deep)}
+.hero h1{font-family:var(--display);font-weight:400;font-size:clamp(44px,7vw,78px);line-height:.95;letter-spacing:1px;margin:10px 0 14px}
+.hero h1 .wh{color:var(--accent);text-shadow:0 0 22px rgba(255,176,0,.5)}
+.hero .sub{color:var(--dim);max-width:640px;font-size:14.5px}
+.hero .sub b{color:var(--fg)}
+.hstatus{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 30px}
+.hchip{font-size:11px;font-family:var(--mono);letter-spacing:1px;color:var(--dim);border:1px solid var(--line2);border-radius:3px;padding:6px 10px;background:var(--panel)}
+.hchip b{color:var(--accent);font-weight:400}
+.hchip b.ok{color:var(--ok)}
+#voyageHead{font-size:11px;letter-spacing:3px;color:var(--faint);text-transform:uppercase;margin-bottom:12px}
+.voyage{display:grid;grid-template-columns:1fr 1fr;gap:6px 26px;padding:0 0 8px}
+.waypoint{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--panel);cursor:pointer;transition:border-color .2s,transform .2s}
+.waypoint:hover{border-color:var(--accent);transform:translateX(3px)}
+.waypoint .wn{font-family:var(--display);font-size:18px;color:var(--accent);flex:none}
+.waypoint .wt{font-size:12.5px;line-height:1.25;color:var(--dim)}
+.waypoint .wt b{display:block;color:var(--fg);font-size:13px}
+.waypoint .wtag{margin-left:auto;flex:none}
+.waypoint.done .wn{color:var(--ok)}
+.waypoint.done .wt b{color:var(--ok)}
+
+/* ---------- part sections ---------- */
+.part{padding:70px 0 10px;scroll-margin-top:30px;position:relative}
+.part::before{content:"";position:absolute;left:-48px;top:70px;bottom:10px;width:3px;background:linear-gradient(180deg,var(--accent),transparent 70%);opacity:.25}
+.phead{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--line2);padding-bottom:14px;margin-bottom:26px}
+.pnum{font-family:var(--display);font-size:64px;line-height:.8;color:var(--line2);flex:none;text-shadow:0 0 14px rgba(255,176,0,.08)}
+.part.done .pnum{color:var(--accent);text-shadow:0 0 16px rgba(255,176,0,.45)}
+.ptitle{font-family:var(--display);font-weight:400;font-size:clamp(26px,3.6vw,40px);line-height:1.02;letter-spacing:.5px}
+.pmeta{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pmeta .m{font-size:10.5px;font-family:var(--mono);letter-spacing:1px;color:var(--faint);border:1px solid var(--line);border-radius:3px;padding:3px 8px;background:var(--panel)}
+.pmeta .m b{color:var(--accent);font-weight:400}
+.pactions{margin-left:auto;display:flex;gap:8px;align-items:center;flex:none}
+.part h2{font-family:var(--display);font-weight:400;font-size:29px;letter-spacing:.5px;color:var(--fg);margin:44px 0 12px;border-left:4px solid var(--accent);padding-left:12px}
+.part h3{font-family:var(--body);font-weight:700;font-size:16px;color:var(--accent);margin:30px 0 8px;letter-spacing:.3px}
+.part p{margin:10px 0;color:var(--fg)}
+.part li{margin:6px 0;color:var(--fg)}
+.part ul,.part ol{padding-left:24px;margin:10px 0}
+.part b{color:#fff}
+.part i{color:var(--dim)}
+hr.rule{border:none;border-top:1px dashed var(--line2);margin:34px 0}
+
+/* depth tags */
+.tag{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:1.5px;padding:2px 7px;border-radius:3px;vertical-align:middle;margin:0 2px;border:1px solid}
+.tag-deep{color:var(--deep);border-color:var(--deep);background:rgba(255,93,93,.08);text-shadow:0 0 8px rgba(255,93,93,.5)}
+.tag-recog{color:var(--recog);border-color:var(--recog);background:rgba(87,217,255,.08)}
+.tag-ref{color:var(--ref);border-color:var(--ref);background:rgba(154,164,178,.08)}
+.tag-adv{color:var(--adv);border-color:var(--adv);background:rgba(199,146,234,.08)}
+.wtag{font-family:var(--mono);font-size:8.5px;letter-spacing:1px;padding:2px 6px;border-radius:3px;border:1px solid}
+.wtag-deep{color:var(--deep);border-color:var(--deep)}
+.wtag-recog{color:var(--recog);border-color:var(--recog)}
+
+/* terminal code blocks */
+.term{margin:16px 0;border:1px solid var(--line2);border-radius:var(--radius);background:#0a0d13;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.termhead{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--panel2);border-bottom:1px solid var(--line);position:relative}
+.termhead .td{width:9px;height:9px;border-radius:50%;flex:none}
+.termhead .td1{background:#ff5d5d}.termhead .td2{background:#ffb000}.termhead .td3{background:#39d98a}
+.termhead .tname{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.5px}
+.termhead .copybtn{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--faint);background:none;border:1px solid var(--line2);border-radius:3px;padding:3px 9px;cursor:pointer;transition:all .15s}
+.termhead .copybtn:hover{color:var(--accent);border-color:var(--accent)}
+.termhead .copybtn.copied{color:var(--ok);border-color:var(--ok)}
+.term pre{margin:0;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.6;color:#c3cdda}
+.term pre .c{color:var(--faint)}
+.term pre .p{color:var(--ok)}
+.term pre .a{color:var(--accent)}
+.term pre .r{color:var(--deep)}
+.term pre .b{color:#fff;font-weight:600}
+.term pre .k{color:var(--recog)}
+
+/* tables */
+.tblwrap{overflow-x:auto;margin:16px 0;border:1px solid var(--line2);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:560px}
+thead th{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);text-align:left;background:var(--panel2);padding:10px 14px;border-bottom:1px solid var(--line2);white-space:nowrap}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--line);color:var(--fg);vertical-align:top;line-height:1.55}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:nth-child(even){background:rgba(255,255,255,.015)}
+tbody tr:hover{background:rgba(255,176,0,.04)}
+tbody td code{font-family:var(--mono);font-size:11.5px;color:var(--recog);background:rgba(87,217,255,.07);padding:1px 5px;border-radius:3px}
+td .tag{font-size:8.5px}
+
+/* cards */
+.idea,.lab,.warn,.ck,.note{border:1px solid;border-radius:var(--radius);padding:16px 18px;margin:20px 0;position:relative}
+.idea{border-color:var(--ok-dim);background:linear-gradient(180deg,rgba(57,217,138,.05),transparent)}
+.idea .lbl,.lab .lbl,.warn .lbl,.ck .lbl,.note .lbl{font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;display:block;margin-bottom:8px}
+.idea .lbl{color:var(--ok)}
+.idea p,.idea li{color:var(--fg)}
+.warn{border-color:var(--deep);background:linear-gradient(180deg,rgba(255,93,93,.06),transparent)}
+.warn .lbl{color:var(--deep)}
+.lab{border-color:var(--accent);background:linear-gradient(180deg,rgba(255,176,0,.06),transparent)}
+.lab .lbl{color:var(--accent)}
+.lab ol{padding-left:22px}
+.lab code,.warn code,.ck code,.note code{font-family:var(--mono);font-size:12px;color:var(--recog);background:rgba(87,217,255,.07);padding:1px 5px;border-radius:3px}
+.ck{border-color:var(--recog);background:linear-gradient(180deg,rgba(87,217,255,.05),transparent)}
+.ck .lbl{color:var(--recog)}
+.note{border-color:var(--line2);background:var(--panel)}
+.note .lbl{color:var(--faint)}
+details{margin:8px 0}
+details summary{cursor:pointer;color:var(--accent);font-size:13px;font-family:var(--mono);letter-spacing:.5px}
+details[open] summary{margin-bottom:10px}
+
+/* next/prev part nav */
+.breadcrumb{display:flex;justify-content:space-between;margin-top:56px;padding-top:18px;border-top:1px dashed var(--line2)}
+.breadcrumb a{font-family:var(--mono);font-size:12px;letter-spacing:1px;border:1px solid var(--line2);border-radius:4px;padding:8px 14px;transition:all .2s;color:var(--dim)}
+.breadcrumb a:hover{color:var(--accent);border-color:var(--accent)}
+.breadcrumb .next{margin-left:auto}
+
+/* ---------- diagrams ---------- */
+.pipeline{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0;margin:22px 0 6px;padding:22px 14px;border:1px solid var(--line2);border-radius:var(--radius);background:radial-gradient(600px 200px at 50% 0%,rgba(255,176,0,.05),transparent)}
+.pnode{border:1px solid var(--line2);border-radius:4px;background:var(--panel2);padding:8px 12px;text-align:center;min-width:86px}
+.pnode .pn1{font-family:var(--mono);font-size:12.5px;color:var(--fg)}
+.pnode .pn2{font-size:9px;color:var(--faint);letter-spacing:1px;margin-top:2px;font-family:var(--mono)}
+.pnode.hot{border-color:var(--accent);box-shadow:0 0 12px rgba(255,176,0,.25)}
+.pnode.hot .pn1{color:var(--accent)}
+.pnode.green{border-color:var(--ok)}
+.pnode.green .pn1{color:var(--ok)}
+.parrow{width:30px;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;margin:0 2px}
+.parrow::after{content:"";width:9px;height:9px;transform:rotate(45deg);border-top:1.5px solid var(--accent);border-right:1.5px solid var(--accent);flex:none}
+.parrow .flowdot{position:absolute;top:0;width:4px;height:4px;border-radius:50%;background:var(--accent);animation:flow 1.6s linear infinite;opacity:0}
+@keyframes flow{0%{top:0;opacity:0}20%{opacity:1}80%{opacity:1}100%{top:18px;opacity:0}}
+.pipeline .reglab{font-size:10px;color:var(--faint);text-align:center;margin-top:10px;font-family:var(--mono)}
+.pipeline .reglab b{color:var(--accent);font-weight:400}
+
+.stack-big{display:flex;flex-direction:column;gap:5px;margin:18px 0;padding:16px;border:1px solid var(--line2);border-radius:var(--radius);background:radial-gradient(500px 300px at 50% 100%,rgba(57,217,138,.05),transparent)}
+.sblayer{border:1px solid var(--line2);border-radius:4px;padding:9px 14px;display:flex;align-items:center;gap:10px;background:var(--panel);cursor:pointer;transition:all .25s;position:relative}
+.sblayer:hover{border-color:var(--accent);transform:translateX(4px)}
+.sblayer .sbn{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:1px;width:60px;flex:none}
+.sblayer .sbt{font-size:12.5px;color:var(--fg)}
+.sblayer .sbd{font-size:10.5px;color:var(--faint);margin-left:auto;text-align:right;font-family:var(--mono)}
+.sblayer.selected{border-color:var(--accent);box-shadow:0 0 14px rgba(255,176,0,.25)}
+.sblayer.writ{border-style:dashed;border-color:var(--ok-dim)}
+.sblayer.writ.live{border-color:var(--ok);box-shadow:0 0 16px rgba(57,217,138,.4)}
+.sblayer.writ .sbt b{color:var(--ok)}
+.sbdisc{margin-top:12px;padding:12px 14px;border:1px dashed var(--line2);border-radius:4px;font-size:12.5px;color:var(--dim);min-height:58px;font-family:var(--mono)}
+.sbdisc b{color:var(--fg)}
+.stack-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+
+/* lifecycle flow (part 3) */
+.life{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:18px 0;padding:18px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel)}
+.lstate{border:1px solid var(--line2);border-radius:4px;padding:7px 12px;font-family:var(--mono);font-size:12px;color:var(--fg);background:var(--bg);position:relative}
+.lstate .lcmd{position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--accent);background:var(--panel);padding:0 5px;letter-spacing:1px;white-space:nowrap}
+.lstate.gone{color:var(--faint);border-style:dashed;text-decoration:line-through}
+.lstate.live{border-color:var(--ok);color:var(--ok);box-shadow:0 0 10px rgba(57,217,138,.25)}
+.larrow{color:var(--faint);font-size:12px;font-family:var(--mono)}
+
+/* bridge diagram (part 6) */
+.bridge{margin:18px 0;padding:20px;border:1px solid var(--line2);border-radius:var(--radius);background:linear-gradient(180deg,var(--panel),var(--bg))}
+.bridge .bnet{position:relative;border:1px dashed var(--line2);border-radius:8px;padding:30px 16px 16px;margin-top:26px}
+.bridge .bnet::before{content:"bridge network — docker0 (virtual switch)";position:absolute;top:-10px;left:14px;background:var(--bg);padding:0 8px;font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:1px}
+.bcontainer{display:inline-block;border:1px solid var(--recog);border-radius:4px;background:rgba(87,217,255,.05);padding:8px 12px;margin:0 10px;min-width:130px;text-align:center}
+.bcontainer .bn{font-family:var(--mono);font-size:12.5px;color:var(--recog)}
+.bcontainer .bi{font-size:10px;color:var(--faint);font-family:var(--mono);margin-top:2px}
+.bcontainer.hosted{border:1px solid var(--accent)}
+.bcontainer.hosted .bn{color:var(--accent)}
+.dnschip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--accent);border-radius:4px;background:rgba(255,176,0,.07);padding:6px 12px;font-family:var(--mono);font-size:12px;color:var(--accent);margin-top:14px}
+.dnschip b{color:#fff;font-weight:400}
+.bdns-note{font-size:11.5px;color:var(--dim);margin-top:12px}
+
+/* architecture diagram (part 8) */
+.arch{display:flex;align-items:stretch;gap:10px;margin:20px 0;flex-wrap:wrap;justify-content:center}
+.anode{border:1px solid var(--line2);border-radius:5px;padding:12px 14px;background:var(--panel2);min-width:150px;text-align:center;position:relative}
+.anode .an1{font-family:var(--mono);font-size:13px;color:var(--fg)}
+.anode .an2{font-size:10px;color:var(--faint);font-family:var(--mono);margin-top:3px;letter-spacing:.5px}
+.anode.edge{border-color:var(--accent)}
+.anode.edge .an1{color:var(--accent)}
+.anode.db{border-color:var(--ok)}
+.anode.db .an1{color:var(--ok)}
+.anode.cache{border-color:var(--recog)}
+.anode.cache .an1{color:var(--recog)}
+.anode .vchip{position:absolute;top:-9px;right:10px;background:var(--panel);border:1px solid var(--line2);font-family:var(--mono);font-size:8.5px;color:var(--faint);padding:0 5px;border-radius:3px;letter-spacing:1px}
+.astats{margin:14px 0 0;text-align:center;font-size:11px;color:var(--faint);font-family:var(--mono)}
+
+/* buttons */
+.btn{font-family:var(--mono);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;border:1px solid var(--accent);color:var(--accent);background:transparent;padding:9px 16px;border-radius:4px;cursor:pointer;transition:all .18s}
+.btn:hover{background:var(--accent);color:#0b0e14;box-shadow:0 0 18px rgba(255,176,0,.4)}
+.btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+.btn.ok{border-color:var(--ok);color:var(--ok)}
+.btn.ok:hover{background:var(--ok);color:#0b0e14;box-shadow:0 0 18px rgba(57,217,138,.4)}
+.btn.sm{padding:5px 10px;font-size:10.5px}
+
+/* quiz */
+.quiz{margin:22px 0;padding:18px;border:1px solid var(--line2);border-radius:var(--radius);background:var(--panel);position:relative}
+.quiz .qlbl{font-family:var(--mono);font-size:10px;letter-spacing:2.5px;color:var(--accent);text-transform:uppercase;display:block;margin-bottom:14px}
+.q{position:relative}
+.q+.q{margin-top:22px;padding-top:20px;border-top:1px dashed var(--line2)}
+.qt{font-size:13.5px;color:var(--fg);margin-bottom:8px}
+.qt .qn{color:var(--accent);font-family:var(--mono)}
+.opts{display:grid;gap:6px}
+.opt{display:block;text-align:left;width:100%;font-family:var(--body);font-size:12.8px;color:var(--fg);background:var(--bg);border:1px solid var(--line2);border-radius:4px;padding:8px 12px;cursor:pointer;transition:all .15s;line-height:1.5}
+.opt:hover:not(:disabled){border-color:var(--accent);box-shadow:0 0 10px rgba(255,176,0,.15);transform:translateX(2px)}
+.opt:disabled{cursor:default}
+.opt.wrong{border-color:var(--deep);background:rgba(255,93,93,.08);color:#ffb9b9}
+.opt.right{border-color:var(--ok);background:rgba(57,217,138,.1);color:var(--ok)}
+.qe{display:none;margin-top:8px;font-size:12px;color:var(--dim);line-height:1.6;border-left:3px solid var(--line2);padding-left:10px}
+.qe.show{display:block;animation:fadein .4s}
+@keyframes fadein{from{opacity:0;transform:translateY(-3px)}to{opacity:1}}
+.qscore{position:absolute;top:14px;right:16px;font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:1px}
+.qscore b{color:var(--accent)}
+.qres{margin-top:14px;padding:10px 14px;border-radius:4px;font-family:var(--mono);font-size:12px;letter-spacing:.5px;display:none}
+.qres.show{display:block;animation:fadein .5s}
+.qres.pass{border:1px solid var(--ok);color:var(--ok);background:rgba(57,217,138,.07)}
+.qres.fail{border:1px solid var(--deep);color:#ffb9b9;background:rgba(255,93,93,.07)}
+
+/* flashcards */
+.deck{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin:20px 0}
+.card{perspective:1200px;height:190px;cursor:pointer}
+.card .inner{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(0.16,1,0.3,1);transform-style:preserve-3d}
+.card.flip .inner{transform:rotateY(180deg)}
+.card .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--line2);border-radius:6px;padding:14px;display:flex;flex-direction:column;overflow:auto}
+.card .front{background:var(--panel2)}
+.card .back{background:linear-gradient(180deg,var(--panel2),#0f1a10);transform:rotateY(180deg);border-color:var(--ok-dim)}
+.cardtier{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--faint);margin-bottom:8px;text-transform:uppercase}
+.card .qtext{font-size:13px;line-height:1.5;color:var(--fg);flex:1}
+.card .flip-hint{font-size:9px;color:var(--faint);font-family:var(--mono);letter-spacing:1.5px}
+.card.nailed{opacity:.45}
+.card.nailed .front,.card.nailed .back{border-color:#3d4a63}
+.card .back .qtext{color:var(--ok)}
+.card .nailedbtn{align-self:flex-end;margin-top:8px;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--faint);background:none;border:1px solid var(--line2);border-radius:3px;padding:3px 9px;cursor:pointer}
+.card .nailedbtn:hover{color:var(--ok);border-color:var(--ok)}
+.card .nailedbtn.n{border-color:var(--ok);color:var(--ok)}
+
+/* milestones */
+.mlist{margin:18px 0}
+.mile{display:flex;gap:14px;padding:14px 16px;border:1px solid var(--line2);border-radius:6px;background:var(--panel);cursor:pointer;transition:all .2s;align-items:flex-start}
+.mile+.mile{margin-top:10px}
+.mile:hover{border-color:var(--accent)}
+.mile .mbox{width:22px;height:22px;flex:none;border:2px solid var(--line2);border-radius:4px;margin-top:2px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;color:transparent;transition:all .2s}
+.mile.done .mbox{border-color:var(--ok);background:var(--ok);color:#0b0e14}
+.mile .mtitle{font-size:13.5px;color:var(--fg);cursor:pointer}
+.mile .mtitle b{color:var(--accent)}
+.mile .mpass{font-size:11.5px;color:var(--dim);margin-top:4px;line-height:1.55}
+.mile.done{background:linear-gradient(180deg,rgba(57,217,138,.06),var(--panel))}
+.mile.done .mpass{color:var(--ok)}
+
+/* duel columns part 12 */
+.duel{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.duel .col{border:1px solid var(--line2);border-radius:6px;padding:18px;background:var(--panel)}
+.duel .col h3{margin-top:0;font-size:14px}
+.duel .use{border-color:var(--ok-dim)}
+.duel .use h3{color:var(--ok)}
+.duel .skip{border-color:var(--deep)}
+.duel .skip h3{color:var(--deep)}
+.duel ul{padding-left:20px}
+.duel li{margin:6px 0;font-size:12.8px;line-height:1.55}
+
+/* footer */
+footer{margin-top:90px;padding-top:26px;border-top:1px dashed var(--line2);color:var(--faint);font-size:11.5px;line-height:1.8}
+footer b{color:var(--dim)}
+
+/* graduation overlay */
+#grad{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(4,6,10,.94);padding:20px;overflow:hidden}
+#grad.open{display:flex}
+#grad .gterm{width:min(680px,100%);border:1px solid var(--ok-dim);border-radius:8px;background:#070d09;box-shadow:0 0 60px rgba(57,217,138,.15);overflow:hidden;position:relative;z-index:2}
+#grad .ghead{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--ok-dim);font-family:var(--mono);font-size:11px;color:var(--ok);letter-spacing:1px}
+#grad .gbody{padding:22px;font-family:var(--mono);font-size:13px;color:var(--ok);line-height:1.9;max-height:70vh;overflow-y:auto}
+#grad .gbody .gl{opacity:0;animation:bli .3s forwards}
+#grad .gtitle{font-family:var(--display);font-size:46px;color:var(--ok);text-shadow:0 0 24px rgba(57,217,138,.6);line-height:1;margin:10px 0}
+#grad .gbtn{margin-top:16px}
+.ptcl{position:absolute;width:6px;height:6px;border-radius:2px;z-index:1;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:0}}
+#whaleSwim{position:absolute;bottom:40px;left:-140px;z-index:1;filter:drop-shadow(0 0 14px rgba(255,176,0,.5));animation:swim 14s linear infinite}
+@keyframes swim{from{left:-140px}70%,to{left:110vw}}
+
+/* misc */
+code.inline{font-family:var(--mono);font-size:12.5px;color:var(--recog);background:rgba(87,217,255,.07);padding:1px 6px;border-radius:3px}
+.kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line2);border-bottom-width:2px;border-radius:3px;padding:1px 6px;background:var(--panel)}
+.strong-sentence{color:#fff;background:linear-gradient(180deg,transparent 62%,rgba(255,176,0,.25) 62%)}
+
+@media (max-width:1020px){
+  #app{grid-template-columns:1fr}
+  #dock{position:fixed;left:0;top:0;transform:translateX(-105%);transition:transform .3s cubic-bezier(0.16,1,0.3,1);width:310px;box-shadow:20px 0 50px rgba(0,0,0,.5)}
+  #dock.open{transform:none}
+  #burger{display:flex;position:fixed;top:14px;left:14px;z-index:60;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line2);color:var(--accent);font-family:var(--mono);font-size:11px;letter-spacing:1.5px;padding:8px 12px;border-radius:4px;cursor:pointer}
+  main{padding:60px 22px 100px}
+  .part::before{display:none}
+  .voyage{grid-template-columns:1fr}
+  .duel{grid-template-columns:1fr}
+  .pactions{margin-left:0;width:100%;margin-top:10px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s !important;animation-iteration-count:1 !important;transition-duration:.001s !important}
+  html{scroll-behavior:auto}
+}
+
+</style>
+</head>
+<body>
+<div id="scanlines"></div><div id="vignette"></div>
+<button id="burger">&#9776; MAP</button><div id="backdrop"></div>
+<div id="app">
+<aside id="dock">
+  <div class="brand">
+    <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="var(--accent)" d="M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z"/>
+      <rect x="7" y="11" width="2" height="2" fill="var(--bg)"/><rect x="12" y="11" width="2" height="2" fill="var(--bg)"/><rect x="17" y="11" width="2" height="2" fill="var(--bg)"/>
+    </svg>
+    <div><div class="bname">THE SQL SHIPYARD</div><div class="bsub">SQL · relational model · three-valued logic · query engine</div></div>
+  </div>
+
+  <div class="rankbox">
+    <div class="rk" id="rankNow">SWABBIE</div>
+    <div class="rkxp" id="rankXp"></div>
+    <div class="prbar"><i id="rankBar"></i></div>
+  </div>
+
+  <div class="stackbox">
+    <div class="st"><span>THE STACK — your container</span><span id="stackCount">0/14</span></div>
+    <div id="stackMini"></div>
+    <div id="psRow"><b>$ docker ps</b><br><span id="psRow2">—</span></div>
+  </div>
+
+  <nav class="docknav" id="docknav"></nav>
+
+  <div class="legend">
+    <div class="lt">Depth legend</div>
+    <div class="lg"><span class="sw" style="background:var(--deep);box-shadow:0 0 6px rgba(255,93,93,.6)"></span><span><b style="color:var(--deep)">DEEP</b> — core mental model. Prove it out loud.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--recog)"></span><span><b style="color:var(--recog)">RECOGNIZE</b> — read fluently; write with docs open.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--ref)"></span><span><b style="color:var(--ref)">REFERENCE</b> — know it exists. Never memorize.</span></div>
+    <div class="lg"><span class="sw" style="background:var(--adv)"></span><span><b style="color:var(--adv)">ADVANCED</b> — return after Part 8.</span></div>
+  </div>
+
+  <div class="dockfoot" id="dockfoot"></div>
+</aside>
+
+<main>
+<section class="hero" id="part0">
+  <div class="boot"><div class="bl">$ shipyard boot --curriculum sql-first-principles</div>
+    <div class="bl">STAGE 1: LOADING PARTS 0–14 ......... <span style="color:var(--ok)">OK</span></div>
+    <div class="bl">STAGE 2: MOUNTING DEPTH TAGS .......... <span style="color:var(--ok)">OK</span></div>
+    <div class="bl"><span class="warn">WARNING: SQL reads like a sentence and lies like a spreadsheet. NULL is not a value — it is the absence of one.</span></div>
+    <div class="bl">AWAITING CREW — 14 waypoints ahead. <span class="cursor" style="color:var(--accent)">▎</span></div>
+  </div>
+  <h1>SQL, UNDERSTOOD.<br><span class="wh">NOT JUST QUERIED.</span></h1>
+  <p class="sub">This is a first-principles curriculum rebuilt as a mission. Learn the relational model <b>deeply</b> — think in sets, not loops; every query is a pipeline with a fixed evaluation order — and reference the rest. Along the way you <b>build the shipyard&#39;s container</b> in the sidebar as you complete parts. Quizzes earn XP. Ranks go from <b>Swabbie</b> to <b>Harbor Master</b>. Finish all 14 parts and the shipyard ships your container.</p>
+  <div class="hstatus">
+    <div class="hchip">RANK <b id="hRank">SWABBIE</b></div>
+    <div class="hchip">XP <b id="hXp">0</b></div>
+    <div class="hchip">LAYERS <b id="hLayers">0/14</b></div>
+    <div class="hchip">QUIZZES CLEARED <b class="ok" id="hQuizzes">0</b></div>
+  </div>
+  <div id="voyageHead">THE VOYAGE — 14 WAYPOINTS</div>
+  <div class="voyage" id="voyage"></div>
+</section>
+
+<section class="part" id="p0">
+  <div class="phead"><div class="pnum">00</div>
+    <div><div class="ptitle">How to Use This Curriculum</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p0">MARK COMPLETE</button></div>
+  </div>
+
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>Part 1   Where SQL came from                    [DEEP — explains its design]
+Part 2   The core mental model                   [DEEP — most important part]
+Part 3   Querying one table
+Part 4   Joins: combining tables
+Part 5   Aggregation and grouping
+Part 6   Subqueries, CTEs, and window functions
+Part 7   Designing schemas: DDL, constraints, normalization
+Part 8   Real project: build and query a real database
+Part 9   Debugging and reading query plans
+Part 10  Internals: how the engine executes your query
+Part 11  Transactions, concurrency, and production concerns
+Part 12  When SQL is and isn't the right tool
+Part 13  Interview preparation
+Part 14  Milestones and self-assessment</code></pre></div>
+
+  <div class="breadcrumb"><a class="next" href="#p1">01 · WHERE SQL CAME FROM &rarr;</a></div>
+</section>
+
+<section class="part" id="p1">
+  <div class="phead"><div class="pnum">01</div>
+    <div><div class="ptitle">Where SQL Came From</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p1">MARK COMPLETE</button></div>
+  </div>
+
+  <p>You cannot understand why SQL looks nothing like other programming languages until you know what it was designed to replace.</p>
+
+<h2>The problem before relational databases</h2>
+
+<p>In the 1960s, data was stored in <b>hierarchical</b> and <b>network</b> databases (IBM's IMS, CODASYL systems). To retrieve anything, a programmer wrote code that *navigated pointers* — follow this record to that one, walk this chain. Three consequences:</p>
+
+<ol><li><b>Every query was a program.</b> Answering a new question meant writing and compiling new navigation code.</li></ol>
+
+<ol><li><b>The physical layout leaked into every program.</b> Reorganize the storage, and every program broke.</li></ol>
+
+<ol><li><b>Only specialists could ask questions.</b> There was no way for an analyst to interrogate the data.</li></ol>
+
+<h2>The lineage</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Year</th><th>What happened</th><th>Why it still affects you</th></tr></thead><tbody><tr><td>1970</td><td><b>Edgar F. "Ted" Codd</b>, a mathematician at IBM, publishes *A Relational Model of Data for Large Shared Data Banks*</td><td>The founding document. Codd's insight: model data as <b>mathematical relations</b> (sets of tuples) and let a query language describe *what* you want, leaving *how* to the system. Data independence — the schema is separate from the storage</td></tr><tr><td>1974</td><td>IBM builds <b>System R</b> to prove Codd's theory works; Donald Chamberlin and Raymond Boyce design <b>SEQUEL</b> (Structured English Query Language) as its language</td><td>Renamed SQL for trademark reasons — but still pronounced "sequel" by many. The "English-like" goal is why SQL reads like a sentence and unlike C</td></tr><tr><td>1977–79</td><td>Larry Ellison reads the System R papers and founds what becomes <b>Oracle</b>, shipping commercially before IBM</td><td>The relational model escaped the lab through a competitor. Commercial pressure made SQL ubiquitous fast</td></tr><tr><td>1986–92</td><td><b>ANSI/ISO standardization</b>: SQL-86, SQL-89, SQL-92. SQL-92 is still the baseline everyone supports</td><td>Why the same core query runs on Postgres, MySQL, Oracle, and SQL Server. Also why each vendor's extensions differ — the standard covers the core, not the edges</td></tr><tr><td>1995–2000</td><td><b>MySQL</b> and <b>PostgreSQL</b> arrive as open source; the web needs cheap databases</td><td>Databases become infrastructure everyone can use. Postgres descends from Berkeley's POSTGRES (Michael Stonebraker), which is why it's academically rigorous</td></tr><tr><td>1999–2016</td><td>SQL:1999 adds recursion and window functions; SQL:2003 adds more; SQL:2016 adds JSON</td><td><b>Window functions are the single most important addition since the original standard.</b> Anything written before ~2010 will show you painful workarounds for problems windows solve in one line</td></tr><tr><td>2009–2015</td><td>The <b>NoSQL</b> era: MongoDB, Cassandra, Redis, DynamoDB. The claim is that SQL and schemas don't scale</td><td>A genuine set of trade-offs, often adopted for the wrong reasons. Understanding what was actually traded away (joins, transactions, ad-hoc queries, consistency) is a core professional skill</td></tr><tr><td>2015–now</td><td><b>SQL's return</b>: NoSQL systems add SQL-ish query layers; "NewSQL" (CockroachDB, Spanner, TiDB) delivers distributed SQL with transactions; analytics consolidates on SQL (BigQuery, Snowflake, DuckDB)</td><td>The industry rediscovered that a declarative query language over a well-defined schema is extremely hard to beat. SQL is now over 50 years old and *more* dominant than a decade ago</td></tr></tbody></table></div>
+
+<h2>The three ideas actually invented here</h2>
+
+<ol><li><b>Declarative querying.</b> You describe the result you want; the system's <b>query optimizer</b> decides how to get it — which indexes to use, which join algorithm, in what order. No other mainstream language works this way. It's why SQL can get faster when you upgrade your database without changing a line of your code, and why "how do I make this faster?" is usually answered by helping the optimizer rather than by rewriting logic.</li></ol>
+
+<ol><li><b>Physical/logical separation (data independence).</b> Your query names tables and columns, never files, offsets, or pointers. Storage can be reorganized, indexed, partitioned, or replicated underneath you and your query still works. This was the entire point of Codd's paper.</li></ol>
+
+<ol><li><b>Set-based thinking.</b> Operations apply to whole sets of rows at once, not one row at a time. This is the mental shift that separates people who write SQL from people who write loops in SQL's clothing — and it's the single biggest determinant of query performance.</li></ol>
+
+<h2>The framing worth being able to say</h2>
+
+<p>*"SQL is a declarative language over a mathematical model of data. You state the shape of the answer as a set operation, and the optimizer chooses the execution strategy. Almost everything that feels odd about SQL — the clause order, three-valued logic with NULL, the fact that it isn't procedural — follows from those two facts: it describes relations, and it doesn't describe execution."*</p>
+
+<div class="quiz" data-part="p1"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p0">&larr; 00 · HOW TO USE THIS CURRICULUM</a><a class="next" href="#p2">02 · THE CORE MENTAL MODEL &rarr;</a></div>
+</section>
+
+<section class="part" id="p2">
+  <div class="phead"><div class="pnum">02</div>
+    <div><div class="ptitle">The Core Mental Model</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p2">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Five ideas. This is the most important section in the document; everything else is detail built on top of it.</p>
+
+<h2>Idea 1: A table is a set of rows, and SQL operates on whole sets</h2>
+
+<p>A table is an unordered collection of rows, each with the same named, typed columns. Two consequences that beginners find surprising and that matter enormously:</p>
+
+<ul><li><b>There is no inherent order.</b> Rows do not have positions. Without <code class="inline">ORDER BY</code>, the order you get is whatever the engine found convenient, and it can change between runs, after an update, or after a version upgrade. If order matters, say so explicitly — every time.</li></ul>
+
+<ul><li><b>There is no "current row."</b> Unlike a spreadsheet or a <code class="inline">for</code> loop, SQL has no cursor walking down the data. A <code class="inline">WHERE</code> clause is not "check each row"; it is "define the subset of rows for which this is true." The engine may check them in any order, in parallel, or skip most of them entirely using an index.</li></ul>
+
+<p>The practical discipline: <b>think in sets, not loops.</b> "For each customer, find their latest order" is a loop-shaped thought that produces slow, awkward SQL. "Join customers to their orders, then keep only the ones ranked first per customer" is set-shaped and fast. Training yourself to reframe is most of learning SQL well.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>Loop thinking (slow, procedural, often wrong):
+  for each row in customers:
+      run a query to get that customer's orders
+
+Set thinking (one query, one plan, one pass):
+  join the two sets, then filter the combined set</code></pre></div>
+
+<h2>Idea 2: Every query is a pipeline of set transformations, evaluated in a fixed logical order</h2>
+
+<p>This is the single most clarifying fact in all of SQL. You <b>write</b> clauses in one order, but the database <b>logically evaluates</b> them in a different one:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>Written order:            Logical evaluation order:
+SELECT    ...             1. FROM      — get the source tables
+FROM      ...             2. JOIN      — combine them into one big set
+JOIN      ...             3. WHERE     — filter individual rows
+WHERE     ...             4. GROUP BY  — collapse rows into groups
+GROUP BY  ...             5. HAVING    — filter the groups
+HAVING    ...             6. SELECT    — compute the output columns
+ORDER BY  ...             7. DISTINCT  — remove duplicate output rows
+LIMIT     ...             8. ORDER BY  — sort the result
+<span class="a">                          9. LIMIT     — take the first N</span></code></pre></div>
+
+<p>Nearly every "why doesn't this work?" question in SQL is answered by this list:</p>
+
+<ul><li><b>Why can't I use a column alias defined in <code class="inline">SELECT</code> inside my <code class="inline">WHERE</code>?</b> Because <code class="inline">WHERE</code> (step 3) runs before <code class="inline">SELECT</code> (step 6). The alias doesn't exist yet. You *can* use it in <code class="inline">ORDER BY</code> (step 8), which runs after.</li></ul>
+
+<ul><li>**Why does <code class="inline">WHERE</code> reject aggregate functions like <code class="inline">COUNT(*)</code>?** Because <code class="inline">WHERE</code> runs before <code class="inline">GROUP BY</code>. There are no groups yet, so there's nothing to count. That's exactly why <code class="inline">HAVING</code> exists — it's a filter that runs *after* grouping.</li></ul>
+
+<ul><li><b>Why is <code class="inline">WHERE</code> faster than <code class="inline">HAVING</code> for the same condition?</b> <code class="inline">WHERE</code> throws rows away before the expensive grouping work; <code class="inline">HAVING</code> does the grouping first and then discards. Filter as early as possible.</li></ul>
+
+<ul><li><b>Why did <code class="inline">LIMIT 10</code> give me different rows this time?</b> Because without <code class="inline">ORDER BY</code>, step 9 takes ten arbitrary rows from an unordered set (Idea 1).</li></ul>
+
+<p>Memorize this pipeline. It converts SQL from a pile of rules into a machine you can reason about.</p>
+
+<h2>Idea 3: NULL is not a value — it's the absence of one, and it makes logic three-valued</h2>
+
+<p><code class="inline">NULL</code> means "unknown" or "not applicable." It is not zero, not an empty string, not <code class="inline">false</code>. And this changes logic itself: every comparison yields <b>TRUE, FALSE, or UNKNOWN</b>.</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>NULL = NULL        -- UNKNOWN, not TRUE!  (is one unknown thing equal to another? unknowable)
+NULL = 5           -- UNKNOWN
+NULL &lt;&gt; 5          -- UNKNOWN
+5 + NULL           -- NULL  (any arithmetic with unknown is unknown)
+'abc' || NULL      -- NULL  (in most databases; string concatenation too)</code></pre></div>
+
+<p>The rule that makes this practical: <b><code class="inline">WHERE</code> keeps only rows where the condition is TRUE.</b> UNKNOWN is discarded exactly like FALSE. So:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT * FROM users WHERE country = 'IN';       -- rows with NULL country are excluded
+SELECT * FROM users WHERE country &lt;&gt; 'IN';      -- rows with NULL country are ALSO excluded!</code></pre></div>
+
+<p>Both queries exclude NULL rows, so the two results together do <b>not</b> add up to the whole table. This surprises everyone once, and it silently corrupts reports.</p>
+
+<p>Testing for NULL requires special syntax, because <code class="inline">= NULL</code> never matches:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>WHERE country IS NULL          -- correct
+WHERE country IS NOT NULL      -- correct
+WHERE country = NULL           -- always UNKNOWN → never matches. A silent bug</code></pre></div>
+
+<p>Other NULL behaviours you must know [DEEP]:</p>
+
+<div class="tblwrap"><table><thead><tr><th>Situation</th><th>Behaviour</th></tr></thead><tbody><tr><td><code class="inline">COUNT(*)</code></td><td>Counts rows, including those with NULLs</td></tr><tr><td><code class="inline">COUNT(column)</code></td><td>Counts <b>non-NULL</b> values only — the difference is a classic interview question</td></tr><tr><td><code class="inline">SUM</code>, <code class="inline">AVG</code>, <code class="inline">MAX</code></td><td><b>Ignore</b> NULLs. <code class="inline">AVG</code> divides by the count of non-NULL values, which can quietly differ from what you meant</td></tr><tr><td><code class="inline">GROUP BY</code></td><td>Treats all NULLs as <b>one group</b> (inconsistent with <code class="inline">=</code> semantics, but that's the standard)</td></tr><tr><td><code class="inline">ORDER BY</code></td><td>NULLs sort together, first or last depending on the database; <code class="inline">NULLS FIRST</code>/<code class="inline">NULLS LAST</code> controls it explicitly</td></tr><tr><td><code class="inline">UNIQUE</code> constraint</td><td>Usually permits multiple NULLs, because two NULLs aren't "equal"</td></tr><tr><td><code class="inline">IN (1, 2, NULL)</code></td><td>Fine. But <code class="inline">NOT IN (1, 2, NULL)</code> <b>never returns any rows</b> — a notorious trap explained in Part 6</td></tr></tbody></table></div>
+
+<p>Useful tools: <code class="inline">COALESCE(a, b, c)</code> returns the first non-NULL argument; <code class="inline">NULLIF(a, b)</code> returns NULL when the two are equal (handy for avoiding division by zero).</p>
+
+<h2>Idea 4: A join is a set operation that produces a new, wider set of rows</h2>
+
+<p>A join does not "add columns to a table." Conceptually, it forms combinations of rows from two tables and keeps the ones satisfying your condition. The output is a *new* set whose rows are wider — and whose row *count* may be larger or smaller than either input.</p>
+
+<p>That last point is where most join bugs live. If one order has three line items, joining orders to line items yields <b>three rows for that order</b>, and any <code class="inline">SUM</code> over an order-level column now triple-counts. Understanding that a join *multiplies* rows when the relationship is one-to-many is the difference between correct and confidently wrong reports. Part 4 covers this in full.</p>
+
+<h2>Idea 5: The optimizer decides how; you only decide what</h2>
+
+<p>When you submit a query, the database:</p>
+
+<ol><li><b>Parses</b> it into a syntax tree.</li></ol>
+
+<ol><li><b>Rewrites</b> it into a canonical logical form (flattening subqueries, pushing filters down).</li></ol>
+
+<ol><li><b>Plans</b> it: enumerates possible execution strategies — which index to use, which join algorithm (nested loop, hash, merge), what order to join tables in — and estimates the cost of each using <b>statistics</b> about your data (row counts, value distributions).</li></ol>
+
+<ol><li><b>Executes</b> the cheapest plan it found.</li></ol>
+
+<p>Three consequences that shape all of Parts 9–11:</p>
+
+<ul><li>Two differently-written queries that mean the same thing often produce the <b>identical plan</b> — so "clever" rewriting is usually pointless. The optimizer already did it.</li></ul>
+
+<ul><li>When a query is slow, the fix is almost never "write it differently." It's giving the optimizer better options (an index), better information (fresh statistics), or less work (filter earlier, return fewer rows).</li></ul>
+
+<ul><li>The plan is *estimated*, so it can be wrong. Stale statistics or unusual data distributions produce bad plans, which is why <code class="inline">EXPLAIN ANALYZE</code> (Part 9) compares estimates against reality.</li></ul>
+
+<h2>Checkpoint — do this before Part 3</h2>
+
+<p>Answer these out loud or in writing, without looking:</p>
+
+<ol><li>Why can't you reference a <code class="inline">SELECT</code> alias in the <code class="inline">WHERE</code> clause, but you can in <code class="inline">ORDER BY</code>?</li></ol>
+
+<ol><li>A table has 100 rows; 20 have <code class="inline">NULL</code> in <code class="inline">city</code>. <code class="inline">WHERE city = 'Delhi'</code> returns 30 rows and <code class="inline">WHERE city &lt;&gt; 'Delhi'</code> returns 50. Where did the other 20 go, and why is that correct?</li></ol>
+
+<ol><li>What's the difference between <code class="inline">COUNT(*)</code> and <code class="inline">COUNT(city)</code> on that table?</li></ol>
+
+<ol><li>You run the same query twice with no data changes and get rows in a different order. Is the database broken? Why or why not?</li></ol>
+
+<ol><li>Why is filtering in <code class="inline">WHERE</code> generally cheaper than the same filter in <code class="inline">HAVING</code>?</li></ol>
+
+<p>If any of these is shaky, reread Part 2. Nothing later will stick without it.</p>
+
+<div class="quiz" data-part="p2"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p1">&larr; 01 · WHERE SQL CAME FROM</a><a class="next" href="#p3">03 · QUERYING ONE TABLE &rarr;</a></div>
+</section>
+
+<section class="part" id="p3">
+  <div class="phead"><div class="pnum">03</div>
+    <div><div class="ptitle">Querying One Table</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p3">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Now hands-on. Create a database and follow along; reading SQL teaches you almost nothing.</p>
+
+<h2>3.1 <code class="inline">SELECT</code> — projecting columns [DEEP concept, RECOGNIZE syntax]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT id, name, city FROM customers;         -- name the columns you want
+SELECT * FROM customers;                       -- all columns</code></pre></div>
+
+<p><code class="inline">SELECT *</code> is fine when exploring interactively and a bad habit in saved code: it returns more data than you need (slower over the network), silently changes shape when someone adds a column, and hides which columns your code actually depends on. Name your columns in anything you keep.</p>
+
+<p>Expressions and aliases:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT
+  name,
+  price * quantity           AS line_total,      -- computed column
+  UPPER(city)                AS city_upper,
+  price * 0.18               AS tax
+FROM order_items;</code></pre></div>
+
+<p><code class="inline">AS</code> names the output column. Quoting rules differ by dialect; using lowercase names with underscores avoids the entire problem.</p>
+
+<h2>3.2 <code class="inline">WHERE</code> — filtering rows [DEEP]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT * FROM orders
+WHERE status = 'shipped'                        -- equality
+  AND total &gt; 500                               -- comparison
+  AND created_at &gt;= '2026-01-01'                -- dates compare naturally
+  AND region IN ('north', 'east')               -- set membership
+  AND total BETWEEN 100 AND 999                 -- inclusive on both ends
+  AND customer_name LIKE 'A%'                   -- pattern: % = any chars, _ = one char
+  AND notes IS NOT NULL;                        -- NULL test (Idea 3)</code></pre></div>
+
+<p>Points that matter more than the syntax:</p>
+
+<ul><li><b>Operator precedence:</b> <code class="inline">AND</code> binds tighter than <code class="inline">OR</code>. <code class="inline">WHERE a AND b OR c</code> means <code class="inline">(a AND b) OR c</code>. Always parenthesize mixed conditions — this is a real source of wrong-but-plausible results.</li></ul>
+
+<ul><li><b><code class="inline">LIKE 'A%'</code> can use an index; <code class="inline">LIKE '%A'</code> cannot.</b> A leading wildcard forces the engine to examine every row, because indexes are ordered by the start of the value (Part 10 explains why). For real text search, use full-text search features rather than <code class="inline">LIKE '%term%'</code>.</li></ul>
+
+<ul><li><b>Case sensitivity varies:</b> Postgres is case-sensitive by default, MySQL usually isn't. Use <code class="inline">LOWER()</code> on both sides or a case-insensitive collation when you need certainty.</li></ul>
+
+<ul><li><b>Wrapping a column in a function usually disables its index.</b> <code class="inline">WHERE YEAR(created_at) = 2026</code> typically cannot use an index on <code class="inline">created_at</code>, while <code class="inline">WHERE created_at &gt;= '2026-01-01' AND created_at &lt; '2027-01-01'</code> can. This single rewrite is one of the most common real-world speedups.</li></ul>
+
+<h2>3.3 <code class="inline">ORDER BY</code>, <code class="inline">LIMIT</code>, <code class="inline">DISTINCT</code> [RECOGNIZE]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT DISTINCT city FROM customers ORDER BY city;
+
+SELECT * FROM orders
+ORDER BY created_at DESC, id ASC        -- tiebreaker makes results deterministic
+LIMIT 20 OFFSET 40;                     -- page 3 of 20-row pages</code></pre></div>
+
+<p>Two notes: <code class="inline">ORDER BY</code> with no tiebreaker on a non-unique column gives <b>unstable</b> results across runs — always add a unique column as the final sort key. And <code class="inline">OFFSET</code> gets progressively slower as it grows, because the engine must generate and discard all the skipped rows; Part 11 covers keyset pagination as the fix.</p>
+
+<h2>3.4 Data types [DEEP enough to avoid disasters]</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Category</th><th>Types</th><th>What to know</th></tr></thead><tbody><tr><td>Integers</td><td><code class="inline">INTEGER</code>, <code class="inline">BIGINT</code>, <code class="inline">SMALLINT</code></td><td>Use <code class="inline">BIGINT</code> for IDs on anything that might grow; running out of 32-bit IDs in production is a real and painful event</td></tr><tr><td>Exact decimals</td><td><code class="inline">NUMERIC(12,2)</code> / <code class="inline">DECIMAL</code></td><td><b>Always use this for money.</b> Exact base-10 arithmetic</td></tr><tr><td>Floats</td><td><code class="inline">REAL</code>, <code class="inline">DOUBLE PRECISION</code></td><td>Binary approximations. <code class="inline">0.1 + 0.2 &lt;&gt; 0.3</code>. Correct for measurements and scientific data, <b>never for money</b></td></tr><tr><td>Text</td><td><code class="inline">TEXT</code>, <code class="inline">VARCHAR(n)</code>, <code class="inline">CHAR(n)</code></td><td>In Postgres these perform identically; <code class="inline">VARCHAR(n)</code> just adds a length check. <code class="inline">CHAR(n)</code> pads with spaces and causes surprises — avoid</td></tr><tr><td>Dates &amp; times</td><td><code class="inline">DATE</code>, <code class="inline">TIMESTAMP</code>, <code class="inline">TIMESTAMPTZ</code>, <code class="inline">INTERVAL</code></td><td><b>Store timestamps in UTC</b> (<code class="inline">TIMESTAMPTZ</code> in Postgres) and convert at display time. Timezone bugs are among the most expensive and hardest to notice</td></tr><tr><td>Boolean</td><td><code class="inline">BOOLEAN</code></td><td>Remember it's three-valued with NULL</td></tr><tr><td>Structured</td><td><code class="inline">JSON</code>/<code class="inline">JSONB</code>, arrays, <code class="inline">UUID</code>, <code class="inline">ENUM</code></td><td><code class="inline">JSONB</code> (Postgres) is genuinely useful for irregular attributes — but see Part 12 on not using it as an escape from schema design</td></tr></tbody></table></div>
+
+<p>The rule underneath the table: <b>types are constraints, and constraints are documentation the database enforces.</b> Storing a date as text or money as float works right up until it silently doesn't.</p>
+
+<h2>3.5 Exercises</h2>
+
+<ol><li>Create a <code class="inline">customers</code> table and an <code class="inline">orders</code> table, insert ~20 rows by hand, and deliberately leave some values NULL.</li></ol>
+
+<ol><li>Write a query that proves Idea 3: show that <code class="inline">WHERE col = 'x'</code> and <code class="inline">WHERE col &lt;&gt; 'x'</code> don't sum to the table's row count, then fix it with <code class="inline">IS NULL</code>.</li></ol>
+
+<ol><li>Write a query with mixed <code class="inline">AND</code>/<code class="inline">OR</code> without parentheses, predict the result, then add parentheses to change it — and confirm your prediction was right.</li></ol>
+
+<ol><li>Find the 5 most recent orders with a deterministic tiebreaker.</li></ol>
+
+<div class="quiz" data-part="p3"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p2">&larr; 02 · THE CORE MENTAL MODEL</a><a class="next" href="#p4">04 · JOINS: COMBINING TABLES &rarr;</a></div>
+</section>
+
+<section class="part" id="p4">
+  <div class="phead"><div class="pnum">04</div>
+    <div><div class="ptitle">Joins: Combining Tables</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p4">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Joins are where SQL becomes powerful and where most mistakes happen. Take this part slowly.</p>
+
+<h2>4.1 Why joins exist [DEEP]</h2>
+
+<p>Relational design deliberately <b>splits data across tables</b> so each fact is stored exactly once (Part 7 covers why — normalization). A customer's name lives in <code class="inline">customers</code>; their orders live in <code class="inline">orders</code>, referencing the customer by <code class="inline">customer_id</code>. That reference is a <b>foreign key</b>.</p>
+
+<p>The cost of splitting is that answering real questions requires recombining. That recombination is a join. So: normalization is the reason joins exist, and joins are the price of not duplicating data. Understanding that trade-off is the heart of relational thinking.</p>
+
+<h2>4.2 The join types [DEEP]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT c.name, o.id, o.total
+FROM customers c
+JOIN orders o ON o.customer_id = c.id;</code></pre></div>
+
+<div class="tblwrap"><table><thead><tr><th>Join</th><th>Keeps</th><th>Use when</th></tr></thead><tbody><tr><td><code class="inline">INNER JOIN</code> (or just <code class="inline">JOIN</code>)</td><td>Only rows with a match in <b>both</b> tables</td><td>The default. "Customers who have orders"</td></tr><tr><td><code class="inline">LEFT JOIN</code> (<code class="inline">LEFT OUTER JOIN</code>)</td><td><b>All</b> left rows; NULLs where the right has no match</td><td>"All customers, with their orders if any" — including customers with none</td></tr><tr><td><code class="inline">RIGHT JOIN</code></td><td>All right rows</td><td>Rare; flip the table order and use <code class="inline">LEFT</code> for readability</td></tr><tr><td><code class="inline">FULL OUTER JOIN</code></td><td>All rows from both sides</td><td>Reconciling two datasets to find what's missing on each side</td></tr><tr><td><code class="inline">CROSS JOIN</code></td><td>Every combination (Cartesian product)</td><td>Deliberately generating combinations — e.g. every product × every region for a report grid</td></tr></tbody></table></div>
+
+<p>A picture of what <code class="inline">LEFT JOIN</code> does:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>customers          orders                  LEFT JOIN result
+id name            customer_id total        name    total
+1  Asha            1            500         Asha    500
+2  Bilal           1            300         Asha    300
+3  Chen            3            900         Bilal   NULL   ← kept, padded with NULLs
+                                            Chen    900</code></pre></div>
+
+<h2>4.3 The three join mistakes everyone makes [DEEP — read twice]</h2>
+
+<p><b>Mistake 1: unintentional row multiplication.</b></p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>-- orders has 1 row per order; order_items has N rows per order
+SELECT o.id, SUM(o.total)          -- WRONG: o.total is counted once per item
+FROM orders o
+JOIN order_items i ON i.order_id = o.id
+GROUP BY o.id;</code></pre></div>
+
+<p>If an order has 3 items, <code class="inline">o.total</code> appears 3 times and the sum is tripled. This produces numbers that look reasonable and are wrong — the most dangerous kind of bug. The fix is to aggregate at the correct grain, usually by aggregating the many-side in a subquery or CTE first (Part 6), or by summing the item-level column instead.</p>
+
+<p><b>Diagnostic habit:</b> whenever you add a join, check whether your row count changed unexpectedly. <code class="inline">SELECT COUNT(*)</code> before and after is a two-second sanity check that catches this class of error permanently.</p>
+
+<p><b>Mistake 2: filtering a <code class="inline">LEFT JOIN</code> in <code class="inline">WHERE</code>, which silently turns it into an <code class="inline">INNER JOIN</code>.</b></p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>-- Intent: all customers, plus their 2026 orders
+SELECT c.name, o.id
+FROM customers c
+LEFT JOIN orders o ON o.customer_id = c.id
+WHERE o.created_at &gt;= '2026-01-01';       -- BUG: drops customers with no orders</code></pre></div>
+
+<p>The <code class="inline">LEFT JOIN</code> dutifully produced NULL rows for order-less customers — and then <code class="inline">WHERE</code> evaluated <code class="inline">NULL &gt;= '2026-01-01'</code> as UNKNOWN and discarded them (Idea 3 again). The fix is to move the condition into the <code class="inline">ON</code> clause, which filters *during* the join rather than after:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>LEFT JOIN orders o
+  ON o.customer_id = c.id
+ AND o.created_at &gt;= '2026-01-01';        -- correct: still keeps all customers</code></pre></div>
+
+<p>The rule to carry: <b>conditions on the outer (preserved) table belong in <code class="inline">WHERE</code>; conditions on the optional table belong in <code class="inline">ON</code>.</b></p>
+
+<p><b>Mistake 3: forgetting the join condition entirely</b>, producing a <code class="inline">CROSS JOIN</code>. 10,000 rows joined to 10,000 rows is 100,000,000 rows. The symptom is a query that never finishes or fills the disk. Always check that every joined table has a condition connecting it to the rest.</p>
+
+<h2>4.4 Self-joins and multi-table joins [RECOGNIZE]</h2>
+
+<p>A table can join to itself — the standard way to relate rows within one table (employees to their managers, comparing a row to the previous one):</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT e.name AS employee, m.name AS manager
+FROM employees e
+LEFT JOIN employees m ON m.id = e.manager_id;   -- LEFT so the CEO isn't dropped</code></pre></div>
+
+<p>Multi-table joins chain the same way; alias every table and qualify every column (<code class="inline">o.id</code>, not bare <code class="inline">id</code>) so ambiguity is impossible and the query stays readable when someone adds a column later.</p>
+
+<h2>4.5 Set operations [RECOGNIZE]</h2>
+
+<p>These combine the *results* of queries vertically, rather than joining horizontally:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT city FROM customers
+UNION            -- combines and REMOVES duplicates (costs a sort/hash)
+SELECT city FROM suppliers;
+
+SELECT city FROM customers
+UNION ALL        -- combines and KEEPS duplicates — faster; prefer when you don't need dedup
+SELECT city FROM suppliers;</code></pre></div>
+
+<p><code class="inline">INTERSECT</code> (in both) and <code class="inline">EXCEPT</code>/<code class="inline">MINUS</code> (in the first but not the second) round out the set algebra — <code class="inline">EXCEPT</code> is an elegant way to answer "what's missing?" and a great tool for reconciling two sources.</p>
+
+<h2>4.6 Exercises</h2>
+
+<ol><li>Build the multiplication bug deliberately: create an order with 3 items, <code class="inline">SUM</code> the order total across a join, and observe the tripling. Then fix it two different ways.</li></ol>
+
+<ol><li>Write the "all customers plus their 2026 orders" query wrongly (in <code class="inline">WHERE</code>), see customers disappear, then fix it in <code class="inline">ON</code>.</li></ol>
+
+<ol><li>Write a self-join listing every employee with their manager's name, ensuring the top-level employee still appears.</li></ol>
+
+<ol><li>Use <code class="inline">EXCEPT</code> to find customers who have never placed an order, then write the same thing with a <code class="inline">LEFT JOIN ... WHERE o.id IS NULL</code>. Compare.</li></ol>
+
+<div class="quiz" data-part="p4"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p3">&larr; 03 · QUERYING ONE TABLE</a><a class="next" href="#p5">05 · AGGREGATION AND GROUPING &rarr;</a></div>
+</section>
+
+<section class="part" id="p5">
+  <div class="phead"><div class="pnum">05</div>
+    <div><div class="ptitle">Aggregation and Grouping</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p5">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>5.1 Aggregate functions [DEEP concept]</h2>
+
+<p>An aggregate collapses many rows into one value:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT
+  COUNT(*)            AS orders,          -- rows
+  COUNT(discount_code) AS with_code,      -- non-NULL values only (Idea 3)
+  COUNT(DISTINCT customer_id) AS buyers,
+  SUM(total)          AS revenue,
+  AVG(total)          AS avg_order,
+  MIN(created_at)     AS first_order,
+  MAX(total)          AS biggest
+FROM orders;</code></pre></div>
+
+<p>With no <code class="inline">GROUP BY</code>, the whole table is one group, so you get exactly one row.</p>
+
+<h2>5.2 <code class="inline">GROUP BY</code> [DEEP]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT city, COUNT(*) AS orders, SUM(total) AS revenue
+FROM orders
+GROUP BY city;</code></pre></div>
+
+<p>The mental model: <code class="inline">GROUP BY</code> <b>partitions the rows into buckets</b> by the listed columns; each aggregate then runs once per bucket, and you get one output row per bucket.</p>
+
+<p><b>The rule that causes the most errors:</b> every column in <code class="inline">SELECT</code> must either appear in <code class="inline">GROUP BY</code> or be inside an aggregate function. Reason: if you group by <code class="inline">city</code>, there are many <code class="inline">customer_name</code> values in each bucket and the database has no basis to choose one. Postgres and SQL Server raise an error; MySQL historically returned an arbitrary value, which is worse because it hides the mistake.</p>
+
+<h2>5.3 <code class="inline">HAVING</code> vs <code class="inline">WHERE</code> [DEEP]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT city, SUM(total) AS revenue
+FROM orders
+WHERE created_at &gt;= '2026-01-01'    -- filters ROWS, before grouping
+GROUP BY city
+HAVING SUM(total) &gt; 10000           -- filters GROUPS, after aggregation
+ORDER BY revenue DESC;</code></pre></div>
+
+<p>Straight from Idea 2's pipeline: <code class="inline">WHERE</code> runs at step 3, <code class="inline">HAVING</code> at step 5. So <code class="inline">WHERE</code> cannot see aggregates and <code class="inline">HAVING</code> can. And putting a row-level condition in <code class="inline">HAVING</code> still works but is slower, because you grouped rows you were going to throw away.</p>
+
+<h2>5.4 Beyond basic grouping [RECOGNIZE]</h2>
+
+<p><code class="inline">FILTER</code> (Postgres) or <code class="inline">CASE</code> inside aggregates lets you compute several conditional metrics in one pass — vastly better than running three separate queries:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT
+  city,
+  COUNT(*)                                        AS all_orders,
+  COUNT(*) FILTER (WHERE status = 'cancelled')    AS cancelled,
+  SUM(total) FILTER (WHERE status = 'shipped')    AS shipped_revenue,
+  -- portable equivalent using CASE:
+  SUM(CASE WHEN status = 'refunded' THEN 1 ELSE 0 END) AS refunded
+FROM orders
+GROUP BY city;</code></pre></div>
+
+<p><code class="inline">GROUPING SETS</code>, <code class="inline">ROLLUP</code>, and <code class="inline">CUBE</code> produce subtotals and grand totals in one query — useful for reporting. [REFERENCE]</p>
+
+<h2>5.5 Common mistakes</h2>
+
+<ul><li>Averaging an average. <code class="inline">AVG</code> of per-city averages is <b>not</b> the overall average unless every city has the same row count. Aggregate from the base rows.</li></ul>
+
+<ul><li><code class="inline">AVG</code> silently skipping NULLs and changing the denominator — if NULL should count as zero, use <code class="inline">AVG(COALESCE(col, 0))</code> deliberately.</li></ul>
+
+<ul><li>Counting after a one-to-many join and getting inflated numbers (Part 4.3) — use <code class="inline">COUNT(DISTINCT ...)</code> or fix the grain.</li></ul>
+
+<ul><li>Using <code class="inline">HAVING</code> where <code class="inline">WHERE</code> belongs.</li></ul>
+
+<h2>5.6 Exercises</h2>
+
+<ol><li>Produce revenue by city and month, sorted descending, for a specific year — using <code class="inline">WHERE</code> for the year and <code class="inline">HAVING</code> for a revenue floor.</li></ol>
+
+<ol><li>Write one query returning total, cancelled, and shipped counts per city using conditional aggregation, then verify it against three separate queries.</li></ol>
+
+<ol><li>Demonstrate that averaging averages gives the wrong answer, with real numbers.</li></ol>
+
+<div class="quiz" data-part="p5"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p4">&larr; 04 · JOINS: COMBINING TABLES</a><a class="next" href="#p6">06 · SUBQUERIES, CTES, AND WINDOW FUNCTIONS &rarr;</a></div>
+</section>
+
+<section class="part" id="p6">
+  <div class="phead"><div class="pnum">06</div>
+    <div><div class="ptitle">Subqueries, CTEs, and Window Functions</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p6">MARK COMPLETE</button></div>
+  </div>
+
+  <p>This part is where intermediate SQL becomes advanced SQL. Window functions in particular replace whole categories of painful workarounds.</p>
+
+<h2>6.1 Subqueries [RECOGNIZE the forms, DEEP on correlated ones]</h2>
+
+<p>A query nested inside another. Three positions:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>-- 1. Scalar subquery (returns one value)
+SELECT name, (SELECT COUNT(*) FROM orders o WHERE o.customer_id = c.id) AS order_count
+FROM customers c;
+
+-- 2. In WHERE, as a set
+SELECT * FROM customers
+WHERE id IN (SELECT customer_id FROM orders WHERE total &gt; 1000);
+
+-- 3. As a derived table in FROM
+SELECT city, AVG(order_count) FROM (
+  SELECT customer_id, city, COUNT(*) AS order_count
+  FROM orders GROUP BY customer_id, city
+) per_customer
+GROUP BY city;</code></pre></div>
+
+<p><b>Correlated</b> subqueries (form 1 above) reference the outer query's row, so conceptually they run once per outer row. Modern optimizers often rewrite them into joins — but not always, and when they don't, this is a genuine performance cliff on large tables. Prefer a join or a CTE when the row count is large.</p>
+
+<p><b><code class="inline">EXISTS</code> vs <code class="inline">IN</code> vs <code class="inline">NOT IN</code></b> [DEEP]:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>WHERE EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id)   -- stops at first match
+WHERE id IN (SELECT customer_id FROM orders)                        -- builds the full set
+WHERE id NOT IN (SELECT customer_id FROM orders)                    -- ⚠ DANGER</code></pre></div>
+
+<p>The <code class="inline">NOT IN</code> trap, and it's a serious one: if the subquery returns <b>even one NULL</b>, <code class="inline">NOT IN</code> returns no rows at all. Why? <code class="inline">x NOT IN (1, NULL)</code> expands to <code class="inline">x &lt;&gt; 1 AND x &lt;&gt; NULL</code>, and the second half is always UNKNOWN, so the whole condition can never be TRUE (Idea 3). Use <code class="inline">NOT EXISTS</code> instead — it is NULL-safe and usually faster. This is one of the highest-value facts in this entire document, because the failure is silent.</p>
+
+<h2>6.2 Common Table Expressions (CTEs) [DEEP — the readability tool]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>WITH monthly AS (
+  SELECT date_trunc('month', created_at) AS month, city, SUM(total) AS revenue
+  FROM orders
+  GROUP BY 1, 2
+),
+ranked AS (
+  SELECT *, RANK() OVER (PARTITION BY month ORDER BY revenue DESC) AS rk
+  FROM monthly
+)
+SELECT month, city, revenue
+FROM ranked
+WHERE rk &lt;= 3
+ORDER BY month, rk;</code></pre></div>
+
+<p>A CTE names an intermediate result so you can build a query in readable steps and reference each step by name. This is the single biggest improvement you can make to complex SQL: instead of five levels of nested subqueries read inside-out, you get a top-to-bottom pipeline that reads like the pipeline in Idea 2.</p>
+
+<p>Notes: CTEs can reference earlier CTEs (not later ones); in Postgres 12+ they're inlined and optimized like subqueries (older versions materialized them, which was sometimes a performance trap); and <b>recursive CTEs</b> (<code class="inline">WITH RECURSIVE</code>) traverse hierarchies and graphs — org charts, category trees, dependency chains, shortest paths. [ADVANCED but genuinely worth learning once]</p>
+
+<h2>6.3 Window functions [DEEP — the most valuable advanced topic in SQL]</h2>
+
+<p>A window function computes a value <b>across a set of related rows without collapsing them.</b> That's the whole idea, and it's what makes it different from <code class="inline">GROUP BY</code>:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>GROUP BY:        10 rows in → 3 rows out (rows are collapsed)
+Window function: 10 rows in → 10 rows out (each row gains a computed column)</code></pre></div>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT
+  id, customer_id, created_at, total,
+
+  -- ranking within each customer's orders
+  ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY created_at DESC) AS recency,
+
+  -- aggregates that don't collapse rows
+  SUM(total)   OVER (PARTITION BY customer_id) AS customer_lifetime_value,
+  AVG(total)   OVER (PARTITION BY customer_id) AS customer_avg,
+
+  -- running total, ordered
+  SUM(total)   OVER (ORDER BY created_at
+                     ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_total,
+
+  -- reach into neighbouring rows
+  LAG(total)   OVER (PARTITION BY customer_id ORDER BY created_at) AS prev_order_total,
+  LEAD(total)  OVER (PARTITION BY customer_id ORDER BY created_at) AS next_order_total
+FROM orders;</code></pre></div>
+
+<p>Anatomy of the <code class="inline">OVER</code> clause:</p>
+
+<ul><li><b><code class="inline">PARTITION BY</code></b> — split rows into groups (like <code class="inline">GROUP BY</code>, but without collapsing).</li></ul>
+
+<ul><li><b><code class="inline">ORDER BY</code></b> — order rows within each partition; required for anything positional (<code class="inline">ROW_NUMBER</code>, <code class="inline">LAG</code>, running totals).</li></ul>
+
+<ul><li><b>Frame</b> (<code class="inline">ROWS BETWEEN ...</code>) — which rows around the current one to include. Defaults are subtle: with <code class="inline">ORDER BY</code> present, the default frame includes everything from the start of the partition through the current row's peers, which is what makes running totals work.</li></ul>
+
+<p>The function families worth knowing [RECOGNIZE]:</p>
+
+<div class="tblwrap"><table><thead><tr><th>Family</th><th>Functions</th><th>Use</th></tr></thead><tbody><tr><td>Ranking</td><td><code class="inline">ROW_NUMBER</code>, <code class="inline">RANK</code>, <code class="inline">DENSE_RANK</code>, <code class="inline">NTILE</code></td><td>"Top N per group", deduplication, percentile buckets</td></tr><tr><td>Offset</td><td><code class="inline">LAG</code>, <code class="inline">LEAD</code>, <code class="inline">FIRST_VALUE</code>, <code class="inline">LAST_VALUE</code></td><td>Period-over-period change, gaps between events</td></tr><tr><td>Aggregate-as-window</td><td><code class="inline">SUM</code>, <code class="inline">AVG</code>, <code class="inline">COUNT</code>, <code class="inline">MIN</code>, <code class="inline">MAX</code> with <code class="inline">OVER</code></td><td>Running totals, moving averages, share-of-total</td></tr></tbody></table></div>
+
+<p><code class="inline">ROW_NUMBER</code> vs <code class="inline">RANK</code> vs <code class="inline">DENSE_RANK</code> on ties — a guaranteed interview question: for values 10, 10, 9, <code class="inline">ROW_NUMBER</code> gives 1, 2, 3 (arbitrary tiebreak); <code class="inline">RANK</code> gives 1, 1, 3 (gap); <code class="inline">DENSE_RANK</code> gives 1, 1, 2 (no gap).</p>
+
+<p><b>The canonical pattern</b> — "the latest row per group," which appears in every real codebase:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>WITH ranked AS (
+  SELECT *, ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY created_at DESC) AS rn
+  FROM orders
+)
+SELECT * FROM ranked WHERE rn = 1;</code></pre></div>
+
+<p>Note *why* the CTE is necessary: window functions are computed at step 6 of the pipeline (with <code class="inline">SELECT</code>), so <code class="inline">WHERE</code> (step 3) cannot reference them. You must wrap and filter outside. That's Idea 2 paying off again.</p>
+
+<h2>6.4 Exercises</h2>
+
+<ol><li>Write the "top 3 cities by revenue per month" query using a CTE plus <code class="inline">RANK</code>.</li></ol>
+
+<ol><li>Compute month-over-month revenue change using <code class="inline">LAG</code>.</li></ol>
+
+<ol><li>Build a running total of daily revenue, then a 7-day moving average.</li></ol>
+
+<ol><li>Reproduce the <code class="inline">NOT IN</code> NULL trap: create a table with a NULL, watch <code class="inline">NOT IN</code> return zero rows, then fix it with <code class="inline">NOT EXISTS</code>.</li></ol>
+
+<ol><li>Find each customer's most recent order using the <code class="inline">ROW_NUMBER</code> pattern, and explain why you can't filter on it directly.</li></ol>
+
+<div class="quiz" data-part="p6"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p5">&larr; 05 · AGGREGATION AND GROUPING</a><a class="next" href="#p7">07 · DESIGNING SCHEMAS: DDL, CONSTRAINTS, NORMALIZATION &rarr;</a></div>
+</section>
+
+<section class="part" id="p7">
+  <div class="phead"><div class="pnum">07</div>
+    <div><div class="ptitle">Designing Schemas: DDL, Constraints, Normalization</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p7">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Querying well matters less than designing well: a good schema makes correct queries easy and incorrect ones impossible.</p>
+
+<h2>7.1 Creating tables [RECOGNIZE syntax, DEEP on constraints]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>CREATE TABLE customers (
+  id          BIGSERIAL PRIMARY KEY,               -- auto-incrementing surrogate key
+  email       TEXT        NOT NULL UNIQUE,
+  name        TEXT        NOT NULL,
+  city        TEXT,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE orders (
+  id           BIGSERIAL PRIMARY KEY,
+  customer_id  BIGINT      NOT NULL REFERENCES customers(id) ON DELETE RESTRICT,
+  status       TEXT        NOT NULL DEFAULT 'pending'
+                 CHECK (status IN ('pending','shipped','cancelled','refunded')),
+  total        NUMERIC(12,2) NOT NULL CHECK (total &gt;= 0),
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);</code></pre></div>
+
+<h2>7.2 Constraints are the database defending your data [DEEP]</h2>
+
+<div class="tblwrap"><table><thead><tr><th>Constraint</th><th>Guarantees</th><th>Why it matters</th></tr></thead><tbody><tr><td><code class="inline">PRIMARY KEY</code></td><td>Unique + not null; the row's identity</td><td>Every table should have one. It's also how other tables reference this one</td></tr><tr><td><code class="inline">FOREIGN KEY</code> (<code class="inline">REFERENCES</code>)</td><td>The referenced row exists</td><td>Prevents orphaned records — the most common form of data corruption</td></tr><tr><td><code class="inline">NOT NULL</code></td><td>A value is always present</td><td>Removes a whole class of NULL-handling bugs downstream</td></tr><tr><td><code class="inline">UNIQUE</code></td><td>No duplicates</td><td>Enforces business identity (one account per email)</td></tr><tr><td><code class="inline">CHECK</code></td><td>An arbitrary rule holds</td><td>Encodes domain rules (<code class="inline">total &gt;= 0</code>, valid status values) where they can't be bypassed</td></tr><tr><td><code class="inline">DEFAULT</code></td><td>A sensible value when unspecified</td><td>Fewer NULLs, less client-side logic</td></tr></tbody></table></div>
+
+<p>The principle: <b>application code is one of many paths to your data</b> — there will also be scripts, migrations, admin tools, another service, and someone in a SQL console at 2am. Only the database can enforce a rule against all of them. Constraints are not bureaucracy; they're the last line of defence, and they're documentation that cannot go out of date.</p>
+
+<p>On <code class="inline">ON DELETE</code> behaviour: <code class="inline">RESTRICT</code>/<code class="inline">NO ACTION</code> blocks deleting a parent with children (usually what you want), <code class="inline">CASCADE</code> deletes children too (convenient and dangerous — easy to delete far more than intended), <code class="inline">SET NULL</code> orphans them deliberately.</p>
+
+<h2>7.3 Keys [DEEP]</h2>
+
+<ul><li>A <b>natural key</b> is real-world data that identifies a row (email, ISBN). A <b>surrogate key</b> is a meaningless generated identifier (auto-increment integer, UUID).</li></ul>
+
+<ul><li>Prefer surrogate primary keys: real-world identifiers change (people change email addresses), and a changing primary key means updating every referencing row.</li></ul>
+
+<ul><li>Still enforce natural uniqueness with a <code class="inline">UNIQUE</code> constraint — you want both.</li></ul>
+
+<ul><li>Auto-increment integers are compact, index-friendly, and ordered; UUIDs are globally unique and don't leak counts or require a central sequence, at the cost of size and (for random UUIDs) worse index locality. Both are defensible; know the trade-off.</li></ul>
+
+<h2>7.4 Normalization [DEEP — the core of relational design]</h2>
+
+<p>Normalization means organizing data so <b>each fact is stored exactly once</b>. The forms, in plain language:</p>
+
+<ul><li><b>1NF:</b> each column holds a single atomic value; no comma-separated lists stuffed in a text field, no repeating column groups like <code class="inline">phone1</code>, <code class="inline">phone2</code>, <code class="inline">phone3</code>.</li></ul>
+
+<ul><li><b>2NF:</b> no column depends on only part of a composite key.</li></ul>
+
+<ul><li><b>3NF:</b> no column depends on another non-key column. If <code class="inline">city</code> determines <code class="inline">state</code>, storing both on every order means one city could end up mapped to two states.</li></ul>
+
+<p>In practice, "3NF" reduces to a habit: <b>if you find yourself updating the same fact in more than one place, the schema is wrong.</b></p>
+
+<p>Why it matters: duplicate storage means the copies will eventually disagree, and then there's no answer to "which one is true?" Normalization makes disagreement structurally impossible.</p>
+
+<p><b>Denormalization</b> is the deliberate reintroduction of duplication for read performance — storing an order's <code class="inline">total</code> instead of recomputing from line items, or keeping a <code class="inline">comment_count</code> on a post. It's legitimate when you measure a real problem and accept the maintenance burden of keeping copies in sync. Do it knowingly, never accidentally, and never before you've measured.</p>
+
+<h2>7.5 Modifying schemas and data [RECOGNIZE]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>ALTER TABLE orders ADD COLUMN notes TEXT;
+ALTER TABLE orders ALTER COLUMN status SET DEFAULT 'pending';
+CREATE INDEX idx_orders_customer ON orders(customer_id);
+
+INSERT INTO customers (email, name) VALUES ('a@example.com', 'Asha')
+  ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name;   -- upsert (Postgres)
+
+UPDATE orders SET status = 'shipped' WHERE id = 42;
+DELETE FROM orders WHERE created_at &lt; '2020-01-01';</code></pre></div>
+
+<p><b>The habit that prevents catastrophe:</b> before running any <code class="inline">UPDATE</code> or <code class="inline">DELETE</code>, run it as a <code class="inline">SELECT</code> with the same <code class="inline">WHERE</code> clause and confirm the row count is what you expect. A missing <code class="inline">WHERE</code> on an <code class="inline">UPDATE</code> rewrites the entire table, and there is no undo outside a transaction. Which is why Part 11's first rule is: wrap destructive changes in an explicit transaction so you can <code class="inline">ROLLBACK</code>.</p>
+
+<h2>7.6 Exercise</h2>
+
+<p>Design a small schema for a domain you understand (a library, a course platform, an issue tracker) with at least four related tables. Requirements: every table has a primary key, every relationship has a foreign key, at least three <code class="inline">CHECK</code> constraints, no column that could hold a list, and no fact stored twice. Then write five queries that answer real questions about it — and notice how the constraints made those queries simpler to trust.</p>
+
+<div class="quiz" data-part="p7"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p6">&larr; 06 · SUBQUERIES, CTES, AND WINDOW FUNCTIONS</a><a class="next" href="#p8">08 · REAL PROJECT: BUILD AND QUERY A REAL DATABASE &rarr;</a></div>
+</section>
+
+<section class="part" id="p8">
+  <div class="phead"><div class="pnum">08</div>
+    <div><div class="ptitle">Real Project: Build and Query a Real Database</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p8">MARK COMPLETE</button></div>
+  </div>
+
+  <p>This is the payoff. It exercises every prior part. Build it yourself rather than copying a sample database — designing the schema is half the learning.</p>
+
+<h2>8.1 The domain</h2>
+
+<p>Build an <b>e-commerce analytics database</b>. It's a good choice because it naturally contains one-to-many relationships (the join multiplication trap), money (decimal types), time (windowing), and optional values (NULL handling).</p>
+
+<p>Minimum schema:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>customers  (id, email UNIQUE, name, city, country, created_at)
+products   (id, sku UNIQUE, name, category, price, active)
+orders     (id, customer_id → customers, status, placed_at, shipped_at NULLABLE)
+order_items(id, order_id → orders, product_id → products, quantity, unit_price)
+payments   (id, order_id → orders, amount, method, paid_at, status)</code></pre></div>
+
+<p>Note the deliberate design choices to reason about: <code class="inline">unit_price</code> is stored on <code class="inline">order_items</code> rather than read from <code class="inline">products</code>, because product prices change and an old order must keep the price it was sold at. That's not denormalization sloppiness — it's recognizing that the item price at time of sale is a *different fact* from the product's current price. Being able to explain that distinction is real data modelling skill.</p>
+
+<h2>8.2 Load meaningful data</h2>
+
+<p>Generate at least 1,000 customers, 200 products, 10,000 orders, and 30,000 order items — enough that bad queries actually feel slow, which is the only way Part 9 becomes real. Use <code class="inline">generate_series</code> (Postgres) or a script. Deliberately include: some customers with zero orders, some orders with no payment, some NULL <code class="inline">shipped_at</code>, and a few cancelled and refunded orders.</p>
+
+<h2>8.3 The query set</h2>
+
+<p>Answer all of these. Each one targets specific skills:</p>
+
+<ol><li><b>Revenue by month</b> for the last 12 months, with months that had zero revenue still shown as zero. *(Aggregation + the empty-group problem — you'll need a generated date series and a <code class="inline">LEFT JOIN</code>.)*</li></ol>
+
+<ol><li><b>Top 10 products by revenue</b>, with their category and share of total revenue. *(Joins, aggregation, window function for share-of-total.)*</li></ol>
+
+<ol><li><b>Every customer with their order count and lifetime value</b>, including customers who never ordered. *(<code class="inline">LEFT JOIN</code>, and correct handling so zero-order customers show 0, not NULL — use <code class="inline">COALESCE</code>.)*</li></ol>
+
+<ol><li><b>Each customer's most recent order</b> and how many days since. *(The <code class="inline">ROW_NUMBER</code> pattern from 6.3.)*</li></ol>
+
+<ol><li><b>Month-over-month revenue growth percentage.</b> *(<code class="inline">LAG</code>.)*</li></ol>
+
+<ol><li><b>Orders whose payments don't sum to the order total</b> — a reconciliation query. *(Aggregation with a <code class="inline">HAVING</code>, careful NULL handling for unpaid orders.)*</li></ol>
+
+<ol><li><b>Customer cohort retention:</b> group customers by the month of their first order, then show how many ordered again in each subsequent month. *(Multiple CTEs — this is the hardest one and the most realistic.)*</li></ol>
+
+<ol><li><b>A 7-day moving average of daily revenue.</b> *(Window frame.)*</li></ol>
+
+<ol><li><b>Products never ordered.</b> *(<code class="inline">NOT EXISTS</code> — and then try it with <code class="inline">NOT IN</code> and confirm you understand the NULL risk.)*</li></ol>
+
+<ol><li><b>The single query you'd have written wrong</b>: total revenue per order, joined to order items, verifying you don't multiply. *(Deliberately construct it wrongly first, see the inflated number, then fix it.)*</li></ol>
+
+<h2>8.4 Definition of done</h2>
+
+<p>You can: explain what every join in every query does to the row count; state which queries would be slow without indexes and prove it with <code class="inline">EXPLAIN</code> (Part 9); write query 7 from scratch without looking; and hand the schema to someone else who can understand the relationships from the constraints alone.</p>
+
+<div class="quiz" data-part="p8"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p7">&larr; 07 · DESIGNING SCHEMAS: DDL, CONSTRAINTS, NORMALIZATION</a><a class="next" href="#p9">09 · DEBUGGING AND READING QUERY PLANS &rarr;</a></div>
+</section>
+
+<section class="part" id="p9">
+  <div class="phead"><div class="pnum">09</div>
+    <div><div class="ptitle">Debugging and Reading Query Plans</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p9">MARK COMPLETE</button></div>
+  </div>
+
+  <p>SQL debugging splits cleanly into two questions: <b>is it wrong?</b> and <b>is it slow?</b> Different tools for each.</p>
+
+<h2>9.1 "My query returns the wrong data"</h2>
+
+<p>Work the pipeline from Idea 2, in order:</p>
+
+<ol><li><b>Check the row count first.</b> <code class="inline">SELECT COUNT(*)</code> at each stage. If adding a join changed the count unexpectedly, you've found the join multiplication bug (4.3) — this catches the most dangerous class of error.</li></ol>
+
+<ol><li><b>Simplify until it's right, then add back one clause at a time.</b> Start from <code class="inline">SELECT * FROM one_table</code> and rebuild. The step where it breaks is the bug.</li></ol>
+
+<ol><li><b>Suspect NULL.</b> Missing rows that "should be there" is almost always three-valued logic: a <code class="inline">&lt;&gt;</code> comparison excluding NULLs, a <code class="inline">WHERE</code> on a <code class="inline">LEFT JOIN</code>ed table, or a <code class="inline">NOT IN</code> with a NULL in the subquery. Test with <code class="inline">IS NULL</code> explicitly.</li></ol>
+
+<ol><li><b>Check your join grain.</b> Ask "what does one row of this result represent?" If you can't answer in one sentence, the query is confused and your aggregates are probably wrong.</li></ol>
+
+<ol><li><b>Check operator precedence</b> in mixed <code class="inline">AND</code>/<code class="inline">OR</code> conditions.</li></ol>
+
+<ol><li><b>Check for silent type coercion</b> — comparing a text column to a number, or a <code class="inline">DATE</code> to a <code class="inline">TIMESTAMP</code> (where <code class="inline">'2026-01-01'</code> as a timestamp means midnight, so <code class="inline">&lt;= '2026-01-01'</code> excludes almost the entire day).</li></ol>
+
+<h2>9.2 "My query is slow" — <code class="inline">EXPLAIN</code> [DEEP]</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>EXPLAIN ANALYZE
+SELECT c.name, SUM(o.total)
+FROM customers c JOIN orders o ON o.customer_id = c.id
+WHERE c.country = 'IN'
+GROUP BY c.name;</code></pre></div>
+
+<p><code class="inline">EXPLAIN</code> shows the plan the optimizer chose. <code class="inline">EXPLAIN ANALYZE</code> <b>actually runs it</b> and shows real timings and row counts alongside the estimates. Always use <code class="inline">ANALYZE</code> (carefully — it executes, so wrap <code class="inline">UPDATE</code>/<code class="inline">DELETE</code> in a transaction you roll back).</p>
+
+<p>Read a plan <b>inside-out and bottom-up</b>: the innermost/most-indented nodes run first and feed their parents.</p>
+
+<p>What to look for, in priority order:</p>
+
+<div class="tblwrap"><table><thead><tr><th>Signal</th><th>Meaning</th><th>Usual fix</th></tr></thead><tbody><tr><td><b>Seq Scan</b> on a large table</td><td>Reading every row</td><td>Add an index on the filtered column — *unless* the query genuinely needs most of the table, in which case a scan is correct and optimal</td></tr><tr><td><b>Estimated rows wildly different from actual</b></td><td>The optimizer is working from bad information, so its plan choice is probably wrong</td><td>Run <code class="inline">ANALYZE tablename</code> to refresh statistics; consider extended statistics for correlated columns</td></tr><tr><td><b>Nested Loop</b> with a large outer row count</td><td>O(n×m) behaviour</td><td>Usually a missing index on the join key; hash join is often the right plan at scale</td></tr><tr><td><b>Sort</b> with high cost or disk spill</td><td>Sorting more data than fits in memory</td><td>Index that provides the order, or increase work memory, or reduce the row count first</td></tr><tr><td>The most time in one node</td><td>Your actual bottleneck</td><td>Everything else is noise — optimize only this</td></tr></tbody></table></div>
+
+<p>The crucial discipline: <b>measure, then change one thing, then measure again.</b> Query optimization by intuition is unreliable even for experts, because the optimizer's decisions depend on data distribution you can't see by reading SQL.</p>
+
+<h2>9.3 Indexes: the main performance lever [DEEP]</h2>
+
+<p>An index is a separate, ordered data structure (usually a B-tree) mapping column values to row locations — conceptually the index at the back of a book. It turns "read all 10 million rows" into "walk down a few levels of a tree."</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>CREATE INDEX idx_orders_customer_placed ON orders(customer_id, placed_at DESC);</code></pre></div>
+
+<p>What to know:</p>
+
+<ul><li><b>Index the columns you filter, join, and sort on</b> — especially foreign keys, which are frequently unindexed by default and are the most common cause of slow joins.</li></ul>
+
+<ul><li><b>Composite index column order matters enormously.</b> An index on <code class="inline">(a, b)</code> can serve queries filtering on <code class="inline">a</code>, or on <code class="inline">a</code> and <code class="inline">b</code> — but generally *not* on <code class="inline">b</code> alone. Think of a phone book sorted by (last name, first name): useless for finding everyone named "Priya."</li></ul>
+
+<ul><li><b>Indexes cost writes.</b> Every <code class="inline">INSERT</code>/<code class="inline">UPDATE</code>/<code class="inline">DELETE</code> must update every affected index. Unused indexes are pure overhead; audit them.</li></ul>
+
+<ul><li><b>Selectivity matters.</b> An index on a boolean column with a 50/50 split rarely helps — the engine would read half the table anyway.</li></ul>
+
+<ul><li><b>Function-wrapped columns defeat indexes</b> (3.2). <code class="inline">WHERE LOWER(email) = ...</code> needs an expression index on <code class="inline">LOWER(email)</code>.</li></ul>
+
+<ul><li><b>Covering indexes</b> include every column the query needs, so the engine never touches the table at all — a large win for hot queries. [ADVANCED]</li></ul>
+
+<h2>9.4 Exercise</h2>
+
+<p>Take three of Part 8's queries, run <code class="inline">EXPLAIN ANALYZE</code>, record the timings, then add indexes and re-run. Write down the before/after and — more importantly — the plan node that changed. Then add a deliberately useless index and confirm it isn't used. Finally, wrap a column in a function and watch the index stop being used.</p>
+
+<div class="quiz" data-part="p9"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p8">&larr; 08 · REAL PROJECT: BUILD AND QUERY A REAL DATABASE</a><a class="next" href="#p10">10 · INTERNALS: HOW THE ENGINE EXECUTES YOUR QUERY &rarr;</a></div>
+</section>
+
+<section class="part" id="p10">
+  <div class="phead"><div class="pnum">10</div>
+    <div><div class="ptitle">Internals: How the Engine Executes Your Query</div>
+    <div class="pmeta"><span class="m">TAG <b>ADVANCED</b></span><span class="m">★ <b>INTERVIEW GOLD</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p10">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Return here after Part 8. This section upgrades Part 2's model to mechanism. None of it is needed to *use* SQL; all of it is what distinguishes someone who writes SQL from someone who understands databases.</p>
+
+<h2>10.1 The lifecycle of a query</h2>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>SQL text
+  → Parser        (syntax → tree; catches typos)
+  → Analyzer      (resolve names against the catalog; type-check)
+  → Rewriter      (expand views, flatten subqueries, push predicates down)
+  → Planner/Optimizer (enumerate plans, cost them using statistics, pick one)
+  → Executor      (run the plan tree, pulling rows node by node)
+  → Result</code></pre></div>
+
+<p>The optimizer is the interesting part. It is a <b>cost-based</b> search: for each candidate plan it estimates CPU and I/O cost using stored statistics (row counts, distinct-value counts, histograms of value distribution, correlation). Join ordering alone is combinatorially explosive, so beyond a handful of tables it uses heuristics and genetic/greedy approaches rather than exhaustive search.</p>
+
+<p>Why this matters practically: <b>the plan is only as good as the statistics.</b> Stale statistics after a bulk load is one of the most common causes of a query that was fast yesterday and slow today, and the fix is <code class="inline">ANALYZE</code>, not a rewrite.</p>
+
+<h2>10.2 How data is actually stored</h2>
+
+<p>Rows live in fixed-size <b>pages</b> (commonly 8KB) on disk. The engine reads and caches whole pages in a <b>buffer pool</b> in memory. Consequences:</p>
+
+<ul><li>Reading one row costs at least one page read — so <b>row size matters</b>; wider rows mean fewer per page and more I/O for the same row count.</li></ul>
+
+<ul><li>Sequential page reads are far cheaper per row than random ones, which is why a sequential scan can beat index lookups when you need a large fraction of the table. That's the optimizer's actual reasoning when it "ignores your index."</li></ul>
+
+<ul><li>The buffer pool is why the second run of a query is usually much faster — the pages are already in memory. Always benchmark warm, not cold, or you'll optimize the wrong thing.</li></ul>
+
+<ul><li><b>Row-oriented</b> storage (Postgres, MySQL — optimized for reading whole rows: OLTP) versus <b>column-oriented</b> storage (BigQuery, Snowflake, DuckDB, ClickHouse — optimized for reading a few columns across many rows: analytics). Column stores compress far better and scan far faster for aggregates, which is why analytical warehouses are all columnar. Knowing this distinction is a strong signal.</li></ul>
+
+<h2>10.3 How indexes work mechanically</h2>
+
+<p>A <b>B-tree</b> (technically B+tree) is a balanced tree of pages. The leaves hold ordered key values with pointers to rows; internal nodes route the search. Depth is logarithmic, so finding one key among a billion rows takes only a handful of page reads.</p>
+
+<p>This explains behaviours that otherwise look arbitrary:</p>
+
+<ul><li><b>Range queries work</b> (<code class="inline">BETWEEN</code>, <code class="inline">&gt;</code>, <code class="inline">&lt;</code>, <code class="inline">ORDER BY</code>) because leaves are ordered and linked — you find the start and walk.</li></ul>
+
+<ul><li><b>Leading wildcards fail</b> (<code class="inline">LIKE '%x'</code>) because you can't locate a starting point in an ordering by prefix.</li></ul>
+
+<ul><li><b>Composite index order matters</b> because the ordering is lexicographic — sorted by the first column, then the second within ties.</li></ul>
+
+<ul><li><b>Indexes can satisfy <code class="inline">ORDER BY</code> for free</b>, skipping the sort entirely.</li></ul>
+
+<p>Other index types worth knowing exist [REFERENCE]: <b>hash</b> (equality only), <b>GIN/inverted</b> (full-text search, JSON keys, array containment), <b>GiST/R-tree</b> (geometric and geographic data), <b>BRIN</b> (huge naturally-ordered tables like time series, tiny index size), <b>bitmap</b> (low-cardinality columns in analytics).</p>
+
+<h2>10.4 Join algorithms [DEEP for interviews]</h2>
+
+<p>The optimizer picks among three, and knowing them explains most plan choices:</p>
+
+<div class="tblwrap"><table><thead><tr><th>Algorithm</th><th>How it works</th><th>Best when</th></tr></thead><tbody><tr><td><b>Nested Loop</b></td><td>For each row of the outer table, look up matches in the inner</td><td>Outer side is tiny, inner side has an index on the join key</td></tr><tr><td><b>Hash Join</b></td><td>Build a hash table from the smaller table in memory, then probe it with the larger</td><td>Large unsorted inputs, equality joins. The workhorse of analytics</td></tr><tr><td><b>Merge Join</b></td><td>Sort both inputs (or use index order), then walk them in lockstep</td><td>Both inputs already sorted on the join key; very memory-efficient</td></tr></tbody></table></div>
+
+<p>So when you see "Nested Loop" on two million-row tables in a plan, you know immediately why it's slow and what's likely missing.</p>
+
+<h2>10.5 The interview-grade narration</h2>
+
+<p>*"The parser turns SQL into a tree, the analyzer resolves it against the catalog, the rewriter normalizes it and pushes filters down, and then the cost-based optimizer enumerates plans — join orders, join algorithms, access methods — and estimates each using table statistics before picking one. The executor then pulls rows through that plan tree. Data lives in fixed-size pages cached in a buffer pool, and indexes are B-trees whose ordered leaves make ranges and sorted output cheap. Almost all query tuning is either giving the optimizer a better access path with an index, or giving it better statistics so it estimates correctly."*</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">simulator — click RUN</span></div><pre id="simOut"><span cl/></pre><div class="stack-controls" style="margin:0;padding:10px 16px;border-top:1px solid var(--line)"><button class="btn sm" id="simRun">&#9654; RUN</button><button class="btn sm ok" id="simReset">RESET</button></div></div>
+
+<div class="quiz" data-part="p10"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p9">&larr; 09 · DEBUGGING AND READING QUERY PLANS</a><a class="next" href="#p11">11 · TRANSACTIONS, CONCURRENCY, AND PRODUCTION CONCERNS &rarr;</a></div>
+</section>
+
+<section class="part" id="p11">
+  <div class="phead"><div class="pnum">11</div>
+    <div><div class="ptitle">Transactions, Concurrency, and Production Concerns</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p11">MARK COMPLETE</button></div>
+  </div>
+
+  <h2>11.1 Transactions and ACID [DEEP]</h2>
+
+<p>A transaction groups statements so they succeed or fail together:</p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>BEGIN;
+  UPDATE accounts SET balance = balance - 500 WHERE id = 1;
+  UPDATE accounts SET balance = balance + 500 WHERE id = 2;
+COMMIT;    -- or ROLLBACK to undo everything</code></pre></div>
+
+<p><b>ACID</b> is the set of guarantees:</p>
+
+<div class="tblwrap"><table><thead><tr><th>Property</th><th>Means</th><th>Why you care</th></tr></thead><tbody><tr><td><b>Atomicity</b></td><td>All statements apply, or none do</td><td>A crash mid-transfer can't destroy money</td></tr><tr><td><b>Consistency</b></td><td>Constraints hold before and after</td><td>The database never contains data that violates its own rules</td></tr><tr><td><b>Isolation</b></td><td>Concurrent transactions don't see each other's partial work</td><td>Two simultaneous operations can't interleave into nonsense</td></tr><tr><td><b>Durability</b></td><td>Once committed, it survives a crash</td><td>Achieved via write-ahead logging (WAL) — the log is flushed before the data pages</td></tr></tbody></table></div>
+
+<p>The habit that matters: <b>wrap every multi-statement change and every destructive statement in an explicit transaction.</b> It's the only undo you get.</p>
+
+<h2>11.2 Isolation levels [DEEP — the most under-known important topic in SQL]</h2>
+
+<p>Perfect isolation is expensive, so the standard defines levels trading correctness for concurrency. The anomalies they prevent:</p>
+
+<ul><li><b>Dirty read</b> — seeing another transaction's uncommitted changes.</li></ul>
+
+<ul><li><b>Non-repeatable read</b> — reading the same row twice in one transaction and getting different values.</li></ul>
+
+<ul><li><b>Phantom read</b> — re-running the same query and finding new rows that match.</li></ul>
+
+<ul><li><b>Lost update</b> — two transactions read, modify, and write the same row; one overwrites the other silently.</li></ul>
+
+<div class="tblwrap"><table><thead><tr><th>Level</th><th>Prevents</th><th>Notes</th></tr></thead><tbody><tr><td><code class="inline">READ UNCOMMITTED</code></td><td>Nothing</td><td>Effectively unused; Postgres treats it as <code class="inline">READ COMMITTED</code></td></tr><tr><td><code class="inline">READ COMMITTED</code></td><td>Dirty reads</td><td><b>Postgres and Oracle default.</b> Each statement sees a fresh snapshot, so two queries in one transaction can disagree</td></tr><tr><td><code class="inline">REPEATABLE READ</code></td><td>+ non-repeatable reads</td><td><b>MySQL/InnoDB default.</b> Whole transaction sees one snapshot</td></tr><tr><td><code class="inline">SERIALIZABLE</code></td><td>Everything</td><td>Behaves as if transactions ran one at a time. Costs throughput and can abort transactions with serialization errors your app must retry</td></tr></tbody></table></div>
+
+<p>The practical consequence, and it's a real bug in a great deal of production code: <b>read-modify-write in application code is unsafe at default isolation levels.</b> <code class="inline">SELECT balance</code> → compute in your app → <code class="inline">UPDATE balance</code> can lose the other transaction's update entirely. Fixes: do the arithmetic in SQL (<code class="inline">SET balance = balance - 500</code>), lock the row (<code class="inline">SELECT ... FOR UPDATE</code>), use a constraint to make the bad state impossible, or use <code class="inline">SERIALIZABLE</code> and retry on failure.</p>
+
+<p>Knowing the default isolation level of the database you use, and what it does *not* protect you from, is a genuine senior-level distinction.</p>
+
+<h2>11.3 Locks and deadlocks [RECOGNIZE]</h2>
+
+<p>Writes take row locks; readers in MVCC databases (Postgres, Oracle, MySQL/InnoDB) don't block writers or vice versa, because readers see a snapshot. A <b>deadlock</b> occurs when two transactions each hold what the other needs; the database detects the cycle and kills one with an error. Prevention: acquire locks in a consistent order everywhere, keep transactions short, and never hold a transaction open across user interaction or a network call to another service.</p>
+
+<h2>11.4 Production practices that matter [DEEP as a set]</h2>
+
+<ol><li><b>Always parameterize queries.</b> String-concatenating user input is SQL injection — still the top-ranked class of web vulnerability decades after it was understood. <code class="inline">WHERE id = ?</code> with a bound parameter is safe; <code class="inline">"WHERE id = " + input</code> is not. This is non-negotiable, and no amount of input escaping is as reliable as parameterization.</li></ol>
+
+<ol><li><b>Grant least privilege.</b> The application's database user should not be able to <code class="inline">DROP TABLE</code>. Separate read-only accounts for reporting.</li></ol>
+
+<ol><li><b>Migrations, not manual changes.</b> Schema changes live in version-controlled, reviewed, sequentially-applied files. Manual production changes are unreproducible and undocumented by definition.</li></ol>
+
+<ol><li><b>Backups you have actually restored.</b> An untested backup is a hypothesis. Practise the restore.</li></ol>
+
+<ol><li><b>Keyset pagination for large offsets.</b> <code class="inline">OFFSET 100000</code> makes the engine generate and discard 100,000 rows. Instead: <code class="inline">WHERE (created_at, id) &lt; (:last_at, :last_id) ORDER BY created_at DESC, id DESC LIMIT 20</code>.</li></ol>
+
+<ol><li><b>Watch N+1 query patterns.</b> An ORM that runs one query per row of a loop is Idea 1's loop-thinking made expensive. Fix with a join or a batched <code class="inline">IN (...)</code>.</li></ol>
+
+<ol><li><b>Monitor slow queries.</b> Enable slow-query logging or <code class="inline">pg_stat_statements</code> — you cannot optimize what you don't measure, and the slowest query is rarely the one you'd guess.</li></ol>
+
+<ol><li><b>Time zones: store UTC, convert at the edges.</b> And use a real timestamp type, never text.</li></ol>
+
+<div class="quiz" data-part="p11"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p10">&larr; 10 · INTERNALS: HOW THE ENGINE EXECUTES YOUR QUERY</a><a class="next" href="#p12">12 · WHEN SQL IS AND ISN'T THE RIGHT TOOL &rarr;</a></div>
+</section>
+
+<section class="part" id="p12">
+  <div class="phead"><div class="pnum">12</div>
+    <div><div class="ptitle">When SQL Is and Isn't the Right Tool</div>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p12">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Being able to argue *against* your tool is a mark of genuine understanding.</p>
+
+<p><b>SQL and a relational database are right when:</b> the data has structure and relationships (nearly all business data does); you need ad-hoc queries you didn't anticipate at design time; correctness under concurrency matters (anything involving money, inventory, bookings); you want the database to enforce integrity; the dataset fits on one machine or a modest cluster — which today means it can be very large indeed.</p>
+
+<p><b>A different tool may be better when:</b></p>
+
+<div class="tblwrap"><table><thead><tr><th>Situation</th><th>Why SQL struggles</th><th>Alternative</th></tr></thead><tbody><tr><td>Deeply hierarchical or graph-shaped traversal (social graphs, recommendations, "friends of friends of friends")</td><td>Recursive joins get expensive and awkward</td><td>Graph databases (Neo4j)</td></tr><tr><td>Simple key-value lookups at extreme throughput; caching; ephemeral session data</td><td>The overhead of a full relational engine buys you nothing</td><td>Redis, DynamoDB</td></tr><tr><td>Genuinely schemaless, highly variable documents where structure differs per record</td><td>You'd be fighting the schema</td><td>Document stores (MongoDB) — but note that Postgres <code class="inline">JSONB</code> covers a large fraction of this need without giving up joins and transactions</td></tr><tr><td>Full-text relevance search, fuzzy matching, faceting</td><td>SQL's text search is basic by comparison</td><td>Elasticsearch, OpenSearch</td></tr><tr><td>Massive append-only time-series or event streams</td><td>Row-store overhead per event; different access pattern</td><td>TimescaleDB, ClickHouse, InfluxDB</td></tr><tr><td>Petabyte-scale analytical scans</td><td>Row storage reads columns you don't need</td><td>Columnar warehouses (BigQuery, Snowflake, DuckDB)</td></tr><tr><td>Writes exceeding what one primary can absorb, needing horizontal scale-out</td><td>Traditional single-primary architecture</td><td>Distributed SQL (CockroachDB, Spanner, Vitess) — often better than abandoning SQL</td></tr></tbody></table></div>
+
+<p>The honest historical lesson: many organizations adopted NoSQL in the 2010s for scale they never reached, and paid for it in lost joins, lost transactions, and application code reimplementing consistency badly. The reverse mistake also exists — forcing a genuine graph or search problem into SQL. <b>Choose based on your access patterns and consistency needs, not on which technology sounds modern.</b></p>
+
+<p>Also worth knowing SQL's real weaknesses rather than defending it reflexively: dialect fragmentation makes portability harder than the standard implies; complex queries are hard to test, version, and modularize compared with application code; there's no good story for reuse (no functions-and-modules discipline, so copy-paste is rampant); error messages are frequently poor; and the language's clause order genuinely does not match its evaluation order, which makes it harder to learn than it needed to be.</p>
+
+<div class="quiz" data-part="p12"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+  <div class="breadcrumb"><a href="#p11">&larr; 11 · TRANSACTIONS, CONCURRENCY, AND PRODUCTION CONCERNS</a><a class="next" href="#p13">13 · INTERVIEW PREPARATION &rarr;</a></div>
+</section>
+
+<section class="part" id="p13">
+  <div class="phead"><div class="pnum">13</div>
+    <div><div class="ptitle">Interview Preparation</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p13">MARK COMPLETE</button></div>
+  </div>
+
+  <p>Answer each aloud, then check against the referenced section.</p>
+
+<p><b>Tier 1 — expected of everyone:</b></p>
+
+<ol><li><code class="inline">INNER</code> vs <code class="inline">LEFT</code> vs <code class="inline">FULL OUTER JOIN</code> — with a case where each is the right choice. (Part 4.2)</li></ol>
+
+<ol><li><code class="inline">WHERE</code> vs <code class="inline">HAVING</code>. (Parts 2, 5.3)</li></ol>
+
+<ol><li>What does <code class="inline">GROUP BY</code> do, and why must non-aggregated <code class="inline">SELECT</code> columns appear in it? (Part 5.2)</li></ol>
+
+<ol><li><code class="inline">COUNT(*)</code> vs <code class="inline">COUNT(column)</code> vs <code class="inline">COUNT(DISTINCT column)</code>. (Parts 3, 5.1)</li></ol>
+
+<ol><li>Why does <code class="inline">WHERE col = NULL</code> never match anything? (Idea 3)</li></ol>
+
+<ol><li>What is a primary key, and what is a foreign key protecting you from? (Part 7.2)</li></ol>
+
+<ol><li><code class="inline">UNION</code> vs <code class="inline">UNION ALL</code> — and which is faster and why. (Part 4.5)</li></ol>
+
+<ol><li><code class="inline">DELETE</code> vs <code class="inline">TRUNCATE</code> vs <code class="inline">DROP</code>. (Part 7.5 / [REFERENCE])</li></ol>
+
+<p><b>Tier 2 — differentiators:</b></p>
+
+<ol><li>Explain the logical order of query evaluation, and use it to explain why a <code class="inline">SELECT</code> alias can't be used in <code class="inline">WHERE</code>. (Idea 2)</li></ol>
+
+<ol><li>What is an index, and when does adding one *not* help? (Part 9.3)</li></ol>
+
+<ol><li>Why is <code class="inline">NOT IN</code> with a subquery dangerous? (Part 6.1)</li></ol>
+
+<ol><li>What's a window function, and how does it differ from <code class="inline">GROUP BY</code>? (Part 6.3)</li></ol>
+
+<ol><li>Write "the most recent order per customer." (Part 6.3)</li></ol>
+
+<ol><li><code class="inline">ROW_NUMBER</code> vs <code class="inline">RANK</code> vs <code class="inline">DENSE_RANK</code>. (Part 6.3)</li></ol>
+
+<ol><li>What is normalization, and when would you deliberately denormalize? (Part 7.4)</li></ol>
+
+<ol><li>How would you find and fix a slow query? (Part 9.2 — the answer should mention <code class="inline">EXPLAIN ANALYZE</code> before any guess)</li></ol>
+
+<ol><li>What is a CTE and why prefer it to nested subqueries? (Part 6.2)</li></ol>
+
+<p><b>Tier 3 — senior signal:</b></p>
+
+<ol><li>Explain ACID, and what isolation level your database uses by default. (Part 11.1–11.2)</li></ol>
+
+<ol><li>What is a lost update, and how do you prevent it? (Part 11.2 — this question separates people fast)</li></ol>
+
+<ol><li>Walk me through what happens when I submit a query. (Part 10.5)</li></ol>
+
+<ol><li>Why might the optimizer choose a sequential scan over an index? (Part 10.2)</li></ol>
+
+<ol><li>Nested loop vs hash join vs merge join. (Part 10.4)</li></ol>
+
+<ol><li>Row-oriented vs column-oriented storage, and which for what workload. (Part 10.2)</li></ol>
+
+<ol><li>How do you prevent SQL injection, and why isn't escaping enough? (Part 11.4)</li></ol>
+
+<ol><li>When would you choose something other than a relational database? (Part 12)</li></ol>
+
+<p>Answer shape that reads senior: <b>what it is → why it exists → one concrete consequence.</b></p>
+
+<div class="quiz" data-part="p13"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+<p>If you can deliver these aloud — with the WHAT → WHY IT EXISTS → ONE CONCRETE CONSEQUENCE shape — you are interview-ready. Answer before flipping; nailed cards dim.</p>
+<div class="deck" id="deck"><!-- cards injected by JS --></div>
+
+  <div class="breadcrumb"><a href="#p12">&larr; 12 · WHEN SQL IS AND ISN'T THE RIGHT TOOL</a><a class="next" href="#p14">14 · MILESTONES AND SELF-ASSESSMENT &rarr;</a></div>
+</section>
+
+<section class="part" id="p14">
+  <div class="phead"><div class="pnum">14</div>
+    <div><div class="ptitle">Milestones and Self-Assessment</div>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button class="btn sm" data-done="p14">MARK COMPLETE</button></div>
+  </div>
+
+  <p><b>Milestone 1 — Model (Parts 1–2).</b> Pass: the five checkpoint questions in Part 2, unaided, plus recite the logical evaluation order.</p>
+
+<p><b>Milestone 2 — Single-table querying (Part 3).</b> Pass: filter, sort, and page a table correctly; demonstrate the NULL asymmetry; explain why one <code class="inline">WHERE</code> can use an index and another can't.</p>
+
+<p><b>Milestone 3 — Joins (Part 4).</b> Pass: reproduce and fix the join multiplication bug and the <code class="inline">LEFT JOIN</code>-in-<code class="inline">WHERE</code> bug from scratch; write a self-join.</p>
+
+<p><b>Milestone 4 — Aggregation and advanced querying (Parts 5–6).</b> Pass: conditional aggregation in one pass; a CTE-based top-N-per-group; a running total; a <code class="inline">LAG</code> comparison; explain the <code class="inline">NOT IN</code> trap.</p>
+
+<p><b>Milestone 5 — Design and the project (Parts 7–8).</b> Pass: a normalized schema with real constraints, plus all ten Part 8 queries answered correctly — including cohort retention.</p>
+
+<p><b>Milestone 6 — Performance and depth (Parts 9–12).</b> Pass: diagnose a slow query with <code class="inline">EXPLAIN ANALYZE</code> and fix it with an index, showing before/after; explain isolation levels and the lost update problem; deliver the Part 10.5 narration; argue two cases where SQL is the wrong tool.</p>
+
+<p>A realistic pace at ~1 focused hour per day: M1 days 1–2, M2 days 3–5, M3 days 6–10, M4 days 11–17, M5 days 18–25, M6 days 26–32. Faster is fine; skipping the exercises is not — SQL is a language where reading creates a particularly strong illusion of understanding, because every query looks obvious until you write one against real data and get a plausible wrong answer.</p>
+
+<div class="quiz" data-part="p14"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+
+<p>Six milestones = six layers of proof, mapped to the curriculum&#39;s day plan (~1 focused hour/day). When all six drop, the shipyard ships your container.</p>
+<div class="mlist" id="mlist"><!-- milestones injected by JS --></div>
+
+  <div class="breadcrumb"><a href="#p13">&larr; 13 · INTERVIEW PREPARATION</a></div>
+</section><footer>
+  <b>ABOUT THIS BUILD:</b> The SQL Shipyard is a faithful interactive conversion of the first-principles SQL curriculum — every concept, table, code block and exercise preserved. Progress lives in your browser (localStorage). Built as a single file — copy it anywhere, it runs offline.<br>
+  <b>THE ONE RULE:</b> think in sets, not loops. Hold that, and every “why doesn’t this work?” answers itself from the evaluation pipeline.
+</footer>
+</main>
+</div>
+<div id="grad"><div class="gterm"><div class="ghead">&#9650; SHIPYARD DEPLOYMENT — ALL MILESTONES CROSSED</div><div class="gbody"></div></div></div>
+<script>
+// generated by build.mjs from sql-curriculum.md + build/pedagogy/sql.mjs - do not hand-edit
+window.SHIPYARD_DATA={
+meta:{
+ "tech": "sql",
+ "title": "The SQL Shipyard - SQL: A First-Principles Curriculum",
+ "brand": "THE SQL SHIPYARD",
+ "tagline": "SQL · relational model · three-valued logic · query engine",
+ "storageKey": "shipyard:sql:v1",
+ "accent": "#3b82f6"
+},
+parts:[
+ {
+  "id": "p0",
+  "num": "00",
+  "title": "How to Use This Curriculum",
+  "tag": null
+ },
+ {
+  "id": "p1",
+  "num": "01",
+  "title": "Where SQL Came From",
+  "tag": "DEEP"
+ },
+ {
+  "id": "p2",
+  "num": "02",
+  "title": "The Core Mental Model",
+  "tag": "DEEP"
+ },
+ {
+  "id": "p3",
+  "num": "03",
+  "title": "Querying One Table",
+  "tag": null
+ },
+ {
+  "id": "p4",
+  "num": "04",
+  "title": "Joins: Combining Tables",
+  "tag": null
+ },
+ {
+  "id": "p5",
+  "num": "05",
+  "title": "Aggregation and Grouping",
+  "tag": null
+ },
+ {
+  "id": "p6",
+  "num": "06",
+  "title": "Subqueries, CTEs, and Window Functions",
+  "tag": null
+ },
+ {
+  "id": "p7",
+  "num": "07",
+  "title": "Designing Schemas: DDL, Constraints, Normalization",
+  "tag": null
+ },
+ {
+  "id": "p8",
+  "num": "08",
+  "title": "Real Project: Build and Query a Real Database",
+  "tag": null
+ },
+ {
+  "id": "p9",
+  "num": "09",
+  "title": "Debugging and Reading Query Plans",
+  "tag": "DEEP"
+ },
+ {
+  "id": "p10",
+  "num": "10",
+  "title": "Internals: How the Engine Executes Your Query",
+  "tag": "ADVANCED"
+ },
+ {
+  "id": "p11",
+  "num": "11",
+  "title": "Transactions, Concurrency, and Production Concerns",
+  "tag": null
+ },
+ {
+  "id": "p12",
+  "num": "12",
+  "title": "When SQL Is and Isn't the Right Tool",
+  "tag": "DEEP"
+ },
+ {
+  "id": "p13",
+  "num": "13",
+  "title": "Interview Preparation",
+  "tag": null
+ },
+ {
+  "id": "p14",
+  "num": "14",
+  "title": "Milestones and Self-Assessment",
+  "tag": null
+ }
+],
+quiz:{
+ "p1": [
+  {
+   "q": "Before relational databases, every query was ______ — the problem SQL was built to kill.",
+   "o": [
+    "A program that navigated pointers",
+    "A spreadsheet formula",
+    "A JSON document",
+    "A stored procedure"
+   ],
+   "a": 0,
+   "e": "Hierarchical/network databases (IMS, CODASYL) forced navigation code per question. Codd’s 1970 paper made data a mathematical relation and queries declarative."
+  },
+  {
+   "q": "Codd’s core insight, in one sentence:",
+   "o": [
+    "Store data as table files with row pointers",
+    "Model data as relations (sets of tuples) and let a query language describe WHAT you want, leaving HOW to the system",
+    "Put everything in one giant CSV",
+    "Use key-value pairs for speed"
+   ],
+   "a": 1,
+   "e": "Declarative querying + data independence — the schema is separate from the storage. That separation is the entire point of the 1970 paper."
+  },
+  {
+   "q": "Why does SQL read like an English sentence?",
+   "o": [
+    "So lawyers can audit it",
+    "SEQUEL was designed as Structured English Query Language — the “English-like” goal is why it reads unlike C",
+    "SQL was translated from Latin",
+    "It was a marketing requirement"
+   ],
+   "a": 1,
+   "e": "Chamberlin and Boyce aimed at a language non-specialists could read. That lineage is why SQL has no loops."
+  },
+  {
+   "q": "The most important addition to SQL since the original standard:",
+   "o": [
+    "JSON support in SQL:2016",
+    "Window functions (SQL:1999) — they replace whole categories of painful workarounds",
+    "The LIKE operator",
+    "The NULL keyword"
+   ],
+   "a": 1,
+   "e": "Anything written before ~2010 shows painful workarounds for problems windows solve in one line."
+  },
+  {
+   "q": "The NoSQL lesson the industry relearned:",
+   "o": [
+    "SQL does not scale to the web",
+    "Declarative SQL over a well-defined schema is extremely hard to beat — NoSQL systems now add SQL-ish layers",
+    "MongoDB beats Postgres for analytics",
+    "Primary keys are unnecessary"
+   ],
+   "a": 1,
+   "e": "The 2010s trades (joins, transactions, ad-hoc queries) were often accepted for the wrong reasons; NewSQL and warehouses consolidated back on SQL."
+  }
+ ],
+ "p2": [
+  {
+   "q": "A table is:",
+   "o": [
+    "A spreadsheet with positions",
+    "An unordered set of rows, each with the same named, typed columns — no inherent order, no current row",
+    "A list of records in insertion order",
+    "A JSON array"
+   ],
+   "a": 1,
+   "e": "Without ORDER BY you get whatever the engine found convenient — order can change between runs. WHERE defines a subset; it does not walk the data."
+  },
+  {
+   "q": "Why can’t you use a SELECT alias in WHERE but you can in ORDER BY?",
+   "o": [
+    "Aliases are forbidden for security",
+    "WHERE (step 3) runs before SELECT (step 6); ORDER BY (step 8) runs after — the alias does not exist yet",
+    "The optimizer forbids it",
+    "NULL semantics"
+   ],
+   "a": 1,
+   "e": "Logical order: FROM → JOIN → WHERE → GROUP BY → HAVING → SELECT → DISTINCT → ORDER BY → LIMIT. Memorize the pipeline."
+  },
+  {
+   "q": "WHERE city = ‘IN’ returns 30 rows; WHERE city <> ‘IN’ returns 50. The table has 100 rows, 20 NULLs. Where are the 20?",
+   "o": [
+    "Silently dropped — NULL yields UNKNOWN, and WHERE keeps only rows where the condition is TRUE",
+    "The query was wrong",
+    "They went to HAVING",
+    "Index misses"
+   ],
+   "a": 0,
+   "e": "UNKNOWN is discarded exactly like FALSE — so the two queries never sum to the whole table, and reports get silently corrupted."
+  },
+  {
+   "q": "COUNT(*) vs COUNT(city) on a 100-row table with 20 NULLs:",
+   "o": [
+    "100 vs 80",
+    "100 vs 100",
+    "80 vs 100",
+    "Identical"
+   ],
+   "a": 0,
+   "e": "COUNT(*) counts rows; COUNT(column) counts non-NULL values only — a classic interview question. GROUP BY buckets all NULLs together as ONE group."
+  },
+  {
+   "q": "The correct way to test for NULL:",
+   "o": [
+    "col = NULL",
+    "col <> NULL",
+    "col IS NULL",
+    "col == NULL"
+   ],
+   "a": 2,
+   "e": "NULL = NULL is UNKNOWN, not TRUE. = NULL never matches — a silent bug. Use IS NULL / IS NOT NULL; COALESCE returns the first non-NULL argument."
+  }
+ ],
+ "p3": [
+  {
+   "q": "SELECT * is:",
+   "o": [
+    "Always the best habit",
+    "Fine to explore, bad in saved code: returns unused data, silently changes shape when columns are added, hides dependencies",
+    "Required for indexes",
+    "Faster in production"
+   ],
+   "a": 1,
+   "e": "Name your columns in anything you keep — SELECT * hides which columns your code actually depends on."
+  },
+  {
+   "q": "AND and OR precedence:",
+   "o": [
+    "OR binds tighter than AND",
+    "AND binds tighter than OR — WHERE a AND b OR c means (a AND b) OR c",
+    "Equal, left-associative",
+    "Undefined in SQL"
+   ],
+   "a": 1,
+   "e": "Always parenthesize mixed conditions — wrong-but-plausible results are the real cost."
+  },
+  {
+   "q": "LIKE ‘A%’ can use an index; LIKE ‘%A’ cannot because:",
+   "o": [
+    "Percent signs disable indexes",
+    "Indexes are ordered by the START of the value — a leading wildcard has no starting point to walk",
+    "Leading wildcards are illegal",
+    "The optimizer never tries"
+   ],
+   "a": 1,
+   "e": "Same reason “find everyone named Priya” fails in a phone book ordered by (last, first). For text search use full-text search, not LIKE ‘%term%’."
+  },
+  {
+   "q": "Wrapping a column in a function usually:",
+   "o": [
+    "Improves selectivity",
+    "Disables its index — WHERE YEAR(created_at) = 2026 vs a range check on created_at",
+    "Forces a bitmap scan",
+    "Fixes NULLs"
+   ],
+   "a": 1,
+   "e": "The range version uses the index; the function-wrapped version typically cannot. One of the most common real-world speedups."
+  },
+  {
+   "q": "Money in SQL must be stored as:",
+   "o": [
+    "DOUBLE PRECISION for speed",
+    "NUMERIC(12,2)/DECIMAL — exact base-10 arithmetic; floats make 0.1 + 0.2 <> 0.3",
+    "TEXT for display",
+    "INTEGER cents"
+   ],
+   "a": 1,
+   "e": "Floats are binary approximations — fine for measurements, never for money. Types are constraints, and constraints are documentation the database enforces."
+  }
+ ],
+ "p4": [
+  {
+   "q": "A join is conceptually:",
+   "o": [
+    "Adding columns to a table",
+    "Forming combinations of rows from two tables and keeping those satisfying your condition — a NEW set, wider, and possibly larger",
+    "Merging two files",
+    "A subquery"
+   ],
+   "a": 1,
+   "e": "Row count may grow: an order with 3 line items joined to order_items yields 3 rows — SUM over order-level columns then triple-counts."
+  },
+  {
+   "q": "The LEFT JOIN that silently became an INNER JOIN:",
+   "o": [
+    "Conditions on the optional table in WHERE discard the NULL-padded rows — put them in ON instead",
+    "LEFT JOIN always keeps all rows",
+    "Use FULL OUTER JOIN",
+    "NULLs are kept"
+   ],
+   "a": 0,
+   "e": "WHERE evaluates NULL >= date as UNKNOWN and drops it. Rule: conditions on the preserved table → WHERE; conditions on the optional table → ON."
+  },
+  {
+   "q": "Forgetting a join condition entirely yields:",
+   "o": [
+    "A NULL result",
+    "A CROSS JOIN — 10,000 × 10,000 rows = 100,000,000",
+    "An error",
+    "A UNION"
+   ],
+   "a": 1,
+   "e": "The query that never finishes or fills the disk. Sanity habit: COUNT(*) before and after every join."
+  },
+  {
+   "q": "UNION vs UNION ALL:",
+   "o": [
+    "The same thing",
+    "UNION dedupes (costs a sort/hash); UNION ALL keeps duplicates — faster; prefer it when dedup is not needed",
+    "UNION ALL is deprecated",
+    "UNION is faster"
+   ],
+   "a": 1,
+   "e": "INTERSECT and EXCEPT complete the set algebra — EXCEPT elegantly answers “what’s missing?” when reconciling two sources."
+  },
+  {
+   "q": "Employees to managers is written as:",
+   "o": [
+    "A CROSS JOIN",
+    "A self-join: employees e LEFT JOIN employees m ON m.id = e.manager_id — LEFT so the CEO is not dropped",
+    "A UNION",
+    "Two subqueries"
+   ],
+   "a": 1,
+   "e": "Self-joins relate rows within one table. Alias every table and qualify every column."
+  }
+ ],
+ "p5": [
+  {
+   "q": "With no GROUP BY, an aggregate query returns:",
+   "o": [
+    "One row per table",
+    "One row — the whole table is a single group",
+    "Zero rows",
+    "An error"
+   ],
+   "a": 1,
+   "e": "The entire result set is one group. COUNT(*) rows; COUNT(col) non-NULL; COUNT(DISTINCT col) unique non-NULL."
+  },
+  {
+   "q": "Why must every non-aggregated SELECT column appear in GROUP BY?",
+   "o": [
+    "Style guide",
+    "Many values exist per bucket and the database has no basis to choose one — Postgres errors, MySQL (historically) silently returned an arbitrary value",
+    "To save memory",
+    "Because of NULLs"
+   ],
+   "a": 1,
+   "e": "Silent arbitrary values are worse than errors — they hide the mistake."
+  },
+  {
+   "q": "WHERE vs HAVING:",
+   "o": [
+    "Aliases",
+    "WHERE filters ROWS before grouping (step 3); HAVING filters GROUPS after aggregation (step 5) — WHERE cannot see aggregates, HAVING can",
+    "HAVING is faster for row filters",
+    "They are synonyms"
+   ],
+   "a": 1,
+   "e": "A row-level condition in HAVING works but is slower — you grouped rows you were going to throw away. Filter as early as possible."
+  },
+  {
+   "q": "AVG of per-city averages is not the overall average because:",
+   "o": [
+    "AVG is broken",
+    "Averaging averages ignores different row counts per group — aggregate from base rows",
+    "NULLs inflate it",
+    "Precision loss"
+   ],
+   "a": 1,
+   "e": "AVG also silently skips NULLs and changes the denominator. If NULL should be zero, use AVG(COALESCE(col, 0)) deliberately."
+  },
+  {
+   "q": "Conditional metrics in one pass:",
+   "o": [
+    "COUNT(*) FILTER (WHERE ...) or SUM(CASE WHEN ...) — far better than three separate queries",
+    "Three subqueries",
+    "A UNION ALL",
+    "A window function"
+   ],
+   "a": 0,
+   "e": "FILTER (Postgres) or CASE-inside-aggregate computes several metrics in one scan. GROUPING SETS / ROLLUP / CUBE produce subtotals in one query."
+  }
+ ],
+ "p6": [
+  {
+   "q": "The NOT IN trap:",
+   "o": [
+    "If the subquery returns even one NULL, NOT IN returns NO rows — silently. Use NOT EXISTS instead",
+    "NOT IN is NULL-safe",
+    "NOT IN is faster than NOT EXISTS",
+    "NULLs are ignored"
+   ],
+   "a": 0,
+   "e": "x NOT IN (1, NULL) = x <> 1 AND x <> NULL — the second half is always UNKNOWN, so nothing can match. One of the highest-value facts in the curriculum."
+  },
+  {
+   "q": "A correlated subquery:",
+   "o": [
+    "Runs once per outer row — optimizers often rewrite them as joins, but when they don’t, large tables hit a performance cliff",
+    "Is always faster than a join",
+    "Cannot be indexed",
+    "Is the same as a CTE"
+   ],
+   "a": 0,
+   "e": "Prefer a join or CTE when row counts are large. EXISTS stops at the first match; IN builds the full set."
+  },
+  {
+   "q": "Why is a CTE the readability tool?",
+   "o": [
+    "CTEs compile to assembly",
+    "They name intermediate results so a query reads top-to-bottom like the evaluation pipeline, instead of inside-out nesting",
+    "They replace indexes",
+    "They run in parallel"
+   ],
+   "a": 1,
+   "e": "The single biggest improvement for complex SQL. CTEs can reference earlier CTEs; WITH RECURSIVE traverses hierarchies and graphs."
+  },
+  {
+   "q": "GROUP BY vs a window function — the whole difference:",
+   "o": [
+    "Windows are faster",
+    "GROUP BY collapses rows (10 in → 3 out); a window function keeps every row and adds a computed column (10 in → 10 out)",
+    "They are identical",
+    "Windows need partitioning"
+   ],
+   "a": 1,
+   "e": "SUM(total) OVER (PARTITION BY customer_id) computes per-customer aggregates without collapsing rows — lifetime value next to every order."
+  },
+  {
+   "q": "For values 10, 10, 9: ROW_NUMBER, RANK, DENSE_RANK give:",
+   "o": [
+    "1,2,3 | 1,1,3 | 1,1,2",
+    "1,1,2 | 1,2,3 | 1,1,3",
+    "1,2,3 for all",
+    "1,1,1"
+   ],
+   "a": 0,
+   "e": "A guaranteed interview question: ROW_NUMBER breaks ties arbitrarily; RANK leaves a gap; DENSE_RANK does not. The “latest row per group” pattern wraps a window in a CTE because WHERE runs before windows are computed."
+  }
+ ],
+ "p7": [
+  {
+   "q": "Why are constraints the database defending your data?",
+   "o": [
+    "They save disk",
+    "Application code is ONE of many paths to the data — scripts, migrations, admin tools, a console at 2am. Only the database can enforce a rule against all of them",
+    "They speed up queries",
+    "They are optional metadata"
+   ],
+   "a": 1,
+   "e": "Constraints are the last line of defence AND documentation that cannot go out of date. ON DELETE: RESTRICT blocks, CASCADE deletes children (dangerous), SET NULL orphans deliberately."
+  },
+  {
+   "q": "The habit that prevents catastrophe before UPDATE/DELETE:",
+   "o": [
+    "Wrap in TRUNCATE",
+    "Run the same WHERE as a SELECT first and confirm the row count — a missing WHERE rewrites the table, and there is no undo outside a transaction",
+    "Add ORDER BY",
+    "Use CASCADE"
+   ],
+   "a": 1,
+   "e": "Then wrap destructive changes in an explicit transaction so you can ROLLBACK — the only undo you get."
+  },
+  {
+   "q": "3NF in one habit:",
+   "o": [
+    "All columns numeric",
+    "If you find yourself updating the same fact in more than one place, the schema is wrong — copies eventually disagree",
+    "Every table has an index",
+    "No NULLs allowed"
+   ],
+   "a": 1,
+   "e": "1NF: atomic values. 2NF: no partial-key dependencies. 3NF: no non-key-to-non-key dependencies. Denormalization is legitimate only deliberately, after measuring."
+  },
+  {
+   "q": "Natural vs surrogate keys:",
+   "o": [
+    "Natural keys are always better",
+    "Prefer surrogate keys — real-world identifiers change, and a changing primary key means updating every referencing row. Enforce real-world uniqueness separately with a UNIQUE constraint",
+    "Surrogates leak data",
+    "UUIDs beat integers everywhere"
+   ],
+   "a": 1,
+   "e": "Auto-increment: compact, index-friendly, ordered. UUID: globally unique, no count leaks, worse locality. Both defensible — know the trade-off."
+  },
+  {
+   "q": "Checks that belong in the schema:",
+   "o": [
+    "CHECK (status IN (...)), CHECK (total >= 0), NOT NULL, UNIQUE on email — domain rules the database enforces no matter which code path touches it",
+    "All validation in the app layer",
+    "No constraints for speed",
+    "Frontend-only validation"
+   ],
+   "a": 0,
+   "e": "A CHECK makes an invalid state structurally impossible instead of merely discouraged. The database is the last line of defence — use it."
+  }
+ ],
+ "p8": [
+  {
+   "q": "unit_price lives on order_items, not products, because:",
+   "o": [
+    "It saves a join",
+    "The price at time of sale is a DIFFERENT fact from the product’s current price — an old order must keep what it was sold at",
+    "Product prices are static",
+    "Normalization forbids it"
+   ],
+   "a": 1,
+   "e": "Recognizing when one fact is actually two is real data-modelling skill. An order from January must not change when the price changes in June."
+  },
+  {
+   "q": "Revenue by month with empty months still shown:",
+   "o": [
+    "Use HAVING",
+    "A generated date series LEFT JOINed to the data, COALESCE the zeros",
+    "Use a window function",
+    "Aggregate in the app"
+   ],
+   "a": 1,
+   "e": "The empty-group problem: an INNER JOIN would delete zero-revenue months entirely."
+  },
+  {
+   "q": "The reconciliation query “orders whose payments don’t sum to the total” needs:",
+   "o": [
+    "GROUP BY with HAVING — with careful NULL handling for unpaid orders",
+    "A CROSS JOIN",
+    "DISTINCT",
+    "An index"
+   ],
+   "a": 1,
+   "e": "Unpaid orders left-join to no payments — compare COALESCE(SUM(p.amount), 0) <> o.total so NULL does not hide them."
+  },
+  {
+   "q": "The hardest, most realistic Part 8 query:",
+   "o": [
+    "Top 10 products",
+    "Customer cohort retention: first-order month cohorts, then who ordered again in each later month — multiple CTEs",
+    "Month-over-month growth",
+    "7-day average"
+   ],
+   "a": 1,
+   "e": "Cohort retention exercises grouping, date truncation, and the ROW_NUMBER pattern in combination — the most realistic analytics query in the ship."
+  },
+  {
+   "q": "The deliberate design choices in the project schema:",
+   "o": [
+    "5 tables, FKs, unit_price snapshotted, NULL shipped_at, generated data at scale — enough that bad queries actually feel slow",
+    "One denormalized wide table",
+    "Two tables for speed",
+    "No indexes"
+   ],
+   "a": 0,
+   "e": "Deliberate NULLs and data volume are the only way Part 9’s EXPLAIN work becomes real."
+  }
+ ],
+ "p9": [
+  {
+   "q": "The FIRST move for “my query returns wrong data”:",
+   "o": [
+    "EXPLAIN ANALYZE",
+    "Check the row count — COUNT(*) at each stage; a join that changed the count is the multiplication bug",
+    "Add an index",
+    "Rewrite in a CTE"
+   ],
+   "a": 1,
+   "e": "Then: simplify until right and rebuild; suspect NULL (<>, WHERE on a LEFT JOINed table, NOT IN); check join grain; check AND/OR precedence; check silent type coercion."
+  },
+  {
+   "q": "EXPLAIN vs EXPLAIN ANALYZE:",
+   "o": [
+    "Identical",
+    "EXPLAIN shows the plan; EXPLAIN ANALYZE RUNS it and shows real timings and row counts next to the estimates",
+    "ANALYZE is for indexes",
+    "ANALYZE is the app"
+   ],
+   "a": 1,
+   "e": "Read plans inside-out and bottom-up — innermost nodes run first. Careful: ANALYZE executes; wrap UPDATE/DELETE in a transaction you roll back."
+  },
+  {
+   "q": "A Seq Scan on a large table means:",
+   "o": [
+    "The index is broken",
+    "The engine is reading every row — add an index on the filtered column UNLESS the query genuinely needs most of the table, in which case the scan is correct",
+    "ANALYZE failed",
+    "A hash join is needed"
+   ],
+   "a": 1,
+   "e": "The optimizer is not ignoring your index out of spite — when you need most rows, sequential page reads beat random index lookups."
+  },
+  {
+   "q": "Estimated rows wildly different from actual rows:",
+   "o": [
+    "SQL is broken",
+    "The optimizer works from bad information — run ANALYZE to refresh statistics",
+    "Add an index",
+    "Use a hint"
+   ],
+   "a": 1,
+   "e": "Stale statistics after a bulk load is the classic “fast yesterday, slow today” — the fix is ANALYZE, not a rewrite."
+  },
+  {
+   "q": "An index on (a, b) can serve queries filtering on:",
+   "o": [
+    "b alone",
+    "a, or a AND b — but generally not b alone (a phone book ordered by last name is useless for finding “Priya”)",
+    "Neither",
+    "Everything"
+   ],
+   "a": 1,
+   "e": "Composite index order is lexicographic. Indexes cost writes — unused ones are pure overhead. Function-wrapped columns defeat them (LOWER(email) needs an expression index)."
+  }
+ ],
+ "p10": [
+  {
+   "q": "The query lifecycle order:",
+   "o": [
+    "Optimizer → parser → executor",
+    "Parser → analyzer → rewriter → planner/optimizer → executor",
+    "Executor → planner → parser",
+    "Analyzer → executor"
+   ],
+   "a": 1,
+   "e": "The rewriter flattens subqueries and pushes predicates down; the optimizer enumerates plans, costs them with statistics, picks one; the executor pulls rows through the plan tree."
+  },
+  {
+   "q": "Rows live in fixed-size pages (≈8KB); reading one row costs:",
+   "o": [
+    "1 byte",
+    "At least one page read — wider rows mean fewer per page and more I/O. The buffer pool is why warm runs are faster",
+    "Nothing at all",
+    "A full table scan"
+   ],
+   "a": 1,
+   "e": "Always benchmark warm, not cold — or you will optimize the wrong thing."
+  },
+  {
+   "q": "Row-oriented vs column-oriented storage:",
+   "o": [
+    "Everything is row-oriented now",
+    "Postgres/MySQL optimize whole rows (OLTP); warehouses (BigQuery, Snowflake, DuckDB) are columnar — far better compression and scan speed for aggregates",
+    "Columnar is for OLTP",
+    "No difference"
+   ],
+   "a": 1,
+   "e": "Knowing this distinction is a strong interview signal: analytics consolidated on columnar for a reason."
+  },
+  {
+   "q": "The three join algorithms:",
+   "o": [
+    "Nested Loop (tiny outer + indexed inner), Hash Join (large unsorted equality joins — the analytics workhorse), Merge Join (both inputs already sorted)",
+    "Loop, Recursion, Parallel",
+    "Index, Scan, Sort",
+    "Seq, GIN, BRIN"
+   ],
+   "a": 0,
+   "e": "Seeing Nested Loop on two million-row tables tells you exactly what is missing: an index on the join key."
+  },
+  {
+   "q": "Why do leading wildcards fail and ranges work on a B-tree?",
+   "o": [
+    "Magic",
+    "Leaves are ordered and linked — ranges find the start and walk; LIKE ‘%x’ has no starting point in prefix order. Depth is logarithmic: one key among a billion = a handful of reads",
+    "B-trees are sorted by suffix",
+    "Indexes are linear"
+   ],
+   "a": 1,
+   "e": "Composite key order matters for the same reason. Indexes can also satisfy ORDER BY for free."
+  }
+ ],
+ "p11": [
+  {
+   "q": "The four ACID guarantees:",
+   "o": [
+    "Atomicity, Consistency, Isolation, Durability — a crash mid-transfer cannot destroy money",
+    "Availability, Consistency, Partitioning, Latency",
+    "All, Some, None, Some",
+    "Atomic, Basic, Complex, Durable"
+   ],
+   "a": 0,
+   "e": "Durability comes from write-ahead logging — the log is flushed before data pages. Wrap multi-statement or destructive changes in an explicit transaction."
+  },
+  {
+   "q": "Postgres’s default isolation level:",
+   "o": [
+    "SERIALIZABLE",
+    "READ COMMITTED — and Oracle’s too; MySQL/InnoDB defaults to REPEATABLE READ",
+    "READ UNCOMMITTED",
+    "REPEATABLE READ"
+   ],
+   "a": 1,
+   "e": "Knowing your database’s default — and what it does NOT protect you from — is a genuine senior distinction."
+  },
+  {
+   "q": "The lost update:",
+   "o": [
+    "A network problem",
+    "Two transactions read, modify, and write the same row — one overwrites the other silently. SELECT balance → app math → UPDATE is unsafe at default levels",
+    "A deleted row",
+    "A NULL bug"
+   ],
+   "a": 0,
+   "e": "Fixes: do arithmetic in SQL (SET balance = balance - 500), lock the row (SELECT ... FOR UPDATE), make the bad state impossible with a constraint, or SERIALIZABLE + retries."
+  },
+  {
+   "q": "A deadlock:",
+   "o": [
+    "A table lock that never releases",
+    "Two transactions each hold what the other needs — the database detects the cycle and kills one; prevent by acquiring locks in a consistent order and keeping transactions short",
+    "A NULL comparison",
+    "A GIL problem"
+   ],
+   "a": 1,
+   "e": "Never hold a transaction open across user interaction or a network call — that is how deadlocks and lost updates are born."
+  },
+  {
+   "q": "Parameterized queries exist because:",
+   "o": [
+    "They are faster",
+    "String-concatenating user input is SQL injection — still the top web vulnerability class, and no escaping is as reliable as parameterization. WHERE id = ? with a bound parameter is safe",
+    "They are prettier",
+    "They avoid NULLs"
+   ],
+   "a": 1,
+   "e": "Non-negotiable: query parameters, least privilege, migrations not manual changes, restored backups, keyset pagination for large offsets, watch N+1, monitor slow queries, store UTC."
+  }
+ ],
+ "p12": [
+  {
+   "q": "A relational database is the right tool when:",
+   "o": [
+    "Always",
+    "Data has structure and relationships; you need ad-hoc queries you did not anticipate; correctness under concurrency matters (money, inventory, bookings); you want the database to enforce integrity",
+    "Never",
+    "Only for analytics"
+   ],
+   "a": 1,
+   "e": "Nearly all business data qualifies. SQL’s real weaknesses: dialect fragmentation, queries hard to test/version, no reuse discipline, clause order vs evaluation order."
+  },
+  {
+   "q": "A graph database (Neo4j) beats SQL when:",
+   "o": [
+    "Always",
+    "Deeply hierarchical or graph-shaped traversal — “friends of friends of friends” — where recursive joins get expensive and awkward",
+    "For simple key-value caching",
+    "For JSON documents"
+   ],
+   "a": 1,
+   "e": "Choose based on access patterns and consistency needs, not on which technology sounds modern."
+  },
+  {
+   "q": "Redis / DynamoDB are a better fit than SQL for:",
+   "o": [
+    "Complex reporting",
+    "Simple key-value lookups at extreme throughput; caching; ephemeral session data — the relational engine’s overhead buys nothing",
+    "Transactions",
+    "Joins"
+   ],
+   "a": 1,
+   "e": "The 2010s lesson cuts both ways — many NoSQL adoptions paid in lost joins and transactions for scale never reached."
+  },
+  {
+   "q": "JSONB in Postgres is worth knowing because:",
+   "o": [
+    "It replaces indexes",
+    "It covers a large fraction of “schemaless documents” without giving up joins and transactions — a document store is not your only choice",
+    "It is faster than JSON",
+    "It is a graph engine"
+   ],
+   "a": 1,
+   "e": "Use JSONB for genuinely irregular attributes — not as an escape from schema design."
+  },
+  {
+   "q": "Petabyte-scale analytical scans:",
+   "o": [
+    "Belong in Postgres",
+    "Belong on columnar warehouses (BigQuery, Snowflake, DuckDB) — row storage reads columns you do not need",
+    "Cannot be done",
+    "Need Redis"
+   ],
+   "a": 1,
+   "e": "Row stores optimize whole rows for OLTP; analytics reads few columns across many rows — that is exactly what columnar storage is built for."
+  }
+ ],
+ "p13": [
+  {
+   "q": "The single most reliable differentiator in a SQL interview:",
+   "o": [
+    "Memorized trivia",
+    "Thinking in sets, not loops — running query logic through the evaluation pipeline out loud",
+    "Knowing all vendors",
+    "Fast typing"
+   ],
+   "a": 1,
+   "e": "Everything in this curriculum exists to earn that: logical order recited cold, the NULL rules, the join grain questions."
+  },
+  {
+   "q": "“Does this query use my index?” — answer shape:",
+   "o": [
+    "“Probably yes”",
+    "Check for the three killers: leading wildcard, function-wrapped column, missing composite prefix — then EXPLAIN to confirm",
+    "EXPLAIN cannot show it",
+    "Indexes are automatic"
+   ],
+   "a": 1,
+   "e": "Deliver the WHAT → WHY IT EXISTS → ONE CONCRETE CONSEQUENCE shape and you stand out immediately."
+  },
+  {
+   "q": "The retrieval skill the deck trains:",
+   "o": [
+    "Speed reading",
+    "Answering aloud from memory BEFORE flipping — the only honest way to test recall",
+    "Highlighting",
+    "Rereading"
+   ],
+   "a": 1,
+   "e": "Rereading feels productive and teaches nothing. Nailed cards dim for a reason."
+  },
+  {
+   "q": "When an interviewer says “my query returns too few rows”, your first move:",
+   "o": [
+    "Blame the database",
+    "Check the COUNT at each stage — join grain, then the NULL suspects, from the curriculum’s debugging order",
+    "Rewrite with a window",
+    "Add an index"
+   ],
+   "a": 1,
+   "e": "“Too few rows”: join multiplied somewhere or NULL dropped rows. “Too many rows”: join grain widened. That pairing is all interviewers are testing."
+  }
+ ],
+ "p14": [
+  {
+   "q": "The point of six milestones:",
+   "o": [
+    "Six badges for cosmetics",
+    "Six layers of proof that the model is real — each milestone is a deliverable, not a checkbox",
+    "Only one matters",
+    "They replace quizzes"
+   ],
+   "a": 1,
+   "e": "Milestones are how you know you can DO the thing, not just recognize it — days 1–8 of a focused hour per day."
+  },
+  {
+   "q": "Milestone 1 demands:",
+   "o": [
+    "A dashboard",
+    "The logical order recited cold, three-valued logic checks (NULL riddles), and set-thinking queries on one table",
+    "An index diagram",
+    "A join"
+   ],
+   "a": 1,
+   "e": "Everything after this builds on the pipeline's order — it must be reflex, not recall."
+  },
+  {
+   "q": "The milestone that proves engine-level understanding:",
+   "o": [
+    "Milestone 5 — EXPLAIN ANALYZE three slow queries, diagnose (index missing, statistics stale, function wrap), and fix each with evidence",
+    "Milestone 2",
+    "Milestone 4",
+    "Milestone 1"
+   ],
+   "a": 1,
+   "e": "Reading a plan inside-out and bottom-up, then making the numbers move, is the line between users of SQL and students of the engine."
+  },
+  {
+   "q": "The capstone asks you to prove production readiness by:",
+   "o": [
+    "A certificate",
+    "Transactions: explain ACID, the lost update, deadlocks, and parameterized queries under mock questioning",
+    "An ORM migration",
+    "Reporting"
+   ],
+   "a": 1,
+   "e": "The final effect: “think in sets, not loops” now applies to schema, engine, and production behavior at once."
+  }
+ ]
+},
+cards:[
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "1 ▶ Recite the logical order of query evaluation. Why can’t WHERE use a SELECT alias?",
+  "a": "FROM → JOIN → WHERE → GROUP BY → HAVING → SELECT → DISTINCT → ORDER BY → LIMIT. WHERE (step 3) runs before SELECT (step 6), ORDER BY (step 8) after — so ORDER BY can use aliases, WHERE cannot. (Part 2)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "2 ▶ A 100-row table has 20 NULL cities; WHERE city <> ‘IN’ returns 50 of 80 non-null. Where are the rest?",
+  "a": "Dropped — NULL yields UNKNOWN and WHERE keeps only TRUE. The two queries never sum to the table, silently. Test NULL with IS NULL, not = or <>. (Part 2)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "3 ▶ What is a self-join, and why LEFT JOIN for employees-to-manager?",
+  "a": "Joining a table to itself with aliases: e LEFT JOIN m ON m.id = e.manager_id. LEFT keeps rows with no match — the CEO has no manager and would vanish under INNER. (Part 4)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "4 ▶ Your LEFT JOIN silently filtered rows to an inner join. The cause and the fix?",
+  "a": "You put a condition on the OPTIONAL table in WHERE — its NULL-padded rows evaluate UNKNOWN and drop. Move it into ON. Conditions on the preserved table stay in WHERE. (Part 4)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "5 ▶ What is the NOT IN NULL trap, and the safer alternative?",
+  "a": "x NOT IN (1, NULL) is x <> 1 AND x <> NULL — always UNKNOWN, so it returns NOTHING, silently. Use NOT EXISTS (or NOT IN ... WHERE col IS NOT NULL). (Part 6)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "6 ▶ WHERE vs HAVING — when is each evaluated, and which cannot see aggregates?",
+  "a": "WHERE filters rows before grouping (step 3); HAVING filters groups after (step 5). WHERE cannot see aggregates like COUNT; HAVING cannot filter single rows efficiently. (Part 5)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "7 ▶ For values 10, 10, 9, what do ROW_NUMBER, RANK, DENSE_RANK assign?",
+  "a": "ROW_NUMBER: 1,2,3 (tie broken arbitrarily). RANK: 1,1,3 (gap after tie). DENSE_RANK: 1,1,2 (no gap). The classic trinity question. (Part 6)"
+ },
+ {
+  "t": "TIER 1 - EXPECTED OF EVERYONE",
+  "q": "8 ▶ Why are constraints the database defending your data — and what habit pairs with destructive statements?",
+  "a": "The database is the LAST line of defense against every code path — scripts, consoles, migrations. Pair with: run the same WHERE as a SELECT first, wrap in a transaction you can ROLLBACK. (Part 7)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "9 ▶ Why can LIKE ‘A%’ use an index but LIKE ‘%A’ cannot — and what else kills indexes?",
+  "a": "B-tree leaves are in prefix order with linked ranges — a leading wildcard has no starting point. Function-wrapped columns (YEAR(created_at)) also defeat the index; use range checks. (Parts 3, 9)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "10 ▶ I have an index on (a, b). Which filters can use it?",
+  "a": "Filters on a alone or a AND b — generally NOT b alone. Composite index order is lexicographic, like a phone book ordered by last name useless for first-name lookups. (Part 9)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "11 ▶ GROUP BY vs a window function — the entire difference in one sentence?",
+  "a": "GROUP BY COLLAPSES rows (10 in → 3 out); window functions keep every row and add a computed column (10 in → 10 out) — so per-customer totals sit next to each order. (Part 6)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "12 ▶ Why is the average of per-city averages wrong — and how do you compute several metrics in one scan?",
+  "a": "Averaging averages ignores differing group sizes — aggregate from base rows. Use COUNT(*) FILTER (WHERE ...) or SUM(CASE WHEN ...) for multiple metrics in a single pass. (Part 5)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "13 ▶ EXPLAIN vs EXPLAIN ANALYZE — which one runs the query, and when do estimates lie?",
+  "a": "EXPLAIN ANALYZE EXECUTES and shows real counts/timings versus estimates (careful with UPDATE/DELETE — wrap in a rolled-back transaction). When estimates diverge wildly: stale statistics → ANALYZE. (Part 9)"
+ },
+ {
+  "t": "TIER 2 - DIFFERENTIATORS",
+  "q": "14 ▶ Why are CTEs the readability tool, and what recursive power do they hide?",
+  "a": "CTEs name intermediate results so a complex query reads top-to-bottom like the evaluation pipeline instead of inside-out nesting — and WITH RECURSIVE walks hierarchies and graphs. (Part 6)"
+ },
+ {
+  "t": "TIER 3 - SENIOR SIGNAL",
+  "q": "15 ▶ You store money as DOUBLE PRECISION and total 0.1 + 0.2 → 0.30000000000000004. Diagnose.",
+  "a": "Floats are binary approximations — exact decimal arithmetic is impossible (money, tariffs, sums). Store NUMERIC(12,2)/DECIMAL. Types are constraints the engine enforces. (Part 3)"
+ },
+ {
+  "t": "TIER 3 - SENIOR SIGNAL",
+  "q": "16 ▶ Walk the lost update and its three fixes.",
+  "a": "Two transactions read value → compute in the app → write; the second overwrites the first SILENTLY at READ COMMITTED. Fixes: do arithmetic in SQL (SET balance = balance - 500), SELECT ... FOR UPDATE, make it impossible (CHECK), or SERIALIZABLE + retry. (Part 11)"
+ },
+ {
+  "t": "TIER 3 - SENIOR SIGNAL",
+  "q": "17 ▶ Narrate the query lifecycle, parser to executor.",
+  "a": "Parser (string → AST) → analyzer (tables/columns/types) → rewriter (flatten subqueries, push predicates) → planner/optimizer (enumerate plans, cost with statistics) → executor (pull rows through the plan tree). (Part 10)"
+ },
+ {
+  "t": "TIER 3 - SENIOR SIGNAL",
+  "q": "18 ▶ When does row-oriented storage lose to columnar — and why?",
+  "a": "Analytics reads FEW columns across MANY rows — row stores drag every column (and PAY the I/O) per 8KB page; columnar compresses and scans only the needed columns, trading single-row writes/updates away. (Parts 10, 12)"
+ }
+],
+miles:[
+ {
+  "id": "m1",
+  "title": "Milestone 1 ▶ The Model of Sets",
+  "pass": "Pass: recite the logical order cold; solve the NULL riddles (COUNT vs COALESCE vs IS NULL); write set-thinking queries on one table unaided. <b>(parts 2–3; days 1–2)</b>"
+ },
+ {
+  "id": "m2",
+  "title": "Milestone 2 ▶ Joins Without Fear",
+  "pass": "Pass: explain each join type on a napkin; build the employees self-join; catch a join that multiplied row counts before it hits a report. <b>(part 4; day 2–3)</b>"
+ },
+ {
+  "id": "m3",
+  "title": "Milestone 3 ▶ Aggregation and Windows",
+  "pass": "Pass: GROUP BY rule, WHERE vs HAVING, ROW_NUMBER/RANK/DENSE_RANK, and the latest-per-group pattern — all from memory. <b>(parts 5–6; days 3–4)</b>"
+ },
+ {
+  "id": "m4",
+  "title": "Milestone 4 ▶ A Schema You’d Defend",
+  "pass": "Pass: ship the 5-table shop with constraints and unit_price snapshots; the cohort-retention query runs and its NULL choices are deliberate. <b>(parts 7–8; days 4–6)</b>"
+ },
+ {
+  "id": "m5",
+  "title": "Milestone 5 ▶ Talking to the Engine",
+  "pass": "Pass: EXPLAIN ANALYZE three slow queries, diagnose each (index missing, statistics stale, function wrap), fix with evidence the times move. <b>(parts 9–10; days 6–7)</b>"
+ },
+ {
+  "id": "m6",
+  "title": "Milestone 6 ▶ Production-Grade SQL",
+  "pass": "Pass: under mock questioning — ACID defaults, lost-update prevention, deadlocks, parameterized queries, injection hygiene. <b>(parts 11–14; days 7–8)</b>"
+ }
+],
+sim:[
+ {
+  "t": 800,
+  "l": "<span class=\"a\">connect</span> session open, shared_buffers warm — rows live in 8KB pages ... <span class=\"ok\">OK</span>"
+ },
+ {
+  "t": 1200,
+  "l": "<span class=\"a\">parse</span> query string → abstract syntax tree ... <span class=\"ok\">OK</span>"
+ },
+ {
+  "t": 1400,
+  "l": "<span class=\"a\">analyze</span> resolve tables, columns, types — typos die here ... <span class=\"ok\">OK</span>"
+ },
+ {
+  "t": 1200,
+  "l": "<span class=\"a\">rewrite</span> flatten subqueries, push predicates down ... <span class=\"ok\">OK</span>"
+ },
+ {
+  "t": 1300,
+  "l": "<span class=\"a\">plan</span> cost candidate plans against statistics ... <span class=\"ok\">OK</span>"
+ },
+ {
+  "t": 1000,
+  "l": "<span class=\"a\">b-tree</span> walk the index — keys in prefix order, ranges linked ... <span class=\"ok\">OK</span>"
+ },
+ {
+  "t": 1200,
+  "l": "<span class=\"a\">filter</span> NULL rows evaluate UNKNOWN — dropped like FALSE ... <span class=\"ok\">OK</span>"
+ },
+ {
+  "t": 900,
+  "l": "<span class=\"a\">execute</span> 1,024 rows returned — think in sets, not loops ... <span class=\"ok\">OK</span>"
+ }
+]
+
+};
+
+</script>
+<script>
+(function(){
+"use strict";
+
+"use strict";
+/* ================= DATA ================= */
+var META=(window.SHIPYARD_DATA&&SHIPYARD_DATA.meta)||{};
+var PARTS=SHIPYARD_DATA.parts||[];
+var QUIZ=SHIPYARD_DATA.quiz||{};
+var CARDS=SHIPYARD_DATA.cards||[];
+var MILES=SHIPYARD_DATA.miles||[];
+var RANKS=[[0,"SWABBIE"],[100,"DECKHAND"],[200,"BOATSWAIN"],[300,"FIRST MATE"],[420,"DOCKER CAPTAIN"],[540,"HARBOR MASTER"]];
+
+/* ================= STATE ================= */
+var KEY=META.storageKey||("shipyard:"+(META.tech||"x")+":v1");
+var D=JSON.parse(localStorage.getItem(KEY)||"null");
+if(!D||typeof D!=="object"){D={done:{},quiz:{},milestones:{},nailed:{},xp:0,graduated:false};}
+function save(){localStorage.setItem(KEY,JSON.stringify(D));}
+function addXp(n){D.xp=(D.xp||0)+n;}
+function rankFor(xp){var r=RANKS[0];for(var i=0;i<RANKS.length;i++){if(xp>=RANKS[i][0])r=RANKS[i];}return r;}
+function nextRank(xp){for(var i=0;i<RANKS.length;i++){if(xp<RANKS[i][0])return RANKS[i];}return null;}
+function refreshAll(){renderStack();renderNav();renderVoyage();renderHero();renderQuizzes();renderDeck();renderMilestones();}
+
+/* ================= RENDER: STACK ================= */
+function renderStack(){
+  var el=document.getElementById("stackMini");if(!el)return;
+  var h="";
+  for(var i=1;i<PARTS.length;i++){
+    var p=PARTS[i],cls="layer"+(D.done[p.id]?" done":"")+(clearedPart(p.id)?" cleared":"");
+    if(D.done[p.id]&&clearedPart(p.id))cls="layer cleared";
+    h+='<div class="'+cls+'" data-nav="'+p.id+'"><span class="ltip">PART '+p.num+' · '+p.title+'</span></div>';
+  }
+  el.innerHTML=h;
+  el.querySelectorAll(".layer[data-nav]").forEach(function(l){l.addEventListener("click",function(){goto(l.getAttribute("data-nav"));});});
+  var w=el.querySelector(".writable");if(!w){var wd=document.createElement("div");wd.className="layer writable";el.insertBefore(wd,el.firstChild);}
+  var wr=el.querySelector(".writable");
+  if(allDone()){wr.classList.add("live");}
+  document.getElementById("stackCount").textContent=doneCount()+"/14";
+  var ps=document.getElementById("psRow");
+  if(D.graduated){ps.style.display="block";document.getElementById("psRow2").textContent="web  RUNNING  0.0.0.0:80→80   uptime ∞   (yours — every layer earned)";}
+  else ps.style.display="none";
+}
+function allDone(){return PARTS.slice(1).every(function(p){return D.done[p.id];});}
+function doneCount(){return PARTS.slice(1).filter(function(p){return D.done[p.id];}).length;}
+function clearedPart(id){var q=D.quiz[id];return q&&q.best>=70;}
+
+/* ================= RENDER: NAV ================= */
+function renderNav(){
+  var nav=document.getElementById("docknav");if(!nav)return;
+  var h='<div class="docksec">Curriculum</div>';
+  for(var i=0;i<PARTS.length;i++){
+    var p=PARTS[i];
+    var st=D.done[p.id]?"done":(D.quiz[p.id]&&D.quiz[p.id].best>=70?"cleared":"");
+    h+='<div class="navitem" data-nav="'+p.id+'"><span class="n">'+p.num+'</span><span class="nt">'+p.title+'</span><span class="st '+st+'"></span>'+(D.quiz[p.id]&&D.quiz[p.id].best>=0?'<span class="qbadge">★'+D.quiz[p.id].best+'</span>':'')+'</div>';
+  }
+  nav.innerHTML=h;
+  nav.querySelectorAll(".navitem").forEach(function(n){n.addEventListener("click",function(){goto(n.getAttribute("data-nav"));});});
+}
+
+/* ================= RENDER: VOYAGE ================= */
+function renderVoyage(){
+  var v=document.getElementById("voyage");if(!v)return;
+  var h="";
+  for(var i=0;i<PARTS.length;i++){
+    var p=PARTS[i];
+    var t=p.tag?"<span class='wtag wtag-"+p.tag.toLowerCase()+"'>"+p.tag+"</span>":"";
+    h+='<div class="waypoint'+(D.done[p.id]?" done":"")+'" data-nav="'+p.id+'"><span class="wn">'+p.num+'</span><span class="wt"><b>'+p.title+'</b>'+(p.tag?'<span style="color:var(--faint);font-size:10.5px">'+p.tag+' · learning path waypoint</span>':'<span style="color:var(--faint);font-size:10.5px">mission briefing</span>')+'</span>'+t+'</div>';
+  }
+  v.innerHTML=h;
+  v.querySelectorAll(".waypoint").forEach(function(w){w.addEventListener("click",function(){goto(w.getAttribute("data-nav"));});});
+}
+
+/* ================= RENDER: HERO STATUS ================= */
+function renderHero(){
+  var r=rankFor(D.xp),nr=nextRank(D.xp);
+  var el=document.getElementById("rankNow");if(el)el.textContent=r[1];
+  var e2=document.getElementById("hRank");if(e2)e2.textContent=r[1];
+  var e3=document.getElementById("hXp");if(e3)e3.textContent=D.xp;
+  document.getElementById("hLayers").textContent=doneCount()+"/14";
+  var qc=0;for(var k in QUIZ){if(D.quiz[k]&&D.quiz[k].best>=70)qc++;}
+  document.getElementById("hQuizzes").textContent=qc;
+  var rx=document.getElementById("rankXp");
+  if(nr){var lo=r[0],hi=nr[0];rx.textContent=D.xp+" XP · "+Math.round((D.xp-lo)/(hi-lo)*100)+"% of the way to "+nr[1];var bar=document.getElementById("rankBar");if(bar)bar.style.width=Math.min(100,Math.round((D.xp-lo)/(hi-lo)*100))+"%";}
+  else{rx.textContent=D.xp+" XP · MAX RANK · the yard is yours";var bar2=document.getElementById("rankBar");if(bar2)bar2.style.width="100%";}
+  var foot=document.getElementById("dockfoot");
+  foot.innerHTML="layers laid: <b style='color:var(--accent)'>"+doneCount()+"/14</b><br>quizzes ★≥70%: <b style='color:var(--ok)'>"+qc+"/"+Object.keys(QUIZ).length+"</b><br>milestones: <b style='color:var(--ok)'>"+Object.keys(D.milestones).length+"/6</b><br>"+(D.graduated?"<span style='color:var(--ok)'>SHIPPED "+(new Date()).getFullYear()+"</span>":"awaiting launch");
+}
+
+/* ================= QUIZZES ================= */
+function renderQuizzes(){
+  document.querySelectorAll(".quiz").forEach(function(qz){
+    var pid=qz.getAttribute("data-part");
+    var wrap=qz.querySelector(".qwrap");
+    if(qz._rendered===pid){updateQuizScore(qz,pid);return;}
+    qz._rendered=pid;
+    var qs=QUIZZES()[pid];if(!qs){return;}
+    var h="";
+    qs.forEach(function(qu,i){
+      var st=D.quiz[pid]&&D.quiz[pid].first&&D.quiz[pid].first[i];
+      var ow="",cls="";
+      if(st===true||st===false){
+        qu.o.forEach(function(o,j){
+          if(j===qu.a){cls="opt right";}else if(st===false){cls="opt wrong";}else{cls="";}
+          ow+='<button class="opt '+cls+'" disabled>'+o+'</button>';
+        });
+      }else{
+        qu.o.forEach(function(o,j){ow+='<button class="opt" data-q="'+i+'" data-o="'+j+'">'+o+'</button>';});
+      }
+      h+='<div class="q"><p class="qt"><span class="qn">Q'+(i+1)+'.</span> '+qu.q+'</p><div class="opts">'+ow+'</div><p class="qe'+(st===true||st===false?' show':'')+'">'+qu.e+'</p></div>';
+    });
+    wrap.innerHTML=h;
+    wrap.querySelectorAll(".opt[data-q]").forEach(function(btn){
+      btn.addEventListener("click",function(){answer(pid,parseInt(btn.getAttribute("data-q")),parseInt(btn.getAttribute("data-o")),btn);});
+    });
+    updateQuizScore(qz,pid);
+  });
+}
+function QUIZZES(){return QUIZ;}
+function answer(pid,qi,oi,btn){
+  var qs=QUIZZES()[pid],q=qs[qi];
+  var first=!D.quiz[pid]||!D.quiz[pid].tried;
+  var qd=D.quiz[pid]||{first:[],correct:0,total:qs.length,tried:false,best:0};
+  if(!qd.tried)qd.tried=true;
+  var right=(oi===q.a);
+  if(first){qd.first[qi]=(right?1:0);if(right){addXp(3);}}
+  if(first&&right){qd.correct=(qd.correct||0)+1;}
+  var qz=btn.closest(".quiz");
+  btn.closest(".opts").querySelectorAll(".opt").forEach(function(o){o.disabled=true;if(o===btn)o.classList.add(right?"right":"wrong");else if(o.getAttribute("data-o")==q.a)o.classList.add("right");});
+  var qe=btn.closest(".q").querySelector(".qe");qe.classList.add("show");
+  if(first){
+    D.quiz[pid]=qd;
+    save();renderHero();renderStack();renderNav();
+  }else{
+    D.quiz[pid]=qd;save();
+  }
+  var answered=qd.first.filter(function(x){return x===0||x===1;}).length;
+  var correctNow=qd.first.reduce(function(s,v){return s+(v===1?1:0);},0);
+  var pct=Math.round(correctNow/qs.length*100);
+  if(pct>qd.best)qd.best=pct;
+  updateQuizScore(qz,pid);
+  if(answered>=qs.length){finishQuiz(qz,pid,qd,pct,first);}
+  refreshAll();
+}
+function updateQuizScore(qz,pid){
+  var qd=D.quiz[pid];var qs=QUIZZES()[pid];
+  var sc=qz.querySelector(".qscore b");if(sc){if(qd&&qd.best>=0&&qs){sc.textContent=qd.best+"%";}else{sc.textContent="—";}}
+}
+function finishQuiz(qz,pid,qd,pct,first){
+  var res=qz.querySelector(".qres");
+  var pass=pct>=70;
+  var xpGain=first?qd.correct*3:0;
+  res.className="qres show "+(pass?"pass":"fail");
+  res.innerHTML=(pass?"✔ CHECKPOINT CLEARED — "+pct+"%":"✘ "+pct+"% — re-read the section, then re-run the quiz")
+  +" · best "+qd.best+"%"+(xpGain>0?" · <b>+"+xpGain+" XP</b>":"");
+  renderHero();renderStack();renderNav();
+  if(pass&&!qz._celebrated){qz._celebrated=true;}
+}
+
+/* ================= FLASHCARDS ================= */
+function renderDeck(){
+  var deck=document.getElementById("deck");if(!deck||deck._rendered)return;
+  deck._rendered=true;
+  var h="";
+  CARDS.forEach(function(c,i){
+    var nailed=!!D.nailed[i];
+    h+='<div class="card'+(nailed?" nailed":"")+'" data-c="'+i+'">'
+       +'<div class="inner"><div class="face front"><span class="cardtier">'+c.t+'</span><div class="qtext">'+c.q+'</div><span class="flip-hint">CLICK TO REVEAL</span></div>'
+       +'<div class="face back"><span class="cardtier" style="color:var(--ok)">answer</span><div class="qtext">'+c.a+'</div><button class="nailedbtn'+(nailed?" n":"")+'">'+(nailed?"✓ NAILED":"NAIL IT")+'</button></div></div></div>';
+  });
+  deck.innerHTML=h;
+  deck.querySelectorAll(".card").forEach(function(cd){
+    cd.addEventListener("click",function(ev){
+      if(ev.target.classList.contains("nailedbtn")){
+        var i=parseInt(cd.getAttribute("data-c"));
+        D.nailed[i]=!D.nailed[i];save();
+        cd.classList.toggle("nailed");cd.querySelector(".nailedbtn").classList.toggle("n");
+        return;
+      }
+      cd.classList.toggle("flip");
+    });
+  });
+}
+
+/* ================= MILESTONES ================= */
+function renderMilestones(){
+  var ml=document.getElementById("mlist");if(!ml||ml._rendered)return;
+  ml._rendered=true;
+  var h="";
+  MILES.forEach(function(m){
+    var done=!!D.milestones[m.id];
+    h+='<div class="mile'+(done?" done":"")+'" data-m="'+m.id+'"><div class="mbox">✓</div><div><div class="mtitle"><b>'+m.title+'</b></div><div class="mpass">'+m.pass+'</div></div></div>';
+  });
+  ml.innerHTML=h;
+  ml.querySelectorAll(".mile").forEach(function(mi){
+    mi.addEventListener("click",function(){
+      var id=mi.getAttribute("data-m");
+      if(D.milestones[id]){
+        delete D.milestones[id];
+      }else{
+        D.milestones[id]=true;addXp(10);
+      }
+      save();renderMilestones();renderHero();renderStack();renderNav();
+      checkGraduation();
+    });
+  });
+}
+function checkGraduation(){
+  if(!MILES.length)return;
+  if(MILES.every(function(m){return D.milestones[m.id];})&&!D.graduated){
+    D.graduated=true;save();
+    setTimeout(graduation,600);
+  }
+}
+
+/* ================= GRADUATION ================= */
+function graduation(){
+  var g=document.getElementById("grad");
+  var lines=[
+    "> verifying layer p1 ... OK","> verifying layer p2 ... OK","> verifying layer p3 ... OK",
+    "> verifying layer p4 ... OK","> verifying layer p5 ... OK","> verifying layer p6 ... OK",
+    "> verifying layer p7 ... OK","> verifying layer p8 ... OK","> verifying layer p9 ... OK",
+    "> verifying layer p10 ... OK","> verifying layer p11 ... OK","> verifying layer p12 ... OK",
+    "> verifying layer p13 ... OK","> verifying layer p14 ... OK",
+    "> mounting writable layer ... OK","> attaching bridge network ... OK",
+    "> running PID 1 ... OK",""
+  ];
+  var body=g.querySelector(".gbody");
+  body.innerHTML="";
+  var rank=rankFor(D.xp)[1];
+  lines.forEach(function(l,i){
+    var div=document.createElement("div");div.className="gl";div.style.animationDelay=(i*0.22)+"s";
+    div.textContent=l;body.appendChild(div);
+  });
+  var title=document.createElement("div");title.className="gtitle gl";title.style.animationDelay=(lines.length*0.22)+"s";
+  title.textContent="CONTAINER DEPLOYED 🐳";
+  body.appendChild(title);
+  var sub=document.createElement("div");sub.className="gl";sub.style.animationDelay=(lines.length*0.22+0.3)+"s";
+  sub.innerHTML="RANK: <b>"+rank+"</b> · all "+doneCount()+" layers laid · every milestone crossed. The shipyard ships what you built."
+  +"<br><br><i>Remember the one rule: a container is just a process.</i>";
+  body.appendChild(sub);
+  var btn=document.createElement("button");btn.className="btn ok gbtn gl";btn.style.animationDelay=(lines.length*0.22+0.8)+"s";
+  btn.textContent="BACK TO THE DECK";btn.addEventListener("click",function(){g.classList.remove("open");});
+  body.appendChild(btn);
+  g.classList.add("open");
+  confetti();
+  renderStack();renderHero();
+}
+function confetti(){
+  var g=document.getElementById("grad");
+  var colors=["#ffb000","#39d98a","#57d9ff","#ff5d5d"];
+  for(var i=0;i<46;i++){
+    var p=document.createElement("span");p.className="ptcl";
+    p.style.left=Math.random()*100+"%";p.style.top="-10px";
+    p.style.background=colors[i%colors.length];
+    p.style.animationDuration=(2.4+Math.random()*2.6)+"s";
+    p.style.animationDelay=(Math.random()*1.4)+"s";
+    p.style.width=(4+Math.random()*5)+"px";p.style.height=(4+Math.random()*8)+"px";
+    g.appendChild(p);
+    setTimeout(function(el){el.remove();},9000);
+  }
+}
+
+/* ================= SIMULATOR (Part 3.1) ================= */
+var SIMSTEPS=SHIPYARD_DATA.sim||[];
+var simTimer=null;
+function simLine(text){
+  var out=document.getElementById("simOut");
+  var div=document.createElement("div");div.innerHTML=text;
+  div.style.opacity=0;div.style.animation="bli .2s forwards";
+  out.appendChild(div);
+  out.scrollTop=out.scrollHeight;
+}
+function simClear(){
+  var out=document.getElementById("simOut");
+  out.innerHTML='<code style="color:var(--faint)"># docker run -d -p 8080:80 --name web nginx</code>';
+}
+function simRun(){
+  if(simTimer||!SIMSTEPS.length)return;
+  simClear();
+  var i=0;
+  simTimer=setInterval(function(){
+    if(i>=SIMSTEPS.length){clearInterval(simTimer);simTimer=null;return;}
+    var s=SIMSTEPS[i];simLine(s.l);i++;
+  },Math.min.apply(null,[700]));
+  var t=0;
+  SIMSTEPS.forEach(function(s,idx){t+=s.t;setTimeout(simLine.bind(null,s.l),t);});
+  simTimer=setTimeout(function(){simTimer=null;},t+300);
+}
+
+/* ================= INTERACTIVE STACK (Part 2) ================= */
+function setupBigStack(){
+  var big=document.getElementById("stackBig");if(!big||big._bound)return;
+  big._bound=true;
+  var disc=document.getElementById("sbdisc");
+  var info=SHIPYARD_DATA.stackInfo||{};
+  big.querySelectorAll(".sblayer").forEach(function(ly){
+    ly.addEventListener("click",function(){
+      big.querySelectorAll(".sblayer").forEach(function(x){x.classList.remove("selected");});
+      ly.classList.add("selected");
+      disc.innerHTML=info[ly.getAttribute("data-layer")]||"That layer is sealed in the image. Read the part to unlock its story.";
+    });
+  });
+  var running=false,writes=0;
+  var log=document.getElementById("sbLog");
+  var wr=big.querySelector(".writ");
+  var btnStart=document.getElementById("sbStart"),btnWrite=document.getElementById("sbWrite"),btnRm=document.getElementById("sbRm");
+  btnStart.addEventListener("click",function(){
+    if(running){log.textContent="already running";return;}
+    running=true;writes=0;
+    wr.classList.add("live");
+    log.textContent="PID 1 started · container RUNNING";
+    btnWrite.disabled=false;
+  });
+  btnWrite.addEventListener("click",function(){
+    if(!running){log.textContent="start the container first";return;}
+    writes++;
+    wr.style.animation="none";wr.offsetHeight;wr.style.animation="layerin .3s";
+    log.textContent="write #"+writes+" → writable layer ("+(writes*40)+"KB)";
+  });
+  btnRm.addEventListener("click",function(){
+    if(!running){log.textContent="nothing to remove";return;}
+    running=false;
+    wr.classList.remove("live");
+    log.textContent="docker rm → writable layer destroyed · "+writes+" file(s) gone. forever.";
+    btnWrite.disabled=true;
+  });
+}
+
+/* ================= COPY BUTTONS ================= */
+function setupCopy(){
+  document.querySelectorAll(".copybtn").forEach(function(btn){
+    if(btn._bound)return;btn._bound=true;
+    btn.addEventListener("click",function(){
+      var pre=btn.closest(".term").querySelector("pre");
+      var txt=pre?pre.textContent:"";
+      var done=function(){btn.textContent="COPIED ✓";btn.classList.add("copied");setTimeout(function(){btn.textContent="COPY";btn.classList.remove("copied");},1500);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,function(){fallback(txt,done);});}
+      else{fallback(txt,done);}
+    });
+  });
+}
+function fallback(txt,done){
+  var ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";
+  document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e){}
+  ta.remove();done();
+}
+
+/* ================= NAV / SCROLLSPY ================= */
+function goto(id){
+  var el=document.getElementById(id);
+  if(!el)return;
+  el.scrollIntoView({behavior:"smooth",block:"start"});
+  closeDock();
+  var nav=document.querySelectorAll(".navitem");
+  nav.forEach(function(n){n.classList.toggle("active",n.getAttribute("data-nav")===id);});
+}
+function closeDock(){
+  document.getElementById("dock").classList.remove("open");
+  document.getElementById("backdrop").classList.remove("open");
+}
+function setupScrollspy(){
+  var nav=document.getElementById("docknav");
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        nav.querySelectorAll(".navitem").forEach(function(n){n.classList.toggle("active",n.getAttribute("data-nav")===en.target.id);});
+      }
+    });
+  },{rootMargin:"-20% 0px -60% 0px"});
+  document.querySelectorAll(".part").forEach(function(p){obs.observe(p);});
+}
+
+/* ================= BRANDING / EASTER EGG ================= */
+var konami=[38,38,40,40,37,39,37,39,66,65],kpos=0;
+var whaleCount=0;
+function whaleMode(){
+  var w=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  w.setAttribute("id","whaleSwim");w.setAttribute("width","110");w.setAttribute("height","55");w.setAttribute("viewBox","0 0 24 24");
+  w.innerHTML='<path fill="none" stroke="#57d9ff" stroke-width="1.4" d="M4 12c0-4 2.5-7 6-8 3.5 1 6 4 6 8 1.5-1 3-1.5 5-1-1 3-3 5-6 5H6c-1 0-1.5.5-2 1z" stroke-linejoin="round"/><circle cx="8" cy="10" r=".7" fill="#57d9ff"/><path d="M6 20l7-3" stroke="#57d9ff" stroke-width="1" stroke-linecap="round"/>';
+  document.body.appendChild(w);
+  whaleCount++;
+  setTimeout(function(){w.remove();},16000);
+}
+document.addEventListener("keydown",function(ev){
+  if(ev.key==="ArrowUp"&&konami[kpos]===38)kpos++;
+  else if(ev.key==="ArrowDown"&&konami[kpos]===40)kpos++;
+  else if(ev.key==="ArrowLeft"&&konami[kpos]===37)kpos++;
+  else if(ev.key==="ArrowRight"&&konami[kpos]===39)kpos++;
+  else if(ev.key.toLowerCase()==="b"&&konami[kpos]===66)kpos++;
+  else if(ev.key.toLowerCase()==="a"&&konami[kpos]===65)kpos++;
+  else kpos=0;
+  if(kpos===konami.length){kpos=0;whaleMode();whaleMode();var t=document.createElement("div");t.textContent="WHALE MODE ENGAGED";t.style.cssText="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;font-family:var(--mono);color:#57d9ff;border:1px solid #57d9ff;background:rgba(10,14,22,.9);padding:8px 16px;border-radius:4px;letter-spacing:2px;font-size:12px;";document.body.appendChild(t);setTimeout(function(){t.remove();},2200);}
+});
+
+/* ================= DONE BUTTONS ================= */
+function setupDone(){
+  document.querySelectorAll("[data-done]").forEach(function(btn){
+    if(btn._bound)return;btn._bound=true;
+    var pid=btn.getAttribute("data-done");
+    btn.textContent=D.done[pid]?"✔ COMPLETE":"MARK COMPLETE";
+    btn.classList.toggle("ok",!!D.done[pid]);
+    btn.addEventListener("click",function(){
+      if(D.done[pid]){delete D.done[pid];}
+      else{D.done[pid]=true;addXp(25);
+        var part=document.getElementById(pid);if(part)part.classList.add("done");
+      }
+      save();refreshAll();
+      btn.textContent=D.done[pid]?"✔ COMPLETE":"MARK COMPLETE";
+      btn.classList.toggle("ok",!!D.done[pid]);
+    });
+  });
+  PARTS.forEach(function(p){
+    var el=document.getElementById(p.id);
+    if(el&&D.done[p.id])el.classList.add("done");
+  });
+}
+
+/* ================= BURGER ================= */
+document.getElementById("burger").addEventListener("click",function(){
+  var d=document.getElementById("dock");
+  var open=d.classList.toggle("open");
+  document.getElementById("backdrop").classList.toggle("open",open);
+});
+document.getElementById("backdrop").addEventListener("click",closeDock);
+
+/* ================= BOOT ================= */
+function applyMeta(){
+  var t=document.querySelector("title");if(t&&META.title)t.textContent=META.title;
+  var bn=document.querySelector(".bname");if(bn&&META.brand)bn.textContent=META.brand;
+  var bs=document.querySelector(".bsub");if(bs&&META.tagline)bs.textContent=META.tagline;
+  if(META.accent){
+    var h=META.accent.replace("#","");
+    var r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+    var m=function(v){return Math.max(0,Math.round(v*0.62));};
+    var st=document.documentElement.style;
+    st.setProperty("--accent",META.accent);
+    st.setProperty("--accent-soft","rgb("+m(r)+","+m(g)+","+m(b)+")");
+  }
+}
+window.addEventListener("load",function(){
+  applyMeta();
+  refreshAll();
+  setupBigStack();
+  setupCopy();
+  setupDone();
+  setupScrollspy();
+  var simBtn=document.getElementById("simRun");if(simBtn){simBtn.addEventListener("click",simRun);}
+  var simRst=document.getElementById("simReset");if(simRst){simRst.addEventListener("click",function(){if(simTimer){clearTimeout(simTimer);simTimer=null;}simClear();});}
+  checkGraduation();
+});
+
+})();
+
+</script>
+</body>
+</html>

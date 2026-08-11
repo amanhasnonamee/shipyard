@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-11T07:27:57.421Z",
+ "generated": "2026-08-11T09:48:11.832Z",
  "techs": [
   {
    "id": "docker",
@@ -40,6 +40,16 @@
    "parts": 15,
    "quiz": 66,
    "file": "htmlcss.html"
+  },
+  {
+   "id": "sql",
+   "brand": "THE SQL SHIPYARD",
+   "title": "The SQL Shipyard - SQL: A First-Principles Curriculum",
+   "tagline": "SQL · relational model · three-valued logic · query engine",
+   "accent": "#3b82f6",
+   "parts": 15,
+   "quiz": 86,
+   "file": "sql.html"
   }
  ]
 }
