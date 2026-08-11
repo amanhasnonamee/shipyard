@@ -147,7 +147,7 @@ async function main() {
 }
 function registry() {
   const entries = [];
-  for (const t of ['docker', 'python', 'javascript', 'htmlcss', 'sql']) {
+  for (const t of ['docker', 'python', 'javascript', 'htmlcss', 'sql', 'rest-api']) {
     const dp = path.join(ROOT, 'data', t + '.js');
     if (!fs.existsSync(dp)) continue;
     const raw = fs.readFileSync(dp, 'utf8');

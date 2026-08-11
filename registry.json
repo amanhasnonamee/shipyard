@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-11T09:48:11.832Z",
+ "generated": "2026-08-11T10:32:30.983Z",
  "techs": [
   {
    "id": "docker",
@@ -50,6 +50,16 @@
    "parts": 15,
    "quiz": 86,
    "file": "sql.html"
+  },
+  {
+   "id": "rest-api",
+   "brand": "THE REST-API SHIPYARD",
+   "title": "The REST-API Shipyard - REST APIs: A First-Principles Curriculum",
+   "tagline": "REST · resources & representations · HTTP · idempotency",
+   "accent": "#14b8a6",
+   "parts": 15,
+   "quiz": 77,
+   "file": "rest-api.html"
   }
  ]
 }
