@@ -27,11 +27,14 @@ A curriculum should be as easy to share as a screenshot. No accounts, no servers
 The fleet is generated, not hand-written:
 
 ```
-node build/build.mjs <tech>    # md + build/pedagogy/<tech>.mjs -> pages + slim + registry
-node build/hub.mjs             # registry.json -> index.html
+node build/draft.mjs <tech>   # md -> pedagogy skeleton (TBD fields, per-part hints)
+node build/build.mjs <tech>   # md + build/pedagogy/<tech>.mjs -> pages + slim + registry
+node build/hub.mjs            # registry.json -> index.html
 ```
 
+- `build/draft.mjs` — pedagogy skeleton generator: parses the markdown, emits a fill-in-the-blank quizzes/cards/miles/sim module with per-part hints
 - `build/build.mjs` — markdown→parts parser, chrome assembler, slim contractor, registry writer
+- `build/mdparse.mjs` — shared markdown parser (used by draft + build)
 - `build/pedagogy/<tech>.mjs` — authored quizzes, cards, miles, sim per tech
 - `build/hub.mjs` — fleet index regenerated from `registry.json`
 - `assets/shipyard.js` / `assets/shipyard.css` — the shared engine
