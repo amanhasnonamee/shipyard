@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shipyard — UI overhaul mockup (Python, sample parts)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#12181f; --panel2:#161d26; --raised:#1b232e;
+  --line:#232c38; --line2:#2c3746;
+  --fg:#e8ecf1; --fg2:#aab4c2; --fg3:#6b7686;
+  --accent:#2dd4a7; --accent-dim:#1a8a6c; --accent-ghost:rgba(45,212,167,.1);
+  --deep:#ff8a65; --recog:#5ec8f2; --ref:#8b95a5; --adv:#c79ef2;
+  --ok:#2dd4a7; --warn:#ff8a65;
+  --serif:'Source Serif 4', Georgia, serif;
+  --mono:'JetBrains Mono', ui-monospace, Consolas, monospace;
+  --sans:-apple-system, 'Segoe UI', system-ui, sans-serif;
+  --radius:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);height:100%}
+body{display:grid;grid-template-columns:296px 1fr;min-height:100vh}
+
+.banner{grid-column:1/-1;background:var(--accent-ghost);border-bottom:1px solid var(--line2);color:var(--accent);
+  font-family:var(--mono);font-size:12px;letter-spacing:.3px;padding:9px 20px;display:flex;gap:10px;align-items:center}
+.banner b{color:var(--fg)}
+
+/* ---------------- sidebar: one consolidated progress dashboard ---------------- */
+aside{border-right:1px solid var(--line);padding:20px 16px;display:flex;flex-direction:column;gap:18px;height:calc(100vh - 38px);position:sticky;top:38px;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .mark{width:30px;height:30px;border-radius:8px;background:var(--accent-ghost);border:1px solid var(--accent-dim);display:grid;place-items:center;color:var(--accent);font-family:var(--mono);font-size:14px;flex:none}
+.brand .name{font-size:13.5px;font-weight:600;letter-spacing:.2px}
+.brand .tag{font-size:11px;color:var(--fg3)}
+
+.rankcard{background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+.rankcard .top{display:flex;justify-content:space-between;align-items:baseline}
+.rankcard .rank{font-size:15px;font-weight:600}
+.rankcard .xp{font-family:var(--mono);font-size:11px;color:var(--fg3)}
+.bar{height:5px;border-radius:3px;background:var(--line);margin-top:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:38%;background:var(--accent);border-radius:3px}
+
+.progress-dash{background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius);padding:14px;flex:1;display:flex;flex-direction:column;min-height:0}
+.progress-dash .head{display:flex;justify-content:space-between;font-size:10.5px;letter-spacing:1.2px;color:var(--fg3);text-transform:uppercase;margin-bottom:10px}
+
+.path{position:relative;padding-left:20px;overflow-y:auto}
+.path::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:1px;background:var(--line2)}
+.pnode{position:relative;padding:6px 8px 6px 0;display:flex;align-items:center;gap:9px;cursor:pointer;border-radius:6px}
+.pnode:hover{background:var(--raised)}
+.pnode .dot{position:absolute;left:-19px;width:9px;height:9px;border-radius:50%;background:var(--panel);border:1.5px solid var(--line2)}
+.pnode.done .dot{background:var(--accent);border-color:var(--accent)}
+.pnode.current .dot{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-ghost)}
+.pnode .t{font-size:12px;color:var(--fg2);line-height:1.3}
+.pnode.current .t{color:var(--fg);font-weight:600}
+.pnode.done .t{color:var(--fg2)}
+.pnode .n{font-family:var(--mono);font-size:10px;color:var(--fg3);flex:none;width:16px}
+
+.milegroup{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line2)}
+.milegroup .head{display:flex;justify-content:space-between;font-size:10.5px;letter-spacing:1.2px;color:var(--fg3);text-transform:uppercase;margin-bottom:8px}
+.mrow{display:flex;align-items:center;gap:8px;padding:4px 2px;cursor:pointer;border-radius:5px}
+.mrow:hover{background:var(--raised)}
+.mrow .box{width:13px;height:13px;border-radius:3px;border:1.5px solid var(--line2);flex:none;display:grid;place-items:center}
+.mrow.done .box{background:var(--ok);border-color:var(--ok)}
+.mrow.done .box::after{content:"";width:5px;height:8px;border-right:1.5px solid #06251d;border-bottom:1.5px solid #06251d;transform:rotate(45deg) translate(-1px,-1px)}
+.mrow .lbl{font-size:11.5px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mrow.done .lbl{color:var(--fg2);text-decoration:line-through;text-decoration-color:var(--line2)}
+
+.sidefoot{display:flex;gap:6px;flex-wrap:wrap}
+.sfbtn{font-family:var(--mono);font-size:9.5px;letter-spacing:.8px;color:var(--fg3);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:5px 9px;cursor:pointer}
+.sfbtn:hover{color:var(--accent);border-color:var(--accent-dim)}
+
+/* ---------------- main: one part at a time ---------------- */
+main{max-width:760px;margin:0 auto;padding:0 40px 100px;width:100%}
+.topbar{position:sticky;top:38px;background:var(--bg);padding:16px 0 12px;border-bottom:1px solid var(--line);z-index:5}
+.crumbs{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.crumb-l{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11.5px;color:var(--fg3)}
+.tag-pill{font-family:var(--mono);font-size:9.5px;letter-spacing:1px;padding:2px 7px;border-radius:5px;border:1px solid}
+.tag-deep{color:var(--deep);border-color:var(--deep)}
+.navbtns{display:flex;gap:6px}
+.navbtn{font-family:var(--mono);font-size:11px;color:var(--fg2);background:var(--panel2);border:1px solid var(--line2);border-radius:6px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.navbtn:hover{border-color:var(--accent-dim);color:var(--fg)}
+.readbar{height:2px;background:var(--line);margin-top:12px;border-radius:2px;overflow:hidden}
+.readbar i{display:block;height:100%;width:0%;background:var(--accent);transition:width .15s linear}
+
+.toc{display:flex;gap:14px;flex-wrap:wrap;padding:14px 0 4px;font-family:var(--mono);font-size:11px}
+.toc a{color:var(--fg3);text-decoration:none;padding-bottom:2px;border-bottom:1px solid transparent}
+.toc a.active{color:var(--accent);border-color:var(--accent)}
+
+h1.ptitle{font-family:var(--sans);font-weight:600;font-size:30px;letter-spacing:-.2px;margin:20px 0 6px}
+.psub{color:var(--fg3);font-size:14px;margin:0 0 26px}
+h2.sec{font-size:13px;font-weight:600;color:var(--fg2);margin:34px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+p{font-size:15.5px;line-height:1.75;color:var(--fg);margin:0 0 14px}
+code.i{font-family:var(--mono);font-size:13.5px;color:var(--recog);background:rgba(94,200,242,.09);padding:1px 5px;border-radius:4px}
+
+.idea{border-left:2px solid var(--accent-dim);background:var(--accent-ghost);border-radius:0 8px 8px 0;padding:14px 16px;margin:18px 0}
+.idea .lbl{font-family:var(--mono);font-size:9.5px;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase;display:block;margin-bottom:6px}
+.idea p{margin:0;font-family:var(--serif);font-size:15.5px;color:var(--fg)}
+
+.term{margin:18px 0;border:1px solid var(--line2);border-radius:var(--radius);overflow:hidden;background:#0a0e13}
+.termhead{display:flex;justify-content:space-between;padding:8px 12px;background:var(--panel2);border-bottom:1px solid var(--line);font-family:var(--mono);font-size:10.5px;color:var(--fg3)}
+.term pre{margin:0;padding:14px 16px;font-family:var(--mono);font-size:12.5px;line-height:1.65;color:#c3cdda;overflow-x:auto}
+.term .c{color:var(--fg3)}
+.term .k{color:var(--recog)}
+
+.quiz{margin:26px 0;border:1px solid var(--line2);border-radius:var(--radius);padding:18px;background:var(--panel2)}
+.quiz .qlbl{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase}
+.quiz .qt{font-size:14.5px;margin:12px 0 12px;font-weight:600}
+.opts{display:grid;gap:7px}
+.opt{text-align:left;font-size:13.5px;color:var(--fg);background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:10px 13px;cursor:pointer;line-height:1.5}
+.opt:hover:not(:disabled){border-color:var(--accent-dim)}
+.opt.right{border-color:var(--ok);background:rgba(45,212,167,.08);color:var(--ok)}
+.opt.wrong{border-color:var(--warn);background:rgba(255,138,101,.08);color:var(--warn)}
+.qe{display:none;margin-top:12px;font-size:12.5px;color:var(--fg2);line-height:1.6;padding-top:12px;border-top:1px dashed var(--line2)}
+.qe.show{display:block}
+.note{font-family:var(--mono);font-size:11px;color:var(--fg3);margin-top:10px}
+.note b{color:var(--accent)}
+
+.footnav{display:flex;justify-content:space-between;margin-top:52px;padding-top:20px;border-top:1px solid var(--line);gap:12px}
+.fnbtn{flex:1;border:1px solid var(--line2);border-radius:var(--radius);padding:14px 16px;cursor:pointer;background:var(--panel2)}
+.fnbtn:hover{border-color:var(--accent-dim)}
+.fnbtn .lbl{font-family:var(--mono);font-size:9.5px;color:var(--fg3);letter-spacing:1px}
+.fnbtn .t{font-size:13.5px;margin-top:4px;font-weight:600}
+.fnbtn.next{text-align:right}
+
+@media (max-width:900px){body{grid-template-columns:1fr}aside{display:none}main{padding:0 20px 80px}}
+</style>
+</head>
+<body>
+
+<div class="banner"><span>◐</span> mockup — structure + visual language only, not wired to real content or the build pipeline. Ranks / XP / <b>MARK COMPLETE</b> here are non-persistent, for feel only.</div>
+
+<aside>
+  <div class="brand"><div class="mark">▲</div><div><div class="name">The Python Shipyard</div><div class="tag">object model · mutability · protocols</div></div></div>
+
+  <div class="rankcard">
+    <div class="top"><span class="rank">Deckhand</span><span class="xp">210 XP</span></div>
+    <div class="bar"><i></i></div>
+  </div>
+
+  <div class="progress-dash">
+    <div class="head"><span>Course</span><span>5/14</span></div>
+    <div class="path" id="path"></div>
+    <div class="milegroup">
+      <div class="head"><span>Milestones</span><span>2/6</span></div>
+      <div id="miles"></div>
+    </div>
+  </div>
+
+  <div class="sidefoot">
+    <button class="sfbtn">EXPORT</button>
+    <button class="sfbtn">IMPORT</button>
+    <button class="sfbtn">RESET</button>
+  </div>
+</aside>
+
+<main>
+  <div class="topbar">
+    <div class="crumbs">
+      <div class="crumb-l"><span>PART <b id="pnum" style="color:var(--fg)">06</b> / 14</span><span class="tag-pill tag-deep">DEEP</span></div>
+      <div class="navbtns">
+        <button class="navbtn" id="btnPrev">← prev</button>
+        <button class="navbtn" id="btnNext">next →</button>
+      </div>
+    </div>
+    <div class="readbar"><i id="readbar"></i></div>
+    <div class="toc" id="toc"></div>
+  </div>
+
+  <div id="content"></div>
+
+  <div class="footnav">
+    <div class="fnbtn" id="fnPrev"><div class="lbl">← PART 05</div><div class="t">Names &amp; binding</div></div>
+    <div class="fnbtn next" id="fnNext"><div class="lbl">PART 07 →</div><div class="t">Functions as objects</div></div>
+  </div>
+</main>
+
+<script>
+const parts = [
+  {num:"06", title:"Mutability & aliasing", tag:"DEEP", done:false, current:true, sections:["The core split","Aliasing in practice","is vs =="],
+  body:`
+    <p>A name in Python is a label, not a box. <code class="i">a = [1, 2, 3]</code> doesn't put a list "into" <code class="i">a</code> — it points the label <code class="i">a</code> at a list object living somewhere in memory. Assignment binds a name to an object; it never copies the object.</p>
+    <p>That distinction only becomes visible with <b>mutable</b> objects. Numbers, strings and tuples can't be changed in place, so aliasing them is invisible — a new value just gets a new object. Lists, dicts and sets can be changed in place, so two names pointing at the same list will both see any change made through either one.</p>
+    <div class="idea"><span class="lbl">the shipyard's word</span><p>If your mental model is "variables hold values," aliasing bugs look like magic. If your model is "names are labels on objects," they're the obvious consequence of two labels on one object.</p></div>
+    <h2 class="sec" id="s2">Aliasing in practice</h2>
+    <p>This is the bug shape you'll actually hit:</p>
+    <div class="term"><div class="termhead"><span>python</span><span>REPL</span></div><pre><code>&gt;&gt;&gt; <span class="k">a</span> = [1, 2, 3]
+&gt;&gt;&gt; <span class="k">b</span> = a          <span class="c"># b is not a copy — same list, two labels</span>
+&gt;&gt;&gt; b.append(4)
+&gt;&gt;&gt; a
+[1, 2, 3, 4]         <span class="c"># a changed too — there was only ever one list</span></code></pre></div>
+    <p>To actually copy, you ask for a copy: <code class="i">b = a.copy()</code>, or <code class="i">b = a[:]</code> for a list, or <code class="i">copy.deepcopy(a)</code> when the nesting goes more than one level.</p>
+    <h2 class="sec" id="s3">is vs ==</h2>
+    <p><code class="i">==</code> asks "do these objects have equal value?" <code class="i">is</code> asks "are these the same object — same label pointing at the same memory?" Two separately-created lists with identical contents are <code class="i">==</code> but not <code class="i">is</code>. Aliases of the same list are both.</p>
+  `,
+  quiz:{
+    q:'After this runs, what does <code class="i">a</code> print?',
+    code:"a = [1, 2]\nb = a\nb += [3]\nprint(a)",
+    o:[
+      "[1, 2, 3] — b and a are two names for the same list, so mutating through b is visible through a",
+      "[1, 2] — b is a separate copy, so a is unaffected by anything done to b",
+      "A TypeError — you can't use += on a list that another name is also bound to",
+      "[1, 2, 3] but only inside the current function scope, not at module level"
+    ],
+    a:0,
+    e:"b = a binds a second label to the same list object — no copy was made. += on a list calls list.__iadd__, which mutates in place, so the change is visible through every name bound to that object, including a."
+  }},
+  {num:"07", title:"Functions as objects", tag:"RECOGNIZE", done:false, current:false}
+];
+let idx = 0;
+
+function renderPath(){
+  const el = document.getElementById("path");
+  const rows = ["Setup & mental model","Names & binding","Numbers & strings","Collections","Control flow", parts[0].title, parts[1].title,
+    "Comprehensions","Exceptions","Files & context","Classes","Iterators & generators","Decorators","Milestones"];
+  el.innerHTML = rows.map((t,i)=>{
+    const n = String(i+1).padStart(2,"0");
+    const done = i < 4;
+    const current = i === idx+4;
+    return `<div class="pnode ${done?"done":""} ${current?"current":""}"><span class="dot"></span><span class="n">${n}</span><span class="t">${t}</span></div>`;
+  }).join("");
+}
+function renderMiles(){
+  const list = ["Build a small CLI tool","Ship a tested package","Debug a real aliasing bug","Write a decorator from scratch","Read someone else's traceback cold","Explain the GIL in one breath"];
+  const done = [true,true,false,false,false,false];
+  document.getElementById("miles").innerHTML = list.map((t,i)=>
+    `<div class="mrow ${done[i]?"done":""}"><span class="box"></span><span class="lbl">${t}</span></div>`).join("");
+}
+
+function renderPart(){
+  const p = parts[idx];
+  document.getElementById("pnum").textContent = p.num;
+  document.querySelector(".tag-pill").textContent = p.tag;
+  document.querySelector(".tag-pill").className = "tag-pill tag-" + p.tag.toLowerCase();
+  document.getElementById("toc").innerHTML = p.sections ? p.sections.map((s,i)=>
+    `<a href="#s${i+1}" class="${i===0?'active':''}">${s}</a>`).join("") : "";
+
+  let html = `<h1 class="ptitle">${p.title}</h1><p class="psub">Part ${p.num} · ${p.tag} — core mental model, prove it out loud.</p>`;
+  html += p.body || `<p style="color:var(--fg3)">— mockup only shows Part 06 in full; this is where Part 07's content would render —</p>`;
+  if(p.quiz){
+    html += `<div class="quiz"><span class="qlbl">Checkpoint</span><p class="qt">${p.quiz.q}</p>
+      <div class="term" style="margin:0 0 14px"><pre><code>${p.quiz.code.replace(/\n/g,"\n")}</code></pre></div>
+      <div class="opts">${p.quiz.o.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join("")}</div>
+      <div class="qe" id="qe">${p.quiz.e}</div></div>`;
+  }
+  document.getElementById("content").innerHTML = html;
+
+  if(p.quiz){
+    document.querySelectorAll(".opt").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        const right = parseInt(btn.dataset.i) === p.quiz.a;
+        document.querySelectorAll(".opt").forEach((o,i)=>{
+          o.disabled = true;
+          if(i===p.quiz.a) o.classList.add("right");
+          else if(o===btn) o.classList.add("wrong");
+        });
+        document.getElementById("qe").classList.add("show");
+      });
+    });
+  }
+  document.getElementById("btnPrev").disabled = idx===0;
+  document.getElementById("btnNext").disabled = idx===parts.length-1;
+}
+
+document.getElementById("btnNext").addEventListener("click",()=>{ if(idx<parts.length-1){idx++;renderPart();window.scrollTo(0,0);} });
+document.getElementById("btnPrev").addEventListener("click",()=>{ if(idx>0){idx--;renderPart();window.scrollTo(0,0);} });
+document.getElementById("fnNext").addEventListener("click",()=>document.getElementById("btnNext").click());
+document.getElementById("fnPrev").addEventListener("click",()=>document.getElementById("btnPrev").click());
+
+window.addEventListener("scroll",()=>{
+  const h = document.body.scrollHeight - window.innerHeight;
+  document.getElementById("readbar").style.width = (h>0 ? window.scrollY/h*100 : 0) + "%";
+});
+
+renderPath(); renderMiles(); renderPart();
+</script>
+</body>
+</html>

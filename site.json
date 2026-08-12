@@ -1,0 +1,4 @@
+{
+  "_comment": "Set `url` to where the fleet is published (no trailing slash). Social scrapers require absolute og:image URLs — while this is empty the build falls back to relative paths and link previews will not render an image.",
+  "url": "https://amanhasnonamee.github.io/shipyard"
+}
