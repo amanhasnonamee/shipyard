@@ -17,43 +17,47 @@ from `main` on push — already configured, nothing to set up there).
 
 ## Current repo state
 
-- **3 local commits ahead of `origin/main`, not yet pushed.** The agent session that
-  made them had no GitHub credentials (no SSH key, no stored token, no `gh` CLI) and
-  could not push. Run `git push origin main` from a machine with push access, or
-  authorize a GitHub connector so an agent can do it directly.
-- Working tree is clean as of this doc.
-- `git log --oneline -4`:
+- **Pushed and live.** `origin/main` is up to date as of this doc — includes the
+  fleet-wide v2 migration below. Working tree is clean.
+- `git log --oneline -6`:
   ```
+  f3ea3f3 Migrate docker, javascript, htmlcss, sql, rest-api to v2 chrome; rewrite all quiz distractors fleet-wide
+  46bdd72 Add HANDOFF.md for Claude Code project handoff
   7b8ee23 Fix hub.mjs template drift: grid safety fix and absolute OG tags
   50ba49d Redesign Python as the v2 reference ship; harden mobile responsiveness fleet-wide
   b3f2d89 Fix engine bugs across the fleet, rebuild pipeline, add regression tests
-  1abc202 rest-api ship: full pedagogy (...)   <- last commit before this session
+  1abc202 rest-api ship: full pedagogy (...)   <- last commit before the prior session
   ```
 - Full regression suite passes: **150/150** (`node build/test.mjs --dom`).
-- Quiz-quality linter: **python is clean (0/49 flagged)**; the other five ships are
-  **not** — `docker` 46/47, `javascript` 48/48, `htmlcss` 48/48, `sql` 68/68,
-  `rest-api` 58/59 flagged. See `QUIZ-REWRITES.md` (regenerate with
-  `node build/lint-quiz.mjs --report`) and gotcha #7 below before touching those.
+- Quiz-quality linter: **all six ships are clean, 0/319 flagged fleet-wide**
+  (`node build/lint-quiz.mjs`). `QUIZ-REWRITES.md` is regenerated and currently
+  empty — regenerate with `node build/lint-quiz.mjs --report` if it goes stale again.
 
 ## Architecture
 
 ### Two chrome versions, one engine contract
 
 - **v1** (`assets/shipyard.js` + `assets/shipyard.css`) — the original chrome.
-  Serves **docker, javascript, htmlcss, sql, rest-api**. Single long scrolling page
-  per ship, sidebar nav list + "voyage" waypoint grid, CRT scanline toggle.
-- **v2** (`assets/shipyard-v2.js` + `assets/shipyard-v2.css`) — new chrome, built and
-  signed off using **python** as the reference ship. One-part-at-a-time layout: a
-  consolidated sidebar path + milestone tracker, sticky-on-desktop topbar with an
-  in-part table of contents and reading-progress bar, big prev/next footer nav, hash
-  routing. No CRT effect. New type (JetBrains Mono, Source Serif 4) vs v1's
-  (VT323, Space Mono, IBM Plex Mono).
+  Single long scrolling page per ship, sidebar nav list + "voyage" waypoint grid,
+  CRT scanline toggle. No ship uses this as its live chrome anymore, but the
+  engine/CSS and the `shell()`/`section()` build path stay in the codebase — nothing
+  currently deletes them, and `build/repair.mjs` still emits through v1 shape before
+  `--v2` re-lifts the prose (see gotcha #1 and the `--v2` migration step in
+  `build/build.mjs`).
+- **v2** (`assets/shipyard-v2.js` + `assets/shipyard-v2.css`) — the chrome every ship
+  now ships with. One-part-at-a-time layout: a consolidated sidebar path + milestone
+  tracker, sticky-on-desktop topbar with an in-part table of contents and
+  reading-progress bar, big prev/next footer nav, hash routing. No CRT effect. New
+  type (JetBrains Mono, Source Serif 4) vs v1's (VT323, Space Mono, IBM Plex Mono).
 - Both engines expose the same `window.SHIPYARD_DATA` contract and the same
   `window.__SHIPYARD_ENGINE__` test seam, so `build/test.mjs` runs unmodified logic
   against either — see gotcha #6 for how it tells them apart.
-- **Only python is on v2 today.** Migrating another ship means running its content
-  through the v2 build path (see cheat sheet) and rewriting its quiz distractors
-  (gotcha #7) — it is a deliberate per-ship decision, not automatic.
+- **All six ships are on v2 as of the fleet migration** (python was the original
+  reference ship; docker, javascript, htmlcss, sql, rest-api followed in one
+  session — see "What's been done" Phase 4 below). Migrating *content* is now a
+  solved, repeatable one-command operation (`node build/build.mjs <tech> --v2`,
+  see cheat sheet); the only per-ship judgment call left is the quiz-distractor
+  quality pass (gotcha #7), and even that's done fleet-wide now.
 
 ### Build pipeline
 
@@ -113,9 +117,26 @@ instead of chasing a pixel offset). Enlarged v2's prev/next buttons for a real
 touch target on mobile. Set `site.json`'s `url` to the live Pages URL and repaired
 all six ships' OG tags to be absolute.
 
+**Phase 4 — fleet-wide v2 migration + quiz rewrite (docker, javascript, htmlcss,
+sql, rest-api), pushed as `f3ea3f3`**
+User explicitly approved migrating the rest of the fleet (the thing Phase 2/3
+deferred pending sign-off). Confirmed the `--v2` build path was already fully
+generic (no python-specific hardcoding in `build/build.mjs`, `build/repair.mjs`,
+or `assets/shipyard-v2.js`/`.css`) by dry-running `node build/build.mjs docker --v2`
+before committing to the full fleet. Ran five parallel background agents, one per
+ship, each doing: `build.mjs <tech> --v2` → rewrite every flagged quiz distractor
+in `build/pedagogy/<tech>.mjs` into substantive, plausible wrong answers (not
+placeholder text) → rebuild → `lint-quiz.mjs <tech>` until 0 flagged → full
+regression suite → file-scope check. Result: **all six ships clean, 0/319 flagged
+fleet-wide** (was 277/271 flagged pre-session across the five non-python ships).
+Along the way, 11 more genuine answer-key bugs were found and fixed the same way
+as python's 3 (gotcha #7's `q.o[q.a]` vs `q.e` cross-check) — 3 in sql, 8 in
+rest-api, 0 in docker/javascript/htmlcss. 150/150 regression tests pass;
+`registry.json`/hub regenerated (byte-identical — stats didn't change, only quiz
+text did).
+
 ## Known-pending work (not started, or intentionally deferred)
 
-- **Push the 3 local commits.** See "Current repo state" above.
 - **Task queue #13–16** (predates the whole UI-redesign detour, never resumed):
   - #13 *(was in_progress)* — make the test suite runnable on a clean clone. Right
     now `jsdom` is **not a declared dependency anywhere** — there is no
@@ -125,21 +146,22 @@ all six ships' OG tags to be absolute.
   - #15 — make verification unskippable: git pre-commit hook + CI workflow.
   - #16 — prove the harness actually catches the original bugs, by deliberately
     reintroducing each one and confirming `build/test.mjs` fails.
-- **Templating v2 to the other five ships.** The user has not yet explicitly said
-  "migrate all five now" — python was built as the sign-off reference by design.
-  Confirm with the user before doing this to the rest of the fleet; when you do,
-  each ship needs its own quiz-distractor rewrite pass too (see gotcha #7).
-- **No real-browser visual verification of the v2 layout was ever done.** No
-  headless browser is available in the sandbox this session ran in (network
-  allowlist blocked the Playwright/Chromium download), and the Claude-in-Chrome
-  extension's `navigate` always prepends `https://`, so local `file://` pages
-  couldn't be opened either. All responsive fixes were verified by careful CSS/DOM
-  reasoning, not pixels. **Recommend an actual device/browser pass before calling
-  the responsive work fully done.**
+- **No real-browser visual verification of the v2 layout was ever done, for ANY
+  ship, including python.** No headless browser has been available in any agent
+  sandbox this project has run in so far. All responsive/layout fixes across all
+  six ships were verified by careful CSS/DOM reasoning and `build/test.mjs`'s DOM
+  assertions, not pixels. **Recommend an actual device/browser pass before calling
+  the v2 rollout fully done** — this is now a fleet-wide gap, not just python's.
+- **`design/ui-overhaul-mockup.html` is now stale.** It captured the v2 visual
+  language pre-sign-off for python only; harmless to leave as a historical
+  artifact, but don't treat it as representative of the other five ships' actual
+  content/layout.
 - `.duel` / `.bcontainer` / `.anode` diagram classes exist in both CSS files but
-  aren't used by python — they're presumably javascript-curriculum-specific
-  (prototype/scope-chain diagrams). Not verified responsive-safe; check when/if
-  javascript migrates to v2.
+  turned out **not to be used by any ship's actual content**, javascript included
+  (confirmed when javascript migrated to v2 in Phase 4) — they're dead CSS at
+  present, not a live risk. Leave them; they may be intended for content that
+  hasn't been authored yet. If you ever see them rendered, they still haven't had
+  a real-browser check (see the visual-verification gap above).
 
 ## Gotchas / tribal knowledge (read before touching the build pipeline)
 
@@ -171,14 +193,19 @@ all six ships' OG tags to be absolute.
    then regenerate — never hand-edit the output and call it done.**
 
 4. **`jsdom` is not an installed/declared dependency.** There's no `package.json` in
-   this repo. This session installed `jsdom` into `/tmp/node_modules` (outside the
+   this repo. Prior sessions installed `jsdom` into `/tmp/node_modules` (outside the
    repo) and either relied on Node's directory-walk-up module resolution (works only
-   if the CWD is under the same tree as that `node_modules`) or did
-   `ln -s /tmp/node_modules node_modules` inside the repo temporarily —
-   **remember to `rm node_modules` afterward if you do this**, don't commit a
-   symlink. This is exactly what task #13 is for: add a real `package.json` with
-   `jsdom` as a devDependency so `node build/test.mjs --dom` works out of the box on
-   a clean clone.
+   if the CWD is under the same tree as that `node_modules`) or symlinked it in.
+   **On this Windows/Git-Bash environment specifically, `ln -s /tmp/.../node_modules
+   node_modules` does NOT create a real symlink** — it silently produces a plain
+   directory with `Directory` attributes and no reparse point (confirmed via
+   PowerShell `Get-Item ... | Select LinkType,Target` — both empty), meaning it's a
+   full ~26MB copy, not a link. `rm node_modules` then fails with "Is a directory"
+   and `rmdir` fails with "Directory not empty" — use `rm -rf node_modules` to clean
+   it up, and don't rely on the symlink actually being lightweight/shared. This is
+   exactly what task #13 is for: add a real `package.json` with `jsdom` as a
+   devDependency so `node build/test.mjs --dom` works out of the box on a clean
+   clone, without this workaround at all.
 
 5. **`--reslim` does not regenerate page-level `<head>` meta.** It only rewrites
    `data/<tech>.js` and `<tech>.slim.html` from whatever `<tech>.html` already says —
@@ -216,27 +243,38 @@ all six ships' OG tags to be absolute.
    then reorder the `o` array (and update `a`) so the correct answer lands somewhere
    else — no wording changes needed.
 
-9. **No GitHub push credentials in an agent sandbox.** Commits get made directly in
-   the user's real local working copy (it's a mounted folder, not a remote clone),
-   but `git push` needs to be run by the user, or via an authorized GitHub
-   connector/interactive session — a sandboxed agent session cannot complete GitHub
-   OAuth or supply credentials on its own.
+9. **GitHub push access depends entirely on the environment the agent is running
+   in, not on the repo.** An earlier session ran in a sandbox with no SSH key, no
+   stored token, and no `gh` CLI, and genuinely could not push — commits piled up
+   locally until the user pushed manually. A later session ran directly on the
+   user's machine (this doc's "Current repo state" reflects that) and `git push
+   origin main` worked immediately, no extra setup needed. **Don't assume either
+   way — just try `git push` and see**, and if it fails, fall back to asking the
+   user to push, same as before.
+
+10. **`--reslim` without `--v2` is now a landmine — every ship is v2, and
+    `--reslim` alone still calls the v1 `slimify()`.** `buildTech()` in
+    `build/build.mjs` picks the slim function purely off the `v2` flag:
+    `v2 ? slimifyV2(page, tech) : slimify(page, tech)`. `slimify()` (v1) looks for
+    the literal `<link rel="stylesheet" href="assets/shipyard.css">` and
+    `<script src="assets/shipyard.js"></script>` tags to inline — a v2 page has
+    `shipyard-v2.css`/`shipyard-v2.js` instead, so neither regex matches, and you
+    get a `.slim.html` that silently fails to inline the CSS/engine (data/<tech>.js
+    still gets embedded fine, since that replace targets `data/<tech>.js` which is
+    unchanged between v1/v2). **Now that no ship uses v1 chrome, always pass `--v2`
+    — `node build/build.mjs <tech> --v2` is the correct command for any content or
+    quiz edit on any ship, full stop.** There's no v2 equivalent of the old
+    "reslim-only, skip chrome regen" fast path; `--v2` always fully re-emits, and
+    it's fast enough that this hasn't mattered in practice.
 
 ## Command cheat sheet
 
 ```bash
-# Build one v1 ship (repairs prose from the existing page + refreshes slim.html —
-# this is the correct way to rebuild a v1 ship's page-level chrome, e.g. after a
-# shell()/meta change; see gotcha #1 and #5)
-node build/repair.mjs <tech>
-node build/build.mjs <tech> --reslim
-
-# Build one v1 ship, data/slim only, no chrome regeneration (fast path for a
-# pedagogy-content-only change, e.g. editing quiz text)
-node build/build.mjs <tech> --reslim
-
-# Build python (v2) — always fully regenerates the shell from the existing page
-node build/build.mjs python --v2
+# Rebuild any ship after ANY change — pedagogy edit, quiz rewrite, content tweak.
+# Every ship is on v2 now (see gotcha #10) — always pass --v2, there is no other
+# correct invocation. Re-extracts prose from the existing page, regenerates
+# data/<tech>.js from the pedagogy module, and fully re-emits the v2 chrome.
+node build/build.mjs <tech> --v2
 
 # Regenerate registry.json (happens automatically at the end of any build.mjs run)
 # Regenerate the hub page from registry.json + site.json (NOT automatic — separate step)
@@ -262,9 +300,9 @@ node build/test.mjs --dom
 | `build/test.mjs` | 150 regression tests; `isV2()` helper branches v1/v2-specific assertions |
 | `build/mdparse.mjs` | Markdown → parts parser — exists but effectively unused (gotcha #1) |
 | `build/hub.mjs` | Generates `index.html` from `registry.json` + `site.json`; run manually |
-| `assets/shipyard.js` / `.css` | v1 engine/chrome — 5 ships |
-| `assets/shipyard-v2.js` / `.css` | v2 engine/chrome — python only |
-| `design/ui-overhaul-mockup.html` | Standalone (non-production) mockup used to get sign-off on the v2 visual language before touching real files |
+| `assets/shipyard.js` / `.css` | v1 engine/chrome — unused by any ship now, kept in-tree (see Architecture section) |
+| `assets/shipyard-v2.js` / `.css` | v2 engine/chrome — all six ships |
+| `design/ui-overhaul-mockup.html` | Standalone (non-production), now-historical mockup used to get sign-off on the v2 visual language before touching real files; python-specific and stale |
 | `site.json` | `{"url": "..."}` — absolute base URL for OG tags |
 | `registry.json` | Generated aggregate stats per ship, drives the hub |
-| `QUIZ-REWRITES.md` | Generated report of quiz questions still failing the linter (all ships except python) |
+| `QUIZ-REWRITES.md` | Generated report of quiz questions still failing the linter — currently empty, all six ships clean |
