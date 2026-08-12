@@ -69,7 +69,7 @@ body{background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-app
 .helm .k{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--chip);display:grid;place-items:center;font-weight:700;color:#ffd45e}
 h1{font-size:30px;letter-spacing:.02em;text-transform:uppercase}
 .sub{color:var(--ink2);margin:8px 0 48px;font-size:15px;line-height:1.5;max-width:640px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:20px}
 .card{display:flex;flex-direction:column;gap:14px;padding:26px;border-radius:16px;border:1px solid var(--line);background:var(--chip);border-top:3px solid var(--acc);text-decoration:none;color:inherit;transition:transform .18s ease, border-color .18s ease}
 .card:hover,.card:focus-visible{transform:translateY(-3px);border-color:var(--acc);outline:none}
 .card:focus-visible{box-shadow:0 0 0 2px var(--acc)}
