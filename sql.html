@@ -12,22 +12,21 @@
 <meta property="og:url" content="https://amanhasnonamee.github.io/shipyard/sql.html">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%233b82f6%22 d=%22M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z%22/%3E%3C/svg%3E">
-<meta name="contract" content="shipyard-sql@2">
+<meta name="contract" content="shipyard-sql@3">
 <title>The SQL Shipyard - SQL: A First-Principles Curriculum</title>
-<link rel="stylesheet" href="assets/shipyard.css">
+<link rel="stylesheet" href="assets/shipyard-v2.css">
 </head>
 <body>
-<a href="#part0" class="skiplink">Skip to content</a>
-<div id="scanlines" aria-hidden="true"></div><div id="vignette" aria-hidden="true"></div>
-<button type="button" id="burger" aria-controls="dock" aria-expanded="false">&#9776; MAP</button><div id="backdrop"></div>
+<a href="#p0" class="skiplink">Skip to content</a>
+<button type="button" id="burger" aria-controls="dock" aria-expanded="false">&#9776; MENU</button><div id="backdrop"></div>
 <div id="app">
 <aside id="dock" aria-label="Curriculum navigation">
   <div class="brand">
-    <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
+    <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true">
       <path fill="var(--accent)" d="M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z"/>
       <rect x="7" y="11" width="2" height="2" fill="var(--bg)"/><rect x="12" y="11" width="2" height="2" fill="var(--bg)"/><rect x="17" y="11" width="2" height="2" fill="var(--bg)"/>
     </svg>
-    <div><div class="bname">THE SQL SHIPYARD</div><div class="bsub">SQL · relational model · three-valued logic · query engine</div></div>
+    <div><h1 class="bname">THE SQL SHIPYARD</h1><div class="bsub">SQL · relational model · three-valued logic · query engine</div></div>
   </div>
 
   <div class="rankbox">
@@ -36,49 +35,28 @@
     <div class="prbar"><i id="rankBar"></i></div>
   </div>
 
-  <div class="stackbox">
-    <div class="st"><span>THE STACK — your query plan</span><span id="stackCount">0/14</span></div>
+  <div class="progress-dash">
+    <div class="dhead"><span>Course</span><span id="stackCount">0/14</span></div>
     <div id="stackMini"></div>
     <div id="psRow"><b id="psRowCmd">$ shipyard status</b><br><span id="psRow2">—</span></div>
+    <div class="milegroup">
+      <div class="dhead"><span>Milestones</span><span id="mileCount">0/6</span></div>
+      <div id="mileMini"></div>
+    </div>
   </div>
 
-  <div class="milebox">
-    <div class="st"><span>MILESTONES</span><span id="mileCount">0/6</span></div>
-    <div id="mileMini"></div>
-  </div>
-
-  <nav class="docknav" id="docknav" aria-label="Parts"></nav>
-
-  <div class="legend">
-    <div class="lt">Depth legend</div>
-    <div class="lg"><span class="sw" style="background:var(--deep);box-shadow:0 0 6px rgba(255,93,93,.6)"></span><span><b style="color:var(--deep)">DEEP</b> — core mental model. Prove it out loud.</span></div>
-    <div class="lg"><span class="sw" style="background:var(--recog)"></span><span><b style="color:var(--recog)">RECOGNIZE</b> — read fluently; write with docs open.</span></div>
-    <div class="lg"><span class="sw" style="background:var(--ref)"></span><span><b style="color:var(--ref)">REFERENCE</b> — know it exists. Never memorize.</span></div>
-    <div class="lg"><span class="sw" style="background:var(--adv)"></span><span><b style="color:var(--adv)">ADVANCED</b> — return after Part 8.</span></div>
-  </div>
-
-  <div class="dockfoot" id="dockfoot"></div>
+  <div class="sidefoot" id="sidefoot"></div>
 </aside>
 
-<main id="main">
-<section class="hero" id="part0">
-  <div class="boot" aria-hidden="true"><div class="bl">$ shipyard boot --curriculum sql-first-principles</div>
-    <div class="bl">STAGE 1: LOADING PARTS 0–14 ......... <span style="color:var(--ok)">OK</span></div>
-    <div class="bl">STAGE 2: MOUNTING DEPTH TAGS .......... <span style="color:var(--ok)">OK</span></div>
-    <div class="bl"><span class="warn">WARNING: SQL reads like a sentence and lies like a spreadsheet. NULL is not a value — it is the absence of one.</span></div>
-    <div class="bl">AWAITING CREW — 14 waypoints ahead. <span class="cursor" style="color:var(--accent)">▎</span></div>
+<main>
+  <div class="topbar">
+    <div class="crumbs">
+      <div class="crumb-l">PART <b id="pnum"></b> / <span id="ptotal"></span> <span class="tag-pill" id="tagPill" style="display:none"></span></div>
+      <div class="navbtns"><button type="button" class="navbtn" id="btnPrev">&larr; PREV</button><button type="button" class="navbtn" id="btnNext">NEXT &rarr;</button></div>
+    </div>
+    <div class="readbar"><i id="readbar"></i></div>
+    <div class="toc" id="toc"></div>
   </div>
-  <h1>SQL, UNDERSTOOD.<br><span class="wh">NOT JUST QUERIED.</span></h1>
-  <p class="sub">This is a first-principles curriculum rebuilt as a mission. Learn the relational model <b>deeply</b> — think in sets, not loops; every query is a pipeline with a fixed evaluation order — and reference the rest. Along the way you <b>build the shipyard&#39;s container</b> in the sidebar as you complete parts. Quizzes earn XP. Ranks go from <b>Swabbie</b> to <b>Harbor Master</b>. Finish all 14 parts and the shipyard ships your container.</p>
-  <div class="hstatus">
-    <div class="hchip">RANK <b id="hRank">SWABBIE</b></div>
-    <div class="hchip">XP <b id="hXp">0</b></div>
-    <div class="hchip">LAYERS <b id="hLayers">0/14</b></div>
-    <div class="hchip">QUIZZES CLEARED <b class="ok" id="hQuizzes">0</b></div>
-  </div>
-  <h2 id="voyageHead">THE VOYAGE — 14 WAYPOINTS</h2>
-  <div class="voyage" id="voyage"></div>
-</section>
 
 <section class="part" id="p0" aria-labelledby="p0-title">
   <div class="phead"><div class="pnum" aria-hidden="true">00</div>
@@ -102,10 +80,9 @@ Part 12  When SQL is and isn't the right tool
 Part 13  Interview preparation
 Part 14  Milestones and self-assessment</code></pre></div>
 
-  <div class="breadcrumb"><a class="next" href="#p1">01 · WHERE SQL CAME FROM &rarr;</a></div>
 </section>
 
-<section class="part" id="p1" aria-labelledby="p1-title">
+<section class="part" id="p1" aria-labelledby="p1-title" style="display:none">
   <div class="phead"><div class="pnum" aria-hidden="true">01</div>
     <div><h2 class="ptitle" id="p1-title">Where SQL Came From</h2>
     <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
@@ -130,10 +107,9 @@ Part 14  Milestones and self-assessment</code></pre></div>
 
 <div class="quiz" data-part="p1"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p0">&larr; 00 · HOW TO USE THIS CURRICULUM</a><a class="next" href="#p2">02 · THE CORE MENTAL MODEL &rarr;</a></div>
 </section>
 
-<section class="part" id="p2" aria-labelledby="p2-title">
+<section class="part" id="p2" aria-labelledby="p2-title" style="display:none">
   <div class="phead"><div class="pnum" aria-hidden="true">02</div>
     <div><h2 class="ptitle" id="p2-title">The Core Mental Model</h2>
     <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
@@ -223,10 +199,9 @@ WHERE country = NULL           -- always UNKNOWN → never matches. A silent bug
 
 <div class="quiz" data-part="p2"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p1">&larr; 01 · WHERE SQL CAME FROM</a><a class="next" href="#p3">03 · QUERYING ONE TABLE &rarr;</a></div>
 </section>
 
-<section class="part" id="p3" aria-labelledby="p3-title">
+<section class="part" id="p3" aria-labelledby="p3-title" style="display:none">
   <div class="phead"><div class="pnum" aria-hidden="true">03</div>
     <div><h2 class="ptitle" id="p3-title">Querying One Table</h2>
     <div class="pmeta"></div></div>
@@ -288,10 +263,9 @@ LIMIT 20 OFFSET 40;                     -- page 3 of 20-row pages</code></pre></
 
 <div class="quiz" data-part="p3"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p2">&larr; 02 · THE CORE MENTAL MODEL</a><a class="next" href="#p4">04 · JOINS: COMBINING TABLES &rarr;</a></div>
 </section>
 
-<section class="part" id="p4" aria-labelledby="p4-title">
+<section class="part" id="p4" aria-labelledby="p4-title" style="display:none">
   <div class="phead"><div class="pnum" aria-hidden="true">04</div>
     <div><h2 class="ptitle" id="p4-title">Joins: Combining Tables</h2>
     <div class="pmeta"></div></div>
@@ -385,10 +359,9 @@ SELECT city FROM suppliers;</code></pre></div>
 
 <div class="quiz" data-part="p4"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p3">&larr; 03 · QUERYING ONE TABLE</a><a class="next" href="#p5">05 · AGGREGATION AND GROUPING &rarr;</a></div>
 </section>
 
-<section class="part" id="p5" aria-labelledby="p5-title">
+<section class="part" id="p5" aria-labelledby="p5-title" style="display:none">
   <div class="phead"><div class="pnum" aria-hidden="true">05</div>
     <div><h2 class="ptitle" id="p5-title">Aggregation and Grouping</h2>
     <div class="pmeta"></div></div>
@@ -456,10 +429,9 @@ GROUP BY city;</code></pre></div>
 
 <div class="quiz" data-part="p5"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p4">&larr; 04 · JOINS: COMBINING TABLES</a><a class="next" href="#p6">06 · SUBQUERIES, CTES, AND WINDOW FUNCTIONS &rarr;</a></div>
 </section>
 
-<section class="part" id="p6" aria-labelledby="p6-title">
+<section class="part" id="p6" aria-labelledby="p6-title" style="display:none">
   <div class="phead"><div class="pnum" aria-hidden="true">06</div>
     <div><h2 class="ptitle" id="p6-title">Subqueries, CTEs, and Window Functions</h2>
     <div class="pmeta"></div></div>
@@ -567,10 +539,9 @@ SELECT * FROM ranked WHERE rn = 1;</code></pre></div>
 
 <div class="quiz" data-part="p6"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p5">&larr; 05 · AGGREGATION AND GROUPING</a><a class="next" href="#p7">07 · DESIGNING SCHEMAS: DDL, CONSTRAINTS, NORMALIZATION &rarr;</a></div>
 </section>
 
-<section class="part" id="p7" aria-labelledby="p7-title">
+<section class="part" id="p7" aria-labelledby="p7-title" style="display:none">
   <div class="phead"><div class="pnum" aria-hidden="true">07</div>
     <div><h2 class="ptitle" id="p7-title">Designing Schemas: DDL, Constraints, Normalization</h2>
     <div class="pmeta"></div></div>
@@ -638,10 +609,9 @@ DELETE FROM orders WHERE created_at &lt; '2020-01-01';</code></pre></div>
 
 <div class="quiz" data-part="p7"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p6">&larr; 06 · SUBQUERIES, CTES, AND WINDOW FUNCTIONS</a><a class="next" href="#p8">08 · REAL PROJECT: BUILD AND QUERY A REAL DATABASE &rarr;</a></div>
 </section>
 
-<section class="part" id="p8" aria-labelledby="p8-title">
+<section class="part" id="p8" aria-labelledby="p8-title" style="display:none">
   <div class="phead"><div class="pnum" aria-hidden="true">08</div>
     <div><h2 class="ptitle" id="p8-title">Real Project: Build and Query a Real Database</h2>
     <div class="pmeta"></div></div>
@@ -678,10 +648,9 @@ payments   (id, order_id → orders, amount, method, paid_at, status)</code></pr
 
 <div class="quiz" data-part="p8"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p7">&larr; 07 · DESIGNING SCHEMAS: DDL, CONSTRAINTS, NORMALIZATION</a><a class="next" href="#p9">09 · DEBUGGING AND READING QUERY PLANS &rarr;</a></div>
 </section>
 
-<section class="part" id="p9" aria-labelledby="p9-title">
+<section class="part" id="p9" aria-labelledby="p9-title" style="display:none">
   <div class="phead"><div class="pnum" aria-hidden="true">09</div>
     <div><h2 class="ptitle" id="p9-title">Debugging and Reading Query Plans</h2>
     <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
@@ -726,10 +695,9 @@ GROUP BY c.name;</code></pre></div>
 
 <div class="quiz" data-part="p9"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p8">&larr; 08 · REAL PROJECT: BUILD AND QUERY A REAL DATABASE</a><a class="next" href="#p10">10 · INTERNALS: HOW THE ENGINE EXECUTES YOUR QUERY &rarr;</a></div>
 </section>
 
-<section class="part" id="p10" aria-labelledby="p10-title">
+<section class="part" id="p10" aria-labelledby="p10-title" style="display:none">
   <div class="phead"><div class="pnum" aria-hidden="true">10</div>
     <div><h2 class="ptitle" id="p10-title">Internals: How the Engine Executes Your Query</h2>
     <div class="pmeta"><span class="m">TAG <b>ADVANCED</b></span><span class="m">★ <b>INTERVIEW GOLD</b></span></div></div>
@@ -780,10 +748,9 @@ GROUP BY c.name;</code></pre></div>
 
 <div class="quiz" data-part="p10"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p9">&larr; 09 · DEBUGGING AND READING QUERY PLANS</a><a class="next" href="#p11">11 · TRANSACTIONS, CONCURRENCY, AND PRODUCTION CONCERNS &rarr;</a></div>
 </section>
 
-<section class="part" id="p11" aria-labelledby="p11-title">
+<section class="part" id="p11" aria-labelledby="p11-title" style="display:none">
   <div class="phead"><div class="pnum" aria-hidden="true">11</div>
     <div><h2 class="ptitle" id="p11-title">Transactions, Concurrency, and Production Concerns</h2>
     <div class="pmeta"></div></div>
@@ -825,10 +792,9 @@ COMMIT;    -- or ROLLBACK to undo everything</code></pre></div>
 
 <div class="quiz" data-part="p11"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p10">&larr; 10 · INTERNALS: HOW THE ENGINE EXECUTES YOUR QUERY</a><a class="next" href="#p12">12 · WHEN SQL IS AND ISN'T THE RIGHT TOOL &rarr;</a></div>
 </section>
 
-<section class="part" id="p12" aria-labelledby="p12-title">
+<section class="part" id="p12" aria-labelledby="p12-title" style="display:none">
   <div class="phead"><div class="pnum" aria-hidden="true">12</div>
     <div><h2 class="ptitle" id="p12-title">When SQL Is and Isn't the Right Tool</h2>
     <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
@@ -849,10 +815,9 @@ COMMIT;    -- or ROLLBACK to undo everything</code></pre></div>
 
 <div class="quiz" data-part="p12"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p11">&larr; 11 · TRANSACTIONS, CONCURRENCY, AND PRODUCTION CONCERNS</a><a class="next" href="#p13">13 · INTERVIEW PREPARATION &rarr;</a></div>
 </section>
 
-<section class="part" id="p13" aria-labelledby="p13-title">
+<section class="part" id="p13" aria-labelledby="p13-title" style="display:none">
   <div class="phead"><div class="pnum" aria-hidden="true">13</div>
     <div><h2 class="ptitle" id="p13-title">Interview Preparation</h2>
     <div class="pmeta"></div></div>
@@ -874,10 +839,9 @@ COMMIT;    -- or ROLLBACK to undo everything</code></pre></div>
 <p>If you can deliver these aloud — with the WHAT → WHY IT EXISTS → ONE CONCRETE CONSEQUENCE shape — you are interview-ready. Answer before flipping; nailed cards dim.</p>
 <div class="deck" id="deck"><!-- cards injected by JS --></div>
 
-  <div class="breadcrumb"><a href="#p12">&larr; 12 · WHEN SQL IS AND ISN'T THE RIGHT TOOL</a><a class="next" href="#p14">14 · MILESTONES AND SELF-ASSESSMENT &rarr;</a></div>
 </section>
 
-<section class="part" id="p14" aria-labelledby="p14-title">
+<section class="part" id="p14" aria-labelledby="p14-title" style="display:none">
   <div class="phead"><div class="pnum" aria-hidden="true">14</div>
     <div><h2 class="ptitle" id="p14-title">Milestones and Self-Assessment</h2>
     <div class="pmeta"></div></div>
@@ -903,15 +867,12 @@ COMMIT;    -- or ROLLBACK to undo everything</code></pre></div>
 <p>Six milestones = six layers of proof, mapped to the curriculum&#39;s day plan (~1 focused hour/day). When all six drop, the shipyard ships your container.</p>
 <div class="mlist" id="mlist"><!-- milestones injected by JS --></div>
 
-  <div class="breadcrumb"><a href="#p13">&larr; 13 · INTERVIEW PREPARATION</a></div>
-</section><footer>
-  <b>ABOUT THIS BUILD:</b> The SQL Shipyard is a faithful interactive conversion of the first-principles SQL curriculum — every concept, table, code block and exercise preserved. Progress lives in your browser (localStorage). Built as a single file — copy it anywhere, it runs offline.<br>
-  <b>THE ONE RULE:</b> think in sets, not loops. Hold that, and every “why doesn’t this work?” answers itself from the evaluation pipeline.
-</footer>
+</section>
+  <div class="footnav"><button type="button" class="fnbtn" id="fnPrev"></button><button type="button" class="fnbtn next" id="fnNext"></button></div>
 </main>
 </div>
 <div id="grad"><div class="gterm"><div class="ghead">&#9650; SHIPYARD DEPLOYMENT — ALL MILESTONES CROSSED</div><div class="gbody"></div></div></div>
 <script src="data/sql.js"></script>
-<script src="assets/shipyard.js"></script>
+<script src="assets/shipyard-v2.js"></script>
 </body>
 </html>

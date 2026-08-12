@@ -132,10 +132,10 @@ quiz:{
   {
    "q": "Before relational databases, every query was ______ — the problem SQL was built to kill.",
    "o": [
-    "A JSON document",
+    "A JSON document fetched whole and filtered in application code",
     "A program that navigated pointers",
-    "A stored procedure",
-    "A spreadsheet formula"
+    "A stored procedure written fresh for each new report",
+    "A spreadsheet formula recalculated by hand for every report"
    ],
    "a": 1,
    "e": "Hierarchical/network databases (IMS, CODASYL) forced navigation code per question. Codd’s 1970 paper made data a mathematical relation and queries declarative."
@@ -143,9 +143,9 @@ quiz:{
   {
    "q": "Codd’s core insight, in one sentence:",
    "o": [
-    "Use key-value pairs for speed",
-    "Store data as table files with row pointers",
-    "Put everything in one giant CSV",
+    "Use key-value pairs everywhere in the schema because hash lookups beat table scans",
+    "Store data as flat table files linked together by explicit row pointers throughout",
+    "Put every single fact into one giant CSV-style file and skip separate tables entirely, which is why teams still reach for it by default",
     "Model data as relations (sets of tuples) and let a query language describe WHAT you want, leaving HOW to the system"
    ],
    "a": 3,
@@ -154,10 +154,10 @@ quiz:{
   {
    "q": "Why does SQL read like an English sentence?",
    "o": [
-    "It was a marketing requirement",
-    "So lawyers can audit it",
+    "IBM added English-like wording purely as a marketing requirement for sales teams, a detail that trips up almost every beginner at some point",
+    "It was designed so that non-programmer business auditors could read every query",
     "SEQUEL was designed as Structured English Query Language — the “English-like” goal is why it reads unlike C",
-    "SQL was translated from Latin"
+    "Early SQL syntax was translated directly from a formal Latin database standard"
    ],
    "a": 2,
    "e": "Chamberlin and Boyce aimed at a language non-specialists could read. That lineage is why SQL has no loops."
@@ -166,9 +166,9 @@ quiz:{
    "q": "The most important addition to SQL since the original standard:",
    "o": [
     "Window functions (SQL:1999) — they replace whole categories of painful workarounds",
-    "The NULL keyword",
-    "JSON support in SQL:2016",
-    "The LIKE operator"
+    "The NULL keyword introduced to represent deliberately missing data",
+    "Native JSON support added in the SQL:2016 standard revision update, at least according to most introductory database courses",
+    "The LIKE operator for simple pattern matching on text columns"
    ],
    "a": 0,
    "e": "Anything written before ~2010 shows painful workarounds for problems windows solve in one line."
@@ -177,9 +177,9 @@ quiz:{
    "q": "The NoSQL lesson the industry relearned:",
    "o": [
     "Declarative SQL over a well-defined schema is extremely hard to beat — NoSQL systems now add SQL-ish layers",
-    "SQL does not scale to the web",
-    "MongoDB beats Postgres for analytics",
-    "Primary keys are unnecessary"
+    "Relational SQL fundamentally cannot scale to modern web-sized traffic",
+    "Document stores like MongoDB clearly outperform Postgres for analytics, something a lot of half-informed engineers assume by default",
+    "Primary keys turned out to be unnecessary overhead at real-world scale"
    ],
    "a": 0,
    "e": "The 2010s trades (joins, transactions, ad-hoc queries) were often accepted for the wrong reasons; NewSQL and warehouses consolidated back on SQL."
@@ -189,9 +189,9 @@ quiz:{
   {
    "q": "A table is:",
    "o": [
-    "A list of records in insertion order",
-    "A spreadsheet with positions",
-    "A JSON array",
+    "A list of records that always preserves its original insertion order, which sounds reasonable but does not hold up under scrutiny",
+    "A spreadsheet where every row keeps a fixed, meaningful position",
+    "A JSON array where the element order is part of the stored data",
     "An unordered set of rows, each with the same named, typed columns — no inherent order, no current row"
    ],
    "a": 3,
@@ -200,9 +200,9 @@ quiz:{
   {
    "q": "Why can’t you use a SELECT alias in WHERE but you can in ORDER BY?",
    "o": [
-    "Aliases are forbidden for security",
-    "NULL semantics",
-    "The optimizer forbids it",
+    "Aliases are forbidden inside WHERE clauses for security reasons",
+    "It comes down to three-valued NULL semantics, not clause ordering",
+    "The query optimizer specifically refuses to resolve aliases there, a common assumption that does not survive contact with real data",
     "WHERE (step 3) runs before SELECT (step 6); ORDER BY (step 8) runs after — the alias does not exist yet"
    ],
    "a": 3,
@@ -211,9 +211,9 @@ quiz:{
   {
    "q": "WHERE city = ‘IN’ returns 30 rows; WHERE city <> ‘IN’ returns 50. The table has 100 rows, 20 NULLs. Where are the 20?",
    "o": [
-    "They went to HAVING",
-    "Index misses",
-    "The query was wrong",
+    "Rows with a NULL city are automatically routed into HAVING instead",
+    "A missing index caused twenty rows to be silently skipped by the scan, the kind of shortcut that works fine until it suddenly does not",
+    "The query itself was written incorrectly and needs to be fixed",
     "Silently dropped — NULL yields UNKNOWN, and WHERE keeps only rows where the condition is TRUE"
    ],
    "a": 3,
@@ -222,10 +222,10 @@ quiz:{
   {
    "q": "COUNT(*) vs COUNT(city) on a 100-row table with 20 NULLs:",
    "o": [
-    "Identical",
+    "They return identical counts because NULLs are treated as zero",
     "100 vs 80",
-    "80 vs 100",
-    "100 vs 100"
+    "COUNT(*) returns 80 while COUNT(city) returns 100 instead",
+    "Both return exactly 100, since COUNT always counts every row"
    ],
    "a": 1,
    "e": "COUNT(*) counts rows; COUNT(column) counts non-NULL values only — a classic interview question. GROUP BY buckets all NULLs together as ONE group."
@@ -234,9 +234,9 @@ quiz:{
    "q": "The correct way to test for NULL:",
    "o": [
     "col IS NULL",
-    "col = NULL",
-    "col == NULL",
-    "col <> NULL"
+    "col = NULL, comparing directly with the standard equals operator",
+    "col == NULL, borrowing double-equals syntax from other languages",
+    "col <> NULL, using the not-equals operator to exclude null rows"
    ],
    "a": 0,
    "e": "NULL = NULL is UNKNOWN, not TRUE. = NULL never matches — a silent bug. Use IS NULL / IS NOT NULL; COALESCE returns the first non-NULL argument."
@@ -246,10 +246,10 @@ quiz:{
   {
    "q": "SELECT * is:",
    "o": [
-    "Required for indexes",
-    "Always the best habit",
+    "Required by the database engine in order to build and use any index at all",
+    "Always the best habit, since it guarantees you never accidentally miss a column, which is why teams still reach for it by default",
     "Fine to explore, bad in saved code: returns unused data, silently changes shape when columns are added, hides dependencies",
-    "Faster in production"
+    "Noticeably faster in production than explicitly naming each column you need"
    ],
    "a": 2,
    "e": "Name your columns in anything you keep — SELECT * hides which columns your code actually depends on."
@@ -257,10 +257,10 @@ quiz:{
   {
    "q": "AND and OR precedence:",
    "o": [
-    "Equal, left-associative",
-    "OR binds tighter than AND",
+    "AND and OR share equal precedence and evaluate strictly left-to-right",
+    "OR binds tighter than AND, so a AND b OR c means a AND (b OR c)",
     "AND binds tighter than OR — WHERE a AND b OR c means (a AND b) OR c",
-    "Undefined in SQL"
+    "Precedence between AND and OR is left undefined by the SQL standard"
    ],
    "a": 2,
    "e": "Always parenthesize mixed conditions — wrong-but-plausible results are the real cost."
@@ -268,9 +268,9 @@ quiz:{
   {
    "q": "LIKE ‘A%’ can use an index; LIKE ‘%A’ cannot because:",
    "o": [
-    "Leading wildcards are illegal",
-    "The optimizer never tries",
-    "Percent signs disable indexes",
+    "Leading wildcards are simply illegal syntax and will not parse",
+    "The optimizer never even attempts to use an index for LIKE queries, a detail that trips up almost every beginner at some point",
+    "Percent signs anywhere in a pattern disable index usage entirely",
     "Indexes are ordered by the START of the value — a leading wildcard has no starting point to walk"
    ],
    "a": 3,
@@ -279,10 +279,10 @@ quiz:{
   {
    "q": "Wrapping a column in a function usually:",
    "o": [
-    "Fixes NULLs",
-    "Improves selectivity",
+    "Fixes any NULL-handling problems in the wrapped column automatically, at least according to most introductory database courses",
+    "Improves selectivity by narrowing down the candidate index range",
     "Disables its index — WHERE YEAR(created_at) = 2026 vs a range check on created_at",
-    "Forces a bitmap scan"
+    "Forces the optimizer into a bitmap scan instead of an index scan"
    ],
    "a": 2,
    "e": "The range version uses the index; the function-wrapped version typically cannot. One of the most common real-world speedups."
@@ -290,10 +290,10 @@ quiz:{
   {
    "q": "Money in SQL must be stored as:",
    "o": [
-    "DOUBLE PRECISION for speed",
+    "DOUBLE PRECISION, since floating point is fastest for arithmetic",
     "NUMERIC(12,2)/DECIMAL — exact base-10 arithmetic; floats make 0.1 + 0.2 <> 0.3",
-    "INTEGER cents",
-    "TEXT for display"
+    "INTEGER cents, converting to dollars only when displaying values",
+    "TEXT, so the exact decimal digits are always preserved for display, something a lot of half-informed engineers assume by default"
    ],
    "a": 1,
    "e": "Floats are binary approximations — fine for measurements, never for money. Types are constraints, and constraints are documentation the database enforces."
@@ -303,9 +303,9 @@ quiz:{
   {
    "q": "A join is conceptually:",
    "o": [
-    "Merging two files",
-    "A subquery",
-    "Adding columns to a table",
+    "Merging two files together the exact same way a text editor merges two documents",
+    "A subquery that gets silently re-executed once for every single outer row",
+    "Simply adding a few extra columns onto an existing table without touching its rows, which sounds reasonable but does not hold up under scrutiny",
     "Forming combinations of rows from two tables and keeping those satisfying your condition — a NEW set, wider, and possibly larger"
    ],
    "a": 3,
@@ -314,10 +314,10 @@ quiz:{
   {
    "q": "The LEFT JOIN that silently became an INNER JOIN:",
    "o": [
-    "Use FULL OUTER JOIN",
-    "NULLs are kept",
+    "Switching to a FULL OUTER JOIN fixes the problem automatically",
+    "NULLs from the unmatched side are always kept no matter the clause, a common assumption that does not survive contact with real data",
     "Conditions on the optional table in WHERE discard the NULL-padded rows — put them in ON instead",
-    "LEFT JOIN always keeps all rows"
+    "LEFT JOIN always keeps every row no matter what conditions follow"
    ],
    "a": 2,
    "e": "WHERE evaluates NULL >= date as UNKNOWN and drops it. Rule: conditions on the preserved table → WHERE; conditions on the optional table → ON."
@@ -325,9 +325,9 @@ quiz:{
   {
    "q": "Forgetting a join condition entirely yields:",
    "o": [
-    "A UNION",
-    "A NULL result",
-    "An error",
+    "A UNION of the two tables simply stacked on top of each other",
+    "A single NULL result returned in place of any matching rows",
+    "A syntax error thrown immediately by the database engine",
     "A CROSS JOIN — 10,000 × 10,000 rows = 100,000,000"
    ],
    "a": 3,
@@ -336,10 +336,10 @@ quiz:{
   {
    "q": "UNION vs UNION ALL:",
    "o": [
-    "UNION ALL is deprecated",
+    "UNION ALL is a deprecated syntax that modern databases no longer support",
     "UNION dedupes (costs a sort/hash); UNION ALL keeps duplicates — faster; prefer it when dedup is not needed",
-    "The same thing",
-    "UNION is faster"
+    "They behave exactly the same in every database, so it never matters which you pick, the kind of shortcut that works fine until it suddenly does not",
+    "Plain UNION is always the faster of the two operations to execute"
    ],
    "a": 1,
    "e": "INTERSECT and EXCEPT complete the set algebra — EXCEPT elegantly answers “what’s missing?” when reconciling two sources."
@@ -348,9 +348,9 @@ quiz:{
    "q": "Employees to managers is written as:",
    "o": [
     "A self-join: employees e LEFT JOIN employees m ON m.id = e.manager_id — LEFT so the CEO is not dropped",
-    "A UNION",
-    "A CROSS JOIN",
-    "Two subqueries"
+    "A UNION that stacks the employees table directly on top of the managers table",
+    "A CROSS JOIN that pairs every single employee row with every other employee row, which is why teams still reach for it by default",
+    "Two separate subqueries whose rows are then combined in the application layer"
    ],
    "a": 0,
    "e": "Self-joins relate rows within one table. Alias every table and qualify every column."
@@ -361,9 +361,9 @@ quiz:{
    "q": "With no GROUP BY, an aggregate query returns:",
    "o": [
     "One row — the whole table is a single group",
-    "Zero rows",
-    "An error",
-    "One row per table"
+    "Zero rows, since there is no GROUP BY clause to bucket the data",
+    "An error, because aggregate queries always require a GROUP BY",
+    "One row for every single table referenced in the FROM clause"
    ],
    "a": 0,
    "e": "The entire result set is one group. COUNT(*) rows; COUNT(col) non-NULL; COUNT(DISTINCT col) unique non-NULL."
@@ -371,10 +371,10 @@ quiz:{
   {
    "q": "Why must every non-aggregated SELECT column appear in GROUP BY?",
    "o": [
-    "Style guide",
-    "Because of NULLs",
+    "It is purely a style-guide convention that carries no real technical enforcement behind it at all",
+    "Non-aggregated columns get excluded from SELECT specifically because of how NULL values behave here, a detail that trips up almost every beginner at some point",
     "Many values exist per bucket and the database has no basis to choose one — Postgres errors, MySQL (historically) silently returned an arbitrary value",
-    "To save memory"
+    "Including extra non-aggregated columns needlessly wastes memory during the whole aggregation step"
    ],
    "a": 2,
    "e": "Silent arbitrary values are worse than errors — they hide the mistake."
@@ -382,10 +382,10 @@ quiz:{
   {
    "q": "WHERE vs HAVING:",
    "o": [
-    "Aliases",
-    "They are synonyms",
+    "They are simply two different aliases for exactly the same underlying SQL clause entirely, at least according to most introductory database courses",
+    "WHERE and HAVING are synonyms that the query parser treats identically in every situation",
     "WHERE filters ROWS before grouping (step 3); HAVING filters GROUPS after aggregation (step 5) — WHERE cannot see aggregates, HAVING can",
-    "HAVING is faster for row filters"
+    "HAVING is actually the faster choice whenever you are filtering out individual table rows"
    ],
    "a": 2,
    "e": "A row-level condition in HAVING works but is slower — you grouped rows you were going to throw away. Filter as early as possible."
@@ -393,9 +393,9 @@ quiz:{
   {
    "q": "AVG of per-city averages is not the overall average because:",
    "o": [
-    "NULLs inflate it",
-    "AVG is broken",
-    "Precision loss",
+    "Hidden NULL values inflate the per-city averages before they get combined",
+    "The AVG function itself contains a well-known rounding bug in most engines, something a lot of half-informed engineers assume by default",
+    "Floating-point precision loss accumulates across the two averaging steps",
     "Averaging averages ignores different row counts per group — aggregate from base rows"
    ],
    "a": 3,
@@ -405,9 +405,9 @@ quiz:{
    "q": "Conditional metrics in one pass:",
    "o": [
     "COUNT(*) FILTER (WHERE ...) or SUM(CASE WHEN ...) — far better than three separate queries",
-    "A window function",
-    "Three subqueries",
-    "A UNION ALL"
+    "A single window function applied across the entire unfiltered result set",
+    "Three separate subqueries, one dedicated to each individual metric needed, which sounds reasonable but does not hold up under scrutiny",
+    "A UNION ALL that stacks three differently filtered queries together"
    ],
    "a": 0,
    "e": "FILTER (Postgres) or CASE-inside-aggregate computes several metrics in one scan. GROUPING SETS / ROLLUP / CUBE produce subtotals in one query."
@@ -418,9 +418,9 @@ quiz:{
    "q": "The NOT IN trap:",
    "o": [
     "If the subquery returns even one NULL, NOT IN returns NO rows — silently. Use NOT EXISTS instead",
-    "NULLs are ignored",
-    "NOT IN is faster than NOT EXISTS",
-    "NOT IN is NULL-safe"
+    "Any NULLs present in the subquery are simply ignored and skipped over",
+    "NOT IN consistently outperforms NOT EXISTS on large indexed tables",
+    "NOT IN handles NULL values perfectly safely and never drops matching rows, a common assumption that does not survive contact with real data"
    ],
    "a": 0,
    "e": "x NOT IN (1, NULL) = x <> 1 AND x <> NULL — the second half is always UNKNOWN, so nothing can match. One of the highest-value facts in the curriculum."
@@ -428,10 +428,10 @@ quiz:{
   {
    "q": "A correlated subquery:",
    "o": [
-    "Cannot be indexed",
-    "Is the same as a CTE",
+    "Cannot ever make use of an index on the column it filters or references",
+    "Is exactly the same thing as a CTE, just written inline instead of named separately",
     "Runs once per outer row — optimizers often rewrite them as joins, but when they don’t, large tables hit a performance cliff",
-    "Is always faster than a join"
+    "Is always faster than an equivalent join, no matter how large the two joined tables are, the kind of shortcut that works fine until it suddenly does not"
    ],
    "a": 2,
    "e": "Prefer a join or CTE when row counts are large. EXISTS stops at the first match; IN builds the full set."
@@ -439,10 +439,10 @@ quiz:{
   {
    "q": "Why is a CTE the readability tool?",
    "o": [
-    "They run in parallel",
-    "CTEs compile to assembly",
+    "Because every CTE referenced in a query automatically executes in parallel",
+    "Because CTEs are secretly compiled directly down to raw machine assembly instructions, which is why teams still reach for it by default",
     "They name intermediate results so a query reads top-to-bottom like the evaluation pipeline, instead of inside-out nesting",
-    "They replace indexes"
+    "Because a single well-written CTE can entirely replace the need for table indexes"
    ],
    "a": 2,
    "e": "The single biggest improvement for complex SQL. CTEs can reference earlier CTEs; WITH RECURSIVE traverses hierarchies and graphs."
@@ -450,9 +450,9 @@ quiz:{
   {
    "q": "GROUP BY vs a window function — the whole difference:",
    "o": [
-    "Windows are faster",
-    "They are identical",
-    "Windows need partitioning",
+    "Window functions are simply a faster execution path for the exact same aggregation",
+    "GROUP BY and window functions are functionally identical and always interchangeable",
+    "A window function only works at all when you supply a PARTITION BY clause explicitly, a detail that trips up almost every beginner at some point",
     "GROUP BY collapses rows (10 in → 3 out); a window function keeps every row and adds a computed column (10 in → 10 out)"
    ],
    "a": 3,
@@ -461,10 +461,10 @@ quiz:{
   {
    "q": "For values 10, 10, 9: ROW_NUMBER, RANK, DENSE_RANK give:",
    "o": [
-    "1,1,2 | 1,2,3 | 1,1,3",
+    "1,1,2 for ROW_NUMBER, 1,2,3 for RANK, and 1,1,3 for DENSE_RANK instead",
     "1,2,3 | 1,1,3 | 1,1,2",
-    "1,1,1",
-    "1,2,3 for all"
+    "All three functions collapse down to 1,1,1 since two values tie here",
+    "All three functions return the identical sequence 1,2,3 in this case"
    ],
    "a": 1,
    "e": "A guaranteed interview question: ROW_NUMBER breaks ties arbitrarily; RANK leaves a gap; DENSE_RANK does not. The “latest row per group” pattern wraps a window in a CTE because WHERE runs before windows are computed."
@@ -474,10 +474,10 @@ quiz:{
   {
    "q": "Why are constraints the database defending your data?",
    "o": [
-    "They speed up queries",
+    "Because adding the right constraints to a table measurably speeds up every query that ever touches it, at least according to most introductory database courses",
     "Application code is ONE of many paths to the data — scripts, migrations, admin tools, a console at 2am. Only the database can enforce a rule against all of them",
-    "They save disk",
-    "They are optional metadata"
+    "Because well-designed constraints noticeably reduce the total amount of disk space a table needs",
+    "Because constraints are ultimately just optional metadata that the engine is always free to ignore"
    ],
    "a": 1,
    "e": "Constraints are the last line of defence AND documentation that cannot go out of date. ON DELETE: RESTRICT blocks, CASCADE deletes children (dangerous), SET NULL orphans deliberately."
@@ -485,9 +485,9 @@ quiz:{
   {
    "q": "The habit that prevents catastrophe before UPDATE/DELETE:",
    "o": [
-    "Wrap in TRUNCATE",
-    "Add ORDER BY",
-    "Use CASCADE",
+    "Wrapping every destructive statement immediately inside a TRUNCATE command beforehand every time, something a lot of half-informed engineers assume by default",
+    "Always adding an ORDER BY clause before running any UPDATE or DELETE statement you write",
+    "Always attaching an ON DELETE CASCADE rule to every foreign key defined in the schema",
     "Run the same WHERE as a SELECT first and confirm the row count — a missing WHERE rewrites the table, and there is no undo outside a transaction"
    ],
    "a": 3,
@@ -496,10 +496,10 @@ quiz:{
   {
    "q": "3NF in one habit:",
    "o": [
-    "No NULLs allowed",
+    "Making sure the schema never allows any NULL values anywhere at all in it",
     "If you find yourself updating the same fact in more than one place, the schema is wrong — copies eventually disagree",
-    "All columns numeric",
-    "Every table has an index"
+    "Making sure every single column in the schema uses a numeric data type instead, which sounds reasonable but does not hold up under scrutiny",
+    "Making sure every table in the schema has at least one index defined on it"
    ],
    "a": 1,
    "e": "1NF: atomic values. 2NF: no partial-key dependencies. 3NF: no non-key-to-non-key dependencies. Denormalization is legitimate only deliberately, after measuring."
@@ -508,9 +508,9 @@ quiz:{
    "q": "Natural vs surrogate keys:",
    "o": [
     "Prefer surrogate keys — real-world identifiers change, and a changing primary key means updating every referencing row. Enforce real-world uniqueness separately with a UNIQUE constraint",
-    "UUIDs beat integers everywhere",
-    "Surrogates leak data",
-    "Natural keys are always better"
+    "UUIDs beat plain auto-increment integer keys in literally every situation, with no meaningful trade-off at all",
+    "Surrogate keys inherently leak sensitive business information to absolutely anyone who happens to glance at them",
+    "Natural keys are always the better choice, full stop, since they already carry real-world business meaning built directly into them, a common assumption that does not survive contact with real data"
    ],
    "a": 0,
    "e": "Auto-increment: compact, index-friendly, ordered. UUID: globally unique, no count leaks, worse locality. Both defensible — know the trade-off."
@@ -519,9 +519,9 @@ quiz:{
    "q": "Checks that belong in the schema:",
    "o": [
     "CHECK (status IN (...)), CHECK (total >= 0), NOT NULL, UNIQUE on email — domain rules the database enforces no matter which code path touches it",
-    "No constraints for speed",
-    "All validation in the app layer",
-    "Frontend-only validation"
+    "Skipping constraints entirely across the schema in order to maximize raw write speed",
+    "Putting all validation logic exclusively in the application layer instead of the database itself, the kind of shortcut that works fine until it suddenly does not",
+    "Relying only on frontend form validation to keep the stored data clean and consistent"
    ],
    "a": 0,
    "e": "A CHECK makes an invalid state structurally impossible instead of merely discouraged. The database is the last line of defence — use it."
@@ -531,9 +531,9 @@ quiz:{
   {
    "q": "unit_price lives on order_items, not products, because:",
    "o": [
-    "It saves a join",
-    "Normalization forbids it",
-    "Product prices are static",
+    "It saves the database an extra join whenever the order history is queried later on, which is why teams still reach for it by default",
+    "The normalization rules of 3NF strictly forbid ever storing a price there",
+    "Product prices in the catalog are effectively static and essentially never change",
     "The price at time of sale is a DIFFERENT fact from the product’s current price — an old order must keep what it was sold at"
    ],
    "a": 3,
@@ -542,9 +542,9 @@ quiz:{
   {
    "q": "Revenue by month with empty months still shown:",
    "o": [
-    "Use a window function",
-    "Aggregate in the app",
-    "Use HAVING",
+    "A single window function computed over the unfiltered raw rows",
+    "Aggregating the monthly totals manually inside the application code, a detail that trips up almost every beginner at some point",
+    "Filtering the results with a HAVING clause on the month column",
     "A generated date series LEFT JOINed to the data, COALESCE the zeros"
    ],
    "a": 3,
@@ -553,21 +553,21 @@ quiz:{
   {
    "q": "The reconciliation query “orders whose payments don’t sum to the total” needs:",
    "o": [
-    "An index",
+    "Just an index added to the payments table foreign key",
     "GROUP BY with HAVING — with careful NULL handling for unpaid orders",
-    "A CROSS JOIN",
-    "DISTINCT"
+    "A CROSS JOIN between the orders table and the payments table, at least according to most introductory database courses",
+    "A single DISTINCT applied across the joined result set"
    ],
-   "a": 2,
+   "a": 1,
    "e": "Unpaid orders left-join to no payments — compare COALESCE(SUM(p.amount), 0) <> o.total so NULL does not hide them."
   },
   {
    "q": "The hardest, most realistic Part 8 query:",
    "o": [
     "Customer cohort retention: first-order month cohorts, then who ordered again in each later month — multiple CTEs",
-    "Month-over-month growth",
-    "Top 10 products",
-    "7-day average"
+    "Computing straightforward month-over-month revenue growth percentages each, something a lot of half-informed engineers assume by default",
+    "Finding the simple top 10 best-selling products by total revenue earned",
+    "Calculating a basic 7-day rolling average of daily order counts each"
    ],
    "a": 0,
    "e": "Cohort retention exercises grouping, date truncation, and the ROW_NUMBER pattern in combination — the most realistic analytics query in the ship."
@@ -575,9 +575,9 @@ quiz:{
   {
    "q": "The deliberate design choices in the project schema:",
    "o": [
-    "Two tables for speed",
-    "No indexes",
-    "One denormalized wide table",
+    "Just two tables total, kept deliberately minimal for the sake of simplicity",
+    "No indexes anywhere in the schema, to be added later only if truly needed",
+    "One single denormalized wide table holding every fact for maximum query speed always, which sounds reasonable but does not hold up under scrutiny",
     "5 tables, FKs, unit_price snapshotted, NULL shipped_at, generated data at scale — enough that bad queries actually feel slow"
    ],
    "a": 3,
@@ -588,10 +588,10 @@ quiz:{
   {
    "q": "The FIRST move for “my query returns wrong data”:",
    "o": [
-    "Rewrite in a CTE",
-    "Add an index",
+    "Rewriting the whole query inside a CTE before diagnosing the cause",
+    "Adding an index to the table before confirming what is actually wrong, a common assumption that does not survive contact with real data",
     "Check the row count — COUNT(*) at each stage; a join that changed the count is the multiplication bug",
-    "EXPLAIN ANALYZE"
+    "Running EXPLAIN ANALYZE immediately before checking anything else"
    ],
    "a": 2,
    "e": "Then: simplify until right and rebuild; suspect NULL (<>, WHERE on a LEFT JOINed table, NOT IN); check join grain; check AND/OR precedence; check silent type coercion."
@@ -599,10 +599,10 @@ quiz:{
   {
    "q": "EXPLAIN vs EXPLAIN ANALYZE:",
    "o": [
-    "Identical",
+    "They produce identical output and can be used completely interchangeably",
     "EXPLAIN shows the plan; EXPLAIN ANALYZE RUNS it and shows real timings and row counts next to the estimates",
-    "ANALYZE is the app",
-    "ANALYZE is for indexes"
+    "EXPLAIN ANALYZE actually runs inside the application layer, not the database, the kind of shortcut that works fine until it suddenly does not",
+    "EXPLAIN ANALYZE is specifically meant for diagnosing missing indexes only"
    ],
    "a": 1,
    "e": "Read plans inside-out and bottom-up — innermost nodes run first. Careful: ANALYZE executes; wrap UPDATE/DELETE in a transaction you roll back."
@@ -611,9 +611,9 @@ quiz:{
    "q": "A Seq Scan on a large table means:",
    "o": [
     "The engine is reading every row — add an index on the filtered column UNLESS the query genuinely needs most of the table, in which case the scan is correct",
-    "ANALYZE failed",
-    "A hash join is needed",
-    "The index is broken"
+    "It means the most recent ANALYZE command run against that table has completely failed",
+    "It means the query specifically needs a hash join plan instead of any kind of sequential scan",
+    "It always means the index defined on that particular table has become silently corrupted somehow, permanently, which is why teams still reach for it by default"
    ],
    "a": 0,
    "e": "The optimizer is not ignoring your index out of spite — when you need most rows, sequential page reads beat random index lookups."
@@ -621,10 +621,10 @@ quiz:{
   {
    "q": "Estimated rows wildly different from actual rows:",
    "o": [
-    "Add an index",
+    "The right fix is always to add another index on the filtered column",
     "The optimizer works from bad information — run ANALYZE to refresh statistics",
-    "SQL is broken",
-    "Use a hint"
+    "SQL itself is fundamentally broken and cannot be trusted for this query, a detail that trips up almost every beginner at some point",
+    "The right fix is always to add a database-specific query hint here"
    ],
    "a": 1,
    "e": "Stale statistics after a bulk load is the classic “fast yesterday, slow today” — the fix is ANALYZE, not a rewrite."
@@ -632,10 +632,10 @@ quiz:{
   {
    "q": "An index on (a, b) can serve queries filtering on:",
    "o": [
-    "b alone",
+    "b alone, since composite indexes can be searched starting from any column, at least according to most introductory database courses",
     "a, or a AND b — but generally not b alone (a phone book ordered by last name is useless for finding “Priya”)",
-    "Everything",
-    "Neither"
+    "Everything, since a composite index can serve any filter you write",
+    "Neither a nor b alone, only the exact combination of both together"
    ],
    "a": 1,
    "e": "Composite index order is lexicographic. Indexes cost writes — unused ones are pure overhead. Function-wrapped columns defeat them (LOWER(email) needs an expression index)."
@@ -645,9 +645,9 @@ quiz:{
   {
    "q": "The query lifecycle order:",
    "o": [
-    "Executor → planner → parser",
-    "Analyzer → executor",
-    "Optimizer → parser → executor",
+    "Executor runs first, followed by the planner, and then the parser",
+    "Analyzer runs first, and then jumps straight to the executor",
+    "Optimizer runs first, then the parser, then finally the executor",
     "Parser → analyzer → rewriter → planner/optimizer → executor"
    ],
    "a": 3,
@@ -657,9 +657,9 @@ quiz:{
    "q": "Rows live in fixed-size pages (≈8KB); reading one row costs:",
    "o": [
     "At least one page read — wider rows mean fewer per page and more I/O. The buffer pool is why warm runs are faster",
-    "A full table scan",
-    "1 byte",
-    "Nothing at all"
+    "An automatic full table scan, regardless of how the row is indexed",
+    "Just a single byte, since the engine reads only the exact bytes it actually needs, something a lot of half-informed engineers assume by default",
+    "Absolutely nothing, since rows are cached permanently in memory forever"
    ],
    "a": 0,
    "e": "Always benchmark warm, not cold — or you will optimize the wrong thing."
@@ -667,10 +667,10 @@ quiz:{
   {
    "q": "Row-oriented vs column-oriented storage:",
    "o": [
-    "Columnar is for OLTP",
-    "No difference",
+    "Columnar storage is specifically what OLTP systems like Postgres are built around internally",
+    "There is no real practical difference between the two storage layouts in modern databases today",
     "Postgres/MySQL optimize whole rows (OLTP); warehouses (BigQuery, Snowflake, DuckDB) are columnar — far better compression and scan speed for aggregates",
-    "Everything is row-oriented now"
+    "Every modern database today has fully switched over to row-oriented storage exclusively, everywhere, which sounds reasonable but does not hold up under scrutiny"
    ],
    "a": 2,
    "e": "Knowing this distinction is a strong interview signal: analytics consolidated on columnar for a reason."
@@ -678,10 +678,10 @@ quiz:{
   {
    "q": "The three join algorithms:",
    "o": [
-    "Loop, Recursion, Parallel",
-    "Seq, GIN, BRIN",
+    "Loop, Recursion, and Parallel — the three fundamental execution strategies every database engine uses",
+    "Seq Scan, GIN, and BRIN — the three fundamental index types every query planner picks from instead",
     "Nested Loop (tiny outer + indexed inner), Hash Join (large unsorted equality joins — the analytics workhorse), Merge Join (both inputs already sorted)",
-    "Index, Scan, Sort"
+    "Index, Scan, and Sort — the three fundamental low-level operations every single query plan performs"
    ],
    "a": 2,
    "e": "Seeing Nested Loop on two million-row tables tells you exactly what is missing: an index on the join key."
@@ -690,9 +690,9 @@ quiz:{
    "q": "Why do leading wildcards fail and ranges work on a B-tree?",
    "o": [
     "Leaves are ordered and linked — ranges find the start and walk; LIKE ‘%x’ has no starting point in prefix order. Depth is logarithmic: one key among a billion = a handful of reads",
-    "Indexes are linear",
-    "Magic",
-    "B-trees are sorted by suffix"
+    "Indexes are always stored as flat linear lists with absolutely no internal tree structure at all in practice",
+    "It is simply unexplainable magic that the query planner performs behind the scenes automatically every single time it runs",
+    "B-trees are actually sorted internally by the suffix of each value, rather than its prefix, in nearly every case worth mentioning"
    ],
    "a": 0,
    "e": "Composite key order matters for the same reason. Indexes can also satisfy ORDER BY for free."
@@ -702,10 +702,10 @@ quiz:{
   {
    "q": "The four ACID guarantees:",
    "o": [
-    "All, Some, None, Some",
+    "All, Some, None, and Some — a rough description of consistency guarantees",
     "Atomicity, Consistency, Isolation, Durability — a crash mid-transfer cannot destroy money",
-    "Atomic, Basic, Complex, Durable",
-    "Availability, Consistency, Partitioning, Latency"
+    "Atomic, Basic, Complex, and Durable — an informal way to describe transactions",
+    "Availability, Consistency, Partitioning, and Latency — the CAP theorem terms"
    ],
    "a": 1,
    "e": "Durability comes from write-ahead logging — the log is flushed before data pages. Wrap multi-statement or destructive changes in an explicit transaction."
@@ -713,10 +713,10 @@ quiz:{
   {
    "q": "Postgres’s default isolation level:",
    "o": [
-    "SERIALIZABLE",
+    "SERIALIZABLE, the strictest isolation level available in Postgres",
     "READ COMMITTED — and Oracle’s too; MySQL/InnoDB defaults to REPEATABLE READ",
-    "READ UNCOMMITTED",
-    "REPEATABLE READ"
+    "READ UNCOMMITTED, allowing transactions to see uncommitted changes",
+    "REPEATABLE READ, which Postgres actually shares with MySQL/InnoDB"
    ],
    "a": 1,
    "e": "Knowing your database’s default — and what it does NOT protect you from — is a genuine senior distinction."
@@ -725,19 +725,19 @@ quiz:{
    "q": "The lost update:",
    "o": [
     "Two transactions read, modify, and write the same row — one overwrites the other silently. SELECT balance → app math → UPDATE is unsafe at default levels",
-    "A network problem",
-    "A NULL bug",
-    "A deleted row"
+    "A transient network problem between the application server and the database that quietly resolves itself later",
+    "A subtle NULL-comparison bug hiding somewhere deep inside an otherwise perfectly correct WHERE clause",
+    "A row that was already deleted by an entirely separate, completely unrelated transaction beforehand"
    ],
-   "a": 1,
+   "a": 0,
    "e": "Fixes: do arithmetic in SQL (SET balance = balance - 500), lock the row (SELECT ... FOR UPDATE), make the bad state impossible with a constraint, or SERIALIZABLE + retries."
   },
   {
    "q": "A deadlock:",
    "o": [
-    "A GIL problem",
-    "A NULL comparison",
-    "A table lock that never releases",
+    "A CPython-style global interpreter lock problem that blocks all concurrent query execution, according to how most engines are actually built",
+    "A NULL comparison inside a WHERE clause that silently evaluates to UNKNOWN every single time it runs",
+    "A table-level lock that was somehow acquired once and then never gets released by anyone at all, ever, under any condition",
     "Two transactions each hold what the other needs — the database detects the cycle and kills one; prevent by acquiring locks in a consistent order and keeping transactions short"
    ],
    "a": 3,
@@ -746,10 +746,10 @@ quiz:{
   {
    "q": "Parameterized queries exist because:",
    "o": [
-    "They avoid NULLs",
+    "They exist mainly so that developers never have to think carefully about NULL handling in queries, once you look past the surface-level explanation",
     "String-concatenating user input is SQL injection — still the top web vulnerability class, and no escaping is as reliable as parameterization. WHERE id = ? with a bound parameter is safe",
-    "They are faster",
-    "They are prettier"
+    "They are noticeably faster to execute than building the raw SQL string by hand every single time a query runs anywhere",
+    "They simply produce prettier, more readable SQL code inside the application source files themselves every time"
    ],
    "a": 1,
    "e": "Non-negotiable: query parameters, least privilege, migrations not manual changes, restored backups, keyset pagination for large offsets, watch N+1, monitor slow queries, store UTC."
@@ -760,9 +760,9 @@ quiz:{
    "q": "A relational database is the right tool when:",
    "o": [
     "Data has structure and relationships; you need ad-hoc queries you did not anticipate; correctness under concurrency matters (money, inventory, bookings); you want the database to enforce integrity",
-    "Never",
-    "Only for analytics",
-    "Always"
+    "Only for pure reporting and analytics workloads, never for the live transactional side of any real application, which is the part beginners usually get backwards",
+    "Only when the entire dataset is small enough to comfortably fit inside a single exported spreadsheet file for good measure",
+    "Never, since flexible document databases have now fully replaced relational systems for essentially every modern workload today"
    ],
    "a": 0,
    "e": "Nearly all business data qualifies. SQL’s real weaknesses: dialect fragmentation, queries hard to test/version, no reuse discipline, clause order vs evaluation order."
@@ -771,9 +771,9 @@ quiz:{
    "q": "A graph database (Neo4j) beats SQL when:",
    "o": [
     "Deeply hierarchical or graph-shaped traversal — “friends of friends of friends” — where recursive joins get expensive and awkward",
-    "For simple key-value caching",
-    "Always",
-    "For JSON documents"
+    "For simple key-value caching workloads with no relationships between records at all",
+    "Always, for absolutely any kind of data access pattern you could possibly imagine",
+    "For storing loosely structured JSON documents with no fixed schema, at least in the common case most teams run into"
    ],
    "a": 0,
    "e": "Choose based on access patterns and consistency needs, not on which technology sounds modern."
@@ -781,9 +781,9 @@ quiz:{
   {
    "q": "Redis / DynamoDB are a better fit than SQL for:",
    "o": [
-    "Transactions",
-    "Joins",
-    "Complex reporting",
+    "Handling multi-statement transactions that must roll back cleanly on any failure",
+    "Running ad-hoc joins across many differently structured tables all at once",
+    "Complex multi-table reporting queries that join many different tables together at once",
     "Simple key-value lookups at extreme throughput; caching; ephemeral session data — the relational engine’s overhead buys nothing"
    ],
    "a": 3,
@@ -792,10 +792,10 @@ quiz:{
   {
    "q": "JSONB in Postgres is worth knowing because:",
    "o": [
-    "It replaces indexes",
-    "It is faster than JSON",
+    "It completely replaces the need to ever create indexes on any table in the entire schema",
+    "It is measurably faster to query than plain, un-indexed JSON text columns ever are",
     "It covers a large fraction of “schemaless documents” without giving up joins and transactions — a document store is not your only choice",
-    "It is a graph engine"
+    "It functions as a full graph traversal engine built directly into Postgres itself, in nearly every case worth mentioning"
    ],
    "a": 2,
    "e": "Use JSONB for genuinely irregular attributes — not as an escape from schema design."
@@ -803,9 +803,9 @@ quiz:{
   {
    "q": "Petabyte-scale analytical scans:",
    "o": [
-    "Belong in Postgres",
-    "Need Redis",
-    "Cannot be done",
+    "Belong in a plain Postgres instance tuned with the right indexes",
+    "Need an in-memory store like Redis to complete in reasonable time",
+    "Cannot practically be done with any current database technology, according to how most engines are actually built",
     "Belong on columnar warehouses (BigQuery, Snowflake, DuckDB) — row storage reads columns you do not need"
    ],
    "a": 3,
@@ -816,9 +816,9 @@ quiz:{
   {
    "q": "The single most reliable differentiator in a SQL interview:",
    "o": [
-    "Fast typing",
-    "Knowing all vendors",
-    "Memorized trivia",
+    "Being able to type out complex queries unusually fast under pressure",
+    "Knowing the syntax quirks of every single vendor’s SQL implementation",
+    "Having memorized a long list of trivia facts about every SQL dialect",
     "Thinking in sets, not loops — running query logic through the evaluation pipeline out loud"
    ],
    "a": 3,
@@ -827,10 +827,10 @@ quiz:{
   {
    "q": "“Does this query use my index?” — answer shape:",
    "o": [
-    "“Probably yes”",
-    "Indexes are automatic",
+    "Just answering “probably yes” and moving on without ever checking anything at all",
+    "Stating flatly that indexes are always applied completely automatically by Postgres",
     "Check for the three killers: leading wildcard, function-wrapped column, missing composite prefix — then EXPLAIN to confirm",
-    "EXPLAIN cannot show it"
+    "Explaining that EXPLAIN is fundamentally incapable of ever showing index usage"
    ],
    "a": 2,
    "e": "Deliver the WHAT → WHY IT EXISTS → ONE CONCRETE CONSEQUENCE shape and you stand out immediately."
@@ -838,10 +838,10 @@ quiz:{
   {
    "q": "The retrieval skill the deck trains:",
    "o": [
-    "Highlighting",
+    "Highlighting key phrases on each card in a different color",
     "Answering aloud from memory BEFORE flipping — the only honest way to test recall",
-    "Rereading",
-    "Speed reading"
+    "Rereading each card silently several times before moving on",
+    "Practicing speed-reading through the deck as quickly as possible"
    ],
    "a": 1,
    "e": "Rereading feels productive and teaches nothing. Nailed cards dim for a reason."
@@ -849,9 +849,9 @@ quiz:{
   {
    "q": "When an interviewer says “my query returns too few rows”, your first move:",
    "o": [
-    "Blame the database",
-    "Rewrite with a window",
-    "Add an index",
+    "Immediately blaming the database engine itself for the wrong result",
+    "Rewriting the whole query from scratch using a window function, once you look past the surface-level explanation",
+    "Adding a new index before confirming what is actually going wrong",
     "Check the COUNT at each stage — join grain, then the NULL suspects, from the curriculum’s debugging order"
    ],
    "a": 3,
@@ -862,9 +862,9 @@ quiz:{
   {
    "q": "The point of six milestones:",
    "o": [
-    "They replace quizzes",
-    "Only one matters",
-    "Six badges for cosmetics",
+    "They exist to replace the need for quizzes throughout the course",
+    "Only the very last milestone actually matters for certification",
+    "Six cosmetic badges awarded purely for motivation, nothing more",
     "Six layers of proof that the model is real — each milestone is a deliverable, not a checkbox"
    ],
    "a": 3,
@@ -873,9 +873,9 @@ quiz:{
   {
    "q": "Milestone 1 demands:",
    "o": [
-    "An index diagram",
-    "A join",
-    "A dashboard",
+    "Drawing a full index diagram covering every table in the schema by hand",
+    "Writing a single working join between two related tables correctly",
+    "Building a complete interactive dashboard from scratch, entirely unaided",
     "The logical order recited cold, three-valued logic checks (NULL riddles), and set-thinking queries on one table"
    ],
    "a": 3,
@@ -884,20 +884,20 @@ quiz:{
   {
    "q": "The milestone that proves engine-level understanding:",
    "o": [
-    "Milestone 4",
+    "Milestone 4 — ship the five-table schema with constraints and the cohort retention query",
     "Milestone 5 — EXPLAIN ANALYZE three slow queries, diagnose (index missing, statistics stale, function wrap), and fix each with evidence",
-    "Milestone 2",
-    "Milestone 1"
+    "Milestone 2 — explain every join type on a napkin and catch a row-multiplying join early",
+    "Milestone 1 — recite the logical order cold and solve the NULL riddles completely unaided"
    ],
-   "a": 2,
+   "a": 1,
    "e": "Reading a plan inside-out and bottom-up, then making the numbers move, is the line between users of SQL and students of the engine."
   },
   {
    "q": "The capstone asks you to prove production readiness by:",
    "o": [
-    "An ORM migration",
-    "A certificate",
-    "Reporting",
+    "Migrating the entire schema over to a third-party ORM tool smoothly",
+    "Printing out a completion certificate at the end of the course",
+    "Producing a polished revenue report for company stakeholders to review",
     "Transactions: explain ACID, the lost update, deadlocks, and parameterized queries under mock questioning"
    ],
    "a": 3,

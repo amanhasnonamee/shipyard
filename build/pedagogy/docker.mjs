@@ -114,10 +114,10 @@ export default {
           {
               "q": "At the core: why is a container lighter than a VM?",
               "o": [
-                  "It runs a compressed guest OS",
+                  "It runs a stripped-down guest OS that boots in milliseconds",
                   "It's just an isolated process on the shared host kernel",
-                  "It ships without libraries",
-                  "It only packages your code"
+                  "It ships without any of the system libraries a real install needs",
+                  "It only packages your code, leaving the runtime out entirely"
               ],
               "a": 1,
               "e": "No guest OS, no hardware virtualization. The kernel is already running — the container is one more process it starts. Milliseconds, not minutes."
@@ -125,10 +125,10 @@ export default {
           {
               "q": "Which of these does Docker NOT solve?",
               "o": [
-                  "Reproducible environments",
-                  "Dependency conflicts on shared machines",
+                  "Reproducible environments across machines and teams",
+                  "Dependency conflicts between apps on a shared machine",
                   "VM-grade security isolation",
-                  "Shipping identical environments everywhere"
+                  "Shipping identical environments from laptop to production"
               ],
               "a": 2,
               "e": "Containers share the host kernel — isolation is weaker than VMs. Docker is not a security boundary for hostile workloads."
@@ -136,10 +136,10 @@ export default {
           {
               "q": "Typical density per host — VMs vs containers?",
               "o": [
-                  "About equal",
+                  "About equal once you tune the VM's resource limits",
                   "Handfuls of VMs vs hundreds of containers",
-                  "Containers are 2x denser",
-                  "One VM per container"
+                  "Containers are roughly twice as dense as VMs, no more",
+                  "One VM is needed to host each individual container"
               ],
               "a": 1,
               "e": "VMs boot a full guest OS each (GBs, minutes); containers are processes (MBs, milliseconds) — hence hundreds per host."
@@ -149,10 +149,10 @@ export default {
           {
               "q": "A container is best described as…",
               "o": [
-                  "A small virtual machine",
+                  "A small virtual machine with its own trimmed-down kernel",
                   "A normal process wrapped in namespaces, cgroups and a layered filesystem",
-                  "A lightweight operating system",
-                  "A kernel module"
+                  "A lightweight operating system stripped down for speed",
+                  "A kernel module the host loads to schedule containers"
               ],
               "a": 1,
               "e": "There is no 'container' object in the kernel. Run ps aux on the host — the container's process is listed like any other."
@@ -160,10 +160,10 @@ export default {
           {
               "q": "Which kernel feature controls what a process can USE (CPU, memory, I/O)?",
               "o": [
-                  "Namespaces",
+                  "Namespaces, which limit CPU and memory per process",
                   "Cgroups",
-                  "OverlayFS",
-                  "iptables"
+                  "OverlayFS, the layered filesystem driver",
+                  "iptables, the kernel's packet filtering rules"
               ],
               "a": 1,
               "e": "Namespaces = what it can SEE. Cgroups = what it can USE. One sentence; interview gold."
@@ -171,10 +171,10 @@ export default {
           {
               "q": "The main process inside a container (PID 1) exits. What happens?",
               "o": [
-                  "The container restarts automatically",
+                  "The container restarts automatically unless you say otherwise",
                   "The container stops — alive exactly as long as its process",
-                  "It pauses until restarted",
-                  "Nothing — other processes keep it alive"
+                  "It pauses and waits for you to manually restart it",
+                  "Nothing — other background processes keep the container alive"
               ],
               "a": 1,
               "e": "This one fact explains 80% of 'my container keeps exiting' confusion."
@@ -182,10 +182,10 @@ export default {
           {
               "q": "You write a file inside a running container, then docker rm it. Where did the file go?",
               "o": [
-                  "Saved to the registry",
+                  "Saved to the registry along with the image layers",
                   "It was in the writable layer — gone forever",
-                  "Moved to a volume automatically",
-                  "Cached on the host"
+                  "Moved to a Docker-managed volume automatically",
+                  "Cached somewhere on the host filesystem for later"
               ],
               "a": 1,
               "e": "All writes land in the container's writable layer, which rm deletes. This is exactly why volumes exist (Part 5)."
@@ -193,10 +193,10 @@ export default {
           {
               "q": "Which component actually makes the syscalls that create the isolated process?",
               "o": [
-                  "The docker CLI",
-                  "dockerd",
+                  "The docker CLI, which talks to the kernel directly",
+                  "dockerd, the top-level API daemon you talk to",
                   "runc",
-                  "The registry"
+                  "The registry, once the image layers are pulled down"
               ],
               "a": 2,
               "e": "runc is the tiny binary that calls clone() with namespace flags. dockerd delegates to containerd, which hands off to runc."
@@ -206,10 +206,10 @@ export default {
           {
               "q": "You run `docker run ubuntu` and it exits instantly. Why?",
               "o": [
-                  "The image is corrupt",
+                  "The image download was somehow corrupted and needs a fresh re-pull from the registry",
                   "Its default command is bash — no TTY attached, so bash exits and the container dies with its process",
-                  "You need -d for it to stay up",
-                  "Ubuntu images are invalid"
+                  "You forgot the -d flag, so the container can't stay running in the background",
+                  "Official Ubuntu images can't run without extra manual setup steps first"
               ],
               "a": 1,
               "e": "Containers run a process, not 'an OS'. Give it one: docker run -it ubuntu bash."
@@ -217,10 +217,10 @@ export default {
           {
               "q": "docker stop X sends…",
               "o": [
-                  "SIGKILL immediately",
+                  "SIGKILL immediately, with no grace period at all",
                   "SIGTERM, waits 10s, then SIGKILL",
-                  "SIGINT then detaches",
-                  "A pause signal"
+                  "SIGINT, then quietly detaches from the container",
+                  "A pause signal that freezes the process in place"
               ],
               "a": 1,
               "e": "A 10-second graceful window — your app should handle SIGTERM and shut down cleanly."
@@ -228,10 +228,10 @@ export default {
           {
               "q": "After docker stop, the container is…",
               "o": [
-                  "Gone forever",
+                  "Gone forever, exactly the same as after a docker rm",
                   "Stopped but restorable, data intact",
-                  "Automatically deleted",
-                  "Paused"
+                  "Automatically deleted after a short grace period passes",
+                  "Paused, still quietly consuming CPU in the background"
               ],
               "a": 1,
               "e": "Stopped = process dead, writable layer still there (can restart). Removed = gone forever. The whole lifecycle is that difference."
@@ -239,10 +239,10 @@ export default {
           {
               "q": "Which opens a shell inside a RUNNING container?",
               "o": [
-                  "docker attach",
+                  "docker attach, which reattaches to the main process",
                   "docker exec -it web bash",
-                  "docker start -it web",
-                  "docker run --init"
+                  "docker start -it web, restarting it with a TTY",
+                  "docker run --init, which adds an init process"
               ],
               "a": 1,
               "e": "exec starts an ADDITIONAL process inside the container's existing namespaces — that's also why you can't exec into a stopped one."
@@ -251,9 +251,9 @@ export default {
               "q": "Your app writes logs to /var/log/app.log inside the container, but docker logs shows nothing. Why?",
               "o": [
                   "docker logs only captures stdout/stderr — and the file dies with the container",
-                  "The file is encrypted",
-                  "docker logs requires -a",
-                  "app.log is a reserved name"
+                  "The log file gets silently encrypted by the container runtime",
+                  "docker logs needs the -a flag to show file-based logs",
+                  "app.log is a reserved filename Docker refuses to write to"
               ],
               "a": 0,
               "e": "Container convention: log to stdout/stderr. Docker captures that stream; a log file inside the container dies with it."
@@ -263,10 +263,10 @@ export default {
           {
               "q": "RUN vs CMD — the correct mental model:",
               "o": [
-                  "They're the same thing",
+                  "They're the same thing under the hood, just different keywords for the same behavior",
                   "RUN executes once at build time and bakes results; CMD runs at every container start and bakes nothing",
-                  "CMD is build-time, RUN is run-time",
-                  "Neither matters much"
+                  "CMD runs at build time and bakes results in; RUN executes fresh at container start",
+                  "Neither matters much — Docker treats both instructions as fully interchangeable"
               ],
               "a": 1,
               "e": "RUN pip install ✔ (once, baked into a layer). CMD pip install ✘ (would reinstall on every start)."
@@ -276,8 +276,8 @@ export default {
               "o": [
                   "Only that layer rebuilds; following layers stay cached",
                   "Invalidates every layer after it",
-                  "Restarts the build from scratch",
-                  "Is silently ignored"
+                  "Restarts the entire build from scratch, ignoring any cache",
+                  "Is silently ignored as long as the final image still works"
               ],
               "a": 1,
               "e": "A layer is reused only if the instruction is unchanged AND all previous layers were hits. First miss kills the tail."
@@ -285,10 +285,10 @@ export default {
           {
               "q": "Why does the canonical Dockerfile COPY requirements.txt before the source code?",
               "o": [
-                  "Smaller build context",
+                  "It keeps the overall build context noticeably smaller and faster to send",
                   "So the pip layer stays cached when you edit code — rebuilds take seconds, not minutes",
-                  "It's required syntax",
-                  "Faster downloads"
+                  "Dockerfile syntax strictly requires dependency files to be listed first",
+                  "It makes pip's package downloads run faster over the network"
               ],
               "a": 1,
               "e": "Order instructions least→most frequently-changing. Code edits then only re-run the cheap final COPY."
@@ -297,9 +297,9 @@ export default {
               "q": "CMD [\"python\",\"app.py\"] — you run `docker run img bash`. What runs?",
               "o": [
                   "bash — CMD is fully overridable",
-                  "python app.py with bash as an argument",
-                  "An error is raised",
-                  "python, then bash"
+                  "python app.py, treating bash as an extra argument to it",
+                  "An error is raised because CMD can't be replaced this way",
+                  "python app.py runs first, then bash starts after it"
               ],
               "a": 0,
               "e": "CMD is fully overridable. ENTRYPOINT is fixed — and with ENTRYPOINT+CMD, args after the image name replace only CMD."
@@ -307,10 +307,10 @@ export default {
           {
               "q": "EXPOSE 8000 in a Dockerfile…",
               "o": [
-                  "Publishes port 8000 on the host",
+                  "Publishes port 8000 on the host automatically",
                   "Is documentation only — publishes nothing",
-                  "Opens the host firewall",
-                  "Mounts the port"
+                  "Opens a hole in the host firewall for that port",
+                  "Mounts the port into the container's filesystem"
               ],
               "a": 1,
               "e": "The famous gotcha: publishing happens at run time with -p (or compose ports:). EXPOSE only documents."
@@ -320,10 +320,10 @@ export default {
           {
               "q": "Which mount type survives docker rm?",
               "o": [
-                  "tmpfs",
+                  "tmpfs, since it's backed directly by host memory",
                   "A named volume",
-                  "The writable layer",
-                  "A bind mount to a file you deleted"
+                  "The writable layer created specifically for the container",
+                  "A bind mount pointing at a file you already deleted"
               ],
               "a": 1,
               "e": "Named volumes live outside the layer stack, managed by Docker — they survive rm. tmpfs dies at stop; the writable layer dies at rm."
@@ -331,10 +331,10 @@ export default {
           {
               "q": "In -v pgdata:/var/lib/postgresql/data, pgdata is…",
               "o": [
-                  "A host path (bind mount)",
+                  "A relative host path that Docker resolves into a bind mount",
                   "A named volume, created on first use",
-                  "A container name",
-                  "A network alias"
+                  "The name given to the container being started",
+                  "A network alias used for reaching the database by name"
               ],
               "a": 1,
               "e": "Left side bare name = volume. Left side with a / or . = host path = bind mount."
@@ -343,9 +343,9 @@ export default {
               "q": "Why do databases live on volumes for PERFORMANCE too, not just persistence?",
               "o": [
                   "Volumes bypass OverlayFS copy-on-write",
-                  "Volumes sit on faster disks",
-                  "Cgroups prioritize volumes",
-                  "SSD vs HDD"
+                  "Docker automatically places volumes on faster disks",
+                  "Cgroups give I/O priority to volume-backed writes",
+                  "Volumes always sit on SSDs instead of spinning disks"
               ],
               "a": 0,
               "e": "Copy-on-write copies the whole file before editing — heavy DB writes on the overlay would crawl. Volumes bypass the overlay entirely."
@@ -353,10 +353,10 @@ export default {
           {
               "q": "In dev you bind-mount $(pwd) over /app. The image's COPY'd code is…",
               "o": [
-                  "Merged with your host files",
+                  "Merged file-by-file with whatever is on your host",
                   "Shadowed by the mount — the host's copy wins",
-                  "Deleted",
-                  "Immutable"
+                  "Deleted from the image the moment the mount attaches",
+                  "Left immutable and used instead of the host files"
               ],
               "a": 1,
               "e": "A mount shadows the image content at that path. That's the point in dev; a disaster in prod if you expected image code to run."
@@ -366,10 +366,10 @@ export default {
           {
               "q": "Inside a container, localhost refers to…",
               "o": [
-                  "Your machine",
+                  "Your machine — the host that started the container",
                   "That container itself",
-                  "The bridge network",
-                  "The registry"
+                  "The shared bridge network that all containers sit on",
+                  "The registry the image was originally pulled from"
               ],
               "a": 1,
               "e": "The #1 networking bug. Each container has its own network namespace — its own interfaces, IP, and localhost."
@@ -377,10 +377,10 @@ export default {
           {
               "q": "To be reachable from outside, an app inside a container must listen on…",
               "o": [
-                  "127.0.0.1",
+                  "127.0.0.1, the loopback address inside the container",
                   "0.0.0.0",
-                  "localhost",
-                  "The container ID"
+                  "localhost, same as it would on your own machine",
+                  "The container ID, resolved automatically by Docker"
               ],
               "a": 1,
               "e": "Bug #2: 127.0.0.1 binds only inside the container. 0.0.0.0 binds all interfaces so the published port can reach it."
@@ -388,10 +388,10 @@ export default {
           {
               "q": "Two containers on the SAME user-defined network need -p to talk to each other?",
               "o": [
-                  "Yes — always",
+                  "Yes — every container-to-container link needs a published port",
                   "No — -p is only for reaching containers from the host/outside world",
-                  "Only during startup",
-                  "Only if they use DNS"
+                  "Only briefly, during the container's startup sequence",
+                  "Only if they're also relying on name-based DNS lookups"
               ],
               "a": 1,
               "e": "Container↔container traffic on a shared network is direct. -p punches a hole from the outside world."
@@ -399,10 +399,10 @@ export default {
           {
               "q": "Name-based DNS (container names become hostnames) works on…",
               "o": [
-                  "The default bridge network",
+                  "The default bridge network Docker creates out of the box",
                   "User-defined networks (compose creates one automatically)",
-                  "The host network",
-                  "No network"
+                  "The host network, since it shares the host's DNS",
+                  "No network — you always need to hardcode IP addresses"
               ],
               "a": 1,
               "e": "Classic gotcha: DNS by name works only on user-defined networks — but compose gives you one for free."
@@ -412,10 +412,10 @@ export default {
           {
               "q": "Plain depends_on: [db] waits for…",
               "o": [
-                  "Postgres to accept connections",
+                  "Postgres inside the db container to accept connections",
                   "The db CONTAINER to start — not readiness",
-                  "The healthcheck to pass",
-                  "Nothing at all"
+                  "The db service's healthcheck to report healthy",
+                  "Nothing at all — depends_on is ignored without extra config"
               ],
               "a": 1,
               "e": "The trap: container start ≠ service ready. Your app boots in 1s, Postgres initializes in 5s → 'connection refused'."
@@ -424,9 +424,9 @@ export default {
               "q": "The best fix for the depends_on trap:",
               "o": [
                   "healthcheck + condition: service_healthy",
-                  "retries: 10",
-                  "Delay startup by 5 seconds",
-                  "depends_on: started"
+                  "Setting retries: 10 on the depends_on entry",
+                  "Adding a fixed 5-second delay before the app starts",
+                  "Switching to depends_on: started instead of the default"
               ],
               "a": 0,
               "e": "Best-first: (1) healthcheck + service_healthy, (2) retry logic in the app, (3) wait-for-it scripts (legacy)."
@@ -434,10 +434,10 @@ export default {
           {
               "q": "docker compose down — your named volumes…",
               "o": [
-                  "Are deleted",
+                  "Are deleted along with the containers and network",
                   "Survive — deleted only with down -v",
-                  "Are backed up",
-                  "Are ignored"
+                  "Get automatically backed up before removal",
+                  "Are ignored and left running independently"
               ],
               "a": 1,
               "e": "down removes containers + network, volumes survive. down -v ALSO deletes volumes — and your database."
@@ -445,10 +445,10 @@ export default {
           {
               "q": "Compose is best understood as…",
               "o": [
-                  "A different container runtime",
+                  "A separate, competing container runtime built to replace Docker",
                   "Orchestration sugar over the same Docker API — every key maps to a docker run flag",
-                  "A replacement for Kubernetes",
-                  "A registry client"
+                  "A lightweight, single-command replacement for Kubernetes clusters",
+                  "A client focused purely on pushing and pulling from registries"
               ],
               "a": 1,
               "e": "That mapping is how you should read every compose file."
@@ -458,10 +458,10 @@ export default {
           {
               "q": "Why does Nginx sit in front of gunicorn?",
               "o": [
-                  "Nginx is faster at Python",
+                  "Nginx executes Python code faster than gunicorn does",
                   "An app server shouldn't serve static files, terminate TLS, or absorb slow clients",
-                  "Django can't bind ports",
-                  "DNS requires it"
+                  "Django's app server can't bind directly to a port",
+                  "DNS resolution requires a reverse proxy in front of it"
               ],
               "a": 1,
               "e": "The split is itself an interview question — 'why not just gunicorn?'. Each tier does what it's actually for."
@@ -470,9 +470,9 @@ export default {
               "q": "Why does the web service have NO ports: in the Part 8 compose file?",
               "o": [
                   "Only nginx faces the outside world",
-                  "Memory limits",
-                  "Compose forbids ports with depends_on",
-                  "The browser blocks it"
+                  "Publishing a port there would exceed the memory limits",
+                  "Compose forbids combining ports: with depends_on:",
+                  "Browsers refuse to connect to unpublished app servers"
               ],
               "a": 0,
               "e": "web is reachable by name on the compose network; only nginx publishes :80. No -p needed between containers (Part 6)."
@@ -480,10 +480,10 @@ export default {
           {
               "q": "ENV PYTHONUNBUFFERED=1 does what inside a container?",
               "o": [
-                  "Speeds up Python imports",
+                  "Speeds up how fast Python modules get imported",
                   "Makes logs appear in docker logs in real time",
-                  "Disables the pip cache",
-                  "Forces .pyc generation"
+                  "Disables pip's local package cache during install",
+                  "Forces .pyc bytecode files to be generated on build"
               ],
               "a": 1,
               "e": "Buffered output sits in the process buffer — unbuffered means docker logs streams live."
@@ -493,10 +493,10 @@ export default {
           {
               "q": "Exit code 137 means…",
               "o": [
-                  "Normal completion",
+                  "Normal completion — the process exited cleanly",
                   "SIGKILL — OOM-killed or docker kill",
-                  "Command not found",
-                  "Wrong architecture"
+                  "The command inside the container wasn't found",
+                  "The image was built for the wrong CPU architecture"
               ],
               "a": 1,
               "e": "137 = 128+9 (SIGKILL). Check docker inspect → OOMKilled: true. 126/127 = command not executable/not found."
@@ -505,9 +505,9 @@ export default {
               "q": "The debugging habit — always run these three first:",
               "o": [
                   "docker ps -a, docker logs, docker inspect",
-                  "docker version, docker info, docker stats",
-                  "docker pull, docker run, docker tag",
-                  "docker exec, docker stop, docker rm"
+                  "docker version, docker info, and docker stats",
+                  "docker pull, docker run, and then docker tag",
+                  "docker exec, docker stop, and finally docker rm"
               ],
               "a": 0,
               "e": "State + exit code → why → config reality vs your assumption. Most bugs are five known causes; you now know all five."
@@ -515,10 +515,10 @@ export default {
           {
               "q": "4 times out of 5, the browser can't reach the app because…",
               "o": [
-                  "The base image is wrong",
+                  "The base image was built for the wrong architecture",
                   "The app binds 127.0.0.1 instead of 0.0.0.0",
-                  "SSH keys are missing",
-                  "The registry is down"
+                  "SSH keys needed for the deploy step are missing",
+                  "The registry hosting the image is temporarily down"
               ],
               "a": 1,
               "e": "Then: published port mismatch; then curl from inside the container to split app-vs-wiring."
@@ -529,9 +529,9 @@ export default {
               "q": "Namespaces vs cgroups in one sentence:",
               "o": [
                   "Namespaces control what a process SEES; cgroups control what it USES",
-                  "Namespaces limit CPU; cgroups hide processes",
-                  "They're the same thing",
-                  "Namespaces are for files; cgroups for networks"
+                  "Namespaces limit CPU usage; cgroups hide other processes",
+                  "They're the same kernel feature under two different names",
+                  "Namespaces isolate files; cgroups isolate the network stack"
               ],
               "a": 0,
               "e": "That one sentence is Tier-3 interview gold."
@@ -539,10 +539,10 @@ export default {
           {
               "q": "docker exec works via the ___ syscall.",
               "o": [
-                  "clone",
+                  "clone, which spins up an entirely new namespace set",
                   "setns — joining the container's existing namespaces",
-                  "pivot_root",
-                  "execve"
+                  "pivot_root, which swaps the process's root filesystem",
+                  "execve, which replaces the current process image"
               ],
               "a": 1,
               "e": "exec literally means 'start a process and join these namespaces' — the setns syscall."
@@ -551,9 +551,9 @@ export default {
               "q": "Copy-on-write: you modify a file from a lower (image) layer. What happens first?",
               "o": [
                   "The whole file is copied up to the writable layer, then edited",
-                  "The file is edited in place in the lower layer",
-                  "A whiteout marker is created",
-                  "The layer is rebuilt"
+                  "The file is edited directly in place within the lower layer",
+                  "A whiteout marker is created to hide the original file",
+                  "The whole read-only image layer is silently rebuilt"
               ],
               "a": 0,
               "e": "That's why heavy writers belong on volumes — they bypass the copy entirely (performance, not just persistence)."
@@ -562,9 +562,9 @@ export default {
               "q": "runc implements the ___ spec — why images work on Docker, Podman and K8s alike.",
               "o": [
                   "OCI runtime",
-                  "ISO 27001",
-                  "POSIX",
-                  "Docker API"
+                  "ISO 27001, the security management standard",
+                  "POSIX, the standard Unix system-call interface",
+                  "The Docker API's internal container spec"
               ],
               "a": 0,
               "e": "OCI runtime + OCI image specs = portability across every container runtime."
@@ -575,9 +575,9 @@ export default {
               "q": "The single most-asked Docker security question:",
               "o": [
                   "Don't run as root — a container escape then means root-adjacent on the host",
-                  "Use alpine for everything",
-                  "Disable cgroups",
-                  "Never use the bridge network"
+                  "Always base your images on alpine to shrink attack surface",
+                  "Disable cgroups so processes can't be fingerprinted",
+                  "Never let a container use the default bridge network"
               ],
               "a": 0,
               "e": "Shared kernel: container root is dangerously close to host root. The USER appuser lines in Part 8 are the fix."
@@ -586,9 +586,9 @@ export default {
               "q": "Why must secrets never be baked into images?",
               "o": [
                   "Layers are readable by anyone with the image — docker history shows all",
-                  "ENV vars are stripped at runtime",
-                  "The registry deletes them",
-                  "It slows the build"
+                  "ENV vars baked into an image are stripped before runtime",
+                  "The registry automatically deletes secrets it detects",
+                  "Baking in secrets meaningfully slows down the build"
               ],
               "a": 0,
               "e": "Inject at runtime: env vars / env_file at minimum; secret managers in real prod."
@@ -597,9 +597,9 @@ export default {
               "q": "Why is the latest tag dangerous in production?",
               "o": [
                   "It's a movable pointer, not a version — unpinned means unreproducible",
-                  "It's always outdated",
-                  "It can't be pulled",
-                  "It's slower to download"
+                  "It always points to an outdated, unmaintained build",
+                  "Registries block pulling images tagged latest",
+                  "Images tagged latest download more slowly than others"
               ],
               "a": 0,
               "e": "Tags move like Git branches (Part 4.5). Production pins specific tags — or digests."
@@ -609,10 +609,10 @@ export default {
           {
               "q": "Which is a legitimate reason to SKIP Docker?",
               "o": [
-                  "A multi-service dev environment",
-                  "Two conflicting stacks on one machine",
+                  "You're running a multi-service local dev environment",
+                  "Two conflicting dependency stacks share one machine",
                   "A simple Go binary or cron script",
-                  "Onboarding new developers"
+                  "You're onboarding new developers onto the project"
               ],
               "a": 2,
               "e": "Also: GUI/desktop apps, extreme performance/hardware coupling, hostile multi-tenant isolation, native Windows/macOS targets, tiny solo apps with no deployment story."
@@ -620,10 +620,10 @@ export default {
           {
               "q": "You need multi-host scheduling, autoscaling, rolling deploys. Docker/Compose alone…",
               "o": [
-                  "Handles that fine",
+                  "Handles all of that fine with the right compose flags",
                   "Is single-host — this is orchestrator (Kubernetes) territory",
-                  "Just needs more volumes",
-                  "Switches backends"
+                  "Just needs a few more named volumes configured",
+                  "Automatically switches to a distributed backend"
               ],
               "a": 1,
               "e": "Docker is the packaging + runtime; K8s is fleet management of the same containers."
@@ -631,10 +631,10 @@ export default {
           {
               "q": "Docker Desktop on macOS actually runs…",
               "o": [
-                  "Containers natively on macOS",
+                  "Containers natively, straight on top of the macOS kernel",
                   "A hidden Linux VM — which is why file-heavy bind mounts are slow on Mac",
-                  "WASM",
-                  "Windows containers transparently"
+                  "Everything compiled down to WASM for portability",
+                  "Windows containers translated transparently to macOS"
               ],
               "a": 1,
               "e": "Linux containers only run natively on Linux. The hidden VM is also the cause of slow bind mounts on Mac."

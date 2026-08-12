@@ -132,10 +132,10 @@ quiz:{
   {
    "q": "The RPC era was built on a bad bet. What was it?",
    "o": [
-    "Make network calls look exactly like local function calls — which hid latency, partial failure, and the need for retries",
-    "Use XML for everything",
-    "Skip versioning",
-    "Return raw database rows"
+    "Pretending remote calls behave like local function calls, hiding real network failure",
+    "Assuming every client and server could redeploy in lockstep",
+    "Skipping versioning entirely, on the assumption interfaces would never need to change at all",
+    "Betting that XML payloads would always beat binary wire formats"
    ],
    "a": 0,
    "e": "Tight coupling (generated interface definitions broke clients on every change), a lying abstraction, enormous ceremony — and infrastructure could not help, because every call was an opaque POST."
@@ -143,45 +143,45 @@ quiz:{
   {
    "q": "Roy Fielding’s actual contribution, stated accurately:",
    "o": [
-    "He helped build HTTP/1.0 and 1.1, then DESCRIBED the principles that made the web scale — as an architectural style of constraints, not a spec",
-    "He invented REST and then built the web from it",
-    "He wrote JSON",
-    "He invented the URL"
+    "He invented REST first and then built the entire web around it",
+    "He helped build HTTP, then described the constraints that let the web scale",
+    "He designed JSON as the required format for web resources",
+    "He wrote the official specification that every REST API is required to formally satisfy"
    ],
-   "a": 0,
+   "a": 1,
    "e": "2000 PhD dissertation: REST = REpresentational State Transfer. Each constraint buys a property: statelessness → scaling, cacheability → fewer round trips, uniform interface → generic infrastructure."
   },
   {
    "q": "Which two constraints do most of the work — and what does each buy?",
    "o": [
-    "Cacheability → no round trips; statelessness → any server can answer any request",
-    "Uniform interface → consistency; layering → proxies",
-    "Client–server → pretty UIs; code-on-demand → JavaScript",
-    "Code-on-demand → JavaScript; cacheability → speed"
+    "Statelessness → any server can answer; cacheability → far fewer round trips",
+    "Uniform interface → consistent naming; layering → transparent proxies",
+    "Client–server → nicer UIs; code-on-demand → shipping JavaScript to clients directly",
+    "Code-on-demand → dynamic scripts; layering → simpler client code"
    ],
-   "a": 2,
+   "a": 0,
    "e": "Statelessness: any server handles any request → horizontal scaling and failover. Cacheability: “the single biggest reason the web scales” — the request never happens."
   },
   {
    "q": "Why does REST accept being chatty and verbose compared with RPC?",
    "o": [
-    "It is not verbose",
-    "JSON is tiny",
-    "REST is older",
-    "It optimizes for evolvability and scale where you do not control the clients and cannot coordinate deployments — the public internet trade"
+    "Because verbose payloads are simply easier for servers to compress",
+    "Because JSON encoding is inherently larger than any binary format",
+    "It trades round trips for evolvability, since clients can’t be coordinated",
+    "Because REST simply predates RPC and never adopted any of its performance tricks"
    ],
-   "a": 3,
+   "a": 2,
    "e": "That is why REST wins for public APIs and is often the wrong trade for two microservices inside one cluster."
   },
   {
    "q": "The honest thing worth saying to an interviewer about “REST APIs”:",
    "o": [
-    "All of them are RESTful",
-    "Only SOAP was wrong",
-    "Most “REST APIs” — including famous ones — are NOT RESTful by Fielding’s definition: they drop hypermedia (HATEOAS) and keep the resource model and HTTP semantics, which turned out to be the valuable part",
-    "HATEOAS is mandatory everywhere"
+    "Most so-called REST APIs drop hypermedia and just keep the resource model",
+    "Only early SOAP services failed to meet the real REST definition",
+    "Every API that calls itself RESTful fully satisfies Fielding’s constraints",
+    "HATEOAS is mandatory, so an API without it isn’t really an API"
    ],
-   "a": 2,
+   "a": 0,
    "e": "Fielding called this out publicly in 2012. Knowing it — and what the industry kept — is a senior answer."
   }
  ],
@@ -189,78 +189,78 @@ quiz:{
   {
    "q": "A resource vs a representation:",
    "o": [
-    "The representation is the database row",
-    "The same thing",
-    "The URL is the representation",
-    "The resource is the abstract thing (a book, an order, today’s weather); what crosses the network is a REPRESENTATION of it — JSON, CSV, HTML, a PDF of the same resource"
+    "The representation is simply the resource’s raw database record",
+    "Resource is the abstract thing; representation is what crosses the wire",
+    "The URL itself is generally considered to be the representation of the resource",
+    "They’re two words for exactly the same underlying database row"
    ],
-   "a": 3,
+   "a": 1,
    "e": "The name says it: REpresentational State Transfer. One resource, many representations via the Accept header; the API is a contract deliberately decoupled from your storage."
   },
   {
    "q": "Why is GET /deleteUser?id=5 a bug, not a style choice?",
    "o": [
-    "Query strings are forbidden",
-    "DELETE is faster",
-    "GET must be SAFE: crawlers, link previews, and prefetchers issue GETs without asking — it discards caching, safe retries, and the meaning of the method",
-    "It is too long"
+    "Query strings like ?id=5 are technically forbidden by the HTTP spec itself",
+    "DELETE requests execute noticeably faster than GET requests do",
+    "It’s a bug only because the URL is longer than it needs to be",
+    "GET must be safe — crawlers can trigger it and silently delete data"
    ],
-   "a": 2,
+   "a": 3,
    "e": "URLs name things, never actions. The verb belongs in the HTTP method — which already exists for exactly that purpose."
   },
   {
    "q": "A POST /payments times out. What has possibly happened, and why can’t the client safely retry?",
    "o": [
-    "Always retry POST",
-    "Nothing, retry freely",
-    "POST is idempotent",
-    "The payment may have been created and only the response lost — POST is not idempotent, so retrying may charge twice. The mechanism: idempotency keys"
+    "Timeouts only occur before the server acts, so retrying is harmless",
+    "The payment may have succeeded already, so a blind retry can double-charge",
+    "POST is idempotent, so retrying the exact same request is always safe",
+    "Nothing happened, so the client remains free to retry as many times as it wants"
    ],
-   "a": 3,
+   "a": 1,
    "e": "The client cannot tell “it didn’t happen” from “it happened but I didn’t hear back.” Networks fail after the server acted but before the response arrived — the actual hard part of distributed systems."
   },
   {
    "q": "PUT vs PATCH — omit a field in each and the meaning is:",
    "o": [
-    "PUT: the field should be ABSENT — you are sending the complete new state. PATCH: leave it ALONE — you are describing changes",
-    "Both leave it alone",
-    "PUT patches, PATCH replaces",
-    "Identical"
+    "Identical in both cases — omitted fields are always left untouched",
+    "Both methods reject the request outright when a field is omitted",
+    "PUT leaves the field alone; PATCH replaces the entire resource",
+    "PUT: the field is gone; PATCH: the field is simply left unchanged"
    ],
-   "a": 0,
+   "a": 3,
    "e": "PUT = replace wholesale (idempotent); PATCH = partial change (not necessarily idempotent). The most confused pair in APIs."
   },
   {
    "q": "What statelessness forbids — and what it makes possible:",
    "o": [
-    "Forbids cookies; makes JWTs",
-    "Forbids authorization; makes caching",
-    "Forbids servers holding CLIENT SESSION state in their own memory — permits any server answering any request: load-balancing, kill-one-mid-traffic, gradual deploys, autoscaling",
-    "Forbids databases; makes Redis"
+    "Forbids setting cookies; permits issuing long-lived JWTs instead",
+    "Forbids checking authorization; permits faster cache invalidation",
+    "Forbids using a database at all; permits caching every response via Redis instead",
+    "Forbids servers holding client session state; permits any server to answer"
    ],
-   "a": 2,
+   "a": 3,
    "e": "It costs: every request re-sends auth context and repeats some work. Note the precision: “stateless” refers to client session state, not data — shared stores like Redis are fine."
   },
   {
    "q": "401 vs 403 — the load-bearing distinction:",
    "o": [
-    "401 means not authenticated (“I don’t know who you are”); 403 means not permitted (“I know exactly who you are, and no”)",
-    "401 is for browsers, 403 for apps",
-    "401 means forbidden, 403 means unauthenticated",
-    "They are interchangeable"
+    "401 means we don’t know you; 403 means we know you and say no",
+    "401 is reserved for browsers only; 403 is reserved for native apps",
+    "401 means forbidden outright; 403 means simply not authenticated yet",
+    "They are interchangeable codes that most servers use at random"
    ],
-   "a": 2,
+   "a": 0,
    "e": "Asked in almost every API interview. And 4xx vs 5xx tells a client whether retrying helps — retry 5xx, fix 4xx."
   },
   {
    "q": "Which “harmless” change quietly BREAKS clients?",
    "o": [
-    "Relaxing validation",
-    "Adding an optional request field",
-    "Tightening validation — clients that were sending sloppy-but-accepted data suddenly fail; clients should tolerate unknown fields, servers should only add",
-    "Adding a field to a response"
+    "Relaxing validation so more request shapes are now accepted",
+    "Adding a new field to a response that clients don’t read yet",
+    "Tightening validation, so previously-accepted sloppy data now fails",
+    "Adding a new optional field to an incoming request payload"
    ],
-   "a": 3,
+   "a": 2,
    "e": "The backward-compatibility discipline: servers add rather than change; clients tolerate rather than assume. Adding an enum value also breaks clients that hard-coded a switch."
   }
  ],
@@ -268,45 +268,45 @@ quiz:{
   {
    "q": "The four parts of every HTTP request and response:",
    "o": [
-    "Start line, headers, blank line, body — that is the whole protocol shape; curl -v shows it to you",
-    "Status, reason, bytes, time",
-    "URL, headers, cookies, body",
-    "Method, path, version, JSON"
+    "URL, cookies, query string, and a signed auth token",
+    "Status code, reason phrase, byte count, and timing",
+    "Start line, headers, a blank line, then the body",
+    "Method, path, protocol version, and a JSON payload"
    ],
-   "a": 0,
+   "a": 2,
    "e": "Running `curl -v` against any API once, deliberately, is worth more than three tutorials."
   },
   {
    "q": "Content-Type vs Accept, and the codes for rejection:",
    "o": [
-    "Accept is deprecated",
-    "Both mean JSON",
-    "Content-Type = format of what you SEND; Accept = format you can RECEIVE. Can’t satisfy Accept → 406; can’t parse what was sent → 415",
-    "They are synonyms"
+    "Accept was deprecated years ago in favor of Content-Type",
+    "Both headers always mean the payload format is JSON",
+    "They’re simply two different names the spec uses for the exact same header",
+    "Content-Type is what you send; Accept is what you’ll take back"
    ],
-   "a": 2,
+   "a": 3,
    "e": "406 Not Acceptable vs 415 Unsupported Media Type — the easiest pair to mix up: one is about the response, the other about the request."
   },
   {
    "q": "Where does a piece of data belong? The rule that resolves nearly every case:",
    "o": [
-    "Everything in the body",
-    "Path identifies WHICH resource; query modifies HOW a collection is returned; headers carry metadata about the request; body carries data being created or updated",
-    "Everything in headers",
-    "Everything in the query string for simplicity"
+    "Put everything in the request body, whatever it represents",
+    "Path names the resource; query filters it; headers hold metadata; body holds data",
+    "Put everything in custom headers so the URL stays short",
+    "Put everything in the query string, since that keeps every request simple and uniform"
    ],
-   "a": 3,
+   "a": 1,
    "e": "Never put secrets in the query string (URLs end up in a dozen logs), and never send a body on GET (intermediaries and caches ignore it)."
   },
   {
    "q": "Why is a body on GET a bad idea?",
    "o": [
-    "Request bodies on GET are not reliably supported — intermediaries, caches, and many clients ignore them",
-    "GET is for browsers only",
-    "GET is slower",
-    "Bodies are illegal"
+    "GET requests simply execute slower whenever a body is attached",
+    "Bodies only work when the request comes from a web browser",
+    "Intermediaries and caches don’t reliably forward GET bodies",
+    "The HTTP specification makes GET bodies technically illegal"
    ],
-   "a": 0,
+   "a": 2,
    "e": "Same reason secrets must not live in URLs: intermediaries are part of the contract you cannot control."
   }
  ],
@@ -314,45 +314,45 @@ quiz:{
   {
    "q": "URLs identify nouns; the verbs come from HTTP. Which pair is correct?",
    "o": [
-    "PATCH /updateBook",
-    "GET /getBook?id=42",
-    "POST /books, DELETE /books/42",
-    "POST /createBook, DELETE /deleteBook?id=5"
+    "PATCH /updateBook to change any field on any book",
+    "GET /getBook?id=42 to fetch a single book by its id",
+    "POST /createBook, DELETE /deleteBook?id=5 for the same job",
+    "POST /books to create, DELETE /books/42 to remove one"
    ],
-   "a": 2,
+   "a": 3,
    "e": "The verb-shaped URL isn’t merely unfashionable — it discards what HTTP gives for free: caches can’t tell reads from writes, retries become unsafe, and a crawler can destroy data."
   },
   {
    "q": "Nesting rule for resource URLs:",
    "o": [
-    "Nest as deep as your data model goes",
-    "Nesting is for views only",
-    "Nest to express containment, stop at two levels — /authors/7/books fine; five levels deep encodes your data model into every client’s code",
-    "Never nest at all"
+    "Nest to show containment, but stop at about two levels deep",
+    "Only nest URLs that represent read-only views",
+    "Nest as many levels deep as your database schema happens to go",
+    "Never nest resource URLs under any circumstances"
    ],
-   "a": 2,
+   "a": 0,
    "e": "Once a resource has its own identity, give it a top-level URL — /reviews/9/comments or /comments?review_id=9."
   },
   {
    "q": "Cancel an order. The three legitimate approaches in order of RESTfulness:",
    "o": [
-    "A: PATCH /orders/42 {\"status\":\"cancelled\"} — B: POST /orders/42/cancellation (event as sub-resource) — C: POST /orders/42/cancel (explicit, pragmatic)",
-    "C: always",
-    "A, C, B — order is irrelevant",
-    "A: never"
+    "PATCH the status field, POST a cancellation event, or POST /cancel",
+    "Only POST /orders/42/cancel is ever acceptable for this",
+    "DELETE the order resource outright, since cancelling effectively removes it entirely",
+    "PATCH is always forbidden here, so POST is the only option"
    ],
-   "a": 1,
+   "a": 0,
    "e": "A when it’s really a field; B when the action has its own history worth recording (honest, idempotency-friendly); C when the operation is a genuine command — Stripe and GitHub do C. Defending the choice beats purity."
   },
   {
    "q": "The most common tell of an RPC-shaped API:",
    "o": [
-    "snake_case",
-    "Too many 200s",
-    "Verbs in URLs — /api/getUsersList — plus POST for everything, which throws away safety, idempotency, and caching in one move",
-    "Pagination"
+    "Using snake_case field names instead of camelCase in bodies",
+    "Verbs baked into the URL, like /api/getUsersList, plus POST for everything",
+    "Returning far too many 200 status codes instead of more specific error ones",
+    "Offering cursor-based pagination instead of page numbers"
    ],
-   "a": 2,
+   "a": 1,
    "e": "Other tells: /tbl_users database internals, inconsistent pluralization, five-level nesting, and response shapes that change per parameter."
   }
  ],
@@ -360,45 +360,45 @@ quiz:{
   {
    "q": "Money and 64-bit IDs in JSON — the safe forms:",
    "o": [
-    "Integers for money, strings for IDs",
-    "Base64 both",
-    "Numbers always",
-    "Money as a string or minor units (“12.99” or 1299) — JSON numbers are IEEE-754 doubles, 12.99 can arrive as 12.989999999999998; large IDs as strings — JS loses precision past 2^53"
+    "Use integers for money and leave large IDs as raw JSON numbers",
+    "Base64-encode both money amounts and identifiers before ever sending them",
+    "Money as a string or minor units; large IDs also encoded as strings",
+    "Always encode both money and IDs as plain JSON numbers"
    ],
-   "a": 3,
+   "a": 2,
    "e": "Both are real bugs that have cost real money. Timestamps: ISO 8601, UTC, explicit offset — never bare “11/08/2026”."
   },
   {
    "q": "A 200 response containing {\"error\": \"not found\"} is:",
    "o": [
-    "A BROKEN API — the status code is for machines; every client, cache, and monitoring system treats 200 as success",
-    "The RFC 9457 way",
-    "Good for mobile",
-    "Fine if documented"
+    "Perfectly fine, as long as the error shape is documented",
+    "Exactly what the RFC 9457 problem-details standard actually recommends doing",
+    "A pattern that’s especially well suited to mobile client apps",
+    "A broken API, since every cache and monitor reads 200 as success"
    ],
-   "a": 0,
+   "a": 3,
    "e": "“Use the right status code; the body is for humans and debugging.” One of the most common serious API design errors."
   },
   {
    "q": "A good error tells the client three things:",
    "o": [
-    "The SQL, the table name, the user ID",
-    "The stack trace, the line number, the library version",
-    "What kind of failure, whether retrying helps, what to fix",
-    "A message in prose only"
+    "The raw SQL query, the table name, and the internal user ID",
+    "The full stack trace, the exact line number, and library version",
+    "What failed, whether retrying helps, and what to fix",
+    "A single free-form prose message and nothing else structured"
    ],
-   "a": 1,
+   "a": 2,
    "e": "RFC 9457 shape: type, title, status, detail, instance, request_id — plus MACHINE-READABLE codes, never prose clients must parse. Report ALL validation failures at once, and never leak internals."
   },
   {
    "q": "Validation layers and their codes:",
    "o": [
-    "Syntactic (parseable? right Content-Type?) → 400/415; structural (required, types, ranges) → 422; semantic/business (author exists? state legal?) → 422/409/403",
-    "One layer: 400",
-    "All errors are 500",
-    "Validation lives in the UI"
+    "There’s really only one layer, and every failure returns 500",
+    "Syntactic → 400/415; structural → 422; business rules → 422/409/403",
+    "All validation really belongs in the UI, so the server never needs to check it",
+    "Every kind of validation failure should simply return a 400"
    ],
-   "a": 0,
+   "a": 1,
    "e": "Never trust the client — re-enforce every UI rule on the server — and validate with a schema (pydantic, zod, JSON Schema), not hand-written ifs, which drift from the docs."
   }
  ],
@@ -406,45 +406,45 @@ quiz:{
   {
    "q": "What’s wrong with offset pagination?",
    "o": [
-    "Nothing",
-    "Progressively slower as offset grows (every skipped row is generated and discarded), and it skips/duplicates items when data changes between requests — “row 41” isn’t stable",
-    "It is the only way",
-    "It breaks caching"
+    "It slows as the offset grows, and skips or repeats rows as data changes",
+    "Nothing at all — it’s simply the only pagination style worth implementing",
+    "It’s fine for large data but breaks caching on the very first page",
+    "It only works when results are requested in descending order"
    ],
-   "a": 1,
+   "a": 0,
    "e": "Cursor (keyset) pagination is the correct default for large or changing data: an opaque “where I left off” (sort key + ID tiebreaker) that stays fast at any depth and is stable under inserts."
   },
   {
    "q": "The right response metadata for a cursor page:",
    "o": [
-    "An offset",
-    "data + next_cursor + has_more, with default and MAX limits always set",
-    "Just an array",
-    "total count only"
+    "An offset number telling the client how many rows to skip",
+    "Just a bare array of items with no metadata attached",
+    "The page of data plus a next_cursor and a has_more flag",
+    "A total count of every row in the table, computed each time"
    ],
-   "a": 1,
+   "a": 2,
    "e": "Never return an unbounded collection — it is small in development and catastrophic in production."
   },
   {
    "q": "The industry-recommended versioning approach:",
    "o": [
-    "Custom headers only",
-    "Always date-based (Stripe-style)",
-    "Never version",
-    "/v1/ in the path for a public API, plus a strong bias toward never needing /v2 — additive evolution is the default; versions are for genuine breaking redesigns"
+    "Use a custom header exclusively and never touch the URL path",
+    "A /v1/ path plus a strong bias toward never shipping /v2",
+    "Skip versioning entirely, since a public API should never change",
+    "Always version by request date the way Stripe’s API does it"
    ],
-   "a": 3,
+   "a": 1,
    "e": "Whatever you choose — path, header, Accept, date — the discipline matters more: publish a deprecation policy (Deprecation/Sunset headers), give real dates, and retire what you can."
   },
   {
    "q": "Why does documentation drift to wrongness — and what keeps it honest?",
    "o": [
-    "OpenAPI is a GUI",
-    "Docs are optional",
-    "Writers are lazy",
-    "Hand-maintained docs in a separate wiki are wrong within weeks; generate from code or validate code against the spec — OpenAPI — and wrong docs are worse than none, because they are trusted"
+    "OpenAPI is mainly just a visual editor, so it can’t really validate anything",
+    "Documentation is optional once an API reaches a stable release",
+    "Hand-maintained docs rot fast; generating them from code keeps them honest",
+    "Because technical writers are generally careless about accuracy"
    ],
-   "a": 3,
+   "a": 2,
    "e": "From one OpenAPI document you get interactive docs, generated clients, request validation, mock servers, and contract tests — FastAPI generates it from type annotations automatically."
   }
  ],
@@ -452,45 +452,45 @@ quiz:{
   {
    "q": "Authentication vs authorization:",
    "o": [
-    "Both = tokens",
-    "Authentication = WHO ARE YOU (401); authorization = WHAT MAY YOU DO (403)",
-    "Synonyms",
-    "Authorization precedes authentication"
+    "Both terms refer only to how API tokens get generated and stored",
+    "They’re just two different words for the exact same login step",
+    "Authentication is who you are; authorization is what you may do",
+    "Authorization always happens before authentication can occur"
    ],
-   "a": 1,
+   "a": 2,
    "e": "Constantly conflated — and the 401/403 boundary is exactly where the conflation shows."
   },
   {
    "q": "JWTs, honestly. Order the critical facts:",
    "o": [
-    "Encrypted, unreadable, revocable",
-    "Signed, not encrypted — anyone holding one can READ the payload; valid until expiry, so you cannot easily revoke; validate signature, exp, iss, aud AND pin the algorithm",
-    "Unsigned, safe in localStorage",
-    "Tiny sessions"
+    "Encrypted and unreadable by anyone, and trivially revocable anytime",
+    "Signed, not encrypted; readable by anyone; hard to revoke before expiry",
+    "Unsigned by design, which is exactly why they’re safe to store in localStorage",
+    "Effectively tiny server-side sessions stored entirely in the token"
    ],
-   "a": 0,
+   "a": 1,
    "e": "Never put secrets in a JWT. Revocation problem → short-lived access tokens (5–15 min) plus a revocable, database-backed refresh token. Algorithm pinning stops the alg:none / RS256→HS256 downgrade forgeries."
   },
   {
    "q": "The single most common cause of “my POST doesn’t work” reports:",
    "o": [
-    "Wrong URL",
-    "Missing or wrong Content-Type → 415 Unsupported Media Type",
-    "Neither endpoint",
-    "The server is down"
+    "A missing or wrong Content-Type header, which returns a 415",
+    "Neither the client nor the endpoint being reachable at all right now",
+    "Simply hitting the wrong URL for the intended endpoint",
+    "The server being down or unreachable at request time"
    ],
-   "a": 2,
+   "a": 0,
    "e": "From the Part 9 debug table for 415: “the most common cause of a ‘my POST doesn’t work’ report.”"
   },
   {
    "q": "CORS — what actually protects, and who enforces it?",
    "o": [
-    "It protects USERS from cross-origin reads; enforced by BROWSERS ONLY — curl, Postman, and servers ignore it. “Works in Postman, not in my app” is the signature symptom",
-    "It replaces auth",
-    "It encrypts traffic",
-    "It protects your server from attackers"
+    "It protects your server from attackers hitting it directly",
+    "It fully replaces the need for any separate authentication scheme entirely",
+    "It encrypts traffic between the browser and the API server",
+    "It protects users from cross-origin reads, and only browsers enforce it"
    ],
-   "a": 0,
+   "a": 3,
    "e": "Server grants permission via headers; non-simple requests trigger an OPTIONS preflight the API must answer. Allow-Credentials cannot combine with a wildcard origin — and never reflect arbitrary origins."
   }
  ],
@@ -498,45 +498,45 @@ quiz:{
   {
    "q": "The create endpoint’s success response must include:",
    "o": [
-    "200 and the object",
-    "201 Created plus a Location header pointing at the new resource",
-    "202 Accepted",
-    "204 No Content"
+    "A 201 Created status with a Location header for the new resource",
+    "A plain 200 status code returned along with the newly created object",
+    "A 202 Accepted response with no further details required",
+    "A 204 No Content response with nothing else in the payload"
    ],
-   "a": 1,
+   "a": 0,
    "e": "201/Location and 204-on-delete are Parts 2–3 basics — the first thing reviewers look for in Project A."
   },
   {
    "q": "The single most common production hang in API clients:",
    "o": [
-    "JSON parsing",
-    "HTTPS",
-    "Retries",
-    "A missing timeout — a request with no timeout can wait forever"
+    "Parsing the JSON response body after it has already arrived",
+    "Using HTTPS instead of plain HTTP for the outgoing request",
+    "Retrying a failed request exactly once before giving up",
+    "A missing timeout, so a stuck request can wait forever"
    ],
-   "a": 0,
+   "a": 3,
    "e": "Project B’s rules: credentials from env vars; explicit timeout; retry with backoff+jitter ONLY on 5xx/429/network errors — never 4xx (a bad request is still bad on the fourth attempt); honour Retry-After; paginate; cache via conditional requests; log everything except the token."
   },
   {
    "q": "Two concurrent editors save the same record. The protection, and the code it answers with:",
    "o": [
-    "Redis locks",
-    "Last writer wins by design",
-    "ETag + If-Match: the GET returns an ETag; the PATCH says “only if it’s still this version” — otherwise 412 Precondition Failed, re-fetch and retry",
-    "Double-checking in the app"
+    "A Redis-based lock the server acquires before every write",
+    "An ETag with If-Match, returning 412 if the version has changed",
+    "Last writer simply wins, and that’s considered the intended behavior",
+    "The client double-checks the record itself before saving"
    ],
-   "a": 2,
+   "a": 1,
    "e": "A small amount of work that converts silent data loss into an explicit, handleable conflict — the same lost-update problem as the SQL curriculum, at the API layer."
   },
   {
    "q": "The most secure choice for tokens in a browser — and why:",
    "o": [
-    "HttpOnly; Secure; SameSite cookies plus CSRF defence — localStorage is readable by any XSS; cookies at least remove the token-theft path, and XSS is more common than CSRF",
-    "SessionStorage",
-    "base64 in URLs",
-    "localStorage, always"
+    "localStorage, always, since any JavaScript on the page can access it directly",
+    "sessionStorage, since it clears when the browser tab closes",
+    "Base64-encoding the token and appending it to the URL",
+    "HttpOnly, Secure, SameSite cookies, paired with CSRF defenses"
    ],
-   "a": 0,
+   "a": 3,
    "e": "JWT storage is a real trade-off, not a solved problem — the professional choice is the cookie, which needs SameSite and CSRF protection on state-changing requests."
   }
  ],
@@ -544,34 +544,34 @@ quiz:{
   {
    "q": "The first move when an API call fails:",
    "o": [
-    "Restart the server",
-    "Rewrite the client",
-    "Check the body",
-    "Establish WHERE the failure is before guessing why — work outward from the simplest thing that could be true: server up? (curl localhost:8000/health) DNS? right host/port/scheme? firewall? bound to 0.0.0.0? timeout set?"
+    "Restart the server first, before checking anything else",
+    "Establish where the failure is before guessing why it happened",
+    "Read through the response body line by line for clues",
+    "Immediately rewrite the client code from scratch just to be safe"
    ],
-   "a": 3,
+   "a": 1,
    "e": "The tree covers hangs, the 4xx table (400 bytes, 401 Bearer space, 404 typo or hidden object, 405 Allow header, 415 Content-Type, 422 read the body, 429 Retry-After), 5xx (read LOGS by correlation ID, never the deliberately vague response), and curl-vs-browser (CORS)."
   },
   {
    "q": "“It works in curl but not in my browser app.” First suspect:",
    "o": [
-    "The browser caches",
-    "HTTPS certificate",
-    "The server is down",
-    "CORS — almost every case; check the console for the specific message and whether an OPTIONS preflight failed"
+    "The browser silently caching an old, stale response",
+    "An expired or misconfigured HTTPS certificate on the server",
+    "CORS — check the console and whether preflight failed",
+    "The server being down just for the browser but not curl"
    ],
-   "a": 3,
+   "a": 2,
    "e": "Second most likely: the browser sends different headers, or cookies aren’t sent because of SameSite or a missing credentials: include."
   },
   {
    "q": "The highest-value test level for an API:",
    "o": [
-    "End-to-end flows",
-    "Unit tests of business logic",
-    "Load tests",
-    "Integration / API tests — real HTTP requests against the running app asserting status codes, bodies, and headers; this is where contract mistakes surface"
+    "Full end-to-end tests that drive the entire browser UI each time",
+    "Integration tests that make real HTTP requests and assert the response",
+    "Load tests that measure throughput under heavy, sustained concurrent traffic",
+    "Unit tests that only exercise isolated business-logic functions"
    ],
-   "a": 3,
+   "a": 1,
    "e": "Keep E2E small, and write the tests everyone skips: another user’s object ID (BOLA), no/malformed/expired tokens, and sending {\"role\":\"admin\"} to check mass assignment."
   }
  ],
@@ -579,45 +579,45 @@ quiz:{
   {
    "q": "The full journey of GET https://api.example.com/v1/books/42 — in order:",
    "o": [
-    "TCP → DNS → JSON",
-    "App → database → response",
-    "DNS (cached per TTL) → TCP handshake (SYN/SYN-ACK/ACK) → TLS handshake (1–2 round trips) → request serialized → intermediaries (CDN edge may serve from cache; load balancer; gateway) → application (route, auth, validate, query) → compressed, cached response → connection kept alive",
-    "TLS → UDP → DNS"
+    "TCP first, then DNS resolution, followed by a JSON parse step",
+    "DNS, then TCP and TLS handshakes, intermediaries, the app, a kept-alive reply",
+    "The app queries the database directly, then immediately returns the finished response",
+    "TLS negotiation, then UDP transport, then a DNS lookup at the end"
    ],
-   "a": 2,
+   "a": 1,
    "e": "Every step is a place latency and failure originate — which is why “why is this endpoint slow?” is answered with measurement, and the answer is frequently DNS, TLS, or a proxy timeout, not your code."
   },
   {
    "q": "Why does connection reuse matter so much?",
    "o": [
-    "Cookies expire",
-    "It saves RAM",
-    "HTTP/3 needs it",
-    "A new connection pays the full TCP + TLS startup cost per request — one request per connection can easily triple your latency; a persistent client (requests.Session, shared httpx.Client, keep-alive) is a cheap, common production fix"
+    "Because cookies expire whenever a new connection is opened",
+    "A fresh connection pays full TCP and TLS setup cost every request",
+    "Because HTTP/3 requires connections to be reused to function",
+    "Because reusing connections mainly just saves the client some RAM usage"
    ],
-   "a": 3,
+   "a": 1,
    "e": "The layered-system and keep-alive facts also explain why old advice — bundling every file, domain sharding — is counterproductive on HTTP/2 and HTTP/3."
   },
   {
    "q": "HTTP/2 and HTTP/3 — what each fixed, and what remained:",
    "o": [
-    "H2: TLS; H3: DNS",
-    "H2: multiplexing + HPACK — killed application-level head-of-line blocking, but TCP-level blocking remained; H3: QUIC over UDP — independent streams, faster handshake, connection migration",
-    "H2: more requests; H3: caching",
-    "H2: push; H3: pull"
+    "H2 introduced TLS to HTTP; H3 introduced DNS resolution",
+    "H2 fixed app-level blocking but not TCP’s; H3’s QUIC over UDP fixed that too",
+    "H2 simply added more simultaneous requests; H3 mainly improved caching further",
+    "H2 added server push only; H3 added client pull only"
    ],
-   "a": 2,
+   "a": 1,
    "e": "The through-line: each version attacked the round-trip and blocking costs of the previous one. “Which problem did each solve?” is the interview question."
   },
   {
    "q": "The two facts that shape API design more than any optimization:",
    "o": [
-    "Round trips dominate — 1 request returning 100 items beats 100 requests returning 1; and geography is physics — a ~200ms cross-world round trip cannot be optimized away, only avoided via caching and CDNs",
-    "Payload size is everything",
-    "CPU and memory are the bottleneck",
-    "Compression is everything"
+    "CPU cycles and memory usage are always the real bottleneck",
+    "Payload size alone determines how fast an API feels to use",
+    "Round trips dominate cost, and geography is physics you can’t avoid",
+    "Compression settings usually matter more than anything else you can tune"
    ],
-   "a": 0,
+   "a": 2,
    "e": "This is precisely the over-fetching/under-fetching pressure that produced GraphQL — and why cacheability is described as the biggest reason the web scales."
   }
  ],
@@ -625,45 +625,45 @@ quiz:{
   {
    "q": "Cache-Control public vs private — and the failure if you get it wrong:",
    "o": [
-    "private = only the client; public = shared proxies and CDNs may cache. Getting it wrong can LEAK one user’s data to another via a shared cache — anything authenticated should be private at minimum, anything sensitive no-store",
-    "public is always fine",
-    "No difference",
-    "no-store is optional"
+    "There’s no real difference between the two cache directives",
+    "Public caching is always perfectly safe no matter what the response actually contains",
+    "Private is client-only, public allows shared caches — mixing them up can leak data",
+    "no-store is entirely optional and rarely changes real behavior"
    ],
-   "a": 0,
+   "a": 2,
    "e": "A cache hit is infinitely faster than any optimization — because the request doesn’t happen. Conditional requests (If-None-Match → 304) save bandwidth without staleness."
   },
   {
    "q": "Idempotency keys — how they work:",
    "o": [
-    "They replace authentication",
-    "They expire in minutes",
-    "The CLIENT generates a key per logical operation and keeps it across retries; the server stores key + result of the first success; a repeat returns the ORIGINAL response; a concurrent duplicate gets 409; keep keys ~24h",
-    "The server generates the key"
+    "They serve as a replacement for authenticating the request",
+    "They expire within a few minutes, so later retries are unsafe",
+    "The server always generates a brand-new key and hands it back on each request",
+    "The client generates a key; the server stores and replays the first result"
    ],
-   "a": 2,
+   "a": 3,
    "e": "The difference between an API that’s safe to retry and one that double-charges customers — the answer to “my POST timed out, what now?”"
   },
   {
    "q": "Rate limiting done right:",
    "o": [
-    "Never limit auth endpoints",
-    "Per IP, always",
-    "Fixed window only",
-    "Token bucket (allows controlled bursts) per API key or user — not per IP, since shared NATs punish innocent users; return 429 with Retry-After and RateLimit-* headers so good clients self-regulate"
+    "Never rate limit authentication endpoints at all, since users need real speed",
+    "A token bucket keyed per user or API key, returning 429 with Retry-After",
+    "A fixed window only, applied the same way to every endpoint",
+    "A fixed window counted strictly per IP address for every route"
    ],
-   "a": 3,
+   "a": 1,
    "e": "From the security checklist too: stricter limits on auth endpoints (credential stuffing), redact secrets in logs, allowlist outbound URLs (SSRF), and never serialize your database model directly (excessive data exposure)."
   },
   {
    "q": "The observability minimum that makes a bug report traceable:",
    "o": [
-    "Uptime monitoring",
-    "Structured JSON logs with a correlation/request ID on every line, propagated to downstream calls; latency as percentiles (p95/p99 — averages hide the tail); a /health endpoint; never log tokens",
-    "Alerting on everything",
-    "A dashboard"
+    "Structured logs with a correlation ID on every line, plus latency percentiles",
+    "Just an uptime monitor pinging the root endpoint once every single minute or so",
+    "Alerting configured to fire on literally every logged event",
+    "A single dashboard showing overall request counts per hour"
    ],
-   "a": 1,
+   "a": 0,
    "e": "“Intermittent failures are the hard ones” — correlation IDs and per-request latency are what make them findable at all."
   }
  ],
@@ -671,45 +671,45 @@ quiz:{
   {
    "q": "REST is the strong default when:",
    "o": [
-    "Always",
-    "Public or partner-facing; clients diverse and beyond your deployment control; domain naturally resource-shaped; caching valuable; you want browsers, curl, proxies, CDNs, and OpenAPI tooling to work with no special client",
-    "Never",
-    "Only for startups"
+    "Clients are diverse and external, and the domain is resource-shaped",
+    "Always, regardless of who the clients are or the domain",
+    "Never, since newer protocols have already fully replaced it in practice",
+    "Only when the API is being built specifically for a startup"
    ],
-   "a": 1,
+   "a": 0,
    "e": "Being able to ARGUE AGAINST the default is a mark of real understanding."
   },
   {
    "q": "GraphQL is the right call when — and the price you pay:",
    "o": [
-    "When you have many servers",
-    "Clients need widely varying subsets of a complex graph; mobile clients suffer over-fetching and N+1 round trips. Price: HTTP caching largely stops working (everything is one POST to /graphql), query depth/cost limiting becomes mandatory, rate limiting gets harder",
-    "Never — it is old",
-    "Always — it is newer"
+    "When a team is scaling out to run many separate physical servers",
+    "Whenever a project is new, simply because GraphQL feels more modern overall",
+    "Never, because GraphQL offers no real advantage over plain REST",
+    "Clients need varying slices of a graph, at the cost of easy HTTP caching"
    ],
-   "a": 1,
+   "a": 3,
    "e": "A genuine alternative for specific problems — not a replacement for REST."
   },
   {
    "q": "gRPC is the right call when — and the price:",
    "o": [
-    "For third-party integrations",
-    "For mobile clients",
-    "For public APIs",
-    "Internal service-to-service where you control both ends and want high throughput, strict schemas, generated clients, streaming. Price: not natively callable from browsers, binary payloads are hard to debug by hand, and generated stubs create the coupling REST was designed to avoid — fine inside a boundary you control"
+    "Whenever integrating with an unrelated third-party vendor",
+    "Whenever the primary clients are simply mobile apps sold in the app stores directly",
+    "Internal service-to-service calls you control, at the cost of browser support",
+    "Whenever you’re exposing a brand-new public-facing API"
    ],
-   "a": 3,
+   "a": 2,
    "e": "The pragmatic industry pattern: REST at the public edge, gRPC or events internally — evolvability where you don’t control clients, efficiency where you do."
   },
   {
    "q": "REST’s real weaknesses, stated without defending them:",
    "o": [
-    "None — it is perfect",
-    "Chatty (fetching one screen can take several round trips); structural over- and under-fetching; no standard for filtering, pagination, errors, or versioning, so every API invents a dialect; PATCH semantics underspecified; HATEOAS almost universally skipped, so clients hard-code URLs after all",
-    "It cannot stream",
-    "It is slow at parsing JSON"
+    "Chatty round trips, over/under-fetching, and no real pagination or error standard",
+    "Honestly none worth mentioning — REST has no meaningful design weaknesses at all",
+    "It’s fundamentally unable to support any kind of data streaming",
+    "JSON parsing itself is unusually slow compared to other formats"
    ],
-   "a": 1,
+   "a": 0,
    "e": "Name these openly — then the alternatives (GraphQL, gRPC, WebSockets, SSE, queues, webhooks) each buy something specific and cost something else."
   }
  ],
@@ -717,45 +717,45 @@ quiz:{
   {
    "q": "“What is REST?” — the answer that reads senior:",
    "o": [
-    "“The opposite of SOAP”",
-    "“A standard with a compliance test”",
-    "“An API that returns JSON”",
-    "“An architectural style with constraints — the set Roy Fielding identified as the reason the web scales: statelessness lets any server answer any request; the uniform interface lets generic infrastructure understand traffic it knows nothing about”"
+    "“The direct opposite of SOAP, and nothing more specific”",
+    "“A formal standard complete with an official compliance test every API must pass”",
+    "A set of constraints where statelessness and a uniform interface let the web scale",
+    "“An API that returns JSON instead of XML or plain text”"
    ],
-   "a": 3,
+   "a": 2,
    "e": "Tier 1 question 1 — and the shape that reads senior in every answer: WHAT it is → WHY it exists → ONE concrete consequence."
   },
   {
    "q": "“A client times out on a POST and doesn’t know if it succeeded. What now?”",
    "o": [
-    "Ask the user",
-    "Switch to GET",
-    "Retry immediately",
-    "Use an idempotency key — retry with the SAME key and the server returns the original response instead of acting again — and only retry 5xx/429/network errors, never 4xx"
+    "Simply ask the user to confirm whether it worked or not",
+    "Switch the request to a GET so it’s safe to repeat freely",
+    "Retry with the same idempotency key so the server returns the original result",
+    "Retry immediately with a completely different brand-new request and hope for the best"
    ],
-   "a": 3,
+   "a": 2,
    "e": "This exact scenario is a Tier 2 differentiator question — the practical heart of the idempotency section."
   },
   {
    "q": "Tier 3’s walk-through question:",
    "o": [
-    "“Walk me through everything that happens when a client calls your API endpoint” — DNS → TCP → TLS → intermediaries → application → compressed, cached response → keep-alive, plus measurement as the debugging habit",
-    "“What is your favourite status code?”",
-    "“Do you use Postman?”",
-    "“Which JSON library do you use?”"
+    "“Which particular JSON parsing library does your team happen to prefer?”",
+    "“What’s your personal favorite HTTP status code and why?”",
+    "“Do you normally test your endpoints using Postman or curl?”",
+    "“Walk me through everything that happens when a client calls your endpoint”"
    ],
-   "a": 0,
+   "a": 3,
    "e": "Also Tier 3: HTTP/2 vs /3 and what each fixed, Fielding’s constraints and what each buys, the HATEOAS honesty answer, BOLA, GraphQL vs gRPC trade-offs, and the resilient-client checklist."
   },
   {
    "q": "The statement that separates people who used APIs from people who understand them:",
    "o": [
-    "“I have called a thousand endpoints”",
-    "“I never get timeouts”",
-    "“I know all 70 status codes”",
-    "Networks fail after the server acted but before the response arrived — so safety and idempotency are what make retries possible; that is why POST duplicates, GET-that-deletes is a bug, and payments carry keys"
+    "Networks can fail after the server acts but before the response arrives",
+    "“I’ve simply never once run into a request that timed out”",
+    "“I can recite all seventy-some HTTP status codes from memory”",
+    "“I’ve personally called literally thousands of totally different endpoints”"
    ],
-   "a": 3,
+   "a": 0,
    "e": "Every theory in this curriculum serves reasoning about retries, timeouts, and duplicate requests — the actual hard part of distributed systems."
   }
  ],
@@ -763,45 +763,45 @@ quiz:{
   {
    "q": "Milestone 1 — Model — pass line:",
    "o": [
-    "Memorize all 70 status codes",
-    "Set up Postman",
-    "The five checkpoint questions from Part 2, unaided; name Fielding’s constraints and what statelessness buys. <b>(parts 1–2; days 1–2)</b>",
-    "Build a full API"
+    "Memorize all seventy-plus official HTTP status codes",
+    "Successfully set up and configure Postman for testing",
+    "Build and fully deploy one complete working API entirely from scratch",
+    "Answer Part 2’s five checkpoint questions unaided, cold"
    ],
-   "a": 2,
+   "a": 3,
    "e": "Pure understanding, no typing yet — everything later assumes the mental model."
   },
   {
    "q": "Milestone 3 — Design — pass line:",
    "o": [
-    "Read one blog post",
-    "Copy Stripe’s API",
-    "Write one endpoint",
-    "Design a full URL surface for a non-trivial domain including non-CRUD actions with justifications; specify error format, pagination, and a versioning strategy; write valid OpenAPI for it. <b>(parts 4–6; days 6–11)</b>"
+    "Read one blog post about REST API design best practices",
+    "Copy Stripe’s entire public API surface wholesale and adapt it to a brand-new domain",
+    "Write a single working endpoint end to end and stop there",
+    "Design a full URL surface with justified non-CRUD actions, then write valid OpenAPI"
    ],
-   "a": 1,
+   "a": 3,
    "e": "Design is where most APIs reveal whether their author understood REST — cheap to get right, expensive to change later."
   },
   {
    "q": "Milestone 5 — Build and consume — pass line:",
    "o": [
-    "Ship a landing page",
-    "Deploy to Heroku",
-    "Call one endpoint once",
-    "Project A meeting all thirteen requirements, and Project B surviving network failure, bad credentials, rate limiting, and a multi-page collection. <b>(part 8; days 17–26)</b>"
+    "Ship a simple static landing page describing the finished API",
+    "Deploy the finished project to a free hosting platform",
+    "Successfully call just a single API endpoint exactly one time, nothing else",
+    "Project A meets every requirement; Project B survives real network failure"
    ],
-   "a": 0,
+   "a": 3,
    "e": "Designing an API and living with someone else’s are different skills — each teaches what the other misses. The biggest single project phase: ~10 days."
   },
   {
    "q": "Why is running `curl -v` by hand early the non-negotiable exercise?",
    "o": [
-    "It tests the network",
-    "It is required by OpenAPI",
-    "Almost everyone who finds APIs confusing has only ever seen them through a library that hid the request — seeing the raw exchange once dissolves most of the confusion permanently",
-    "It is the fastest command"
+    "It’s specifically designed to test raw network connectivity speed",
+    "The OpenAPI specification technically requires using curl directly for this",
+    "It happens to be the single fastest command-line tool available",
+    "Seeing the raw request once dissolves most confusion a library normally hides"
    ],
-   "a": 2,
+   "a": 3,
    "e": "The exercises are the curriculum. Total realistic pace: ~33 days at one focused hour per day, from M1 to M6."
   }
  ]

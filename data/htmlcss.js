@@ -132,9 +132,9 @@ quiz:{
   {
    "q": "HTML was invented:",
    "o": [
-    "By Netscape in 1995",
-    "As part of HTTP/2",
-    "By the W3C in 1994",
+    "By a committee at Netscape in 1995, who bundled markup and visual styling together into one proprietary browser format",
+    "As part of HTTP/2 in the mid-2010s, added so servers could push fully structured documents straight to clients",
+    "By the W3C in 1994 as a top-down formal standard, years before any browser existed that could render it",
     "By Tim Berners-Lee at CERN (1989) — hypertext to share physics papers; CSS followed in 1996 to separate content from presentation"
    ],
    "a": 3,
@@ -143,10 +143,10 @@ quiz:{
   {
    "q": "HTML is:",
    "o": [
-    "A query language",
-    "A programming language",
+    "A query language used to fetch and filter records out of a structured database",
+    "A programming language with loops and conditionals that control how the page behaves at runtime",
     "A markup language — it describes document structure and meaning, not behaviour",
-    "A styling language"
+    "A styling language the browser uses to decide colours, fonts, and spacing on the page"
    ],
    "a": 2,
    "e": "No logic, no state. Elements describe meaning; browser + CSS decide appearance; JS adds behaviour."
@@ -154,10 +154,10 @@ quiz:{
   {
    "q": "The standards context that matters:",
    "o": [
-    "HTML is frozen at 4.01",
-    "Standards are cosmetic",
+    "HTML is frozen at version 4.01 and has not meaningfully changed at all since browsers first stabilised support back in the 2000s",
+    "Standards are mostly cosmetic — browsers ship whatever features product marketing happens to demand",
     "The HTML Living Standard (WHATWG) — the web keeps moving, and browsers implement to it rather than frozen specs",
-    "Only the W3C can change HTML"
+    "Only the W3C can change HTML, and every new feature needs their sole formal sign-off first"
    ],
    "a": 2,
    "e": "HTML is a living standard: features ship in browsers first, get standardised after — the opposite of frozen legacy specs."
@@ -165,9 +165,9 @@ quiz:{
   {
    "q": "When a design is “just divs”, the lost layer is:",
    "o": [
-    "Cascade",
-    "Speed",
-    "Colour",
+    "Cascade — divs quietly break the cascade so specificity rules stop applying correctly",
+    "Speed — a page built only from divs renders measurably and consistently slower than one built with proper semantic elements",
+    "Colour — divs strip out whatever colour information the designer originally specified",
     "MEANING — divs carry no semantics; screen readers, search and future you lose the document’s outline"
    ],
    "a": 3,
@@ -178,9 +178,9 @@ quiz:{
   {
    "q": "The browser renders pages by:",
    "o": [
-    "Rendering in source order instantly",
-    "Styling the HTML text directly",
-    "Asking the server for pixels",
+    "Rendering every element in source order instantly, with no intermediate structure at all",
+    "Styling the raw HTML text directly as it streams in, before any tree gets built",
+    "Asking the server for pre-rendered pixels instead of parsing the markup locally",
     "Building a DOM TREE first, then styling it — CSS targets nodes of that tree"
    ],
    "a": 3,
@@ -189,10 +189,10 @@ quiz:{
   {
    "q": "The box model arithmetic:",
    "o": [
-    "width includes margin by default",
+    "width includes margin by default, so an element’s own margin never actually adds to its total rendered footprint",
     "content + padding + border (+ margin) — box-sizing: border-box moves padding/border INSIDE the width",
-    "padding never affects total size",
-    "border is free"
+    "padding never affects total size unless box-sizing is explicitly switched to content-box",
+    "border renders for free — it never changes an element’s width or height at all"
    ],
    "a": 1,
    "e": "With border-box, width = everything up to the border — the only sane default for real layouts."
@@ -201,9 +201,9 @@ quiz:{
    "q": "Normal flow is:",
    "o": [
     "A real layout system — block elements stack, inline flows along the line — and it is usually right; flex/grid are refinements, not replacements",
-    "Deprecated",
-    "Only for paragraphs",
-    "A bug to be worked around"
+    "Deprecated behaviour that modern browsers only keep around for legacy backward compatibility support",
+    "Something that only applies to paragraphs and other purely textual inline-level elements",
+    "A bug to be worked around with absolute positioning everywhere, until flexbox fully takes over"
    ],
    "a": 0,
    "e": "Idea 3: normal flow handles most pages correctly. Reach for positioning only when flow genuinely can’t."
@@ -212,9 +212,9 @@ quiz:{
    "q": "The cascade decides winners in this order:",
    "o": [
     "Important + origin → specificity → source order — more specific selectors win; ties go to the later rule",
-    "Selector length",
-    "Alphabetical",
-    "File order only"
+    "Selector length — the selector written with the most characters always overrides the shorter one",
+    "Alphabetical order — property names earlier in the alphabet take precedence over later ones",
+    "File order only — whichever stylesheet happens to be loaded last in the document always wins every single conflict"
    ],
    "a": 0,
    "e": "Idea 4: importance/origin first (author !important beats normal), then specificity, then source order. Inline styles beat selectors (except !important)."
@@ -224,10 +224,10 @@ quiz:{
   {
    "q": "Semantic HTML is:",
    "o": [
-    "A styling preference",
-    "Required only for SEO",
+    "A styling preference — semantic tags simply look tidier in the raw source code to other developers",
+    "Required only for SEO purposes — search engines need it but users and browsers largely ignore it",
     "Meaning over appearance — header/main/section/article/nav describe structure; the browser and assistive tech consume the OUTLINE",
-    "The same as using divs"
+    "The same as using divs, since browsers render both of them identically once CSS is applied"
    ],
    "a": 2,
    "e": "The element map is the document’s outline. Semantic elements also ship free behaviour (landmark roles, default margins)."
@@ -235,9 +235,9 @@ quiz:{
   {
    "q": "Forms done right require:",
    "o": [
-    "Only a submit button",
-    "JS validation exclusively",
-    "Tables for layout",
+    "Only a submit button — everything else is optional as long as a user can click it",
+    "JS validation exclusively — skip the HTML attributes and validate everything in script",
+    "Tables for layout — wrapping each field in a table row keeps the form visually aligned",
     "label tied via for/id, a name on every field, correct type + required/pattern validation, aria-describedby for help text"
    ],
    "a": 3,
@@ -246,9 +246,9 @@ quiz:{
   {
    "q": "Accessibility is mostly:",
    "o": [
-    "A CSS class",
-    "Only for government sites",
-    "A plugin",
+    "A CSS class — add one special utility class to the body element and assistive tech picks up the rest",
+    "Only for government sites — private companies are not expected to meet these standards",
+    "A plugin — install a third-party accessibility widget on the page and let it automatically handle every compliance requirement for you, with no structural changes needed",
     "A byproduct — correct headings, alt text, focus styles and contrast come free from structure; the audits mostly check the structure you already should have"
    ],
    "a": 3,
@@ -258,9 +258,9 @@ quiz:{
    "q": "alt text exists for:",
    "o": [
     "The blind — describe what the image MEANS in context, not what it literally shows",
-    "SEO keywords",
-    "Lazy loading",
-    "Designers"
+    "SEO keywords — stuff the alt attribute with search terms so the page ranks higher",
+    "Lazy loading — alt text tells the browser when it should defer loading the image",
+    "Designers — alt text is really a note left for other designers reviewing the file later"
    ],
    "a": 0,
    "e": "Meaning, not description: a graph’s alt summarises the finding, not the axes."
@@ -270,10 +270,10 @@ quiz:{
   {
    "q": "The selector strategy that scales:",
    "o": [
-    "Deep descendant chains",
-    "Universal selectors only",
+    "Deep descendant chains — nesting selectors five or six levels deep keeps intent clear and easy for teammates to follow",
+    "Universal selectors only — style everything through the * selector for total consistency",
     "Class-based with LOW specificity — avoid IDs for styling; :is()/:where() keep specificity sensible",
-    "IDs everywhere"
+    "IDs everywhere — an ID selector on every element guarantees your rule always wins the cascade"
    ],
    "a": 2,
    "e": "Low-specificity classes keep every later rule winnable. Deep chains (div .a .b .c) become specificity debt."
@@ -281,10 +281,10 @@ quiz:{
   {
    "q": "Custom properties are:",
    "o": [
-    "Deprecated",
+    "Deprecated — custom properties were replaced by Sass variables in modern CSS workflows",
     "Design tokens — --x declared on :root, inherited down the tree, overridable at any level (but not inside media queries)",
-    "Runtime variables",
-    "A preprocessor feature"
+    "Runtime variables that JavaScript quietly and automatically recreates completely from scratch on every single page load and reload",
+    "A preprocessor feature — custom properties only exist once Sass or Less compiles the source"
    ],
    "a": 1,
    "e": "This is where modern CSS starts: one token change re-themes a whole app. They compose with calc() and can’t be read by media queries — plan for that."
@@ -292,9 +292,9 @@ quiz:{
   {
    "q": "rem vs em:",
    "o": [
-    "rem is always wrong",
-    "They are identical",
-    "em is absolute",
+    "rem is always the wrong choice for any real production project — stick to em everywhere instead for fully consistent scaling",
+    "They are identical units — browsers simply resolve both of them to the same fixed pixel value",
+    "em is an absolute unit fixed permanently at 16 pixels regardless of nesting or context",
     "rem = root em (stable); em compounds at every nesting level — use rem for spacing/type scale, em for element-relative sizes"
    ],
    "a": 3,
@@ -303,10 +303,10 @@ quiz:{
   {
    "q": "Two rules same specificity — who wins?",
    "o": [
-    "The browser decides randomly",
+    "The browser resolves the tie at random on every single page load, by design",
     "Source order: the LATER rule wins",
-    "The first rule, always",
-    "The shorter rule"
+    "The first rule always wins, no matter where the second, equally specific rule is declared",
+    "The shorter rule wins outright, since browsers favour compact selectors over verbose ones"
    ],
    "a": 1,
    "e": "Specificity tie → later in the stylesheet wins. That is why “undo” rules must come after the rules they undo."
@@ -317,9 +317,9 @@ quiz:{
    "q": "Choosing a layout tool:",
    "o": [
     "Flow for what flow does; FLEXBOX for 1-D arrangement of content; GRID for 2-D container-driven structure; absolute positioning as the escape hatch",
-    "Grid for everything",
-    "Tables were never a layout",
-    "Flexbox for everything"
+    "Grid for everything, always — even a single row of nav links or one inline button deserves its own full grid container with named template areas",
+    "Tables were never a real layout tool and have no legitimate use in any modern page",
+    "Flexbox for everything, always — two-dimensional layouts still resolve fine with nested flex rows"
    ],
    "a": 0,
    "e": "Flex = content-sized, one axis, per-item control. Grid = container-sized, tracks and areas. Each has a mental model; pick by the constraint that actually binds."
@@ -327,10 +327,10 @@ quiz:{
   {
    "q": "The flexbox mental model:",
    "o": [
-    "Flex has one axis only",
+    "Flex has one axis only, so justify-content and align-items always control the same direction",
     "main axis vs cross axis — justify-content places along main, align-items along cross; flex-grow/shrink/basis decide how space is claimed",
-    "gap only works in Grid",
-    "align-items controls the main axis"
+    "gap only works inside Grid containers; flexbox has no equivalent spacing property at all",
+    "align-items controls the main axis, while justify-content is reserved for the cross axis instead"
    ],
    "a": 1,
    "e": "If you can state the axis for each property, flexbox stops surprising you."
@@ -338,10 +338,10 @@ quiz:{
   {
    "q": "The grid mental model:",
    "o": [
-    "Grid cannot mix sizes",
-    "fr is a font unit",
+    "Grid cannot mix differently sized tracks — every column or row must share one fixed width",
+    "fr is a font-sizing unit, similar to rem, used for scaling type inside a grid container",
     "Tracks (columns/rows) with fr units, named template areas, and alignment — the container owns the layout, not the items",
-    "Grid items position themselves"
+    "Grid items decide their own position by default, independent of whatever the container declares"
    ],
    "a": 2,
    "e": "grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) — one line, fluid responsive layout, no media query."
@@ -349,10 +349,10 @@ quiz:{
   {
    "q": "The two positioning traps:",
    "o": [
-    "absolute stays in flow",
-    "fixed is relative to the page only",
+    "absolute stays fully inside normal flow, so surrounding elements still reserve space around it exactly as before",
+    "fixed positions relative only to the page’s root element, never to the viewport itself",
     "absolute removes the box from flow (its containing block is the nearest positioned ancestor); sticky needs a scroll container and a top value",
-    "sticky works without top"
+    "sticky works fine with no top value declared, defaulting quietly to the viewport edge"
    ],
    "a": 2,
    "e": "Both traps are “works nowhere else, works here” surprises — check the containing block, check the scroll parent."
@@ -363,9 +363,9 @@ quiz:{
    "q": "The responsive premise:",
    "o": [
     "Respond to the VIEWPORT and the device — design systems that reflow; mobile-first makes constraints explicit",
-    "Detect the browser with JS",
-    "One desktop layout is fine",
-    "Media queries are the only tool"
+    "Detect the browser with JS and serve a completely different, hand-built layout file for each browser and device combination",
+    "One desktop layout is fine — modern phones just zoom the page out to make everything fit",
+    "Media queries are the only tool that matters; every other responsive technique is optional"
    ],
    "a": 0,
    "e": "Intrinsic sizes, wrapping, clamp() and container queries come BEFORE media queries — media queries fill the gaps, not the plan."
@@ -373,9 +373,9 @@ quiz:{
   {
    "q": "The best-first toolkit:",
    "o": [
-    "A media query per device",
-    "iframe resizing",
-    "Fixed px widths",
+    "A dedicated media query written for each individual device model on the market",
+    "iframe resizing scripts that recalculate the whole page layout on every scroll event",
+    "Fixed pixel widths on every container, chosen once for a single reference screen size",
     "Intrinsic sizing (min/max-content), flex-wrap, grid auto-fit/minmax, clamp() type, fluid spacing, srcset — media queries LAST"
    ],
    "a": 3,
@@ -384,9 +384,9 @@ quiz:{
   {
    "q": "A common responsive mistake:",
    "o": [
-    "Using rem",
-    "Using gap",
-    "Too much fluidity",
+    "Using rem units for spacing instead of raw pixels throughout the whole stylesheet",
+    "Using gap for spacing between flex or grid children instead of individual margins",
+    "Making a layout too fluid overall, so it reflows smoothly across literally every viewport width available on any device",
     "Setting min-width in px on containers — breaks any viewport below it; prefer minmax(0, ...) and flexible tracks"
    ],
    "a": 3,
@@ -395,9 +395,9 @@ quiz:{
   {
    "q": "Images that never overflow:",
    "o": [
-    "width: 100vw",
-    "img { display: none } until loaded",
-    "object-fit on spans",
+    "width: 100vw on every image, regardless of the container it happens to sit inside",
+    "img { display: none } until the whole page has fully finished loading its assets",
+    "object-fit applied to span elements instead of the actual img elements it was designed to target and constrain",
     "max-width: 100%; height: auto — plus width/height attributes (or aspect-ratio) to reserve layout space"
    ],
    "a": 3,
@@ -408,9 +408,9 @@ quiz:{
   {
    "q": "Systems beat one-offs:",
    "o": [
-    "One-off styles are faster forever",
-    "Every page bespoke",
-    "Systems kill creativity",
+    "One-off styles are faster to ship forever, even as the number of pages keeps growing",
+    "Every page should be bespoke — shared tokens just slow designers down in the long run",
+    "Design systems kill creativity by locking every single page into one identical, unchangeable visual template forever",
     "Tokens (type/colour/space) → components → pages — a small design system beats bespoke pixels every time"
    ],
    "a": 3,
@@ -419,10 +419,10 @@ quiz:{
   {
    "q": "Typography is the highest visual ROI:",
    "o": [
-    "Line-height is a luxury",
+    "Line-height is a luxury setting that only matters for long-form editorial articles",
     "A modular type scale (e.g. 1.25 ratio), 1.4–1.6 line-height, 45–75ch measure — type alone carries a design",
-    "More fonts = better",
-    "font-size: 16px everywhere"
+    "More fonts loaded on a page is always better, since variety reads as more polished",
+    "font-size: 16px everywhere is basically the whole story; type scale and line measure barely matter after that point"
    ],
    "a": 1,
    "e": "Type is ~90% of the page’s visual weight. Get the scale, spacing and measure right and the design lands."
@@ -430,9 +430,9 @@ quiz:{
   {
    "q": "Colour’s one DEEP rule:",
    "o": [
-    "Contrast is a designer luxury",
-    "Use every colour in the palette",
-    "Black on white only",
+    "Contrast checking is a designer luxury that most production teams can skip entirely",
+    "Use every colour in the palette on a single screen so nothing feels flat or boring",
+    "Black text on a white background only — every other colour combination automatically fails every accessibility audit",
     "CONTRAST — text must pass 4.5:1 against its background (WCAG AA); hue choice is taste, contrast is law"
    ],
    "a": 3,
@@ -441,9 +441,9 @@ quiz:{
   {
    "q": "Motion defaults:",
    "o": [
-    "Motion is forbidden",
-    "Longer is classier",
-    "Animate everything",
+    "Motion is forbidden in accessible interfaces and should never appear on any page",
+    "Longer animation durations always read as more premium and considered to most users",
+    "Animate every property you can on every element so the interface always feels alive",
     "150–300ms, ease-out, one or two properties at a time — and honour prefers-reduced-motion"
    ],
    "a": 3,
@@ -454,9 +454,9 @@ quiz:{
   {
    "q": "Building the full page starts with:",
    "o": [
-    "Colours first",
-    "A framework",
-    "Fonts first",
+    "Colours first — lock the palette down before any markup or layout decisions get made",
+    "A framework — install one first and let its defaults decide the page’s structure",
+    "Fonts first — pick the typeface family before writing a single line of semantic HTML",
     "The semantic STRUCTURE — outline first, then tokens, then sections, then polish; verify in DevTools constantly"
    ],
    "a": 3,
@@ -465,10 +465,10 @@ quiz:{
   {
    "q": "CSS order that scales:",
    "o": [
-    "One giant file",
+    "One giant file with every rule for every screen size mixed together in source order",
     "Mobile-first: base styles, then media queries that ADD complexity at wider widths",
-    "Inline styles everywhere",
-    "Desktop-first always"
+    "Inline styles everywhere, so each element carries its own rules independent of any sheet",
+    "Desktop-first always, with media queries later stripping features away for small screens"
    ],
    "a": 1,
    "e": "Mobile-first means the constrained case is the default — extension beats correction."
@@ -476,9 +476,9 @@ quiz:{
   {
    "q": "Form validation states must be:",
    "o": [
-    "Colour-only",
-    "A JS library’s job alone",
-    "Silent until submit",
+    "Colour-only, since a red or green border communicates the full validation state alone",
+    "A JS library’s job alone, with no HTML validation attributes involved at all",
+    "Silent until submit, so the user only discovers problems after clicking the button",
     "Visible, labelled, and matching HTML validation — :invalid/:valid plus aria-describedby help text and focus management"
    ],
    "a": 3,
@@ -487,10 +487,10 @@ quiz:{
   {
    "q": "The final pass audits:",
    "o": [
-    "Nothing — ship it",
-    "Only looks",
+    "Nothing — a finished-looking page is ready to ship without any further checks",
+    "Only how the page looks in the one browser and screen size used during development",
     "Keyboard navigation, contrast (4.5:1), zoom to 200%, Lighthouse/axe — measure, then fix the real findings",
-    "Browser compatibility pages"
+    "Browser compatibility tables, checked once early on, with no further live testing against real production content"
    ],
    "a": 2,
    "e": "The audits are quick; the findings are honest. A keyboard-walkable, high-contrast page is the baseline, not the bonus."
@@ -500,9 +500,9 @@ quiz:{
   {
    "q": "The four DevTools panels that matter:",
    "o": [
-    "Console only",
-    "Screenshots panel",
-    "Only the Elements tab exists",
+    "Console only — every layout, cascade, source, and network question can always be answered directly and completely from the printed console logs alone",
+    "A dedicated screenshots panel that compares renders across browsers automatically",
+    "Only the Elements tab exists in a real debugging workflow; the rest are rarely opened",
     "Elements (styles + box), Computed (what actually won), Network (what loaded), Performance (what janked) — Computed answers cascade fights instantly"
    ],
    "a": 3,
@@ -511,10 +511,10 @@ quiz:{
   {
    "q": "The debugging decision tree:",
    "o": [
-    "Ask the design tool",
-    "Rewrite the file",
+    "Ask the design tool what the intended spacing was supposed to be and match the CSS exactly to that value",
+    "Rewrite the file from scratch — a clean slate is usually faster than tracing the bug",
     "Is it a BOX problem, a CASCADE problem, or a SOURCE problem? Check computed styles before touching code",
-    "Random changes until it works"
+    "Make random changes and reload the page until something starts looking right"
    ],
    "a": 2,
    "e": "Box: inspect the box model. Cascade: inspect computed + matched selectors. Source: is it even loaded?"
@@ -522,10 +522,10 @@ quiz:{
   {
    "q": "An element is smaller than expected. First move:",
    "o": [
-    "Add !important",
+    "Add !important to the width rule so nothing else in the cascade can override it",
     "Inspect the box model panel — border-box vs content-box and padding explain most sizing mysteries",
-    "Increase width",
-    "Delete the stylesheet"
+    "Increase the declared width repeatedly until the element visually looks about the right size on screen",
+    "Delete the stylesheet and see whether the browser’s default sizing looks correct"
    ],
    "a": 1,
    "e": "The box panel shows content/padding/border/margin live — the arithmetic is visible, not guessed."
@@ -533,10 +533,10 @@ quiz:{
   {
    "q": "A style will not apply no matter what:",
    "o": [
-    "It is a browser bug",
-    "CSS is broken",
+    "It is almost certainly a browser rendering bug in this particular case, rather than anything actually wrong in your own stylesheet, markup, or build configuration",
+    "CSS itself is simply broken in this case and there is no reliable way to debug it",
     "Check the cascade order: specificity (IDs/classes count), then source order, then inline styles and !important — the Computed panel names the culprit",
-    "Use more !important"
+    "Add more !important declarations until one of them finally happens to take effect"
    ],
    "a": 2,
    "e": "Winners are decided by importance → specificity → order. The panel lists which selector won and where it lives."
@@ -546,9 +546,9 @@ quiz:{
   {
    "q": "The rendering pipeline, in order:",
    "o": [
-    "DOM → paint → style",
-    "Paint → layout → style",
-    "Style is optional",
+    "The DOM is built, then the page paints immediately, and style is resolved afterward",
+    "Paint happens first in every case, then layout measures the boxes, and style resolves the values last of all",
+    "The style stage is optional and browsers can skip straight from DOM to layout",
     "HTML → DOM tree; CSS → style (cascade + resolved values) → layout (boxes measured) → paint → composite"
    ],
    "a": 3,
@@ -557,10 +557,10 @@ quiz:{
   {
    "q": "Layout thrash is:",
    "o": [
-    "A GPU issue",
-    "Impossible in modern browsers",
+    "A GPU issue caused by too many composited layers stacking up on one page",
+    "Something that cannot happen in modern browsers because they batch all reflows automatically",
     "Reading a layout value right after writing forces a synchronous relayout — batch your DOM reads and writes",
-    "A paint-only problem"
+    "A paint-only problem that never actually touches layout or measurement work of any kind at all"
    ],
    "a": 2,
    "e": "JS reads like scrollHeight/offsetWidth mid-write-loop force reflow every time — the classic jank source."
@@ -568,9 +568,9 @@ quiz:{
   {
    "q": "z-index only works:",
    "o": [
-    "Globally, anywhere",
-    "On any element",
-    "Only on fixed elements",
+    "Globally, anywhere on the page, regardless of any ancestor’s transform or opacity settings",
+    "On any element at all, even ones with no positioning or stacking context involved",
+    "Only on elements given position: fixed; every other position value ignores z-index",
     "INSIDE the nearest stacking context — transform/filter/opacity create them, so z-index decisions are local, not global"
    ],
    "a": 3,
@@ -579,10 +579,10 @@ quiz:{
   {
    "q": "The parser blocks on:",
    "o": [
-    "Nothing anymore",
+    "Nothing anymore — modern browsers parse the full document before loading any resource",
     "CSS (render-blocking) and non-deferred JS — defer/async scripts stop blocking; <script> mid-body blocks parsing until executed",
-    "Images only",
-    "Web fonts"
+    "Images only — CSS and scripts never delay the parser from moving through the document",
+    "Web fonts alone, while every stylesheet and classic script loads without blocking anything"
    ],
    "a": 1,
    "e": "CSS blocks first paint; classic scripts block parsing. async = fire when ready; defer = after parsing, in order. Fonts trigger FOIT unless you plan for it."
@@ -592,10 +592,10 @@ quiz:{
   {
    "q": "The metrics actually graded:",
    "o": [
-    "FPS only",
+    "FPS only — frame rate during scrolling is the sole signal the audits actually grade",
     "LCP (largest content painted), INP (interaction latency), CLS (layout shift) — and each has a fix: preload, defer work, reserve space",
-    "File size only",
-    "Hits per second"
+    "File size only — a smaller total download always beats a larger one on every metric",
+    "Hits per second — how many requests the server can answer per second is the only metric that actually gets graded"
    ],
    "a": 1,
    "e": "LCP: image sizes + preload. INP: keep main thread free. CLS: width/height on media + stable fonts."
@@ -603,9 +603,9 @@ quiz:{
   {
    "q": "CSS architecture’s real trade-off:",
    "o": [
-    "Always utilities",
-    "Always BEM",
-    "CSS files are irrelevant",
+    "Always reach for utility classes — they are objectively the correct choice for every team, every project, and every possible scale of screen count imaginable",
+    "Always reach for BEM naming — it is the one approach with no real downside anywhere",
+    "CSS files themselves are irrelevant once a component framework handles the styling",
     "Consistency + speed of change vs file size + constraint — utilities (Tailwind) vs BEM vs composition; the senior conversation is cost/consistency, not dogma"
    ],
    "a": 3,
@@ -615,9 +615,9 @@ quiz:{
    "q": "The accessibility checks that catch most issues:",
    "o": [
     "axe/Lighthouse scan + keyboard-only walk + focus visibility + label audit — most failures are found by these four",
-    "Screen-reader poetry",
-    "Eye-tracking",
-    "Colour picking"
+    "Screen-reader poetry — reading the whole page aloud for tone and rhythm catches the majority of real accessibility issues",
+    "Eye-tracking studies run in a lab are the main way accessibility problems get discovered",
+    "Colour picking — choosing a nicer palette resolves most reported accessibility failures"
    ],
    "a": 0,
    "e": "Automated scans catch ~30%; the keyboard walk catches the rest. Both together: most of the way."
@@ -625,9 +625,9 @@ quiz:{
   {
    "q": "Performance starts at:",
    "o": [
-    "A CDN",
-    "A framework",
-    "Spinning manufacturers’ lies",
+    "Switching to a CDN, which alone resolves most real-world performance problems",
+    "Choosing a framework, since the framework alone determines the page’s speed",
+    "Whatever performance claims the hosting provider’s marketing page happens to make about server speed",
     "The critical request chain — fewer, smaller, later — then images, then fonts, then JS payload"
    ],
    "a": 3,
@@ -638,9 +638,9 @@ quiz:{
   {
    "q": "Hand-writing CSS wins when:",
    "o": [
-    "The team is large",
-    "Always",
-    "There are 40 components",
+    "The team is large and many different people need to ship consistent screens quickly and fully independently of each other",
+    "Always — utility layers and frameworks never offer any real advantage over hand-written CSS",
+    "There are 40+ components that all need to share one predictable, generated set of rules",
     "The surface is bespoke and small — custom UI, tight design control, few pages; the file is the system"
    ],
    "a": 3,
@@ -649,9 +649,9 @@ quiz:{
   {
    "q": "A framework (or utility layer) wins when:",
    "o": [
-    "Never",
-    "Only with a backend",
-    "Only for marketing sites",
+    "Never — hand-written CSS is always the objectively better choice, regardless of team size or delivery timeline",
+    "Only once a backend exists, since utility classes cannot function in a static page",
+    "Only for marketing sites, since product screens never benefit from a shared utility layer",
     "Rapid product iteration — consistency + speed across many screens; tokens keep brand identity anyway"
    ],
    "a": 3,
@@ -661,9 +661,9 @@ quiz:{
    "q": "The honest trade-off to name:",
    "o": [
     "Build size and debugging surface vs consistency and speed — and conventions matter more than either tool",
-    "Size is the only factor",
-    "Debugging is easy everywhere",
-    "Frameworks have no cost"
+    "Bundle size is the only factor worth weighing when picking a CSS approach",
+    "Debugging is equally easy no matter which CSS approach a team happens to choose",
+    "Frameworks carry no real cost once a team has learned their conventions"
    ],
    "a": 0,
    "e": "Whatever you pick, the decision is about your team’s consistency cost over a year — that is the senior framing."
@@ -672,9 +672,9 @@ quiz:{
    "q": "What survives every framework change:",
    "o": [
     "The semantic layer — real elements, a real outline, tokens as custom properties. The DOM is the contract; frameworks come and go around it",
-    "The component names",
-    "The build config",
-    "The utility classes"
+    "The component names, which every future framework is expected to preserve exactly",
+    "The build config, since bundler settings outlast any particular component library",
+    "The utility classes, which stay valid and fully meaningful even years after a framework migration or rewrite"
    ],
    "a": 0,
    "e": "Structure is portable; framework-specific markup is not. Your pages’ meaning outlives any stack."

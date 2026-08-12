@@ -133,9 +133,9 @@ quiz:{
    "q": "The governing constraint of JS — the one that explains its history:",
    "o": [
     "Never break the web — every surviving page must keep working; legacy mistakes stay",
-    "Maximise raw speed",
-    "Keep the GIL",
-    "Remove footguns aggressively every release"
+    "Maximise raw execution speed above everything else, even at the cost of backwards compatibility",
+    "Keep the language small by rejecting almost every new proposal",
+    "Aggressively remove footguns and deprecate old APIs every release"
    ],
    "a": 0,
    "e": "“Don’t break the web”: backwards compatibility is sacred, so old mistakes persist — which is why new features arrive via transpilation, not breaking changes."
@@ -144,9 +144,9 @@ quiz:{
    "q": "JavaScript was invented:",
    "o": [
     "By Brendan Eich in 10 days at Netscape, 1995 — borrowing prototypes from Self and closures/first-class functions from Scheme",
-    "By Microsoft in 2001",
-    "As a subset of Java",
-    "By the W3C committee over five years"
+    "As a strict subset of Java, designed by Sun Microsystems specifically for browser applets",
+    "By the W3C standards committee, drafted openly and slowly over roughly five years",
+    "By a large team at Microsoft over roughly two years, and released as JScript for Internet Explorer back in 2001, years after JavaScript already shipped"
    ],
    "a": 0,
    "e": "Ten days, Netscape, 1995. Prototypes from Self, lambdas from Scheme — that lineage is why the language looks the way it does."
@@ -154,9 +154,9 @@ quiz:{
   {
    "q": "What took JavaScript out of the browser?",
    "o": [
-    "ES6 modules",
-    "TypeScript in 2012",
-    "npm becoming mandatory",
+    "TypeScript, added as a compile step by Microsoft in 2012",
+    "ES6 modules, which let scripts import each other directly",
+    "npm becoming a mandatory part of every browser toolchain",
     "Node.js (Ryan Dahl, 2009) — V8 running outside the browser"
    ],
    "a": 3,
@@ -166,9 +166,9 @@ quiz:{
    "q": "How do ES6+ features reach the web safely?",
    "o": [
     "Transpilation — Babel compiles modern syntax down to what older engines understand",
-    "A parallel language",
-    "CDN polyfills only",
-    "Breaking browsers"
+    "Relying only on CDN-hosted polyfills, with absolutely no compilation step required at all",
+    "Simply breaking support for any browser that lags behind",
+    "Running a parallel scripting language alongside standard JS"
    ],
    "a": 0,
    "e": "The “never break the web” constraint means new syntax ships compiled, not native — until engines catch up."
@@ -178,10 +178,10 @@ quiz:{
   {
    "q": "Primitives vs objects — the divide:",
    "o": [
-    "Primitives cannot be stored in variables",
-    "Everything is an object",
+    "Strings behave like objects because they have string methods",
+    "Primitives can never be stored in a variable, only literals",
     "7 primitives are values compared by VALUE; everything else is an object compared by REFERENCE",
-    "Strings are objects"
+    "Every single value in JavaScript, including plain numbers, is secretly an object underneath somehow"
    ],
    "a": 2,
    "e": "string, number, bigint, boolean, symbol, undefined, null — value semantics. Objects (incl. arrays, functions): reference semantics. Half your bugs live at this boundary."
@@ -189,10 +189,10 @@ quiz:{
   {
    "q": "let vs const vs var:",
    "o": [
-    "let and const are identical",
-    "const prevents all mutation",
+    "let and const behave identically in every situation, just different keywords",
+    "const freezes the entire object it points to, preventing any property mutation",
     "var: function-scoped + hoisted as undefined — the legacy footgun; let/const: block-scoped with a temporal dead zone",
-    "var is best practice in 2025"
+    "var is still considered the recommended default choice in modern JavaScript style guides and popular linters everywhere"
    ],
    "a": 2,
    "e": "Use const by default, let when rebinding. const binds the name; it does not freeze the object."
@@ -201,9 +201,9 @@ quiz:{
    "q": "const a = {x:1}; const b = a; b.x = 2; what is a.x?",
    "o": [
     "2 — b is a second reference to the SAME object; assignment never copies objects",
-    "undefined",
-    "1 — b is a copy",
-    "TypeError"
+    "1 — b receives a shallow copy made at assignment time",
+    "undefined — const variables cannot be reassigned like that",
+    "TypeError — you cannot assign a property through a second binding"
    ],
    "a": 0,
    "e": "b = a makes two names for one object; mutation through either is visible through both. Clone explicitly (spread) when you need independence."
@@ -211,10 +211,10 @@ quiz:{
   {
    "q": "A closure is:",
    "o": [
-    "A class without state",
+    "Any function that happens to be defined with a completely empty, zero-argument parameter list and nothing else",
     "A function that keeps access to the scope where it was defined, even after the outer function returns",
-    "The event loop’s queue",
-    "A function with no arguments"
+    "The internal queue the event loop uses to order pending callbacks",
+    "A class declared without any internal state or methods of its own"
    ],
    "a": 1,
    "e": "Lexical scoping: functions capture surrounding variables. Counters, factories, and modules are all closures."
@@ -225,9 +225,9 @@ quiz:{
    "q": "‘2’ + 2 evaluates to:",
    "o": [
     "‘22’ — + favours string concatenation",
-    "4 — + is always numeric",
-    "NaN",
-    "TypeError"
+    "4 — + always performs numeric addition here",
+    "NaN — mixing a string and a number throws",
+    "TypeError — you cannot add a string to a number"
    ],
    "a": 0,
    "e": "‘+’ is dual-purpose (concat/numeric) which is why it lies; ‘*’ is numeric-only. The coercion rule that matters: be explicit, use ===."
@@ -235,10 +235,10 @@ quiz:{
   {
    "q": "== vs ===:",
    "o": [
-    "=== fails on objects",
+    "== runs measurably faster than === so it should always be preferred",
     "=== checks type AND value; == coerces first. Prefer === — except rare deliberate cross-type comparisons",
-    "Never use either",
-    "== is faster, always use it"
+    "Neither equality operator should ever really be used in modern, well-written JavaScript code at all, ever",
+    "=== always fails whenever you compare two different object references"
    ],
    "a": 1,
    "e": "=== with explicit conversions at boundaries makes coercion a non-issue."
@@ -246,10 +246,10 @@ quiz:{
   {
    "q": "Which values are falsy?",
    "o": [
-    "‘false’ is falsy",
+    "null is truthy while undefined is the only falsy nullish value",
     "0, ‘’, null, undefined, NaN, false — arrays and objects are always truthy, even [] and {}",
-    "null is truthy",
-    "[] and {} are falsy"
+    "Empty arrays and empty objects are both falsy in a condition",
+    "The string ‘false’ is falsy because it reads like a boolean"
    ],
    "a": 1,
    "e": "The classic plain-error: [] and {} are truthy. if (arr.length) — not if (arr) — when counting items."
@@ -258,9 +258,9 @@ quiz:{
    "q": "The rule that makes coercion a non-issue:",
    "o": [
     "Convert explicitly (String()/Number()/Boolean()) at boundaries and use === everywhere else",
-    "Avoid all conversions",
-    "Rely on truthiness only",
-    "Use == everywhere"
+    "Avoid every single type conversion, no matter what the situation actually calls for in practice",
+    "Use == everywhere so coercion happens automatically for you",
+    "Rely on truthiness checks instead of any explicit comparison"
    ],
    "a": 0,
    "e": "Explicit conversion at input boundaries + strict equality internally — coercion stops being a bug source."
@@ -270,10 +270,10 @@ quiz:{
   {
    "q": "Arrow vs normal functions:",
    "o": [
-    "Arrows have their own this",
-    "Arrows cannot close over scope",
+    "Arrow functions actually get their own fully independent `this` binding, exactly like normal functions do, contrary to popular belief",
+    "Arrows cannot close over variables from any enclosing lexical scope at all",
     "Arrows inherit `this` lexically and have no own arguments — ideal callbacks; normal functions get `this` from the call",
-    "Arrows are slower"
+    "Arrow functions are always meaningfully slower to invoke than normal functions"
    ],
    "a": 2,
    "e": "No own `this`, no arguments object, not constructible. That is precisely why arrows replaced callbacks in modern code."
@@ -281,10 +281,10 @@ quiz:{
   {
    "q": "Closures in practice:",
    "o": [
-    "An async mechanism",
-    "A memory leak by design",
+    "A newer replacement for classes and prototypal inheritance",
+    "An asynchronous mechanism that has nothing at all to do with variable scope or persistence",
     "Variable persistence + encapsulation — the module pattern is a closure over private state",
-    "A replacement for classes"
+    "A memory leak that JavaScript introduces by design in every case"
    ],
    "a": 2,
    "e": "A closure keeps its definition scope alive, giving exclusive access to private state — counters, factories, modules."
@@ -292,10 +292,10 @@ quiz:{
   {
    "q": "Purity and side effects:",
    "o": [
-    "Pure means “no errors possible”",
+    "Pure just means the function is guaranteed to never throw or error out",
     "A pure function → same inputs, same output, no outer mutation; isolate side effects at the edges of your app",
-    "Side-effect-free code cannot exist",
-    "Impure code is always a bug"
+    "Side-effect-free code is theoretically impossible to write in JavaScript",
+    "Any impure function that mutates something is automatically a bug in the code"
    ],
    "a": 1,
    "e": "Side effects (I/O, DOM, timers) are unavoidable — pay for them at the edges; keep the middle pure, tested, predictable."
@@ -303,9 +303,9 @@ quiz:{
   {
    "q": "Default parameters and rest:",
    "o": [
-    "arguments is a modern array",
-    "Rest is still experimental",
-    "Defaults run at definition",
+    "Default values are evaluated exactly once, at the moment the function is defined",
+    "Rest parameters are still an experimental, unstable feature",
+    "The arguments object is a modern, fully-featured array",
     "Defaults evaluate at CALL time; ...rest collects the tail into a real array"
    ],
    "a": 3,
@@ -316,10 +316,10 @@ quiz:{
   {
    "q": "The prototype chain, concretely:",
    "o": [
-    "Prototypes are classes",
+    "Each new object copies its entire prototype's properties at creation",
     "obj.prop looks on obj, then its prototype, then up to Object.prototype, then null — DELEGATION, not copying",
-    "Chains stop at Function.prototype",
-    "Each object copies its prototype at creation"
+    "The prototype chain always stops early, right at Function.prototype",
+    "Prototypes behave exactly the same as classes do in other programming languages"
    ],
    "a": 1,
    "e": "Lookup delegates up the chain until found or null. Mutating a prototype is visible to every object that delegates to it."
@@ -328,9 +328,9 @@ quiz:{
    "q": "JS classes are:",
    "o": [
     "Sugar over constructor functions + the prototype — the same delegation underneath, same `this` rules",
-    "A new memory model",
-    "Static-only types",
-    "Interfaces"
+    "A completely new memory model that replaces prototypes entirely",
+    "Static-only types checked at compile time, with no runtime cost",
+    "Interfaces that only ever enforce a shape at compile time, with zero runtime implementation whatsoever"
    ],
    "a": 0,
    "e": "class is syntax, not a new paradigm: a constructor plus prototype methods. Everything you learned about delegation still applies."
@@ -339,9 +339,9 @@ quiz:{
    "q": "When do you not need a class?",
    "o": [
     "Factories (object literals + closures) cover most modules — no ceremony, no `this` to lose",
-    "Factories are slower",
-    "Object.create(null) is deprecated",
-    "Classes are mandatory in modern JS"
+    "Classes are mandatory for any object with methods in modern JS",
+    "Object.create(null) has been deprecated in recent engines",
+    "Factories are noticeably slower than classes at runtime in practice"
    ],
    "a": 0,
    "e": "Prefer the simplest thing that holds state — a factory with a closure is often it."
@@ -349,9 +349,9 @@ quiz:{
   {
    "q": "obj.method() then const f = obj.method; f() — this in the second call is:",
    "o": [
-    "obj",
-    "the method itself",
-    "the global object",
+    "obj, because methods remember the object that defined them",
+    "The global object, because every unbound method call quietly defaults back to it regardless",
+    "The method itself, since functions carry their own identity",
     "undefined (strict) — `this` is decided by the CALL; fix with arrow, bind, or call/apply"
    ],
    "a": 3,
@@ -362,10 +362,10 @@ quiz:{
   {
    "q": "map, filter, reduce — the three shapes:",
    "o": [
-    "filter returns a new array but map does not",
+    "map always mutates the original array that it happens to be called on",
     "map = 1:1 transform, filter = subset, reduce = fold to any value — the shapes of all data work",
-    "reduce is deprecated",
-    "map mutates in place"
+    "reduce has been deprecated in favour of plain for...of loops",
+    "filter returns a new array but map mutates the original in place"
    ],
    "a": 1,
    "e": "If you can name any pipeline you write as one of the three shapes, the code writes itself."
@@ -374,9 +374,9 @@ quiz:{
    "q": "Which methods mutate and which return new?",
    "o": [
     "push/sort/reverse/splice MUTATE; map/filter/slice/spread return new — mixing the two is a classic bug source",
-    "push returns a new array",
-    "All methods mutate",
-    "sort is pure"
+    "sort is a pure method that never touches the original array it is given",
+    "push always returns a brand new array under the hood, leaving the original array completely untouched every time",
+    "Every single built-in array method mutates the array it is called on"
    ],
    "a": 0,
    "e": "Know the split at a glance: state-changers (push, sort, reverse, splice) vs producers (map, filter, slice, spread)."
@@ -384,10 +384,10 @@ quiz:{
   {
    "q": "The immutability pattern:",
    "o": [
-    "Spread copies deeply",
-    "Only Object.assign works",
+    "Spread performs a full, deep copy of every nested object too",
+    "Only Object.assign can produce a properly immutable update in practice",
     "Spread: const next = [...arr, item] or {...obj, x: 1} — a new reference, the original untouched",
-    "Immutability is impossible in JS"
+    "True immutability cannot be achieved in JavaScript at all, ever"
    ],
    "a": 2,
    "e": "Spread gives you a new top-level reference cheaply. For nested data you need structuredClone or an immutable library."
@@ -395,9 +395,9 @@ quiz:{
   {
    "q": "Optional chaining and destructuring:",
    "o": [
-    "Destructuring mutates the source",
-    "?. throws by default",
-    "Both are Babel-only",
+    "?. throws a TypeError by default whenever a chain link is missing",
+    "Destructuring quietly mutates the source object or array that it happens to read values from in every case",
+    "Both features only work when the code is transpiled through Babel",
     "?. short-circuits to undefined instead of throwing; destructuring unpacks objects and arrays into names"
    ],
    "a": 3,
@@ -408,10 +408,10 @@ quiz:{
   {
    "q": "Why does async exist at all?",
    "o": [
-    "Promises run in parallel processes",
-    "Browsers are multithreaded by default",
+    "Async/await quietly adds real operating-system threads underneath JavaScript",
+    "Promises actually run their callbacks on separate, truly parallel processes",
     "One thread, one call stack — I/O must not block it; promises/async-await let the stack keep working while I/O waits",
-    "Async adds threads"
+    "Browsers are multithreaded by default, running your JS on many threads at once"
    ],
    "a": 2,
    "e": "The browser/Node each have one main thread. While a fetch waits, the call stack must stay free — that is the entire reason for callbacks → promises → async/await."
@@ -419,10 +419,10 @@ quiz:{
   {
    "q": "Event-loop ordering:",
    "o": [
-    "Everything is FIFO",
-    "Microtasks wait for all macrotasks",
+    "Timers always run before any promise callback ever really gets a chance to fire",
+    "Everything runs strictly FIFO, in the exact order it was originally scheduled here",
     "Sync code → then microtasks (promises) drain fully → then macrotasks (timers, I/O) — microtasks always win between macrotasks",
-    "Timers run first"
+    "Microtasks always wait patiently until every single macrotask currently queued has completely finished running, start to finish"
    ],
    "a": 2,
    "e": "Promise callbacks beat setTimeout — always. that ordering decides real dinnertime UI behaviour."
@@ -430,10 +430,10 @@ quiz:{
   {
    "q": "The sequential-await mistake:",
    "o": [
-    "Promise.all is slower",
-    "for-await is mandatory",
+    "Promise.all is actually slower than plain sequential awaiting",
+    "for-await is mandatory whenever you loop over any kind of array",
     "await inside a for-loop SERIALISES requests — use Promise.all for independent fetches",
-    "await is synchronous"
+    "await behaves exactly the same as calling a plain synchronous function"
    ],
    "a": 2,
    "e": "Each await parks the loop. Independent work should be started together and awaited together: const xs = await Promise.all(ids.map(fetch))."
@@ -442,9 +442,9 @@ quiz:{
    "q": "Errors and timeouts:",
    "o": [
     "Add a timeout (Promise.race or AbortController) and always catch — unhandled rejections crash the process",
-    "Rejections are silent by design",
-    "Timeouts are automatic",
-    "Promises cannot fail"
+    "Timeouts are applied completely automatically to every single fetch call that you happen to make, no matter what",
+    "Rejections stay silent by design and require no explicit handling at all",
+    "Promises are guaranteed to never actually reject once they are created"
    ],
    "a": 0,
    "e": "A fetch with no timeout can hang forever; AbortController actually cancels the request. Never await without a plan for rejection."
@@ -454,10 +454,10 @@ quiz:{
   {
    "q": "The DOM is:",
    "o": [
-    "The same as innerHTML",
-    "The HTML source string",
+    "The raw HTML source text as it was sent over the network",
+    "Exactly the same thing as the element's innerHTML string",
     "A live tree the browser builds from HTML — JS queries and mutates the tree, not the file",
-    "A CSS feature"
+    "A CSS feature used only for matching and selecting elements"
    ],
    "a": 2,
    "e": "document.querySelector etc. operate on the parsed tree the browser maintains; innerHTML re-parses text into nodes."
@@ -465,10 +465,10 @@ quiz:{
   {
    "q": "Events:",
    "o": [
-    "Cannot be prevented",
+    "Every single element on the page needs its own listener wired up individually and manually by hand regardless",
     "Bubble child → parent — delegate with one listener on a parent for many children, and stay dynamic-safe",
-    "Descend parent → child only",
-    "Need manual wiring per element"
+    "Events cannot ever be stopped or prevented once they are dispatched",
+    "Events only ever descend from parent down to child, never back up"
    ],
    "a": 1,
    "e": "Event delegation: one listener handles existing AND future children — the standard pattern for lists and tables."
@@ -476,10 +476,10 @@ quiz:{
   {
    "q": "Why do frameworks exist?",
    "o": [
-    "Frameworks make JS itself faster",
-    "Frameworks add threads",
+    "Frameworks make the underlying JavaScript engine itself run measurably faster",
+    "Frameworks exist mainly to add extra background threads to your running app",
     "Keeping state and DOM in sync is the hard part — frameworks make the mapping explicit instead of manual string updates",
-    "Frameworks replace the DOM"
+    "Frameworks replace the DOM entirely with their own private rendering engine"
    ],
    "a": 2,
    "e": "Manual updates mean you lose where state lives. Virtual DOM / reactive signals give a single explicit path from state → DOM."
@@ -488,9 +488,9 @@ quiz:{
    "q": "Layout thrash is caused by:",
    "o": [
     "Interleaved reads and writes — each write marks layout dirty; a read forces synchronous relayout. Batch DOM writes",
-    "Too many elements",
-    "CSS animations",
-    "Using React"
+    "Simply having too many DOM elements present on the page all at once, regardless of how they are read or written at all",
+    "CSS animations, which always force a full page layout on every single frame",
+    "Using React instead of hand-written vanilla JavaScript for the whole app UI"
    ],
    "a": 0,
    "e": "The fix: read all values first, then write. One forced reflow per frame is cheap; a thrashing loop is not."
@@ -500,10 +500,10 @@ quiz:{
   {
    "q": "ESM vs CommonJS:",
    "o": [
-    "ESM cannot run in Node",
-    "CJS is deprecated",
+    "CommonJS has been formally deprecated and removed by the Node.js team",
+    "ESM modules simply cannot run at all inside any modern Node.js process",
     "ESM is static and tree-shakeable — imports analysed before execution; CJS is dynamic. Choose ESM for new code",
-    "They are identical"
+    "The two module systems are functionally identical in every meaningful way"
    ],
    "a": 2,
    "e": "Static imports let bundlers drop unused code; CJS require() runs at runtime, so tree-shaking fails."
@@ -512,9 +512,9 @@ quiz:{
    "q": "State in a vanilla app:",
    "o": [
     "One render(state) function driven by explicit events — the source of truth lives in plain data",
-    "In DOM attributes",
-    "In global variables only",
-    "In CSS classes"
+    "State lives directly inside the DOM element's data attributes",
+    "State should only ever live in scattered global variables instead",
+    "State is tracked implicitly through whatever CSS class names happen to be set on each element anyway"
    ],
    "a": 0,
    "e": "Even without a framework: state → render → events → state. That discipline is what frameworks formalise."
@@ -522,9 +522,9 @@ quiz:{
   {
    "q": "A Node service shape:",
    "o": [
-    "Frameworks are mandatory",
-    "No validation — JS types itself",
-    "One giant handler",
+    "One giant handler function that does everything in one file",
+    "Skip validation entirely since JS already types the input",
+    "Using a framework is mandatory for any real Node service",
     "Small handlers, explicit validation, error middleware, composition over frameworks"
    ],
    "a": 3,
@@ -533,9 +533,9 @@ quiz:{
   {
    "q": "When does TypeScript become the right call?",
    "o": [
-    "Only for browsers",
-    "Never",
-    "Always, from line one",
+    "Always, right from line one, no matter how small the script ends up being",
+    "TypeScript is only ever useful for code that ends up running in a browser",
+    "Never — plain JavaScript remains the strictly better choice no matter how large the team or codebase grows over time",
     "When surface area and team size make refactor safety worth the ceremony — it is a tooling win, not a runtime one"
    ],
    "a": 3,
@@ -546,10 +546,10 @@ quiz:{
   {
    "q": "The debugging decision tree starts with:",
    "o": [
-    "Asking the framework",
+    "Asking the framework's community forum for a quick fix",
     "Reproducing exactly — then bisecting the failing assumption",
-    "Restarting the machine",
-    "Reading the source top to bottom"
+    "Restarting the machine and hoping the bug just disappears",
+    "Reading the entire source top to bottom before anything else"
    ],
    "a": 1,
    "e": "A reproducible case + a stated assumption lets you bisect fast. DevTools come second."
@@ -557,9 +557,9 @@ quiz:{
   {
    "q": "DevTools patterns that beat console.log:",
    "o": [
-    "DevTools cannot debug async",
-    "console.log everywhere",
-    "Only the Elements tab",
+    "DevTools that are simply incapable of stepping through any asynchronous code whatsoever, no matter what you try",
+    "Sprinkling console.log statements throughout the whole codebase",
+    "Only the Elements tab, since everything is really just markup anyway",
     "Breakpoints, call stack, watchers — plus the debugger statement, Network tab, and Performance panel"
    ],
    "a": 3,
@@ -568,10 +568,10 @@ quiz:{
   {
    "q": "Async bugs are hard because:",
    "o": [
-    "Promises never throw",
+    "Errors thrown inside async functions are always completely invisible",
     "The stack unwinds at each await — use async await tracing in DevTools and fake timers in tests",
-    "Errors are invisible",
-    "alert() is required"
+    "Promises never actually throw errors, so nothing can be caught",
+    "You are required to use alert() to see any async output at all"
    ],
    "a": 1,
    "e": "Async tracing follows promise chains across awaits; fake timers make timeout/polling logic deterministic in tests."
@@ -579,10 +579,10 @@ quiz:{
   {
    "q": "undefined vs NaN as symptoms:",
    "o": [
-    "Both are typos",
-    "undefined means a network error",
+    "NaN is a reliable sign that the underlying computer hardware itself has now failed",
+    "undefined almost always means the underlying network request itself silently failed somewhere along the way, without any visible error",
     "undefined usually means a missing property or a fallen-through return; NaN usually means coercion — string math or a bad parse",
-    "NaN means hardware failure"
+    "Both undefined and NaN are really just simple typing mistakes made somewhere in code"
    ],
    "a": 2,
    "e": "Read the symptom: undefined → wrong object shape; NaN → coercion. Both are cheap to locate once you know the direction."
@@ -592,10 +592,10 @@ quiz:{
   {
    "q": "How V8 runs your code:",
    "o": [
-    "V8 never optimises",
+    "The bytecode that V8's parser produces is already exactly identical to native machine code",
     "Parse → AST → bytecode, then TurboFan JIT compiles hot paths to machine code — with hidden classes and inline caches optimizing property access",
-    "Bytecode is machine code",
-    "Interpreted only"
+    "JavaScript running in V8 is interpreted only, with absolutely no compilation step involved ever",
+    "V8 never applies any optimisation at all and just interprets every line of code, every single time"
    ],
    "a": 1,
    "e": "JS in production is JIT-compiled: hot functions become real machine code. That is why loops are not inherently slow in JS — unlike Python."
@@ -603,10 +603,10 @@ quiz:{
   {
    "q": "Memory and leaks:",
    "o": [
-    "JS uses reference counting only",
+    "Memory leaks are essentially impossible in any modern JavaScript engine",
     "GC marks and sweeps heap objects; the classic leaks are detached DOM nodes and closures retaining large scopes",
-    "Leaks are impossible in modern engines",
-    "JS has no GC"
+    "JavaScript has no garbage collector at all, by deliberate language design",
+    "JavaScript only ever relies on simple reference counting to manage all of its memory, nothing more than that at all"
    ],
    "a": 1,
    "e": "A detached node with a listener keeps its subtree alive; closures keep whatever they capture. Heap snapshots find both."
@@ -614,10 +614,10 @@ quiz:{
   {
    "q": "The event loop, precisely:",
    "o": [
-    "The loop runs in parallel threads",
+    "Microtasks and macrotasks are actually just the very same underlying task queue, renamed",
     "Macrotasks (timers, I/O, UI events) and microtasks (promises, queueMicrotask) — after each macrotask the microtask queue drains completely",
-    "Only timers exist",
-    "Microtasks are macrotasks"
+    "Only timers really exist in the loop; there is no separate microtask queue in it at all",
+    "The event loop actually runs each of its many tasks on a separate, truly parallel thread"
    ],
    "a": 1,
    "e": "Promise callbacks beat setTimeout, and a microtask that schedules another microtask delays the next macrotask indefinitely."
@@ -625,9 +625,9 @@ quiz:{
   {
    "q": "ES modules execute:",
    "o": [
-    "Lazily in parallel",
-    "In global scope",
-    "On every import call",
+    "Inside the global scope, quietly sharing one single namespace with absolutely everything else in the program",
+    "On every single import call, re-running the whole module each time",
+    "Lazily, in parallel, only once something actually imports them at runtime",
     "Once per URL, with static imports resolved before any code runs — no duplicate execution like CJS cycles"
    ],
    "a": 3,
@@ -639,9 +639,9 @@ quiz:{
    "q": "TypeScript the decision:",
    "o": [
     "Annotations buy tooling safety at the cost of ceremony — and TS is NOT runtime validation; validate external data at the boundary",
-    "Types guarantee safety",
-    "TS runs in the browser",
-    "TS replaces tests"
+    "TypeScript fully and entirely replaces the need for writing any tests at all, ever",
+    "Type annotations alone are enough to fully and completely guarantee safety at runtime",
+    "TypeScript code runs directly in the browser engine, completely unmodified by any tool"
    ],
    "a": 0,
    "e": "TS erases to plain JS; runtime validation still needs explicit checks (zod etc.) on API boundaries."
@@ -649,10 +649,10 @@ quiz:{
   {
    "q": "Testing doctrine:",
    "o": [
-    "Test every line for coverage",
+    "Test every single line so that coverage always reaches 100%",
     "Test BEHAVIOUR, not implementation — the unit is a behaviour, and tests freeze the contract",
-    "Skip tests for demos",
-    "Tests slow you down"
+    "Tests mainly slow the team down and rarely catch real bugs",
+    "Skip writing tests entirely for anything you personally consider to be just a quick demo project"
    ],
    "a": 1,
    "e": "Behaviour tests survive refactors; implementation tests just break. Coverage is a hint, not a goal."
@@ -660,10 +660,10 @@ quiz:{
   {
    "q": "The security essentials:",
    "o": [
-    "CSP is optional",
-    "innerHTML is safe",
+    "eval is completely fine to run on data that comes straight from any given user input",
+    "A Content Security Policy header is entirely optional and rarely worth ever setting",
     "Never inject untrusted strings via innerHTML — build with textContent/createElement; sanitise URLs (javascript:) and CSP headers",
-    "eval is fine for user data"
+    "innerHTML is perfectly safe to use with any untrusted string content, no matter what"
    ],
    "a": 2,
    "e": "XSS = trusting strings as code. Escape output, validate input, and let CSP constrain what can execute."
@@ -671,10 +671,10 @@ quiz:{
   {
    "q": "When NOT to use JavaScript:",
    "o": [
-    "JS is for everything",
-    "Node cannot serve production traffic",
+    "Node.js is fundamentally and permanently incapable of ever serving real production traffic",
+    "JavaScript is always the fastest possible choice, in absolutely any given computing context",
     "CPU-bound work that browsers cannot offload, hard real-time, and massive in-process compute — native/WASM or other languages choose themselves",
-    "JS is always fastest"
+    "JavaScript is genuinely and unconditionally the right tool for every conceivable kind of computing workload, without any real exception at all"
    ],
    "a": 2,
    "e": "The honest answer includes the platform: in the browser there is no alternative; on servers, reach for the right tool when the hot path demands it."
