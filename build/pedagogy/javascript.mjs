@@ -4,6 +4,9 @@ export default {
   brand: 'THE JAVASCRIPT SHIPYARD',
   tagline: 'JavaScript · values & refs · closures · the event loop',
   storageKey: 'shipyard:javascript:v1',
+  legacyStorageKeys: [],
+  stackLabel: 'THE STACK — your call stack',
+  ranks: ['SWABBIE', 'DECKHAND', 'BOATSWAIN', 'FIRST MATE', 'CLOSURE CAPTAIN', 'HARBOR MASTER'],
   accent: '#a78bfa',
 
   boot: [
@@ -20,6 +23,18 @@ export default {
     rule: '`this` is decided by the call, not by the definition. Hold that and half your JS bugs disappear.',
   },
   chips: { p11: ['<span class="m">★ <b>INTERVIEW GOLD</b></span>'] },
+  grad: {
+    title: 'EVENT LOOP CLEARED ⚡',
+    rule: '`this` is decided by the call, not by the definition. Hold that and half your JS bugs disappear.',
+  },
+  console: {
+    cmd: '$ node --stack-trace-limit=0 app.js',
+    line: 'event loop idle  ·  microtasks drained  ·  (yours — every layer earned)',
+  },
+  simPrompt: '// console.log(1); setTimeout(()=>console.log(2)); Promise.resolve().then(()=>console.log(3));',
+  egg: { label: 'HOISTED' },
+  deckIn: 'p13',
+  milesIn: 'p14',
   simIn: 'p11',
   deckNote: 'If you can deliver these aloud — WHAT \u2192 WHY IT EXISTS \u2192 ONE CONCRETE CONSEQUENCE — you are interview-ready. Answer before flipping; nailed cards dim.',
   milesNote: 'Six milestones = six layers of proof. When all six drop, the shipyard ships your container.',

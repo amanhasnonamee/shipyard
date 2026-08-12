@@ -3,20 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="SQL · relational model · three-valued logic · query engine — a first-principles interactive curriculum. One portable HTML file, 14 parts, checkpoint quizzes and idea cards. Runs offline; progress stays in your browser.">
+<meta name="color-scheme" content="dark">
 <meta property="og:type" content="article">
 <meta property="og:title" content="The SQL Shipyard - SQL: A First-Principles Curriculum">
-<meta property="og:description" content="SQL · relational model · three-valued logic · query engine — a first-principles interactive curriculum, one portable HTML file, runs offline.">
-<meta property="og:image" content="assets/og/sql.png">
+<meta property="og:description" content="SQL · relational model · three-valued logic · query engine — a first-principles interactive curriculum. One portable HTML file, 14 parts, checkpoint quizzes and idea cards. Runs offline; progress stays in your browser.">
+<meta property="og:image" content="https://amanhasnonamee.github.io/shipyard/assets/og/sql.png">
+<meta property="og:url" content="https://amanhasnonamee.github.io/shipyard/sql.html">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%233b82f6%22 d=%22M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z%22/%3E%3C/svg%3E">
-<meta name="contract" content="shipyard-sql@1">
+<meta name="contract" content="shipyard-sql@2">
 <title>The SQL Shipyard - SQL: A First-Principles Curriculum</title>
 <link rel="stylesheet" href="assets/shipyard.css">
 </head>
 <body>
-<div id="scanlines"></div><div id="vignette"></div>
-<button id="burger">&#9776; MAP</button><div id="backdrop"></div>
+<a href="#part0" class="skiplink">Skip to content</a>
+<div id="scanlines" aria-hidden="true"></div><div id="vignette" aria-hidden="true"></div>
+<button type="button" id="burger" aria-controls="dock" aria-expanded="false">&#9776; MAP</button><div id="backdrop"></div>
 <div id="app">
-<aside id="dock">
+<aside id="dock" aria-label="Curriculum navigation">
   <div class="brand">
     <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
       <path fill="var(--accent)" d="M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z"/>
@@ -32,12 +37,17 @@
   </div>
 
   <div class="stackbox">
-    <div class="st"><span>THE STACK — your container</span><span id="stackCount">0/14</span></div>
+    <div class="st"><span>THE STACK — your query plan</span><span id="stackCount">0/14</span></div>
     <div id="stackMini"></div>
-    <div id="psRow"><b>$ docker ps</b><br><span id="psRow2">—</span></div>
+    <div id="psRow"><b id="psRowCmd">$ shipyard status</b><br><span id="psRow2">—</span></div>
   </div>
 
-  <nav class="docknav" id="docknav"></nav>
+  <div class="milebox">
+    <div class="st"><span>MILESTONES</span><span id="mileCount">0/6</span></div>
+    <div id="mileMini"></div>
+  </div>
+
+  <nav class="docknav" id="docknav" aria-label="Parts"></nav>
 
   <div class="legend">
     <div class="lt">Depth legend</div>
@@ -50,9 +60,9 @@
   <div class="dockfoot" id="dockfoot"></div>
 </aside>
 
-<main>
+<main id="main">
 <section class="hero" id="part0">
-  <div class="boot"><div class="bl">$ shipyard boot --curriculum sql-first-principles</div>
+  <div class="boot" aria-hidden="true"><div class="bl">$ shipyard boot --curriculum sql-first-principles</div>
     <div class="bl">STAGE 1: LOADING PARTS 0–14 ......... <span style="color:var(--ok)">OK</span></div>
     <div class="bl">STAGE 2: MOUNTING DEPTH TAGS .......... <span style="color:var(--ok)">OK</span></div>
     <div class="bl"><span class="warn">WARNING: SQL reads like a sentence and lies like a spreadsheet. NULL is not a value — it is the absence of one.</span></div>
@@ -66,18 +76,18 @@
     <div class="hchip">LAYERS <b id="hLayers">0/14</b></div>
     <div class="hchip">QUIZZES CLEARED <b class="ok" id="hQuizzes">0</b></div>
   </div>
-  <div id="voyageHead">THE VOYAGE — 14 WAYPOINTS</div>
+  <h2 id="voyageHead">THE VOYAGE — 14 WAYPOINTS</h2>
   <div class="voyage" id="voyage"></div>
 </section>
 
-<section class="part" id="p0">
-  <div class="phead"><div class="pnum">00</div>
-    <div><div class="ptitle">How to Use This Curriculum</div>
+<section class="part" id="p0" aria-labelledby="p0-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">00</div>
+    <div><h2 class="ptitle" id="p0-title">How to Use This Curriculum</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p0">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p0">MARK COMPLETE</button></div>
   </div>
 
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>Part 1   Where SQL came from                    [DEEP — explains its design]
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div><pre><code>Part 1   Where SQL came from                    [DEEP — explains its design]
 Part 2   The core mental model                   [DEEP — most important part]
 Part 3   Querying one table
 Part 4   Joins: combining tables
@@ -95,77 +105,61 @@ Part 14  Milestones and self-assessment</code></pre></div>
   <div class="breadcrumb"><a class="next" href="#p1">01 · WHERE SQL CAME FROM &rarr;</a></div>
 </section>
 
-<section class="part" id="p1">
-  <div class="phead"><div class="pnum">01</div>
-    <div><div class="ptitle">Where SQL Came From</div>
+<section class="part" id="p1" aria-labelledby="p1-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">01</div>
+    <div><h2 class="ptitle" id="p1-title">Where SQL Came From</h2>
     <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p1">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p1">MARK COMPLETE</button></div>
   </div>
 
   <p>You cannot understand why SQL looks nothing like other programming languages until you know what it was designed to replace.</p>
 
-<h2>The problem before relational databases</h2>
+<h3>The problem before relational databases</h3>
 
 <p>In the 1960s, data was stored in <b>hierarchical</b> and <b>network</b> databases (IBM's IMS, CODASYL systems). To retrieve anything, a programmer wrote code that *navigated pointers* — follow this record to that one, walk this chain. Three consequences:</p>
 
-<ol><li><b>Every query was a program.</b> Answering a new question meant writing and compiling new navigation code.</li></ol>
-
-<ol><li><b>The physical layout leaked into every program.</b> Reorganize the storage, and every program broke.</li></ol>
-
-<ol><li><b>Only specialists could ask questions.</b> There was no way for an analyst to interrogate the data.</li></ol>
-
-<h2>The lineage</h2>
+<ol><li><b>Every query was a program.</b> Answering a new question meant writing and compiling new navigation code.</li><li><b>The physical layout leaked into every program.</b> Reorganize the storage, and every program broke.</li><li><b>Only specialists could ask questions.</b> There was no way for an analyst to interrogate the data.</li></ol><h3>The lineage</h3>
 
 <div class="tblwrap"><table><thead><tr><th>Year</th><th>What happened</th><th>Why it still affects you</th></tr></thead><tbody><tr><td>1970</td><td><b>Edgar F. "Ted" Codd</b>, a mathematician at IBM, publishes *A Relational Model of Data for Large Shared Data Banks*</td><td>The founding document. Codd's insight: model data as <b>mathematical relations</b> (sets of tuples) and let a query language describe *what* you want, leaving *how* to the system. Data independence — the schema is separate from the storage</td></tr><tr><td>1974</td><td>IBM builds <b>System R</b> to prove Codd's theory works; Donald Chamberlin and Raymond Boyce design <b>SEQUEL</b> (Structured English Query Language) as its language</td><td>Renamed SQL for trademark reasons — but still pronounced "sequel" by many. The "English-like" goal is why SQL reads like a sentence and unlike C</td></tr><tr><td>1977–79</td><td>Larry Ellison reads the System R papers and founds what becomes <b>Oracle</b>, shipping commercially before IBM</td><td>The relational model escaped the lab through a competitor. Commercial pressure made SQL ubiquitous fast</td></tr><tr><td>1986–92</td><td><b>ANSI/ISO standardization</b>: SQL-86, SQL-89, SQL-92. SQL-92 is still the baseline everyone supports</td><td>Why the same core query runs on Postgres, MySQL, Oracle, and SQL Server. Also why each vendor's extensions differ — the standard covers the core, not the edges</td></tr><tr><td>1995–2000</td><td><b>MySQL</b> and <b>PostgreSQL</b> arrive as open source; the web needs cheap databases</td><td>Databases become infrastructure everyone can use. Postgres descends from Berkeley's POSTGRES (Michael Stonebraker), which is why it's academically rigorous</td></tr><tr><td>1999–2016</td><td>SQL:1999 adds recursion and window functions; SQL:2003 adds more; SQL:2016 adds JSON</td><td><b>Window functions are the single most important addition since the original standard.</b> Anything written before ~2010 will show you painful workarounds for problems windows solve in one line</td></tr><tr><td>2009–2015</td><td>The <b>NoSQL</b> era: MongoDB, Cassandra, Redis, DynamoDB. The claim is that SQL and schemas don't scale</td><td>A genuine set of trade-offs, often adopted for the wrong reasons. Understanding what was actually traded away (joins, transactions, ad-hoc queries, consistency) is a core professional skill</td></tr><tr><td>2015–now</td><td><b>SQL's return</b>: NoSQL systems add SQL-ish query layers; "NewSQL" (CockroachDB, Spanner, TiDB) delivers distributed SQL with transactions; analytics consolidates on SQL (BigQuery, Snowflake, DuckDB)</td><td>The industry rediscovered that a declarative query language over a well-defined schema is extremely hard to beat. SQL is now over 50 years old and *more* dominant than a decade ago</td></tr></tbody></table></div>
 
-<h2>The three ideas actually invented here</h2>
+<h3>The three ideas actually invented here</h3>
 
-<ol><li><b>Declarative querying.</b> You describe the result you want; the system's <b>query optimizer</b> decides how to get it — which indexes to use, which join algorithm, in what order. No other mainstream language works this way. It's why SQL can get faster when you upgrade your database without changing a line of your code, and why "how do I make this faster?" is usually answered by helping the optimizer rather than by rewriting logic.</li></ol>
-
-<ol><li><b>Physical/logical separation (data independence).</b> Your query names tables and columns, never files, offsets, or pointers. Storage can be reorganized, indexed, partitioned, or replicated underneath you and your query still works. This was the entire point of Codd's paper.</li></ol>
-
-<ol><li><b>Set-based thinking.</b> Operations apply to whole sets of rows at once, not one row at a time. This is the mental shift that separates people who write SQL from people who write loops in SQL's clothing — and it's the single biggest determinant of query performance.</li></ol>
-
-<h2>The framing worth being able to say</h2>
+<ol><li><b>Declarative querying.</b> You describe the result you want; the system's <b>query optimizer</b> decides how to get it — which indexes to use, which join algorithm, in what order. No other mainstream language works this way. It's why SQL can get faster when you upgrade your database without changing a line of your code, and why "how do I make this faster?" is usually answered by helping the optimizer rather than by rewriting logic.</li><li><b>Physical/logical separation (data independence).</b> Your query names tables and columns, never files, offsets, or pointers. Storage can be reorganized, indexed, partitioned, or replicated underneath you and your query still works. This was the entire point of Codd's paper.</li><li><b>Set-based thinking.</b> Operations apply to whole sets of rows at once, not one row at a time. This is the mental shift that separates people who write SQL from people who write loops in SQL's clothing — and it's the single biggest determinant of query performance.</li></ol><h3>The framing worth being able to say</h3>
 
 <p>*"SQL is a declarative language over a mathematical model of data. You state the shape of the answer as a set operation, and the optimizer chooses the execution strategy. Almost everything that feels odd about SQL — the clause order, three-valued logic with NULL, the fact that it isn't procedural — follows from those two facts: it describes relations, and it doesn't describe execution."*</p>
 
-<div class="quiz" data-part="p1"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p1"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p0">&larr; 00 · HOW TO USE THIS CURRICULUM</a><a class="next" href="#p2">02 · THE CORE MENTAL MODEL &rarr;</a></div>
 </section>
 
-<section class="part" id="p2">
-  <div class="phead"><div class="pnum">02</div>
-    <div><div class="ptitle">The Core Mental Model</div>
+<section class="part" id="p2" aria-labelledby="p2-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">02</div>
+    <div><h2 class="ptitle" id="p2-title">The Core Mental Model</h2>
     <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p2">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p2">MARK COMPLETE</button></div>
   </div>
 
   <p>Five ideas. This is the most important section in the document; everything else is detail built on top of it.</p>
 
-<h2>Idea 1: A table is a set of rows, and SQL operates on whole sets</h2>
+<h3>Idea 1: A table is a set of rows, and SQL operates on whole sets</h3>
 
 <p>A table is an unordered collection of rows, each with the same named, typed columns. Two consequences that beginners find surprising and that matter enormously:</p>
 
-<ul><li><b>There is no inherent order.</b> Rows do not have positions. Without <code class="inline">ORDER BY</code>, the order you get is whatever the engine found convenient, and it can change between runs, after an update, or after a version upgrade. If order matters, say so explicitly — every time.</li></ul>
+<ul><li><b>There is no inherent order.</b> Rows do not have positions. Without <code class="inline">ORDER BY</code>, the order you get is whatever the engine found convenient, and it can change between runs, after an update, or after a version upgrade. If order matters, say so explicitly — every time.</li><li><b>There is no "current row."</b> Unlike a spreadsheet or a <code class="inline">for</code> loop, SQL has no cursor walking down the data. A <code class="inline">WHERE</code> clause is not "check each row"; it is "define the subset of rows for which this is true." The engine may check them in any order, in parallel, or skip most of them entirely using an index.</li></ul><p>The practical discipline: <b>think in sets, not loops.</b> "For each customer, find their latest order" is a loop-shaped thought that produces slow, awkward SQL. "Join customers to their orders, then keep only the ones ranked first per customer" is set-shaped and fast. Training yourself to reframe is most of learning SQL well.</p>
 
-<ul><li><b>There is no "current row."</b> Unlike a spreadsheet or a <code class="inline">for</code> loop, SQL has no cursor walking down the data. A <code class="inline">WHERE</code> clause is not "check each row"; it is "define the subset of rows for which this is true." The engine may check them in any order, in parallel, or skip most of them entirely using an index.</li></ul>
-
-<p>The practical discipline: <b>think in sets, not loops.</b> "For each customer, find their latest order" is a loop-shaped thought that produces slow, awkward SQL. "Join customers to their orders, then keep only the ones ranked first per customer" is set-shaped and fast. Training yourself to reframe is most of learning SQL well.</p>
-
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>Loop thinking (slow, procedural, often wrong):
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div><pre><code>Loop thinking (slow, procedural, often wrong):
   for each row in customers:
       run a query to get that customer's orders
 
 Set thinking (one query, one plan, one pass):
   join the two sets, then filter the combined set</code></pre></div>
 
-<h2>Idea 2: Every query is a pipeline of set transformations, evaluated in a fixed logical order</h2>
+<h3>Idea 2: Every query is a pipeline of set transformations, evaluated in a fixed logical order</h3>
 
 <p>This is the single most clarifying fact in all of SQL. You <b>write</b> clauses in one order, but the database <b>logically evaluates</b> them in a different one:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>Written order:            Logical evaluation order:
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div><pre><code>Written order:            Logical evaluation order:
 SELECT    ...             1. FROM      — get the source tables
 FROM      ...             2. JOIN      — combine them into one big set
 JOIN      ...             3. WHERE     — filter individual rows
@@ -178,21 +172,13 @@ LIMIT     ...             8. ORDER BY  — sort the result
 
 <p>Nearly every "why doesn't this work?" question in SQL is answered by this list:</p>
 
-<ul><li><b>Why can't I use a column alias defined in <code class="inline">SELECT</code> inside my <code class="inline">WHERE</code>?</b> Because <code class="inline">WHERE</code> (step 3) runs before <code class="inline">SELECT</code> (step 6). The alias doesn't exist yet. You *can* use it in <code class="inline">ORDER BY</code> (step 8), which runs after.</li></ul>
+<ul><li><b>Why can't I use a column alias defined in <code class="inline">SELECT</code> inside my <code class="inline">WHERE</code>?</b> Because <code class="inline">WHERE</code> (step 3) runs before <code class="inline">SELECT</code> (step 6). The alias doesn't exist yet. You *can* use it in <code class="inline">ORDER BY</code> (step 8), which runs after.</li><li>**Why does <code class="inline">WHERE</code> reject aggregate functions like <code class="inline">COUNT(*)</code>?** Because <code class="inline">WHERE</code> runs before <code class="inline">GROUP BY</code>. There are no groups yet, so there's nothing to count. That's exactly why <code class="inline">HAVING</code> exists — it's a filter that runs *after* grouping.</li><li><b>Why is <code class="inline">WHERE</code> faster than <code class="inline">HAVING</code> for the same condition?</b> <code class="inline">WHERE</code> throws rows away before the expensive grouping work; <code class="inline">HAVING</code> does the grouping first and then discards. Filter as early as possible.</li><li><b>Why did <code class="inline">LIMIT 10</code> give me different rows this time?</b> Because without <code class="inline">ORDER BY</code>, step 9 takes ten arbitrary rows from an unordered set (Idea 1).</li></ul><p>Memorize this pipeline. It converts SQL from a pile of rules into a machine you can reason about.</p>
 
-<ul><li>**Why does <code class="inline">WHERE</code> reject aggregate functions like <code class="inline">COUNT(*)</code>?** Because <code class="inline">WHERE</code> runs before <code class="inline">GROUP BY</code>. There are no groups yet, so there's nothing to count. That's exactly why <code class="inline">HAVING</code> exists — it's a filter that runs *after* grouping.</li></ul>
-
-<ul><li><b>Why is <code class="inline">WHERE</code> faster than <code class="inline">HAVING</code> for the same condition?</b> <code class="inline">WHERE</code> throws rows away before the expensive grouping work; <code class="inline">HAVING</code> does the grouping first and then discards. Filter as early as possible.</li></ul>
-
-<ul><li><b>Why did <code class="inline">LIMIT 10</code> give me different rows this time?</b> Because without <code class="inline">ORDER BY</code>, step 9 takes ten arbitrary rows from an unordered set (Idea 1).</li></ul>
-
-<p>Memorize this pipeline. It converts SQL from a pile of rules into a machine you can reason about.</p>
-
-<h2>Idea 3: NULL is not a value — it's the absence of one, and it makes logic three-valued</h2>
+<h3>Idea 3: NULL is not a value — it's the absence of one, and it makes logic three-valued</h3>
 
 <p><code class="inline">NULL</code> means "unknown" or "not applicable." It is not zero, not an empty string, not <code class="inline">false</code>. And this changes logic itself: every comparison yields <b>TRUE, FALSE, or UNKNOWN</b>.</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>NULL = NULL        -- UNKNOWN, not TRUE!  (is one unknown thing equal to another? unknowable)
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>NULL = NULL        -- UNKNOWN, not TRUE!  (is one unknown thing equal to another? unknowable)
 NULL = 5           -- UNKNOWN
 NULL &lt;&gt; 5          -- UNKNOWN
 5 + NULL           -- NULL  (any arithmetic with unknown is unknown)
@@ -200,14 +186,14 @@ NULL &lt;&gt; 5          -- UNKNOWN
 
 <p>The rule that makes this practical: <b><code class="inline">WHERE</code> keeps only rows where the condition is TRUE.</b> UNKNOWN is discarded exactly like FALSE. So:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT * FROM users WHERE country = 'IN';       -- rows with NULL country are excluded
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>SELECT * FROM users WHERE country = 'IN';       -- rows with NULL country are excluded
 SELECT * FROM users WHERE country &lt;&gt; 'IN';      -- rows with NULL country are ALSO excluded!</code></pre></div>
 
 <p>Both queries exclude NULL rows, so the two results together do <b>not</b> add up to the whole table. This surprises everyone once, and it silently corrupts reports.</p>
 
 <p>Testing for NULL requires special syntax, because <code class="inline">= NULL</code> never matches:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>WHERE country IS NULL          -- correct
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>WHERE country IS NULL          -- correct
 WHERE country IS NOT NULL      -- correct
 WHERE country = NULL           -- always UNKNOWN → never matches. A silent bug</code></pre></div>
 
@@ -217,72 +203,48 @@ WHERE country = NULL           -- always UNKNOWN → never matches. A silent bug
 
 <p>Useful tools: <code class="inline">COALESCE(a, b, c)</code> returns the first non-NULL argument; <code class="inline">NULLIF(a, b)</code> returns NULL when the two are equal (handy for avoiding division by zero).</p>
 
-<h2>Idea 4: A join is a set operation that produces a new, wider set of rows</h2>
+<h3>Idea 4: A join is a set operation that produces a new, wider set of rows</h3>
 
 <p>A join does not "add columns to a table." Conceptually, it forms combinations of rows from two tables and keeps the ones satisfying your condition. The output is a *new* set whose rows are wider — and whose row *count* may be larger or smaller than either input.</p>
 
 <p>That last point is where most join bugs live. If one order has three line items, joining orders to line items yields <b>three rows for that order</b>, and any <code class="inline">SUM</code> over an order-level column now triple-counts. Understanding that a join *multiplies* rows when the relationship is one-to-many is the difference between correct and confidently wrong reports. Part 4 covers this in full.</p>
 
-<h2>Idea 5: The optimizer decides how; you only decide what</h2>
+<h3>Idea 5: The optimizer decides how; you only decide what</h3>
 
 <p>When you submit a query, the database:</p>
 
-<ol><li><b>Parses</b> it into a syntax tree.</li></ol>
+<ol><li><b>Parses</b> it into a syntax tree.</li><li><b>Rewrites</b> it into a canonical logical form (flattening subqueries, pushing filters down).</li><li><b>Plans</b> it: enumerates possible execution strategies — which index to use, which join algorithm (nested loop, hash, merge), what order to join tables in — and estimates the cost of each using <b>statistics</b> about your data (row counts, value distributions).</li><li><b>Executes</b> the cheapest plan it found.</li></ol><p>Three consequences that shape all of Parts 9–11:</p>
 
-<ol><li><b>Rewrites</b> it into a canonical logical form (flattening subqueries, pushing filters down).</li></ol>
-
-<ol><li><b>Plans</b> it: enumerates possible execution strategies — which index to use, which join algorithm (nested loop, hash, merge), what order to join tables in — and estimates the cost of each using <b>statistics</b> about your data (row counts, value distributions).</li></ol>
-
-<ol><li><b>Executes</b> the cheapest plan it found.</li></ol>
-
-<p>Three consequences that shape all of Parts 9–11:</p>
-
-<ul><li>Two differently-written queries that mean the same thing often produce the <b>identical plan</b> — so "clever" rewriting is usually pointless. The optimizer already did it.</li></ul>
-
-<ul><li>When a query is slow, the fix is almost never "write it differently." It's giving the optimizer better options (an index), better information (fresh statistics), or less work (filter earlier, return fewer rows).</li></ul>
-
-<ul><li>The plan is *estimated*, so it can be wrong. Stale statistics or unusual data distributions produce bad plans, which is why <code class="inline">EXPLAIN ANALYZE</code> (Part 9) compares estimates against reality.</li></ul>
-
-<h2>Checkpoint — do this before Part 3</h2>
+<ul><li>Two differently-written queries that mean the same thing often produce the <b>identical plan</b> — so "clever" rewriting is usually pointless. The optimizer already did it.</li><li>When a query is slow, the fix is almost never "write it differently." It's giving the optimizer better options (an index), better information (fresh statistics), or less work (filter earlier, return fewer rows).</li><li>The plan is *estimated*, so it can be wrong. Stale statistics or unusual data distributions produce bad plans, which is why <code class="inline">EXPLAIN ANALYZE</code> (Part 9) compares estimates against reality.</li></ul><h3>Checkpoint — do this before Part 3</h3>
 
 <p>Answer these out loud or in writing, without looking:</p>
 
-<ol><li>Why can't you reference a <code class="inline">SELECT</code> alias in the <code class="inline">WHERE</code> clause, but you can in <code class="inline">ORDER BY</code>?</li></ol>
+<ol><li>Why can't you reference a <code class="inline">SELECT</code> alias in the <code class="inline">WHERE</code> clause, but you can in <code class="inline">ORDER BY</code>?</li><li>A table has 100 rows; 20 have <code class="inline">NULL</code> in <code class="inline">city</code>. <code class="inline">WHERE city = 'Delhi'</code> returns 30 rows and <code class="inline">WHERE city &lt;&gt; 'Delhi'</code> returns 50. Where did the other 20 go, and why is that correct?</li><li>What's the difference between <code class="inline">COUNT(*)</code> and <code class="inline">COUNT(city)</code> on that table?</li><li>You run the same query twice with no data changes and get rows in a different order. Is the database broken? Why or why not?</li><li>Why is filtering in <code class="inline">WHERE</code> generally cheaper than the same filter in <code class="inline">HAVING</code>?</li></ol><p>If any of these is shaky, reread Part 2. Nothing later will stick without it.</p>
 
-<ol><li>A table has 100 rows; 20 have <code class="inline">NULL</code> in <code class="inline">city</code>. <code class="inline">WHERE city = 'Delhi'</code> returns 30 rows and <code class="inline">WHERE city &lt;&gt; 'Delhi'</code> returns 50. Where did the other 20 go, and why is that correct?</li></ol>
-
-<ol><li>What's the difference between <code class="inline">COUNT(*)</code> and <code class="inline">COUNT(city)</code> on that table?</li></ol>
-
-<ol><li>You run the same query twice with no data changes and get rows in a different order. Is the database broken? Why or why not?</li></ol>
-
-<ol><li>Why is filtering in <code class="inline">WHERE</code> generally cheaper than the same filter in <code class="inline">HAVING</code>?</li></ol>
-
-<p>If any of these is shaky, reread Part 2. Nothing later will stick without it.</p>
-
-<div class="quiz" data-part="p2"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p2"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p1">&larr; 01 · WHERE SQL CAME FROM</a><a class="next" href="#p3">03 · QUERYING ONE TABLE &rarr;</a></div>
 </section>
 
-<section class="part" id="p3">
-  <div class="phead"><div class="pnum">03</div>
-    <div><div class="ptitle">Querying One Table</div>
+<section class="part" id="p3" aria-labelledby="p3-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">03</div>
+    <div><h2 class="ptitle" id="p3-title">Querying One Table</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p3">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p3">MARK COMPLETE</button></div>
   </div>
 
   <p>Now hands-on. Create a database and follow along; reading SQL teaches you almost nothing.</p>
 
-<h2>3.1 <code class="inline">SELECT</code> — projecting columns [DEEP concept, RECOGNIZE syntax]</h2>
+<h3>3.1 <code class="inline">SELECT</code> — projecting columns [DEEP concept, RECOGNIZE syntax]</h3>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT id, name, city FROM customers;         -- name the columns you want
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>SELECT id, name, city FROM customers;         -- name the columns you want
 SELECT * FROM customers;                       -- all columns</code></pre></div>
 
 <p><code class="inline">SELECT *</code> is fine when exploring interactively and a bad habit in saved code: it returns more data than you need (slower over the network), silently changes shape when someone adds a column, and hides which columns your code actually depends on. Name your columns in anything you keep.</p>
 
 <p>Expressions and aliases:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>SELECT
   name,
   price * quantity           AS line_total,      -- computed column
   UPPER(city)                AS city_upper,
@@ -291,9 +253,9 @@ FROM order_items;</code></pre></div>
 
 <p><code class="inline">AS</code> names the output column. Quoting rules differ by dialect; using lowercase names with underscores avoids the entire problem.</p>
 
-<h2>3.2 <code class="inline">WHERE</code> — filtering rows [DEEP]</h2>
+<h3>3.2 <code class="inline">WHERE</code> — filtering rows [DEEP]</h3>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT * FROM orders
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>SELECT * FROM orders
 WHERE status = 'shipped'                        -- equality
   AND total &gt; 500                               -- comparison
   AND created_at &gt;= '2026-01-01'                -- dates compare naturally
@@ -304,17 +266,9 @@ WHERE status = 'shipped'                        -- equality
 
 <p>Points that matter more than the syntax:</p>
 
-<ul><li><b>Operator precedence:</b> <code class="inline">AND</code> binds tighter than <code class="inline">OR</code>. <code class="inline">WHERE a AND b OR c</code> means <code class="inline">(a AND b) OR c</code>. Always parenthesize mixed conditions — this is a real source of wrong-but-plausible results.</li></ul>
+<ul><li><b>Operator precedence:</b> <code class="inline">AND</code> binds tighter than <code class="inline">OR</code>. <code class="inline">WHERE a AND b OR c</code> means <code class="inline">(a AND b) OR c</code>. Always parenthesize mixed conditions — this is a real source of wrong-but-plausible results.</li><li><b><code class="inline">LIKE 'A%'</code> can use an index; <code class="inline">LIKE '%A'</code> cannot.</b> A leading wildcard forces the engine to examine every row, because indexes are ordered by the start of the value (Part 10 explains why). For real text search, use full-text search features rather than <code class="inline">LIKE '%term%'</code>.</li><li><b>Case sensitivity varies:</b> Postgres is case-sensitive by default, MySQL usually isn't. Use <code class="inline">LOWER()</code> on both sides or a case-insensitive collation when you need certainty.</li><li><b>Wrapping a column in a function usually disables its index.</b> <code class="inline">WHERE YEAR(created_at) = 2026</code> typically cannot use an index on <code class="inline">created_at</code>, while <code class="inline">WHERE created_at &gt;= '2026-01-01' AND created_at &lt; '2027-01-01'</code> can. This single rewrite is one of the most common real-world speedups.</li></ul><h3>3.3 <code class="inline">ORDER BY</code>, <code class="inline">LIMIT</code>, <code class="inline">DISTINCT</code> [RECOGNIZE]</h3>
 
-<ul><li><b><code class="inline">LIKE 'A%'</code> can use an index; <code class="inline">LIKE '%A'</code> cannot.</b> A leading wildcard forces the engine to examine every row, because indexes are ordered by the start of the value (Part 10 explains why). For real text search, use full-text search features rather than <code class="inline">LIKE '%term%'</code>.</li></ul>
-
-<ul><li><b>Case sensitivity varies:</b> Postgres is case-sensitive by default, MySQL usually isn't. Use <code class="inline">LOWER()</code> on both sides or a case-insensitive collation when you need certainty.</li></ul>
-
-<ul><li><b>Wrapping a column in a function usually disables its index.</b> <code class="inline">WHERE YEAR(created_at) = 2026</code> typically cannot use an index on <code class="inline">created_at</code>, while <code class="inline">WHERE created_at &gt;= '2026-01-01' AND created_at &lt; '2027-01-01'</code> can. This single rewrite is one of the most common real-world speedups.</li></ul>
-
-<h2>3.3 <code class="inline">ORDER BY</code>, <code class="inline">LIMIT</code>, <code class="inline">DISTINCT</code> [RECOGNIZE]</h2>
-
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT DISTINCT city FROM customers ORDER BY city;
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>SELECT DISTINCT city FROM customers ORDER BY city;
 
 SELECT * FROM orders
 ORDER BY created_at DESC, id ASC        -- tiebreaker makes results deterministic
@@ -322,45 +276,39 @@ LIMIT 20 OFFSET 40;                     -- page 3 of 20-row pages</code></pre></
 
 <p>Two notes: <code class="inline">ORDER BY</code> with no tiebreaker on a non-unique column gives <b>unstable</b> results across runs — always add a unique column as the final sort key. And <code class="inline">OFFSET</code> gets progressively slower as it grows, because the engine must generate and discard all the skipped rows; Part 11 covers keyset pagination as the fix.</p>
 
-<h2>3.4 Data types [DEEP enough to avoid disasters]</h2>
+<h3>3.4 Data types [DEEP enough to avoid disasters]</h3>
 
 <div class="tblwrap"><table><thead><tr><th>Category</th><th>Types</th><th>What to know</th></tr></thead><tbody><tr><td>Integers</td><td><code class="inline">INTEGER</code>, <code class="inline">BIGINT</code>, <code class="inline">SMALLINT</code></td><td>Use <code class="inline">BIGINT</code> for IDs on anything that might grow; running out of 32-bit IDs in production is a real and painful event</td></tr><tr><td>Exact decimals</td><td><code class="inline">NUMERIC(12,2)</code> / <code class="inline">DECIMAL</code></td><td><b>Always use this for money.</b> Exact base-10 arithmetic</td></tr><tr><td>Floats</td><td><code class="inline">REAL</code>, <code class="inline">DOUBLE PRECISION</code></td><td>Binary approximations. <code class="inline">0.1 + 0.2 &lt;&gt; 0.3</code>. Correct for measurements and scientific data, <b>never for money</b></td></tr><tr><td>Text</td><td><code class="inline">TEXT</code>, <code class="inline">VARCHAR(n)</code>, <code class="inline">CHAR(n)</code></td><td>In Postgres these perform identically; <code class="inline">VARCHAR(n)</code> just adds a length check. <code class="inline">CHAR(n)</code> pads with spaces and causes surprises — avoid</td></tr><tr><td>Dates &amp; times</td><td><code class="inline">DATE</code>, <code class="inline">TIMESTAMP</code>, <code class="inline">TIMESTAMPTZ</code>, <code class="inline">INTERVAL</code></td><td><b>Store timestamps in UTC</b> (<code class="inline">TIMESTAMPTZ</code> in Postgres) and convert at display time. Timezone bugs are among the most expensive and hardest to notice</td></tr><tr><td>Boolean</td><td><code class="inline">BOOLEAN</code></td><td>Remember it's three-valued with NULL</td></tr><tr><td>Structured</td><td><code class="inline">JSON</code>/<code class="inline">JSONB</code>, arrays, <code class="inline">UUID</code>, <code class="inline">ENUM</code></td><td><code class="inline">JSONB</code> (Postgres) is genuinely useful for irregular attributes — but see Part 12 on not using it as an escape from schema design</td></tr></tbody></table></div>
 
 <p>The rule underneath the table: <b>types are constraints, and constraints are documentation the database enforces.</b> Storing a date as text or money as float works right up until it silently doesn't.</p>
 
-<h2>3.5 Exercises</h2>
+<h3>3.5 Exercises</h3>
 
-<ol><li>Create a <code class="inline">customers</code> table and an <code class="inline">orders</code> table, insert ~20 rows by hand, and deliberately leave some values NULL.</li></ol>
+<ol><li>Create a <code class="inline">customers</code> table and an <code class="inline">orders</code> table, insert ~20 rows by hand, and deliberately leave some values NULL.</li><li>Write a query that proves Idea 3: show that <code class="inline">WHERE col = 'x'</code> and <code class="inline">WHERE col &lt;&gt; 'x'</code> don't sum to the table's row count, then fix it with <code class="inline">IS NULL</code>.</li><li>Write a query with mixed <code class="inline">AND</code>/<code class="inline">OR</code> without parentheses, predict the result, then add parentheses to change it — and confirm your prediction was right.</li><li>Find the 5 most recent orders with a deterministic tiebreaker.</li></ol>
 
-<ol><li>Write a query that proves Idea 3: show that <code class="inline">WHERE col = 'x'</code> and <code class="inline">WHERE col &lt;&gt; 'x'</code> don't sum to the table's row count, then fix it with <code class="inline">IS NULL</code>.</li></ol>
-
-<ol><li>Write a query with mixed <code class="inline">AND</code>/<code class="inline">OR</code> without parentheses, predict the result, then add parentheses to change it — and confirm your prediction was right.</li></ol>
-
-<ol><li>Find the 5 most recent orders with a deterministic tiebreaker.</li></ol>
-
-<div class="quiz" data-part="p3"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p3"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p2">&larr; 02 · THE CORE MENTAL MODEL</a><a class="next" href="#p4">04 · JOINS: COMBINING TABLES &rarr;</a></div>
 </section>
 
-<section class="part" id="p4">
-  <div class="phead"><div class="pnum">04</div>
-    <div><div class="ptitle">Joins: Combining Tables</div>
+<section class="part" id="p4" aria-labelledby="p4-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">04</div>
+    <div><h2 class="ptitle" id="p4-title">Joins: Combining Tables</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p4">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p4">MARK COMPLETE</button></div>
   </div>
 
   <p>Joins are where SQL becomes powerful and where most mistakes happen. Take this part slowly.</p>
 
-<h2>4.1 Why joins exist [DEEP]</h2>
+<h3>4.1 Why joins exist [DEEP]</h3>
 
 <p>Relational design deliberately <b>splits data across tables</b> so each fact is stored exactly once (Part 7 covers why — normalization). A customer's name lives in <code class="inline">customers</code>; their orders live in <code class="inline">orders</code>, referencing the customer by <code class="inline">customer_id</code>. That reference is a <b>foreign key</b>.</p>
 
 <p>The cost of splitting is that answering real questions requires recombining. That recombination is a join. So: normalization is the reason joins exist, and joins are the price of not duplicating data. Understanding that trade-off is the heart of relational thinking.</p>
 
-<h2>4.2 The join types [DEEP]</h2>
+<h3>4.2 The join types [DEEP]</h3>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT c.name, o.id, o.total
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>SELECT c.name, o.id, o.total
 FROM customers c
 JOIN orders o ON o.customer_id = c.id;</code></pre></div>
 
@@ -368,18 +316,18 @@ JOIN orders o ON o.customer_id = c.id;</code></pre></div>
 
 <p>A picture of what <code class="inline">LEFT JOIN</code> does:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>customers          orders                  LEFT JOIN result
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div><pre><code>customers          orders                  LEFT JOIN result
 id name            customer_id total        name    total
 1  Asha            1            500         Asha    500
 2  Bilal           1            300         Asha    300
 3  Chen            3            900         Bilal   NULL   ← kept, padded with NULLs
                                             Chen    900</code></pre></div>
 
-<h2>4.3 The three join mistakes everyone makes [DEEP — read twice]</h2>
+<h3>4.3 The three join mistakes everyone makes [DEEP — read twice]</h3>
 
 <p><b>Mistake 1: unintentional row multiplication.</b></p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>-- orders has 1 row per order; order_items has N rows per order
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>-- orders has 1 row per order; order_items has N rows per order
 SELECT o.id, SUM(o.total)          -- WRONG: o.total is counted once per item
 FROM orders o
 JOIN order_items i ON i.order_id = o.id
@@ -391,7 +339,7 @@ GROUP BY o.id;</code></pre></div>
 
 <p><b>Mistake 2: filtering a <code class="inline">LEFT JOIN</code> in <code class="inline">WHERE</code>, which silently turns it into an <code class="inline">INNER JOIN</code>.</b></p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>-- Intent: all customers, plus their 2026 orders
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>-- Intent: all customers, plus their 2026 orders
 SELECT c.name, o.id
 FROM customers c
 LEFT JOIN orders o ON o.customer_id = c.id
@@ -399,7 +347,7 @@ WHERE o.created_at &gt;= '2026-01-01';       -- BUG: drops customers with no ord
 
 <p>The <code class="inline">LEFT JOIN</code> dutifully produced NULL rows for order-less customers — and then <code class="inline">WHERE</code> evaluated <code class="inline">NULL &gt;= '2026-01-01'</code> as UNKNOWN and discarded them (Idea 3 again). The fix is to move the condition into the <code class="inline">ON</code> clause, which filters *during* the join rather than after:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>LEFT JOIN orders o
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>LEFT JOIN orders o
   ON o.customer_id = c.id
  AND o.created_at &gt;= '2026-01-01';        -- correct: still keeps all customers</code></pre></div>
 
@@ -407,21 +355,21 @@ WHERE o.created_at &gt;= '2026-01-01';       -- BUG: drops customers with no ord
 
 <p><b>Mistake 3: forgetting the join condition entirely</b>, producing a <code class="inline">CROSS JOIN</code>. 10,000 rows joined to 10,000 rows is 100,000,000 rows. The symptom is a query that never finishes or fills the disk. Always check that every joined table has a condition connecting it to the rest.</p>
 
-<h2>4.4 Self-joins and multi-table joins [RECOGNIZE]</h2>
+<h3>4.4 Self-joins and multi-table joins [RECOGNIZE]</h3>
 
 <p>A table can join to itself — the standard way to relate rows within one table (employees to their managers, comparing a row to the previous one):</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT e.name AS employee, m.name AS manager
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>SELECT e.name AS employee, m.name AS manager
 FROM employees e
 LEFT JOIN employees m ON m.id = e.manager_id;   -- LEFT so the CEO isn't dropped</code></pre></div>
 
 <p>Multi-table joins chain the same way; alias every table and qualify every column (<code class="inline">o.id</code>, not bare <code class="inline">id</code>) so ambiguity is impossible and the query stays readable when someone adds a column later.</p>
 
-<h2>4.5 Set operations [RECOGNIZE]</h2>
+<h3>4.5 Set operations [RECOGNIZE]</h3>
 
 <p>These combine the *results* of queries vertically, rather than joining horizontally:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT city FROM customers
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>SELECT city FROM customers
 UNION            -- combines and REMOVES duplicates (costs a sort/hash)
 SELECT city FROM suppliers;
 
@@ -431,33 +379,27 @@ SELECT city FROM suppliers;</code></pre></div>
 
 <p><code class="inline">INTERSECT</code> (in both) and <code class="inline">EXCEPT</code>/<code class="inline">MINUS</code> (in the first but not the second) round out the set algebra — <code class="inline">EXCEPT</code> is an elegant way to answer "what's missing?" and a great tool for reconciling two sources.</p>
 
-<h2>4.6 Exercises</h2>
+<h3>4.6 Exercises</h3>
 
-<ol><li>Build the multiplication bug deliberately: create an order with 3 items, <code class="inline">SUM</code> the order total across a join, and observe the tripling. Then fix it two different ways.</li></ol>
+<ol><li>Build the multiplication bug deliberately: create an order with 3 items, <code class="inline">SUM</code> the order total across a join, and observe the tripling. Then fix it two different ways.</li><li>Write the "all customers plus their 2026 orders" query wrongly (in <code class="inline">WHERE</code>), see customers disappear, then fix it in <code class="inline">ON</code>.</li><li>Write a self-join listing every employee with their manager's name, ensuring the top-level employee still appears.</li><li>Use <code class="inline">EXCEPT</code> to find customers who have never placed an order, then write the same thing with a <code class="inline">LEFT JOIN ... WHERE o.id IS NULL</code>. Compare.</li></ol>
 
-<ol><li>Write the "all customers plus their 2026 orders" query wrongly (in <code class="inline">WHERE</code>), see customers disappear, then fix it in <code class="inline">ON</code>.</li></ol>
-
-<ol><li>Write a self-join listing every employee with their manager's name, ensuring the top-level employee still appears.</li></ol>
-
-<ol><li>Use <code class="inline">EXCEPT</code> to find customers who have never placed an order, then write the same thing with a <code class="inline">LEFT JOIN ... WHERE o.id IS NULL</code>. Compare.</li></ol>
-
-<div class="quiz" data-part="p4"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p4"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p3">&larr; 03 · QUERYING ONE TABLE</a><a class="next" href="#p5">05 · AGGREGATION AND GROUPING &rarr;</a></div>
 </section>
 
-<section class="part" id="p5">
-  <div class="phead"><div class="pnum">05</div>
-    <div><div class="ptitle">Aggregation and Grouping</div>
+<section class="part" id="p5" aria-labelledby="p5-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">05</div>
+    <div><h2 class="ptitle" id="p5-title">Aggregation and Grouping</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p5">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p5">MARK COMPLETE</button></div>
   </div>
 
-  <h2>5.1 Aggregate functions [DEEP concept]</h2>
+  <h3>5.1 Aggregate functions [DEEP concept]</h3>
 
 <p>An aggregate collapses many rows into one value:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>SELECT
   COUNT(*)            AS orders,          -- rows
   COUNT(discount_code) AS with_code,      -- non-NULL values only (Idea 3)
   COUNT(DISTINCT customer_id) AS buyers,
@@ -469,9 +411,9 @@ FROM orders;</code></pre></div>
 
 <p>With no <code class="inline">GROUP BY</code>, the whole table is one group, so you get exactly one row.</p>
 
-<h2>5.2 <code class="inline">GROUP BY</code> [DEEP]</h2>
+<h3>5.2 <code class="inline">GROUP BY</code> [DEEP]</h3>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT city, COUNT(*) AS orders, SUM(total) AS revenue
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>SELECT city, COUNT(*) AS orders, SUM(total) AS revenue
 FROM orders
 GROUP BY city;</code></pre></div>
 
@@ -479,9 +421,9 @@ GROUP BY city;</code></pre></div>
 
 <p><b>The rule that causes the most errors:</b> every column in <code class="inline">SELECT</code> must either appear in <code class="inline">GROUP BY</code> or be inside an aggregate function. Reason: if you group by <code class="inline">city</code>, there are many <code class="inline">customer_name</code> values in each bucket and the database has no basis to choose one. Postgres and SQL Server raise an error; MySQL historically returned an arbitrary value, which is worse because it hides the mistake.</p>
 
-<h2>5.3 <code class="inline">HAVING</code> vs <code class="inline">WHERE</code> [DEEP]</h2>
+<h3>5.3 <code class="inline">HAVING</code> vs <code class="inline">WHERE</code> [DEEP]</h3>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT city, SUM(total) AS revenue
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>SELECT city, SUM(total) AS revenue
 FROM orders
 WHERE created_at &gt;= '2026-01-01'    -- filters ROWS, before grouping
 GROUP BY city
@@ -490,11 +432,11 @@ ORDER BY revenue DESC;</code></pre></div>
 
 <p>Straight from Idea 2's pipeline: <code class="inline">WHERE</code> runs at step 3, <code class="inline">HAVING</code> at step 5. So <code class="inline">WHERE</code> cannot see aggregates and <code class="inline">HAVING</code> can. And putting a row-level condition in <code class="inline">HAVING</code> still works but is slower, because you grouped rows you were going to throw away.</p>
 
-<h2>5.4 Beyond basic grouping [RECOGNIZE]</h2>
+<h3>5.4 Beyond basic grouping [RECOGNIZE]</h3>
 
 <p><code class="inline">FILTER</code> (Postgres) or <code class="inline">CASE</code> inside aggregates lets you compute several conditional metrics in one pass — vastly better than running three separate queries:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>SELECT
   city,
   COUNT(*)                                        AS all_orders,
   COUNT(*) FILTER (WHERE status = 'cancelled')    AS cancelled,
@@ -506,43 +448,31 @@ GROUP BY city;</code></pre></div>
 
 <p><code class="inline">GROUPING SETS</code>, <code class="inline">ROLLUP</code>, and <code class="inline">CUBE</code> produce subtotals and grand totals in one query — useful for reporting. [REFERENCE]</p>
 
-<h2>5.5 Common mistakes</h2>
+<h3>5.5 Common mistakes</h3>
 
-<ul><li>Averaging an average. <code class="inline">AVG</code> of per-city averages is <b>not</b> the overall average unless every city has the same row count. Aggregate from the base rows.</li></ul>
+<ul><li>Averaging an average. <code class="inline">AVG</code> of per-city averages is <b>not</b> the overall average unless every city has the same row count. Aggregate from the base rows.</li><li><code class="inline">AVG</code> silently skipping NULLs and changing the denominator — if NULL should count as zero, use <code class="inline">AVG(COALESCE(col, 0))</code> deliberately.</li><li>Counting after a one-to-many join and getting inflated numbers (Part 4.3) — use <code class="inline">COUNT(DISTINCT ...)</code> or fix the grain.</li><li>Using <code class="inline">HAVING</code> where <code class="inline">WHERE</code> belongs.</li></ul><h3>5.6 Exercises</h3>
 
-<ul><li><code class="inline">AVG</code> silently skipping NULLs and changing the denominator — if NULL should count as zero, use <code class="inline">AVG(COALESCE(col, 0))</code> deliberately.</li></ul>
+<ol><li>Produce revenue by city and month, sorted descending, for a specific year — using <code class="inline">WHERE</code> for the year and <code class="inline">HAVING</code> for a revenue floor.</li><li>Write one query returning total, cancelled, and shipped counts per city using conditional aggregation, then verify it against three separate queries.</li><li>Demonstrate that averaging averages gives the wrong answer, with real numbers.</li></ol>
 
-<ul><li>Counting after a one-to-many join and getting inflated numbers (Part 4.3) — use <code class="inline">COUNT(DISTINCT ...)</code> or fix the grain.</li></ul>
-
-<ul><li>Using <code class="inline">HAVING</code> where <code class="inline">WHERE</code> belongs.</li></ul>
-
-<h2>5.6 Exercises</h2>
-
-<ol><li>Produce revenue by city and month, sorted descending, for a specific year — using <code class="inline">WHERE</code> for the year and <code class="inline">HAVING</code> for a revenue floor.</li></ol>
-
-<ol><li>Write one query returning total, cancelled, and shipped counts per city using conditional aggregation, then verify it against three separate queries.</li></ol>
-
-<ol><li>Demonstrate that averaging averages gives the wrong answer, with real numbers.</li></ol>
-
-<div class="quiz" data-part="p5"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p5"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p4">&larr; 04 · JOINS: COMBINING TABLES</a><a class="next" href="#p6">06 · SUBQUERIES, CTES, AND WINDOW FUNCTIONS &rarr;</a></div>
 </section>
 
-<section class="part" id="p6">
-  <div class="phead"><div class="pnum">06</div>
-    <div><div class="ptitle">Subqueries, CTEs, and Window Functions</div>
+<section class="part" id="p6" aria-labelledby="p6-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">06</div>
+    <div><h2 class="ptitle" id="p6-title">Subqueries, CTEs, and Window Functions</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p6">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p6">MARK COMPLETE</button></div>
   </div>
 
   <p>This part is where intermediate SQL becomes advanced SQL. Window functions in particular replace whole categories of painful workarounds.</p>
 
-<h2>6.1 Subqueries [RECOGNIZE the forms, DEEP on correlated ones]</h2>
+<h3>6.1 Subqueries [RECOGNIZE the forms, DEEP on correlated ones]</h3>
 
 <p>A query nested inside another. Three positions:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>-- 1. Scalar subquery (returns one value)
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>-- 1. Scalar subquery (returns one value)
 SELECT name, (SELECT COUNT(*) FROM orders o WHERE o.customer_id = c.id) AS order_count
 FROM customers c;
 
@@ -561,15 +491,15 @@ GROUP BY city;</code></pre></div>
 
 <p><b><code class="inline">EXISTS</code> vs <code class="inline">IN</code> vs <code class="inline">NOT IN</code></b> [DEEP]:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>WHERE EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id)   -- stops at first match
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>WHERE EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id)   -- stops at first match
 WHERE id IN (SELECT customer_id FROM orders)                        -- builds the full set
 WHERE id NOT IN (SELECT customer_id FROM orders)                    -- ⚠ DANGER</code></pre></div>
 
 <p>The <code class="inline">NOT IN</code> trap, and it's a serious one: if the subquery returns <b>even one NULL</b>, <code class="inline">NOT IN</code> returns no rows at all. Why? <code class="inline">x NOT IN (1, NULL)</code> expands to <code class="inline">x &lt;&gt; 1 AND x &lt;&gt; NULL</code>, and the second half is always UNKNOWN, so the whole condition can never be TRUE (Idea 3). Use <code class="inline">NOT EXISTS</code> instead — it is NULL-safe and usually faster. This is one of the highest-value facts in this entire document, because the failure is silent.</p>
 
-<h2>6.2 Common Table Expressions (CTEs) [DEEP — the readability tool]</h2>
+<h3>6.2 Common Table Expressions (CTEs) [DEEP — the readability tool]</h3>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>WITH monthly AS (
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>WITH monthly AS (
   SELECT date_trunc('month', created_at) AS month, city, SUM(total) AS revenue
   FROM orders
   GROUP BY 1, 2
@@ -587,14 +517,14 @@ ORDER BY month, rk;</code></pre></div>
 
 <p>Notes: CTEs can reference earlier CTEs (not later ones); in Postgres 12+ they're inlined and optimized like subqueries (older versions materialized them, which was sometimes a performance trap); and <b>recursive CTEs</b> (<code class="inline">WITH RECURSIVE</code>) traverse hierarchies and graphs — org charts, category trees, dependency chains, shortest paths. [ADVANCED but genuinely worth learning once]</p>
 
-<h2>6.3 Window functions [DEEP — the most valuable advanced topic in SQL]</h2>
+<h3>6.3 Window functions [DEEP — the most valuable advanced topic in SQL]</h3>
 
 <p>A window function computes a value <b>across a set of related rows without collapsing them.</b> That's the whole idea, and it's what makes it different from <code class="inline">GROUP BY</code>:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>GROUP BY:        10 rows in → 3 rows out (rows are collapsed)
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div><pre><code>GROUP BY:        10 rows in → 3 rows out (rows are collapsed)
 Window function: 10 rows in → 10 rows out (each row gains a computed column)</code></pre></div>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>SELECT
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>SELECT
   id, customer_id, created_at, total,
 
   -- ranking within each customer's orders
@@ -615,13 +545,7 @@ FROM orders;</code></pre></div>
 
 <p>Anatomy of the <code class="inline">OVER</code> clause:</p>
 
-<ul><li><b><code class="inline">PARTITION BY</code></b> — split rows into groups (like <code class="inline">GROUP BY</code>, but without collapsing).</li></ul>
-
-<ul><li><b><code class="inline">ORDER BY</code></b> — order rows within each partition; required for anything positional (<code class="inline">ROW_NUMBER</code>, <code class="inline">LAG</code>, running totals).</li></ul>
-
-<ul><li><b>Frame</b> (<code class="inline">ROWS BETWEEN ...</code>) — which rows around the current one to include. Defaults are subtle: with <code class="inline">ORDER BY</code> present, the default frame includes everything from the start of the partition through the current row's peers, which is what makes running totals work.</li></ul>
-
-<p>The function families worth knowing [RECOGNIZE]:</p>
+<ul><li><b><code class="inline">PARTITION BY</code></b> — split rows into groups (like <code class="inline">GROUP BY</code>, but without collapsing).</li><li><b><code class="inline">ORDER BY</code></b> — order rows within each partition; required for anything positional (<code class="inline">ROW_NUMBER</code>, <code class="inline">LAG</code>, running totals).</li><li><b>Frame</b> (<code class="inline">ROWS BETWEEN ...</code>) — which rows around the current one to include. Defaults are subtle: with <code class="inline">ORDER BY</code> present, the default frame includes everything from the start of the partition through the current row's peers, which is what makes running totals work.</li></ul><p>The function families worth knowing [RECOGNIZE]:</p>
 
 <div class="tblwrap"><table><thead><tr><th>Family</th><th>Functions</th><th>Use</th></tr></thead><tbody><tr><td>Ranking</td><td><code class="inline">ROW_NUMBER</code>, <code class="inline">RANK</code>, <code class="inline">DENSE_RANK</code>, <code class="inline">NTILE</code></td><td>"Top N per group", deduplication, percentile buckets</td></tr><tr><td>Offset</td><td><code class="inline">LAG</code>, <code class="inline">LEAD</code>, <code class="inline">FIRST_VALUE</code>, <code class="inline">LAST_VALUE</code></td><td>Period-over-period change, gaps between events</td></tr><tr><td>Aggregate-as-window</td><td><code class="inline">SUM</code>, <code class="inline">AVG</code>, <code class="inline">COUNT</code>, <code class="inline">MIN</code>, <code class="inline">MAX</code> with <code class="inline">OVER</code></td><td>Running totals, moving averages, share-of-total</td></tr></tbody></table></div>
 
@@ -629,7 +553,7 @@ FROM orders;</code></pre></div>
 
 <p><b>The canonical pattern</b> — "the latest row per group," which appears in every real codebase:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>WITH ranked AS (
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>WITH ranked AS (
   SELECT *, ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY created_at DESC) AS rn
   FROM orders
 )
@@ -637,35 +561,27 @@ SELECT * FROM ranked WHERE rn = 1;</code></pre></div>
 
 <p>Note *why* the CTE is necessary: window functions are computed at step 6 of the pipeline (with <code class="inline">SELECT</code>), so <code class="inline">WHERE</code> (step 3) cannot reference them. You must wrap and filter outside. That's Idea 2 paying off again.</p>
 
-<h2>6.4 Exercises</h2>
+<h3>6.4 Exercises</h3>
 
-<ol><li>Write the "top 3 cities by revenue per month" query using a CTE plus <code class="inline">RANK</code>.</li></ol>
+<ol><li>Write the "top 3 cities by revenue per month" query using a CTE plus <code class="inline">RANK</code>.</li><li>Compute month-over-month revenue change using <code class="inline">LAG</code>.</li><li>Build a running total of daily revenue, then a 7-day moving average.</li><li>Reproduce the <code class="inline">NOT IN</code> NULL trap: create a table with a NULL, watch <code class="inline">NOT IN</code> return zero rows, then fix it with <code class="inline">NOT EXISTS</code>.</li><li>Find each customer's most recent order using the <code class="inline">ROW_NUMBER</code> pattern, and explain why you can't filter on it directly.</li></ol>
 
-<ol><li>Compute month-over-month revenue change using <code class="inline">LAG</code>.</li></ol>
-
-<ol><li>Build a running total of daily revenue, then a 7-day moving average.</li></ol>
-
-<ol><li>Reproduce the <code class="inline">NOT IN</code> NULL trap: create a table with a NULL, watch <code class="inline">NOT IN</code> return zero rows, then fix it with <code class="inline">NOT EXISTS</code>.</li></ol>
-
-<ol><li>Find each customer's most recent order using the <code class="inline">ROW_NUMBER</code> pattern, and explain why you can't filter on it directly.</li></ol>
-
-<div class="quiz" data-part="p6"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p6"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p5">&larr; 05 · AGGREGATION AND GROUPING</a><a class="next" href="#p7">07 · DESIGNING SCHEMAS: DDL, CONSTRAINTS, NORMALIZATION &rarr;</a></div>
 </section>
 
-<section class="part" id="p7">
-  <div class="phead"><div class="pnum">07</div>
-    <div><div class="ptitle">Designing Schemas: DDL, Constraints, Normalization</div>
+<section class="part" id="p7" aria-labelledby="p7-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">07</div>
+    <div><h2 class="ptitle" id="p7-title">Designing Schemas: DDL, Constraints, Normalization</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p7">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p7">MARK COMPLETE</button></div>
   </div>
 
   <p>Querying well matters less than designing well: a good schema makes correct queries easy and incorrect ones impossible.</p>
 
-<h2>7.1 Creating tables [RECOGNIZE syntax, DEEP on constraints]</h2>
+<h3>7.1 Creating tables [RECOGNIZE syntax, DEEP on constraints]</h3>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>CREATE TABLE customers (
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>CREATE TABLE customers (
   id          BIGSERIAL PRIMARY KEY,               -- auto-incrementing surrogate key
   email       TEXT        NOT NULL UNIQUE,
   name        TEXT        NOT NULL,
@@ -682,7 +598,7 @@ CREATE TABLE orders (
   created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );</code></pre></div>
 
-<h2>7.2 Constraints are the database defending your data [DEEP]</h2>
+<h3>7.2 Constraints are the database defending your data [DEEP]</h3>
 
 <div class="tblwrap"><table><thead><tr><th>Constraint</th><th>Guarantees</th><th>Why it matters</th></tr></thead><tbody><tr><td><code class="inline">PRIMARY KEY</code></td><td>Unique + not null; the row's identity</td><td>Every table should have one. It's also how other tables reference this one</td></tr><tr><td><code class="inline">FOREIGN KEY</code> (<code class="inline">REFERENCES</code>)</td><td>The referenced row exists</td><td>Prevents orphaned records — the most common form of data corruption</td></tr><tr><td><code class="inline">NOT NULL</code></td><td>A value is always present</td><td>Removes a whole class of NULL-handling bugs downstream</td></tr><tr><td><code class="inline">UNIQUE</code></td><td>No duplicates</td><td>Enforces business identity (one account per email)</td></tr><tr><td><code class="inline">CHECK</code></td><td>An arbitrary rule holds</td><td>Encodes domain rules (<code class="inline">total &gt;= 0</code>, valid status values) where they can't be bypassed</td></tr><tr><td><code class="inline">DEFAULT</code></td><td>A sensible value when unspecified</td><td>Fewer NULLs, less client-side logic</td></tr></tbody></table></div>
 
@@ -690,35 +606,21 @@ CREATE TABLE orders (
 
 <p>On <code class="inline">ON DELETE</code> behaviour: <code class="inline">RESTRICT</code>/<code class="inline">NO ACTION</code> blocks deleting a parent with children (usually what you want), <code class="inline">CASCADE</code> deletes children too (convenient and dangerous — easy to delete far more than intended), <code class="inline">SET NULL</code> orphans them deliberately.</p>
 
-<h2>7.3 Keys [DEEP]</h2>
+<h3>7.3 Keys [DEEP]</h3>
 
-<ul><li>A <b>natural key</b> is real-world data that identifies a row (email, ISBN). A <b>surrogate key</b> is a meaningless generated identifier (auto-increment integer, UUID).</li></ul>
-
-<ul><li>Prefer surrogate primary keys: real-world identifiers change (people change email addresses), and a changing primary key means updating every referencing row.</li></ul>
-
-<ul><li>Still enforce natural uniqueness with a <code class="inline">UNIQUE</code> constraint — you want both.</li></ul>
-
-<ul><li>Auto-increment integers are compact, index-friendly, and ordered; UUIDs are globally unique and don't leak counts or require a central sequence, at the cost of size and (for random UUIDs) worse index locality. Both are defensible; know the trade-off.</li></ul>
-
-<h2>7.4 Normalization [DEEP — the core of relational design]</h2>
+<ul><li>A <b>natural key</b> is real-world data that identifies a row (email, ISBN). A <b>surrogate key</b> is a meaningless generated identifier (auto-increment integer, UUID).</li><li>Prefer surrogate primary keys: real-world identifiers change (people change email addresses), and a changing primary key means updating every referencing row.</li><li>Still enforce natural uniqueness with a <code class="inline">UNIQUE</code> constraint — you want both.</li><li>Auto-increment integers are compact, index-friendly, and ordered; UUIDs are globally unique and don't leak counts or require a central sequence, at the cost of size and (for random UUIDs) worse index locality. Both are defensible; know the trade-off.</li></ul><h3>7.4 Normalization [DEEP — the core of relational design]</h3>
 
 <p>Normalization means organizing data so <b>each fact is stored exactly once</b>. The forms, in plain language:</p>
 
-<ul><li><b>1NF:</b> each column holds a single atomic value; no comma-separated lists stuffed in a text field, no repeating column groups like <code class="inline">phone1</code>, <code class="inline">phone2</code>, <code class="inline">phone3</code>.</li></ul>
-
-<ul><li><b>2NF:</b> no column depends on only part of a composite key.</li></ul>
-
-<ul><li><b>3NF:</b> no column depends on another non-key column. If <code class="inline">city</code> determines <code class="inline">state</code>, storing both on every order means one city could end up mapped to two states.</li></ul>
-
-<p>In practice, "3NF" reduces to a habit: <b>if you find yourself updating the same fact in more than one place, the schema is wrong.</b></p>
+<ul><li><b>1NF:</b> each column holds a single atomic value; no comma-separated lists stuffed in a text field, no repeating column groups like <code class="inline">phone1</code>, <code class="inline">phone2</code>, <code class="inline">phone3</code>.</li><li><b>2NF:</b> no column depends on only part of a composite key.</li><li><b>3NF:</b> no column depends on another non-key column. If <code class="inline">city</code> determines <code class="inline">state</code>, storing both on every order means one city could end up mapped to two states.</li></ul><p>In practice, "3NF" reduces to a habit: <b>if you find yourself updating the same fact in more than one place, the schema is wrong.</b></p>
 
 <p>Why it matters: duplicate storage means the copies will eventually disagree, and then there's no answer to "which one is true?" Normalization makes disagreement structurally impossible.</p>
 
 <p><b>Denormalization</b> is the deliberate reintroduction of duplication for read performance — storing an order's <code class="inline">total</code> instead of recomputing from line items, or keeping a <code class="inline">comment_count</code> on a post. It's legitimate when you measure a real problem and accept the maintenance burden of keeping copies in sync. Do it knowingly, never accidentally, and never before you've measured.</p>
 
-<h2>7.5 Modifying schemas and data [RECOGNIZE]</h2>
+<h3>7.5 Modifying schemas and data [RECOGNIZE]</h3>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>ALTER TABLE orders ADD COLUMN notes TEXT;
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>ALTER TABLE orders ADD COLUMN notes TEXT;
 ALTER TABLE orders ALTER COLUMN status SET DEFAULT 'pending';
 CREATE INDEX idx_orders_customer ON orders(customer_id);
 
@@ -730,31 +632,31 @@ DELETE FROM orders WHERE created_at &lt; '2020-01-01';</code></pre></div>
 
 <p><b>The habit that prevents catastrophe:</b> before running any <code class="inline">UPDATE</code> or <code class="inline">DELETE</code>, run it as a <code class="inline">SELECT</code> with the same <code class="inline">WHERE</code> clause and confirm the row count is what you expect. A missing <code class="inline">WHERE</code> on an <code class="inline">UPDATE</code> rewrites the entire table, and there is no undo outside a transaction. Which is why Part 11's first rule is: wrap destructive changes in an explicit transaction so you can <code class="inline">ROLLBACK</code>.</p>
 
-<h2>7.6 Exercise</h2>
+<h3>7.6 Exercise</h3>
 
 <p>Design a small schema for a domain you understand (a library, a course platform, an issue tracker) with at least four related tables. Requirements: every table has a primary key, every relationship has a foreign key, at least three <code class="inline">CHECK</code> constraints, no column that could hold a list, and no fact stored twice. Then write five queries that answer real questions about it — and notice how the constraints made those queries simpler to trust.</p>
 
-<div class="quiz" data-part="p7"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p7"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p6">&larr; 06 · SUBQUERIES, CTES, AND WINDOW FUNCTIONS</a><a class="next" href="#p8">08 · REAL PROJECT: BUILD AND QUERY A REAL DATABASE &rarr;</a></div>
 </section>
 
-<section class="part" id="p8">
-  <div class="phead"><div class="pnum">08</div>
-    <div><div class="ptitle">Real Project: Build and Query a Real Database</div>
+<section class="part" id="p8" aria-labelledby="p8-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">08</div>
+    <div><h2 class="ptitle" id="p8-title">Real Project: Build and Query a Real Database</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p8">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p8">MARK COMPLETE</button></div>
   </div>
 
   <p>This is the payoff. It exercises every prior part. Build it yourself rather than copying a sample database — designing the schema is half the learning.</p>
 
-<h2>8.1 The domain</h2>
+<h3>8.1 The domain</h3>
 
 <p>Build an <b>e-commerce analytics database</b>. It's a good choice because it naturally contains one-to-many relationships (the join multiplication trap), money (decimal types), time (windowing), and optional values (NULL handling).</p>
 
 <p>Minimum schema:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>customers  (id, email UNIQUE, name, city, country, created_at)
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div><pre><code>customers  (id, email UNIQUE, name, city, country, created_at)
 products   (id, sku UNIQUE, name, category, price, active)
 orders     (id, customer_id → customers, status, placed_at, shipped_at NULLABLE)
 order_items(id, order_id → orders, product_id → products, quantity, unit_price)
@@ -762,71 +664,39 @@ payments   (id, order_id → orders, amount, method, paid_at, status)</code></pr
 
 <p>Note the deliberate design choices to reason about: <code class="inline">unit_price</code> is stored on <code class="inline">order_items</code> rather than read from <code class="inline">products</code>, because product prices change and an old order must keep the price it was sold at. That's not denormalization sloppiness — it's recognizing that the item price at time of sale is a *different fact* from the product's current price. Being able to explain that distinction is real data modelling skill.</p>
 
-<h2>8.2 Load meaningful data</h2>
+<h3>8.2 Load meaningful data</h3>
 
 <p>Generate at least 1,000 customers, 200 products, 10,000 orders, and 30,000 order items — enough that bad queries actually feel slow, which is the only way Part 9 becomes real. Use <code class="inline">generate_series</code> (Postgres) or a script. Deliberately include: some customers with zero orders, some orders with no payment, some NULL <code class="inline">shipped_at</code>, and a few cancelled and refunded orders.</p>
 
-<h2>8.3 The query set</h2>
+<h3>8.3 The query set</h3>
 
 <p>Answer all of these. Each one targets specific skills:</p>
 
-<ol><li><b>Revenue by month</b> for the last 12 months, with months that had zero revenue still shown as zero. *(Aggregation + the empty-group problem — you'll need a generated date series and a <code class="inline">LEFT JOIN</code>.)*</li></ol>
-
-<ol><li><b>Top 10 products by revenue</b>, with their category and share of total revenue. *(Joins, aggregation, window function for share-of-total.)*</li></ol>
-
-<ol><li><b>Every customer with their order count and lifetime value</b>, including customers who never ordered. *(<code class="inline">LEFT JOIN</code>, and correct handling so zero-order customers show 0, not NULL — use <code class="inline">COALESCE</code>.)*</li></ol>
-
-<ol><li><b>Each customer's most recent order</b> and how many days since. *(The <code class="inline">ROW_NUMBER</code> pattern from 6.3.)*</li></ol>
-
-<ol><li><b>Month-over-month revenue growth percentage.</b> *(<code class="inline">LAG</code>.)*</li></ol>
-
-<ol><li><b>Orders whose payments don't sum to the order total</b> — a reconciliation query. *(Aggregation with a <code class="inline">HAVING</code>, careful NULL handling for unpaid orders.)*</li></ol>
-
-<ol><li><b>Customer cohort retention:</b> group customers by the month of their first order, then show how many ordered again in each subsequent month. *(Multiple CTEs — this is the hardest one and the most realistic.)*</li></ol>
-
-<ol><li><b>A 7-day moving average of daily revenue.</b> *(Window frame.)*</li></ol>
-
-<ol><li><b>Products never ordered.</b> *(<code class="inline">NOT EXISTS</code> — and then try it with <code class="inline">NOT IN</code> and confirm you understand the NULL risk.)*</li></ol>
-
-<ol><li><b>The single query you'd have written wrong</b>: total revenue per order, joined to order items, verifying you don't multiply. *(Deliberately construct it wrongly first, see the inflated number, then fix it.)*</li></ol>
-
-<h2>8.4 Definition of done</h2>
+<ol><li><b>Revenue by month</b> for the last 12 months, with months that had zero revenue still shown as zero. *(Aggregation + the empty-group problem — you'll need a generated date series and a <code class="inline">LEFT JOIN</code>.)*</li><li><b>Top 10 products by revenue</b>, with their category and share of total revenue. *(Joins, aggregation, window function for share-of-total.)*</li><li><b>Every customer with their order count and lifetime value</b>, including customers who never ordered. *(<code class="inline">LEFT JOIN</code>, and correct handling so zero-order customers show 0, not NULL — use <code class="inline">COALESCE</code>.)*</li><li><b>Each customer's most recent order</b> and how many days since. *(The <code class="inline">ROW_NUMBER</code> pattern from 6.3.)*</li><li><b>Month-over-month revenue growth percentage.</b> *(<code class="inline">LAG</code>.)*</li><li><b>Orders whose payments don't sum to the order total</b> — a reconciliation query. *(Aggregation with a <code class="inline">HAVING</code>, careful NULL handling for unpaid orders.)*</li><li><b>Customer cohort retention:</b> group customers by the month of their first order, then show how many ordered again in each subsequent month. *(Multiple CTEs — this is the hardest one and the most realistic.)*</li><li><b>A 7-day moving average of daily revenue.</b> *(Window frame.)*</li><li><b>Products never ordered.</b> *(<code class="inline">NOT EXISTS</code> — and then try it with <code class="inline">NOT IN</code> and confirm you understand the NULL risk.)*</li><li><b>The single query you'd have written wrong</b>: total revenue per order, joined to order items, verifying you don't multiply. *(Deliberately construct it wrongly first, see the inflated number, then fix it.)*</li></ol><h3>8.4 Definition of done</h3>
 
 <p>You can: explain what every join in every query does to the row count; state which queries would be slow without indexes and prove it with <code class="inline">EXPLAIN</code> (Part 9); write query 7 from scratch without looking; and hand the schema to someone else who can understand the relationships from the constraints alone.</p>
 
-<div class="quiz" data-part="p8"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p8"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p7">&larr; 07 · DESIGNING SCHEMAS: DDL, CONSTRAINTS, NORMALIZATION</a><a class="next" href="#p9">09 · DEBUGGING AND READING QUERY PLANS &rarr;</a></div>
 </section>
 
-<section class="part" id="p9">
-  <div class="phead"><div class="pnum">09</div>
-    <div><div class="ptitle">Debugging and Reading Query Plans</div>
+<section class="part" id="p9" aria-labelledby="p9-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">09</div>
+    <div><h2 class="ptitle" id="p9-title">Debugging and Reading Query Plans</h2>
     <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p9">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p9">MARK COMPLETE</button></div>
   </div>
 
   <p>SQL debugging splits cleanly into two questions: <b>is it wrong?</b> and <b>is it slow?</b> Different tools for each.</p>
 
-<h2>9.1 "My query returns the wrong data"</h2>
+<h3>9.1 "My query returns the wrong data"</h3>
 
 <p>Work the pipeline from Idea 2, in order:</p>
 
-<ol><li><b>Check the row count first.</b> <code class="inline">SELECT COUNT(*)</code> at each stage. If adding a join changed the count unexpectedly, you've found the join multiplication bug (4.3) — this catches the most dangerous class of error.</li></ol>
+<ol><li><b>Check the row count first.</b> <code class="inline">SELECT COUNT(*)</code> at each stage. If adding a join changed the count unexpectedly, you've found the join multiplication bug (4.3) — this catches the most dangerous class of error.</li><li><b>Simplify until it's right, then add back one clause at a time.</b> Start from <code class="inline">SELECT * FROM one_table</code> and rebuild. The step where it breaks is the bug.</li><li><b>Suspect NULL.</b> Missing rows that "should be there" is almost always three-valued logic: a <code class="inline">&lt;&gt;</code> comparison excluding NULLs, a <code class="inline">WHERE</code> on a <code class="inline">LEFT JOIN</code>ed table, or a <code class="inline">NOT IN</code> with a NULL in the subquery. Test with <code class="inline">IS NULL</code> explicitly.</li><li><b>Check your join grain.</b> Ask "what does one row of this result represent?" If you can't answer in one sentence, the query is confused and your aggregates are probably wrong.</li><li><b>Check operator precedence</b> in mixed <code class="inline">AND</code>/<code class="inline">OR</code> conditions.</li><li><b>Check for silent type coercion</b> — comparing a text column to a number, or a <code class="inline">DATE</code> to a <code class="inline">TIMESTAMP</code> (where <code class="inline">'2026-01-01'</code> as a timestamp means midnight, so <code class="inline">&lt;= '2026-01-01'</code> excludes almost the entire day).</li></ol><h3>9.2 "My query is slow" — <code class="inline">EXPLAIN</code> [DEEP]</h3>
 
-<ol><li><b>Simplify until it's right, then add back one clause at a time.</b> Start from <code class="inline">SELECT * FROM one_table</code> and rebuild. The step where it breaks is the bug.</li></ol>
-
-<ol><li><b>Suspect NULL.</b> Missing rows that "should be there" is almost always three-valued logic: a <code class="inline">&lt;&gt;</code> comparison excluding NULLs, a <code class="inline">WHERE</code> on a <code class="inline">LEFT JOIN</code>ed table, or a <code class="inline">NOT IN</code> with a NULL in the subquery. Test with <code class="inline">IS NULL</code> explicitly.</li></ol>
-
-<ol><li><b>Check your join grain.</b> Ask "what does one row of this result represent?" If you can't answer in one sentence, the query is confused and your aggregates are probably wrong.</li></ol>
-
-<ol><li><b>Check operator precedence</b> in mixed <code class="inline">AND</code>/<code class="inline">OR</code> conditions.</li></ol>
-
-<ol><li><b>Check for silent type coercion</b> — comparing a text column to a number, or a <code class="inline">DATE</code> to a <code class="inline">TIMESTAMP</code> (where <code class="inline">'2026-01-01'</code> as a timestamp means midnight, so <code class="inline">&lt;= '2026-01-01'</code> excludes almost the entire day).</li></ol>
-
-<h2>9.2 "My query is slow" — <code class="inline">EXPLAIN</code> [DEEP]</h2>
-
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>EXPLAIN ANALYZE
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>EXPLAIN ANALYZE
 SELECT c.name, SUM(o.total)
 FROM customers c JOIN orders o ON o.customer_id = c.id
 WHERE c.country = 'IN'
@@ -842,47 +712,35 @@ GROUP BY c.name;</code></pre></div>
 
 <p>The crucial discipline: <b>measure, then change one thing, then measure again.</b> Query optimization by intuition is unreliable even for experts, because the optimizer's decisions depend on data distribution you can't see by reading SQL.</p>
 
-<h2>9.3 Indexes: the main performance lever [DEEP]</h2>
+<h3>9.3 Indexes: the main performance lever [DEEP]</h3>
 
 <p>An index is a separate, ordered data structure (usually a B-tree) mapping column values to row locations — conceptually the index at the back of a book. It turns "read all 10 million rows" into "walk down a few levels of a tree."</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>CREATE INDEX idx_orders_customer_placed ON orders(customer_id, placed_at DESC);</code></pre></div>
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>CREATE INDEX idx_orders_customer_placed ON orders(customer_id, placed_at DESC);</code></pre></div>
 
 <p>What to know:</p>
 
-<ul><li><b>Index the columns you filter, join, and sort on</b> — especially foreign keys, which are frequently unindexed by default and are the most common cause of slow joins.</li></ul>
-
-<ul><li><b>Composite index column order matters enormously.</b> An index on <code class="inline">(a, b)</code> can serve queries filtering on <code class="inline">a</code>, or on <code class="inline">a</code> and <code class="inline">b</code> — but generally *not* on <code class="inline">b</code> alone. Think of a phone book sorted by (last name, first name): useless for finding everyone named "Priya."</li></ul>
-
-<ul><li><b>Indexes cost writes.</b> Every <code class="inline">INSERT</code>/<code class="inline">UPDATE</code>/<code class="inline">DELETE</code> must update every affected index. Unused indexes are pure overhead; audit them.</li></ul>
-
-<ul><li><b>Selectivity matters.</b> An index on a boolean column with a 50/50 split rarely helps — the engine would read half the table anyway.</li></ul>
-
-<ul><li><b>Function-wrapped columns defeat indexes</b> (3.2). <code class="inline">WHERE LOWER(email) = ...</code> needs an expression index on <code class="inline">LOWER(email)</code>.</li></ul>
-
-<ul><li><b>Covering indexes</b> include every column the query needs, so the engine never touches the table at all — a large win for hot queries. [ADVANCED]</li></ul>
-
-<h2>9.4 Exercise</h2>
+<ul><li><b>Index the columns you filter, join, and sort on</b> — especially foreign keys, which are frequently unindexed by default and are the most common cause of slow joins.</li><li><b>Composite index column order matters enormously.</b> An index on <code class="inline">(a, b)</code> can serve queries filtering on <code class="inline">a</code>, or on <code class="inline">a</code> and <code class="inline">b</code> — but generally *not* on <code class="inline">b</code> alone. Think of a phone book sorted by (last name, first name): useless for finding everyone named "Priya."</li><li><b>Indexes cost writes.</b> Every <code class="inline">INSERT</code>/<code class="inline">UPDATE</code>/<code class="inline">DELETE</code> must update every affected index. Unused indexes are pure overhead; audit them.</li><li><b>Selectivity matters.</b> An index on a boolean column with a 50/50 split rarely helps — the engine would read half the table anyway.</li><li><b>Function-wrapped columns defeat indexes</b> (3.2). <code class="inline">WHERE LOWER(email) = ...</code> needs an expression index on <code class="inline">LOWER(email)</code>.</li><li><b>Covering indexes</b> include every column the query needs, so the engine never touches the table at all — a large win for hot queries. [ADVANCED]</li></ul><h3>9.4 Exercise</h3>
 
 <p>Take three of Part 8's queries, run <code class="inline">EXPLAIN ANALYZE</code>, record the timings, then add indexes and re-run. Write down the before/after and — more importantly — the plan node that changed. Then add a deliberately useless index and confirm it isn't used. Finally, wrap a column in a function and watch the index stop being used.</p>
 
-<div class="quiz" data-part="p9"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p9"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p8">&larr; 08 · REAL PROJECT: BUILD AND QUERY A REAL DATABASE</a><a class="next" href="#p10">10 · INTERNALS: HOW THE ENGINE EXECUTES YOUR QUERY &rarr;</a></div>
 </section>
 
-<section class="part" id="p10">
-  <div class="phead"><div class="pnum">10</div>
-    <div><div class="ptitle">Internals: How the Engine Executes Your Query</div>
+<section class="part" id="p10" aria-labelledby="p10-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">10</div>
+    <div><h2 class="ptitle" id="p10-title">Internals: How the Engine Executes Your Query</h2>
     <div class="pmeta"><span class="m">TAG <b>ADVANCED</b></span><span class="m">★ <b>INTERVIEW GOLD</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p10">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p10">MARK COMPLETE</button></div>
   </div>
 
   <p>Return here after Part 8. This section upgrades Part 2's model to mechanism. None of it is needed to *use* SQL; all of it is what distinguishes someone who writes SQL from someone who understands databases.</p>
 
-<h2>10.1 The lifecycle of a query</h2>
+<h3>10.1 The lifecycle of a query</h3>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>SQL text
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div><pre><code>SQL text
   → Parser        (syntax → tree; catches typos)
   → Analyzer      (resolve names against the catalog; type-check)
   → Rewriter      (expand views, flatten subqueries, push predicates down)
@@ -894,35 +752,19 @@ GROUP BY c.name;</code></pre></div>
 
 <p>Why this matters practically: <b>the plan is only as good as the statistics.</b> Stale statistics after a bulk load is one of the most common causes of a query that was fast yesterday and slow today, and the fix is <code class="inline">ANALYZE</code>, not a rewrite.</p>
 
-<h2>10.2 How data is actually stored</h2>
+<h3>10.2 How data is actually stored</h3>
 
 <p>Rows live in fixed-size <b>pages</b> (commonly 8KB) on disk. The engine reads and caches whole pages in a <b>buffer pool</b> in memory. Consequences:</p>
 
-<ul><li>Reading one row costs at least one page read — so <b>row size matters</b>; wider rows mean fewer per page and more I/O for the same row count.</li></ul>
-
-<ul><li>Sequential page reads are far cheaper per row than random ones, which is why a sequential scan can beat index lookups when you need a large fraction of the table. That's the optimizer's actual reasoning when it "ignores your index."</li></ul>
-
-<ul><li>The buffer pool is why the second run of a query is usually much faster — the pages are already in memory. Always benchmark warm, not cold, or you'll optimize the wrong thing.</li></ul>
-
-<ul><li><b>Row-oriented</b> storage (Postgres, MySQL — optimized for reading whole rows: OLTP) versus <b>column-oriented</b> storage (BigQuery, Snowflake, DuckDB, ClickHouse — optimized for reading a few columns across many rows: analytics). Column stores compress far better and scan far faster for aggregates, which is why analytical warehouses are all columnar. Knowing this distinction is a strong signal.</li></ul>
-
-<h2>10.3 How indexes work mechanically</h2>
+<ul><li>Reading one row costs at least one page read — so <b>row size matters</b>; wider rows mean fewer per page and more I/O for the same row count.</li><li>Sequential page reads are far cheaper per row than random ones, which is why a sequential scan can beat index lookups when you need a large fraction of the table. That's the optimizer's actual reasoning when it "ignores your index."</li><li>The buffer pool is why the second run of a query is usually much faster — the pages are already in memory. Always benchmark warm, not cold, or you'll optimize the wrong thing.</li><li><b>Row-oriented</b> storage (Postgres, MySQL — optimized for reading whole rows: OLTP) versus <b>column-oriented</b> storage (BigQuery, Snowflake, DuckDB, ClickHouse — optimized for reading a few columns across many rows: analytics). Column stores compress far better and scan far faster for aggregates, which is why analytical warehouses are all columnar. Knowing this distinction is a strong signal.</li></ul><h3>10.3 How indexes work mechanically</h3>
 
 <p>A <b>B-tree</b> (technically B+tree) is a balanced tree of pages. The leaves hold ordered key values with pointers to rows; internal nodes route the search. Depth is logarithmic, so finding one key among a billion rows takes only a handful of page reads.</p>
 
 <p>This explains behaviours that otherwise look arbitrary:</p>
 
-<ul><li><b>Range queries work</b> (<code class="inline">BETWEEN</code>, <code class="inline">&gt;</code>, <code class="inline">&lt;</code>, <code class="inline">ORDER BY</code>) because leaves are ordered and linked — you find the start and walk.</li></ul>
+<ul><li><b>Range queries work</b> (<code class="inline">BETWEEN</code>, <code class="inline">&gt;</code>, <code class="inline">&lt;</code>, <code class="inline">ORDER BY</code>) because leaves are ordered and linked — you find the start and walk.</li><li><b>Leading wildcards fail</b> (<code class="inline">LIKE '%x'</code>) because you can't locate a starting point in an ordering by prefix.</li><li><b>Composite index order matters</b> because the ordering is lexicographic — sorted by the first column, then the second within ties.</li><li><b>Indexes can satisfy <code class="inline">ORDER BY</code> for free</b>, skipping the sort entirely.</li></ul><p>Other index types worth knowing exist [REFERENCE]: <b>hash</b> (equality only), <b>GIN/inverted</b> (full-text search, JSON keys, array containment), <b>GiST/R-tree</b> (geometric and geographic data), <b>BRIN</b> (huge naturally-ordered tables like time series, tiny index size), <b>bitmap</b> (low-cardinality columns in analytics).</p>
 
-<ul><li><b>Leading wildcards fail</b> (<code class="inline">LIKE '%x'</code>) because you can't locate a starting point in an ordering by prefix.</li></ul>
-
-<ul><li><b>Composite index order matters</b> because the ordering is lexicographic — sorted by the first column, then the second within ties.</li></ul>
-
-<ul><li><b>Indexes can satisfy <code class="inline">ORDER BY</code> for free</b>, skipping the sort entirely.</li></ul>
-
-<p>Other index types worth knowing exist [REFERENCE]: <b>hash</b> (equality only), <b>GIN/inverted</b> (full-text search, JSON keys, array containment), <b>GiST/R-tree</b> (geometric and geographic data), <b>BRIN</b> (huge naturally-ordered tables like time series, tiny index size), <b>bitmap</b> (low-cardinality columns in analytics).</p>
-
-<h2>10.4 Join algorithms [DEEP for interviews]</h2>
+<h3>10.4 Join algorithms [DEEP for interviews]</h3>
 
 <p>The optimizer picks among three, and knowing them explains most plan choices:</p>
 
@@ -930,29 +772,29 @@ GROUP BY c.name;</code></pre></div>
 
 <p>So when you see "Nested Loop" on two million-row tables in a plan, you know immediately why it's slow and what's likely missing.</p>
 
-<h2>10.5 The interview-grade narration</h2>
+<h3>10.5 The interview-grade narration</h3>
 
 <p>*"The parser turns SQL into a tree, the analyzer resolves it against the catalog, the rewriter normalizes it and pushes filters down, and then the cost-based optimizer enumerates plans — join orders, join algorithms, access methods — and estimates each using table statistics before picking one. The executor then pulls rows through that plan tree. Data lives in fixed-size pages cached in a buffer pool, and indexes are B-trees whose ordered leaves make ranges and sorted output cheap. Almost all query tuning is either giving the optimizer a better access path with an index, or giving it better statistics so it estimates correctly."*</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">simulator — click RUN</span></div><pre id="simOut"><span cl/></pre><div class="stack-controls" style="margin:0;padding:10px 16px;border-top:1px solid var(--line)"><button class="btn sm" id="simRun">&#9654; RUN</button><button class="btn sm ok" id="simReset">RESET</button></div></div>
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">simulator — click RUN</span></div><pre id="simOut" aria-live="polite"></pre><div class="stack-controls" style="margin:0;padding:10px 16px;border-top:1px solid var(--line)"><button type="button" class="btn sm" id="simRun">&#9654; RUN</button><button type="button" class="btn sm ok" id="simReset">RESET</button></div></div>
 
-<div class="quiz" data-part="p10"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p10"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p9">&larr; 09 · DEBUGGING AND READING QUERY PLANS</a><a class="next" href="#p11">11 · TRANSACTIONS, CONCURRENCY, AND PRODUCTION CONCERNS &rarr;</a></div>
 </section>
 
-<section class="part" id="p11">
-  <div class="phead"><div class="pnum">11</div>
-    <div><div class="ptitle">Transactions, Concurrency, and Production Concerns</div>
+<section class="part" id="p11" aria-labelledby="p11-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">11</div>
+    <div><h2 class="ptitle" id="p11-title">Transactions, Concurrency, and Production Concerns</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p11">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p11">MARK COMPLETE</button></div>
   </div>
 
-  <h2>11.1 Transactions and ACID [DEEP]</h2>
+  <h3>11.1 Transactions and ACID [DEEP]</h3>
 
 <p>A transaction groups statements so they succeed or fail together:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button class="copybtn">COPY</button></div><pre><code>BEGIN;
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">sql</span><button type="button" class="copybtn">COPY</button></div><pre><code>BEGIN;
   UPDATE accounts SET balance = balance - 500 WHERE id = 1;
   UPDATE accounts SET balance = balance + 500 WHERE id = 2;
 COMMIT;    -- or ROLLBACK to undo everything</code></pre></div>
@@ -963,56 +805,34 @@ COMMIT;    -- or ROLLBACK to undo everything</code></pre></div>
 
 <p>The habit that matters: <b>wrap every multi-statement change and every destructive statement in an explicit transaction.</b> It's the only undo you get.</p>
 
-<h2>11.2 Isolation levels [DEEP — the most under-known important topic in SQL]</h2>
+<h3>11.2 Isolation levels [DEEP — the most under-known important topic in SQL]</h3>
 
 <p>Perfect isolation is expensive, so the standard defines levels trading correctness for concurrency. The anomalies they prevent:</p>
 
-<ul><li><b>Dirty read</b> — seeing another transaction's uncommitted changes.</li></ul>
-
-<ul><li><b>Non-repeatable read</b> — reading the same row twice in one transaction and getting different values.</li></ul>
-
-<ul><li><b>Phantom read</b> — re-running the same query and finding new rows that match.</li></ul>
-
-<ul><li><b>Lost update</b> — two transactions read, modify, and write the same row; one overwrites the other silently.</li></ul>
-
-<div class="tblwrap"><table><thead><tr><th>Level</th><th>Prevents</th><th>Notes</th></tr></thead><tbody><tr><td><code class="inline">READ UNCOMMITTED</code></td><td>Nothing</td><td>Effectively unused; Postgres treats it as <code class="inline">READ COMMITTED</code></td></tr><tr><td><code class="inline">READ COMMITTED</code></td><td>Dirty reads</td><td><b>Postgres and Oracle default.</b> Each statement sees a fresh snapshot, so two queries in one transaction can disagree</td></tr><tr><td><code class="inline">REPEATABLE READ</code></td><td>+ non-repeatable reads</td><td><b>MySQL/InnoDB default.</b> Whole transaction sees one snapshot</td></tr><tr><td><code class="inline">SERIALIZABLE</code></td><td>Everything</td><td>Behaves as if transactions ran one at a time. Costs throughput and can abort transactions with serialization errors your app must retry</td></tr></tbody></table></div>
+<ul><li><b>Dirty read</b> — seeing another transaction's uncommitted changes.</li><li><b>Non-repeatable read</b> — reading the same row twice in one transaction and getting different values.</li><li><b>Phantom read</b> — re-running the same query and finding new rows that match.</li><li><b>Lost update</b> — two transactions read, modify, and write the same row; one overwrites the other silently.</li></ul><div class="tblwrap"><table><thead><tr><th>Level</th><th>Prevents</th><th>Notes</th></tr></thead><tbody><tr><td><code class="inline">READ UNCOMMITTED</code></td><td>Nothing</td><td>Effectively unused; Postgres treats it as <code class="inline">READ COMMITTED</code></td></tr><tr><td><code class="inline">READ COMMITTED</code></td><td>Dirty reads</td><td><b>Postgres and Oracle default.</b> Each statement sees a fresh snapshot, so two queries in one transaction can disagree</td></tr><tr><td><code class="inline">REPEATABLE READ</code></td><td>+ non-repeatable reads</td><td><b>MySQL/InnoDB default.</b> Whole transaction sees one snapshot</td></tr><tr><td><code class="inline">SERIALIZABLE</code></td><td>Everything</td><td>Behaves as if transactions ran one at a time. Costs throughput and can abort transactions with serialization errors your app must retry</td></tr></tbody></table></div>
 
 <p>The practical consequence, and it's a real bug in a great deal of production code: <b>read-modify-write in application code is unsafe at default isolation levels.</b> <code class="inline">SELECT balance</code> → compute in your app → <code class="inline">UPDATE balance</code> can lose the other transaction's update entirely. Fixes: do the arithmetic in SQL (<code class="inline">SET balance = balance - 500</code>), lock the row (<code class="inline">SELECT ... FOR UPDATE</code>), use a constraint to make the bad state impossible, or use <code class="inline">SERIALIZABLE</code> and retry on failure.</p>
 
 <p>Knowing the default isolation level of the database you use, and what it does *not* protect you from, is a genuine senior-level distinction.</p>
 
-<h2>11.3 Locks and deadlocks [RECOGNIZE]</h2>
+<h3>11.3 Locks and deadlocks [RECOGNIZE]</h3>
 
 <p>Writes take row locks; readers in MVCC databases (Postgres, Oracle, MySQL/InnoDB) don't block writers or vice versa, because readers see a snapshot. A <b>deadlock</b> occurs when two transactions each hold what the other needs; the database detects the cycle and kills one with an error. Prevention: acquire locks in a consistent order everywhere, keep transactions short, and never hold a transaction open across user interaction or a network call to another service.</p>
 
-<h2>11.4 Production practices that matter [DEEP as a set]</h2>
+<h3>11.4 Production practices that matter [DEEP as a set]</h3>
 
-<ol><li><b>Always parameterize queries.</b> String-concatenating user input is SQL injection — still the top-ranked class of web vulnerability decades after it was understood. <code class="inline">WHERE id = ?</code> with a bound parameter is safe; <code class="inline">"WHERE id = " + input</code> is not. This is non-negotiable, and no amount of input escaping is as reliable as parameterization.</li></ol>
+<ol><li><b>Always parameterize queries.</b> String-concatenating user input is SQL injection — still the top-ranked class of web vulnerability decades after it was understood. <code class="inline">WHERE id = ?</code> with a bound parameter is safe; <code class="inline">"WHERE id = " + input</code> is not. This is non-negotiable, and no amount of input escaping is as reliable as parameterization.</li><li><b>Grant least privilege.</b> The application's database user should not be able to <code class="inline">DROP TABLE</code>. Separate read-only accounts for reporting.</li><li><b>Migrations, not manual changes.</b> Schema changes live in version-controlled, reviewed, sequentially-applied files. Manual production changes are unreproducible and undocumented by definition.</li><li><b>Backups you have actually restored.</b> An untested backup is a hypothesis. Practise the restore.</li><li><b>Keyset pagination for large offsets.</b> <code class="inline">OFFSET 100000</code> makes the engine generate and discard 100,000 rows. Instead: <code class="inline">WHERE (created_at, id) &lt; (:last_at, :last_id) ORDER BY created_at DESC, id DESC LIMIT 20</code>.</li><li><b>Watch N+1 query patterns.</b> An ORM that runs one query per row of a loop is Idea 1's loop-thinking made expensive. Fix with a join or a batched <code class="inline">IN (...)</code>.</li><li><b>Monitor slow queries.</b> Enable slow-query logging or <code class="inline">pg_stat_statements</code> — you cannot optimize what you don't measure, and the slowest query is rarely the one you'd guess.</li><li><b>Time zones: store UTC, convert at the edges.</b> And use a real timestamp type, never text.</li></ol>
 
-<ol><li><b>Grant least privilege.</b> The application's database user should not be able to <code class="inline">DROP TABLE</code>. Separate read-only accounts for reporting.</li></ol>
-
-<ol><li><b>Migrations, not manual changes.</b> Schema changes live in version-controlled, reviewed, sequentially-applied files. Manual production changes are unreproducible and undocumented by definition.</li></ol>
-
-<ol><li><b>Backups you have actually restored.</b> An untested backup is a hypothesis. Practise the restore.</li></ol>
-
-<ol><li><b>Keyset pagination for large offsets.</b> <code class="inline">OFFSET 100000</code> makes the engine generate and discard 100,000 rows. Instead: <code class="inline">WHERE (created_at, id) &lt; (:last_at, :last_id) ORDER BY created_at DESC, id DESC LIMIT 20</code>.</li></ol>
-
-<ol><li><b>Watch N+1 query patterns.</b> An ORM that runs one query per row of a loop is Idea 1's loop-thinking made expensive. Fix with a join or a batched <code class="inline">IN (...)</code>.</li></ol>
-
-<ol><li><b>Monitor slow queries.</b> Enable slow-query logging or <code class="inline">pg_stat_statements</code> — you cannot optimize what you don't measure, and the slowest query is rarely the one you'd guess.</li></ol>
-
-<ol><li><b>Time zones: store UTC, convert at the edges.</b> And use a real timestamp type, never text.</li></ol>
-
-<div class="quiz" data-part="p11"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p11"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p10">&larr; 10 · INTERNALS: HOW THE ENGINE EXECUTES YOUR QUERY</a><a class="next" href="#p12">12 · WHEN SQL IS AND ISN'T THE RIGHT TOOL &rarr;</a></div>
 </section>
 
-<section class="part" id="p12">
-  <div class="phead"><div class="pnum">12</div>
-    <div><div class="ptitle">When SQL Is and Isn't the Right Tool</div>
+<section class="part" id="p12" aria-labelledby="p12-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">12</div>
+    <div><h2 class="ptitle" id="p12-title">When SQL Is and Isn't the Right Tool</h2>
     <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p12">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p12">MARK COMPLETE</button></div>
   </div>
 
   <p>Being able to argue *against* your tool is a mark of genuine understanding.</p>
@@ -1027,79 +847,29 @@ COMMIT;    -- or ROLLBACK to undo everything</code></pre></div>
 
 <p>Also worth knowing SQL's real weaknesses rather than defending it reflexively: dialect fragmentation makes portability harder than the standard implies; complex queries are hard to test, version, and modularize compared with application code; there's no good story for reuse (no functions-and-modules discipline, so copy-paste is rampant); error messages are frequently poor; and the language's clause order genuinely does not match its evaluation order, which makes it harder to learn than it needed to be.</p>
 
-<div class="quiz" data-part="p12"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p12"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p11">&larr; 11 · TRANSACTIONS, CONCURRENCY, AND PRODUCTION CONCERNS</a><a class="next" href="#p13">13 · INTERVIEW PREPARATION &rarr;</a></div>
 </section>
 
-<section class="part" id="p13">
-  <div class="phead"><div class="pnum">13</div>
-    <div><div class="ptitle">Interview Preparation</div>
+<section class="part" id="p13" aria-labelledby="p13-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">13</div>
+    <div><h2 class="ptitle" id="p13-title">Interview Preparation</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p13">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p13">MARK COMPLETE</button></div>
   </div>
 
   <p>Answer each aloud, then check against the referenced section.</p>
 
 <p><b>Tier 1 — expected of everyone:</b></p>
 
-<ol><li><code class="inline">INNER</code> vs <code class="inline">LEFT</code> vs <code class="inline">FULL OUTER JOIN</code> — with a case where each is the right choice. (Part 4.2)</li></ol>
+<ol><li><code class="inline">INNER</code> vs <code class="inline">LEFT</code> vs <code class="inline">FULL OUTER JOIN</code> — with a case where each is the right choice. (Part 4.2)</li><li><code class="inline">WHERE</code> vs <code class="inline">HAVING</code>. (Parts 2, 5.3)</li><li>What does <code class="inline">GROUP BY</code> do, and why must non-aggregated <code class="inline">SELECT</code> columns appear in it? (Part 5.2)</li><li><code class="inline">COUNT(*)</code> vs <code class="inline">COUNT(column)</code> vs <code class="inline">COUNT(DISTINCT column)</code>. (Parts 3, 5.1)</li><li>Why does <code class="inline">WHERE col = NULL</code> never match anything? (Idea 3)</li><li>What is a primary key, and what is a foreign key protecting you from? (Part 7.2)</li><li><code class="inline">UNION</code> vs <code class="inline">UNION ALL</code> — and which is faster and why. (Part 4.5)</li><li><code class="inline">DELETE</code> vs <code class="inline">TRUNCATE</code> vs <code class="inline">DROP</code>. (Part 7.5 / [REFERENCE])</li></ol><p><b>Tier 2 — differentiators:</b></p>
 
-<ol><li><code class="inline">WHERE</code> vs <code class="inline">HAVING</code>. (Parts 2, 5.3)</li></ol>
+<ol><li>Explain the logical order of query evaluation, and use it to explain why a <code class="inline">SELECT</code> alias can't be used in <code class="inline">WHERE</code>. (Idea 2)</li><li>What is an index, and when does adding one *not* help? (Part 9.3)</li><li>Why is <code class="inline">NOT IN</code> with a subquery dangerous? (Part 6.1)</li><li>What's a window function, and how does it differ from <code class="inline">GROUP BY</code>? (Part 6.3)</li><li>Write "the most recent order per customer." (Part 6.3)</li><li><code class="inline">ROW_NUMBER</code> vs <code class="inline">RANK</code> vs <code class="inline">DENSE_RANK</code>. (Part 6.3)</li><li>What is normalization, and when would you deliberately denormalize? (Part 7.4)</li><li>How would you find and fix a slow query? (Part 9.2 — the answer should mention <code class="inline">EXPLAIN ANALYZE</code> before any guess)</li><li>What is a CTE and why prefer it to nested subqueries? (Part 6.2)</li></ol><p><b>Tier 3 — senior signal:</b></p>
 
-<ol><li>What does <code class="inline">GROUP BY</code> do, and why must non-aggregated <code class="inline">SELECT</code> columns appear in it? (Part 5.2)</li></ol>
+<ol><li>Explain ACID, and what isolation level your database uses by default. (Part 11.1–11.2)</li><li>What is a lost update, and how do you prevent it? (Part 11.2 — this question separates people fast)</li><li>Walk me through what happens when I submit a query. (Part 10.5)</li><li>Why might the optimizer choose a sequential scan over an index? (Part 10.2)</li><li>Nested loop vs hash join vs merge join. (Part 10.4)</li><li>Row-oriented vs column-oriented storage, and which for what workload. (Part 10.2)</li><li>How do you prevent SQL injection, and why isn't escaping enough? (Part 11.4)</li><li>When would you choose something other than a relational database? (Part 12)</li></ol><p>Answer shape that reads senior: <b>what it is → why it exists → one concrete consequence.</b></p>
 
-<ol><li><code class="inline">COUNT(*)</code> vs <code class="inline">COUNT(column)</code> vs <code class="inline">COUNT(DISTINCT column)</code>. (Parts 3, 5.1)</li></ol>
-
-<ol><li>Why does <code class="inline">WHERE col = NULL</code> never match anything? (Idea 3)</li></ol>
-
-<ol><li>What is a primary key, and what is a foreign key protecting you from? (Part 7.2)</li></ol>
-
-<ol><li><code class="inline">UNION</code> vs <code class="inline">UNION ALL</code> — and which is faster and why. (Part 4.5)</li></ol>
-
-<ol><li><code class="inline">DELETE</code> vs <code class="inline">TRUNCATE</code> vs <code class="inline">DROP</code>. (Part 7.5 / [REFERENCE])</li></ol>
-
-<p><b>Tier 2 — differentiators:</b></p>
-
-<ol><li>Explain the logical order of query evaluation, and use it to explain why a <code class="inline">SELECT</code> alias can't be used in <code class="inline">WHERE</code>. (Idea 2)</li></ol>
-
-<ol><li>What is an index, and when does adding one *not* help? (Part 9.3)</li></ol>
-
-<ol><li>Why is <code class="inline">NOT IN</code> with a subquery dangerous? (Part 6.1)</li></ol>
-
-<ol><li>What's a window function, and how does it differ from <code class="inline">GROUP BY</code>? (Part 6.3)</li></ol>
-
-<ol><li>Write "the most recent order per customer." (Part 6.3)</li></ol>
-
-<ol><li><code class="inline">ROW_NUMBER</code> vs <code class="inline">RANK</code> vs <code class="inline">DENSE_RANK</code>. (Part 6.3)</li></ol>
-
-<ol><li>What is normalization, and when would you deliberately denormalize? (Part 7.4)</li></ol>
-
-<ol><li>How would you find and fix a slow query? (Part 9.2 — the answer should mention <code class="inline">EXPLAIN ANALYZE</code> before any guess)</li></ol>
-
-<ol><li>What is a CTE and why prefer it to nested subqueries? (Part 6.2)</li></ol>
-
-<p><b>Tier 3 — senior signal:</b></p>
-
-<ol><li>Explain ACID, and what isolation level your database uses by default. (Part 11.1–11.2)</li></ol>
-
-<ol><li>What is a lost update, and how do you prevent it? (Part 11.2 — this question separates people fast)</li></ol>
-
-<ol><li>Walk me through what happens when I submit a query. (Part 10.5)</li></ol>
-
-<ol><li>Why might the optimizer choose a sequential scan over an index? (Part 10.2)</li></ol>
-
-<ol><li>Nested loop vs hash join vs merge join. (Part 10.4)</li></ol>
-
-<ol><li>Row-oriented vs column-oriented storage, and which for what workload. (Part 10.2)</li></ol>
-
-<ol><li>How do you prevent SQL injection, and why isn't escaping enough? (Part 11.4)</li></ol>
-
-<ol><li>When would you choose something other than a relational database? (Part 12)</li></ol>
-
-<p>Answer shape that reads senior: <b>what it is → why it exists → one concrete consequence.</b></p>
-
-<div class="quiz" data-part="p13"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p13"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
 <p>If you can deliver these aloud — with the WHAT → WHY IT EXISTS → ONE CONCRETE CONSEQUENCE shape — you are interview-ready. Answer before flipping; nailed cards dim.</p>
 <div class="deck" id="deck"><!-- cards injected by JS --></div>
@@ -1107,11 +877,11 @@ COMMIT;    -- or ROLLBACK to undo everything</code></pre></div>
   <div class="breadcrumb"><a href="#p12">&larr; 12 · WHEN SQL IS AND ISN'T THE RIGHT TOOL</a><a class="next" href="#p14">14 · MILESTONES AND SELF-ASSESSMENT &rarr;</a></div>
 </section>
 
-<section class="part" id="p14">
-  <div class="phead"><div class="pnum">14</div>
-    <div><div class="ptitle">Milestones and Self-Assessment</div>
+<section class="part" id="p14" aria-labelledby="p14-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">14</div>
+    <div><h2 class="ptitle" id="p14-title">Milestones and Self-Assessment</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p14">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p14">MARK COMPLETE</button></div>
   </div>
 
   <p><b>Milestone 1 — Model (Parts 1–2).</b> Pass: the five checkpoint questions in Part 2, unaided, plus recite the logical evaluation order.</p>
@@ -1128,7 +898,7 @@ COMMIT;    -- or ROLLBACK to undo everything</code></pre></div>
 
 <p>A realistic pace at ~1 focused hour per day: M1 days 1–2, M2 days 3–5, M3 days 6–10, M4 days 11–17, M5 days 18–25, M6 days 26–32. Faster is fine; skipping the exercises is not — SQL is a language where reading creates a particularly strong illusion of understanding, because every query looks obvious until you write one against real data and get a plausible wrong answer.</p>
 
-<div class="quiz" data-part="p14"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p14"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
 <p>Six milestones = six layers of proof, mapped to the curriculum&#39;s day plan (~1 focused hour/day). When all six drop, the shipyard ships your container.</p>
 <div class="mlist" id="mlist"><!-- milestones injected by JS --></div>

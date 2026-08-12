@@ -4,6 +4,9 @@ export default {
   brand: 'THE HTML/CSS SHIPYARD',
   tagline: 'HTML & CSS · the document tree · the cascade · layout',
   storageKey: 'shipyard:htmlcss:v1',
+  legacyStorageKeys: [],
+  stackLabel: 'THE STACK — your document tree',
+  ranks: ['SWABBIE', 'DECKHAND', 'BOATSWAIN', 'FIRST MATE', 'CASCADE CAPTAIN', 'HARBOR MASTER'],
   accent: '#ff6b6b',
 
   boot: [
@@ -20,6 +23,18 @@ export default {
     rule: 'everything is a box, and the cascade settles every argument in a fixed order.',
   },
   chips: { p10: ['<span class="m">★ <b>INTERVIEW GOLD</b></span>'] },
+  grad: {
+    title: 'LAYOUT RESOLVED 🎨',
+    rule: 'everything is a box, and the cascade settles every argument in a fixed order.',
+  },
+  console: {
+    cmd: '$ open index.html',
+    line: 'painted  ·  no layout shift  ·  (yours — every layer earned)',
+  },
+  simPrompt: '/* .card { display: flex } — watch the cascade settle */',
+  egg: { label: 'SPECIFICITY OVERRIDE' },
+  deckIn: 'p13',
+  milesIn: 'p14',
   simIn: 'p10',
   deckNote: 'If you can deliver these aloud — WHAT \u2192 WHY IT EXISTS \u2192 ONE CONCRETE CONSEQUENCE — you are interview-ready. Answer before flipping; nailed cards dim.',
   milesNote: 'Six milestones = six layers of proof. When all six drop, the shipyard ships your container.',

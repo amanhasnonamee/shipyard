@@ -15,7 +15,7 @@ export function term(lang, code) {
     if (/^\$/.test(t) || /^\d+\.\s/.test(t)) return '<span class="a">' + esc(l) + '</span>';
     return esc(l);
   }).join('\n');
-  return '<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">' + esc(lang) + '</span><button class="copybtn">COPY</button></div><pre><code>' + body + '</code></pre></div>';
+  return '<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">' + esc(lang) + '</span><button type="button" class="copybtn">COPY</button></div><pre><code>' + body + '</code></pre></div>';
 }
 
 // ================= markdown -> parts =================
@@ -23,6 +23,21 @@ export function parse(md) {
   const lines = md.split(/\r?\n/);
   const parts = []; let cur = null; let inFence = false; let fenceBuf = []; let fenceLang = '';
   let tblBuf = []; let quoteBuf = [];
+  // list items are buffered so a run of them becomes ONE list. Emitting a fresh
+  // <ol> per item made every ordered list restart at "1." — lab steps read as 1,1,1,1.
+  let listBuf = []; let listType = null;
+
+  function flushList() {
+    if (!listBuf.length) return;
+    const tag = listType;
+    cur.body.push('<' + tag + '>' + listBuf.map(i => '<li>' + inline(i) + '</li>').join('') + '</' + tag + '>');
+    listBuf = []; listType = null;
+  }
+  function pushListItem(type, text) {
+    if (listType && listType !== type) flushList();
+    listType = type;
+    listBuf.push(text);
+  }
 
   function flushTable() {
     if (!tblBuf.length) return;
@@ -48,16 +63,20 @@ export function parse(md) {
     quoteBuf = [];
   }
 
+  // every block-level flush point has to close an open list too, or items leak
+  // into whatever comes next
+  const flushAll = () => { flushList(); flushTable(); flushQuote(); };
+
   for (const raw of lines) {
     const l = raw;
-if (inFence) {
-if (/^```/.test(l)) { inFence = false; cur.body.push(term(fenceLang, fenceBuf.join('\n'))); fenceBuf = []; continue; }
-fenceBuf.push(l); continue;
+    if (inFence) {
+      if (/^```/.test(l)) { inFence = false; cur.body.push(term(fenceLang, fenceBuf.join('\n'))); fenceBuf = []; continue; }
+      fenceBuf.push(l); continue;
     }
-    if (/^```/.test(l)) { flushTable(); flushQuote(); if (!cur) continue; inFence = true; fenceLang = (l.match(/^```\s*(\S+)/) || [])[1] || 'terminal'; continue; }
+    if (/^```/.test(l)) { flushAll(); if (!cur) continue; inFence = true; fenceLang = (l.match(/^```\s*(\S+)/) || [])[1] || 'terminal'; continue; }
     const hl = l.trim();
     if (/^## Part (\d+)\s*[-—–]\s*(.+)$/.test(hl)) {
-      flushTable(); flushQuote();
+      flushAll();
       const m = hl.match(/^## Part (\d+)\s*[-—–]\s*(.+)$/);
       const titleRaw = m[2];
       const tagm = titleRaw.match(/\[([A-Z]+)(?:\s*[^\]]*)?\]\s*$/);
@@ -68,17 +87,22 @@ fenceBuf.push(l); continue;
     }
     if (!cur) continue;
     if (cur.id === 'p0') continue; // p0 prose is chrome; not rendered
-    if (/^### /.test(hl)) { flushTable(); flushQuote(); cur.body.push('<h2>' + inline(hl.replace(/^### /, '')) + '</h2>'); continue; }
+    // the part title itself is the page's h2 (emitted by build.mjs), so section
+    // headings start at h3 — no level is skipped
+    if (/^#### /.test(hl)) { flushAll(); cur.body.push('<h4>' + inline(hl.replace(/^#### /, '')) + '</h4>'); continue; }
+    if (/^### /.test(hl)) { flushAll(); cur.body.push('<h3>' + inline(hl.replace(/^### /, '')) + '</h3>'); continue; }
     if (/^# /.test(hl)) continue;
-    if (/^---+$/.test(hl)) { flushTable(); flushQuote(); continue; }
-    if (/^\|/.test(hl)) { flushQuote(); tblBuf.push(hl); continue; }
-    if (/^>/.test(hl)) { flushTable(); quoteBuf.push(hl.replace(/^>\s?/, '')); continue; }
+    if (/^---+$/.test(hl)) { flushAll(); continue; }
+    if (/^\|/.test(hl)) { flushList(); flushQuote(); tblBuf.push(hl); continue; }
+    if (/^>/.test(hl)) { flushList(); flushTable(); quoteBuf.push(hl.replace(/^>\s?/, '')); continue; }
     flushTable();
-    if (/^[-*] /.test(hl)) { flushQuote(); cur.body.push('<ul><li>' + inline(hl.replace(/^[-*] /, '')) + '</li></ul>'); continue; }
-    if (/^\d+\. /.test(hl)) { flushQuote(); cur.body.push('<ol><li>' + inline(hl.replace(/^\d+\. /, '')) + '</li></ol>'); continue; }
+    if (/^[-*] /.test(hl)) { flushQuote(); pushListItem('ul', hl.replace(/^[-*] /, '')); continue; }
+    if (/^\d+\. /.test(hl)) { flushQuote(); pushListItem('ol', hl.replace(/^\d+\. /, '')); continue; }
+    // a blank line ends a paragraph but NOT a list — markdown lists survive the
+    // blank lines authors put between items
     if (hl === '') { flushQuote(); continue; }
-    if (hl.startsWith('**') || hl.length) { flushQuote(); cur.body.push('<p>' + inline(hl) + '</p>'); }
+    if (hl.length) { flushAll(); cur.body.push('<p>' + inline(hl) + '</p>'); }
   }
-  flushTable(); flushQuote();
+  flushAll();
   return parts;
 }

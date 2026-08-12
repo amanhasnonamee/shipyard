@@ -4,6 +4,9 @@ export default {
   brand: 'THE SQL SHIPYARD',
   tagline: 'SQL \u00b7 relational model \u00b7 three-valued logic \u00b7 query engine',
   storageKey: 'shipyard:sql:v1',
+  legacyStorageKeys: [],
+  stackLabel: 'THE STACK — your query plan',
+  ranks: ['SWABBIE', 'DECKHAND', 'BOATSWAIN', 'FIRST MATE', 'QUERY CAPTAIN', 'HARBOR MASTER'],
   accent: '#3b82f6',
 
   boot: [
@@ -20,6 +23,18 @@ export default {
     rule: 'think in sets, not loops. Hold that, and every \u201cwhy doesn\u2019t this work?\u201d answers itself from the evaluation pipeline.',
   },
   chips: { p10: ['<span class="m">\u2605 <b>INTERVIEW GOLD</b></span>'] },
+  grad: {
+    title: 'QUERY PLANNED 🗄',
+    rule: 'think in sets, not loops. Hold that, and every \u201cwhy doesn\u2019t this work?\u201d answers itself from the evaluation pipeline.',
+  },
+  console: {
+    cmd: '$ psql -c "EXPLAIN ANALYZE ..."',
+    line: 'index scan  ·  0 seq scans  ·  (yours — every layer earned)',
+  },
+  simPrompt: '-- EXPLAIN ANALYZE SELECT * FROM orders JOIN customers USING (customer_id);',
+  egg: { label: 'FULL TABLE SCAN' },
+  deckIn: 'p13',
+  milesIn: 'p14',
   simIn: 'p10',
   deckNote: 'If you can deliver these aloud \u2014 with the WHAT \u2192 WHY IT EXISTS \u2192 ONE CONCRETE CONSEQUENCE shape \u2014 you are interview-ready. Answer before flipping; nailed cards dim.',
   milesNote: 'Six milestones = six layers of proof, mapped to the curriculum&#39;s day plan (~1 focused hour/day). When all six drop, the shipyard ships your container.',

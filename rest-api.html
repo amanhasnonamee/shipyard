@@ -3,20 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="REST · resources &amp; representations · HTTP · idempotency — a first-principles interactive curriculum. One portable HTML file, 14 parts, checkpoint quizzes and idea cards. Runs offline; progress stays in your browser.">
+<meta name="color-scheme" content="dark">
 <meta property="og:type" content="article">
 <meta property="og:title" content="The REST-API Shipyard - REST APIs: A First-Principles Curriculum">
-<meta property="og:description" content="REST · resources &amp; representations · HTTP · idempotency — a first-principles interactive curriculum, one portable HTML file, runs offline.">
-<meta property="og:image" content="assets/og/rest-api.png">
+<meta property="og:description" content="REST · resources &amp; representations · HTTP · idempotency — a first-principles interactive curriculum. One portable HTML file, 14 parts, checkpoint quizzes and idea cards. Runs offline; progress stays in your browser.">
+<meta property="og:image" content="https://amanhasnonamee.github.io/shipyard/assets/og/rest-api.png">
+<meta property="og:url" content="https://amanhasnonamee.github.io/shipyard/rest-api.html">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%2314b8a6%22 d=%22M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z%22/%3E%3C/svg%3E">
-<meta name="contract" content="shipyard-rest-api@1">
+<meta name="contract" content="shipyard-rest-api@2">
 <title>The REST-API Shipyard - REST APIs: A First-Principles Curriculum</title>
 <link rel="stylesheet" href="assets/shipyard.css">
 </head>
 <body>
-<div id="scanlines"></div><div id="vignette"></div>
-<button id="burger">&#9776; MAP</button><div id="backdrop"></div>
+<a href="#part0" class="skiplink">Skip to content</a>
+<div id="scanlines" aria-hidden="true"></div><div id="vignette" aria-hidden="true"></div>
+<button type="button" id="burger" aria-controls="dock" aria-expanded="false">&#9776; MAP</button><div id="backdrop"></div>
 <div id="app">
-<aside id="dock">
+<aside id="dock" aria-label="Curriculum navigation">
   <div class="brand">
     <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
       <path fill="var(--accent)" d="M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z"/>
@@ -32,12 +37,17 @@
   </div>
 
   <div class="stackbox">
-    <div class="st"><span>THE STACK — your container</span><span id="stackCount">0/14</span></div>
+    <div class="st"><span>THE STACK — your resource model</span><span id="stackCount">0/14</span></div>
     <div id="stackMini"></div>
-    <div id="psRow"><b>$ docker ps</b><br><span id="psRow2">—</span></div>
+    <div id="psRow"><b id="psRowCmd">$ shipyard status</b><br><span id="psRow2">—</span></div>
   </div>
 
-  <nav class="docknav" id="docknav"></nav>
+  <div class="milebox">
+    <div class="st"><span>MILESTONES</span><span id="mileCount">0/6</span></div>
+    <div id="mileMini"></div>
+  </div>
+
+  <nav class="docknav" id="docknav" aria-label="Parts"></nav>
 
   <div class="legend">
     <div class="lt">Depth legend</div>
@@ -50,9 +60,9 @@
   <div class="dockfoot" id="dockfoot"></div>
 </aside>
 
-<main>
+<main id="main">
 <section class="hero" id="part0">
-  <div class="boot"><div class="bl">$ shipyard boot --curriculum rest-api-first-principles</div>
+  <div class="boot" aria-hidden="true"><div class="bl">$ shipyard boot --curriculum rest-api-first-principles</div>
     <div class="bl">STAGE 1: LOADING PARTS 0–14 ......... <span style="color:var(--ok)">OK</span></div>
     <div class="bl">STAGE 2: MOUNTING DEPTH TAGS .......... <span style="color:var(--ok)">OK</span></div>
     <div class="bl"><span class="warn">WARNING: REST is a set of constraints, not a JSON convention. Every “rule” is a consequence of a problem someone already hit.</span></div>
@@ -66,18 +76,18 @@
     <div class="hchip">LAYERS <b id="hLayers">0/14</b></div>
     <div class="hchip">QUIZZES CLEARED <b class="ok" id="hQuizzes">0</b></div>
   </div>
-  <div id="voyageHead">THE VOYAGE — 14 WAYPOINTS</div>
+  <h2 id="voyageHead">THE VOYAGE — 14 WAYPOINTS</h2>
   <div class="voyage" id="voyage"></div>
 </section>
 
-<section class="part" id="p0">
-  <div class="phead"><div class="pnum">00</div>
-    <div><div class="ptitle">How to Use This Curriculum</div>
+<section class="part" id="p0" aria-labelledby="p0-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">00</div>
+    <div><h2 class="ptitle" id="p0-title">How to Use This Curriculum</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p0">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p0">MARK COMPLETE</button></div>
   </div>
 
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>Part 1   Where REST came from                    [DEEP — explains every design rule]
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div><pre><code>Part 1   Where REST came from                    [DEEP — explains every design rule]
 Part 2   The core mental model                    [DEEP — most important part]
 Part 3   HTTP: the substrate REST is built on
 Part 4   Resources and URL design
@@ -92,7 +102,7 @@ Part 12  When REST is and isn't the right choice
 Part 13  Interview preparation
 Part 14  Milestones and self-assessment</code></pre></div>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">bash</span><button class="copybtn">COPY</button></div><pre><code>curl -i https://api.example.com/v1/books                 # -i shows response headers
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">bash</span><button type="button" class="copybtn">COPY</button></div><pre><code>curl -i https://api.example.com/v1/books                 # -i shows response headers
 curl -i -X POST https://api.example.com/v1/books \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer TOKEN" \
@@ -102,34 +112,26 @@ curl -v https://api.example.com/v1/books                 # -v shows the full exc
   <div class="breadcrumb"><a class="next" href="#p1">01 · WHERE REST CAME FROM &rarr;</a></div>
 </section>
 
-<section class="part" id="p1">
-  <div class="phead"><div class="pnum">01</div>
-    <div><div class="ptitle">Where REST Came From</div>
+<section class="part" id="p1" aria-labelledby="p1-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">01</div>
+    <div><h2 class="ptitle" id="p1-title">Where REST Came From</h2>
     <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p1">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p1">MARK COMPLETE</button></div>
   </div>
 
   <p>Almost every REST "rule" people repeat is a consequence of a specific historical problem. Knowing the problems turns arbitrary conventions into reasoning you can apply to new cases.</p>
 
-<h2>The problem before REST</h2>
+<h3>The problem before REST</h3>
 
 <p>Through the 1980s and 90s, making one program call another over a network meant <b>Remote Procedure Call</b> (RPC) systems: Sun RPC, CORBA, DCOM, Java RMI, and later SOAP. The idea was appealing — make a network call look exactly like a local function call. The problems were structural:</p>
 
-<ol><li><b>Tight coupling.</b> Client and server shared a generated interface definition. Change the server's method signature and every client broke, so both had to be deployed in lockstep. On the public internet, where you don't control your clients, that's fatal.</li></ol>
+<ol><li><b>Tight coupling.</b> Client and server shared a generated interface definition. Change the server's method signature and every client broke, so both had to be deployed in lockstep. On the public internet, where you don't control your clients, that's fatal.</li><li><b>The abstraction lied.</b> A local function call can't take 4 seconds, fail because a router died, or arrive twice. Hiding the network made developers write code that ignored latency, partial failure, and retries — the hardest realities of distributed systems.</li><li><b>Enormous complexity.</b> SOAP required WSDL contracts, XML envelopes, and a stack of WS-\* specifications. Simple things took a lot of ceremony and specialized tooling.</li><li><b>Infrastructure couldn't help.</b> Every call was a <code class="inline">POST</code> of an opaque XML body to a single endpoint. Caches, proxies, and load balancers could see nothing meaningful, so none of the web's existing infrastructure could optimize or route anything.</li></ol><p>Meanwhile, the World Wide Web — a wildly larger, more heterogeneous, more long-lived distributed system — was working extraordinarily well. Someone asked why.</p>
 
-<ol><li><b>The abstraction lied.</b> A local function call can't take 4 seconds, fail because a router died, or arrive twice. Hiding the network made developers write code that ignored latency, partial failure, and retries — the hardest realities of distributed systems.</li></ol>
-
-<ol><li><b>Enormous complexity.</b> SOAP required WSDL contracts, XML envelopes, and a stack of WS-\* specifications. Simple things took a lot of ceremony and specialized tooling.</li></ol>
-
-<ol><li><b>Infrastructure couldn't help.</b> Every call was a <code class="inline">POST</code> of an opaque XML body to a single endpoint. Caches, proxies, and load balancers could see nothing meaningful, so none of the web's existing infrastructure could optimize or route anything.</li></ol>
-
-<p>Meanwhile, the World Wide Web — a wildly larger, more heterogeneous, more long-lived distributed system — was working extraordinarily well. Someone asked why.</p>
-
-<h2>The lineage</h2>
+<h3>The lineage</h3>
 
 <div class="tblwrap"><table><thead><tr><th>Year</th><th>What happened</th><th>Why it still affects you</th></tr></thead><tbody><tr><td>1989–91</td><td>Tim Berners-Lee invents HTTP and the URL</td><td>The substrate. REST is not a protocol; it's a way of using this one</td></tr><tr><td>1994–99</td><td><b>Roy Fielding</b> co-authors the HTTP/1.0 and HTTP/1.1 specifications while doing doctoral research on why the web scales</td><td>Critically: Fielding didn't invent REST and then build the web. He helped build the web, then *described* the architectural principles that made it work</td></tr><tr><td>2000</td><td>Fielding's PhD dissertation, *Architectural Styles and the Design of Network-based Software Architectures*, names and formalizes <b>REST</b> — REpresentational State Transfer</td><td>The founding document. REST is an <b>architectural style</b>: a set of constraints, each of which buys a specific property (scalability, evolvability, visibility). Not a standard, not a spec, no compliance test</td></tr><tr><td>2000–05</td><td>SOAP dominates enterprise; "REST vs SOAP" becomes a real debate</td><td>REST won on the public internet largely because you could call it with a browser and a text editor instead of a toolchain</td></tr><tr><td>2005–08</td><td><b>AJAX</b> makes browsers into API clients; <b>JSON</b> displaces XML because it maps directly onto JavaScript objects and is far lighter</td><td>Why virtually every API you'll touch speaks JSON, despite REST being format-agnostic</td></tr><tr><td>2008–14</td><td>Mobile apps explode. Every app needs a backend API, and REST + JSON is the obvious default. Twitter, Stripe, GitHub publish influential public APIs</td><td>The "REST API" as a product category. Stripe's API in particular set conventions half the industry copied</td></tr><tr><td>2012</td><td>Fielding publishes a widely-read complaint that most so-called REST APIs aren't REST — because they lack <b>hypermedia controls</b> (HATEOAS)</td><td>Worth knowing honestly: <b>most "REST APIs," including nearly every famous one, are not RESTful by Fielding's definition.</b> They're "HTTP APIs with resource-shaped URLs." The industry kept the useful 80% and quietly dropped the rest</td></tr><tr><td>2015</td><td>Facebook open-sources <b>GraphQL</b>, targeting REST's real weaknesses: over-fetching, under-fetching, and the N+1 round-trip problem for mobile clients</td><td>A genuine alternative for specific problems, not a replacement (Part 12)</td></tr><tr><td>2016</td><td>Google open-sources <b>gRPC</b> — modern binary RPC over HTTP/2 with generated clients</td><td>RPC returned, having learned from CORBA. Excellent for internal service-to-service traffic</td></tr><tr><td>2015–now</td><td><b>OpenAPI</b> (formerly Swagger) becomes the de facto contract format; JSON:API, HAL, and Problem Details standardize conventions REST left open</td><td>The ecosystem grew the specifications REST deliberately never provided</td></tr></tbody></table></div>
 
-<h2>What REST actually is: six constraints [DEEP]</h2>
+<h3>What REST actually is: six constraints [DEEP]</h3>
 
 <p>Fielding defined REST as constraints, each with a purpose. This is the part almost nobody learns, and it's the part that lets you make design decisions instead of copying conventions.</p>
 
@@ -137,25 +139,25 @@ curl -v https://api.example.com/v1/books                 # -v shows the full exc
 
 <p>The insight to carry: <b>REST optimizes for evolvability and scale in a system where you don't control the clients and can't coordinate deployments.</b> That's why it's verbose and chatty compared to RPC, and why it's the right trade for a public API and often the wrong trade for two microservices in the same cluster (Part 12).</p>
 
-<h2>The framing worth being able to say</h2>
+<h3>The framing worth being able to say</h3>
 
 <p>*"REST isn't a protocol or a standard — it's the set of architectural constraints Roy Fielding identified as the reason the web scales, published in 2000. The two that do most of the work are statelessness, which lets any server answer any request, and the uniform interface, which lets generic infrastructure like caches and proxies understand traffic they know nothing about. And it's worth being honest that most APIs called REST aren't, strictly — they drop hypermedia and keep the resource model and HTTP semantics, which turned out to be the valuable part."*</p>
 
-<div class="quiz" data-part="p1"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p1"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p0">&larr; 00 · HOW TO USE THIS CURRICULUM</a><a class="next" href="#p2">02 · THE CORE MENTAL MODEL &rarr;</a></div>
 </section>
 
-<section class="part" id="p2">
-  <div class="phead"><div class="pnum">02</div>
-    <div><div class="ptitle">The Core Mental Model</div>
+<section class="part" id="p2" aria-labelledby="p2-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">02</div>
+    <div><h2 class="ptitle" id="p2-title">The Core Mental Model</h2>
     <div class="pmeta"><span class="m">TAG <b>DEEP</b></span><span class="m">★ <b>INTERVIEW GOLD</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p2">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p2">MARK COMPLETE</button></div>
   </div>
 
   <p>Five ideas. This is the most important section in the document.</p>
 
-<h2>Idea 1: A resource is a *thing*, and what you receive is a *representation* of it</h2>
+<h3>Idea 1: A resource is a *thing*, and what you receive is a *representation* of it</h3>
 
 <p>A resource is any concept worth naming: a book, a user, an order, a search result, today's weather. It is identified by a <b>URL</b>. Crucially, the resource is the abstract thing; what crosses the network is a <b>representation</b> of it — usually JSON, but potentially XML, CSV, HTML, or a PDF of the same underlying resource.</p>
 
@@ -163,13 +165,7 @@ curl -v https://api.example.com/v1/books                 # -v shows the full exc
 
 <p>Three consequences that shape all API design:</p>
 
-<ul><li><b>URLs name things, not actions.</b> <code class="inline">/books/42</code> is a thing. <code class="inline">/getBook?id=42</code> is a function call wearing a URL costume — it's RPC, not REST. The verb belongs in the HTTP method, which already exists for exactly this purpose.</li></ul>
-
-<ul><li><b>One resource can have many representations.</b> The same <code class="inline">/books/42</code> can return JSON to an app and CSV to a spreadsheet, selected by the <code class="inline">Accept</code> header (content negotiation, Part 5). The resource didn't change; the representation did.</li></ul>
-
-<ul><li><b>The representation is not the database row.</b> This is a subtle and important point: your API is a *contract*, deliberately decoupled from your storage. Exposing raw table rows means every schema change breaks clients — precisely the coupling REST exists to avoid.</li></ul>
-
-<h2>Idea 2: The uniform interface — HTTP methods are the verbs, and their properties matter more than their names</h2>
+<ul><li><b>URLs name things, not actions.</b> <code class="inline">/books/42</code> is a thing. <code class="inline">/getBook?id=42</code> is a function call wearing a URL costume — it's RPC, not REST. The verb belongs in the HTTP method, which already exists for exactly this purpose.</li><li><b>One resource can have many representations.</b> The same <code class="inline">/books/42</code> can return JSON to an app and CSV to a spreadsheet, selected by the <code class="inline">Accept</code> header (content negotiation, Part 5). The resource didn't change; the representation did.</li><li><b>The representation is not the database row.</b> This is a subtle and important point: your API is a *contract*, deliberately decoupled from your storage. Exposing raw table rows means every schema change breaks clients — precisely the coupling REST exists to avoid.</li></ul><h3>Idea 2: The uniform interface — HTTP methods are the verbs, and their properties matter more than their names</h3>
 
 <p>REST deliberately uses a tiny, fixed set of operations for every resource. Which means the important thing to learn isn't the list of methods — it's the two *properties* that make them safe to use in an unreliable network.</p>
 
@@ -179,21 +175,15 @@ curl -v https://api.example.com/v1/books                 # -v shows the full exc
 
 <p><b>Idempotent</b> means making the request N times has the same effect as making it once. This is the single most practically important concept in this table, because <b>networks fail after the server acted but before the response arrived.</b> The client cannot tell "it didn't happen" from "it happened but I didn't hear back." So:</p>
 
-<ul><li><code class="inline">PUT /books/42</code> with a full body: retrying is safe. Same final state.</li></ul>
-
-<ul><li><code class="inline">DELETE /books/42</code>: retrying is safe. Already gone is the desired state (return 404 or 204, either is defensible).</li></ul>
-
-<ul><li><code class="inline">POST /books</code>: retrying may create a <b>second book</b>. Not idempotent. Which is exactly why idempotency keys exist for payments and other critical creates (Part 11).</li></ul>
-
-<p>Understanding safety and idempotency is what lets you reason about retries, timeouts, and duplicate requests — the actual hard part of distributed systems, and the thing that separates people who *use* APIs from people who can *design* them.</p>
+<ul><li><code class="inline">PUT /books/42</code> with a full body: retrying is safe. Same final state.</li><li><code class="inline">DELETE /books/42</code>: retrying is safe. Already gone is the desired state (return 404 or 204, either is defensible).</li><li><code class="inline">POST /books</code>: retrying may create a <b>second book</b>. Not idempotent. Which is exactly why idempotency keys exist for payments and other critical creates (Part 11).</li></ul><p>Understanding safety and idempotency is what lets you reason about retries, timeouts, and duplicate requests — the actual hard part of distributed systems, and the thing that separates people who *use* APIs from people who can *design* them.</p>
 
 <p><code class="inline">PUT</code> vs <code class="inline">PATCH</code>, since it's constantly confused: <code class="inline">PUT</code> means "here is the complete new state of this resource — replace it." Omit a field and you're saying it should be absent. <code class="inline">PATCH</code> means "here is a description of changes." Omit a field and you're saying "leave it alone."</p>
 
-<h2>Idea 3: Statelessness — the server remembers nothing between requests</h2>
+<h3>Idea 3: Statelessness — the server remembers nothing between requests</h3>
 
 <p>Every request must carry everything needed to process it: identity, parameters, context. The server holds no per-client memory between requests.</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>Stateful (violates REST):                Stateless (REST):
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div><pre><code>Stateful (violates REST):                Stateless (REST):
   POST /login        → server stores      Every request carries a token:
        session in memory                    GET /orders
   GET /orders        → server looks up      Authorization: Bearer eyJ...
@@ -207,7 +197,7 @@ curl -v https://api.example.com/v1/books                 # -v shows the full exc
 
 <p>The common point of confusion worth being precise about: **"stateless" refers to *client session* state, not to data.** Of course your database has state. Storing sessions in a shared store (Redis, or a database) is also fine in practice — the constraint being honoured is that no individual *server* holds client state in its own memory.</p>
 
-<h2>Idea 4: Status codes are the response's type system</h2>
+<h3>Idea 4: Status codes are the response's type system</h3>
 
 <p>The status code tells the client what *kind* of thing happened, and the client should branch on the class before reading the body. Learn the five families first; the individual codes then mostly follow.</p>
 
@@ -221,7 +211,7 @@ curl -v https://api.example.com/v1/books                 # -v shows the full exc
 
 <p>401 vs 403 is asked in almost every API interview: <b>401 means "I don't know who you are," 403 means "I know exactly who you are, and no."</b></p>
 
-<h2>Idea 5: An API is a published contract, and its hardest problem is change</h2>
+<h3>Idea 5: An API is a published contract, and its hardest problem is change</h3>
 
 <p>The moment someone else depends on your API, you have made a promise. Clients you don't control — mobile apps that users won't update, scripts, partner integrations — will keep calling the shape you shipped.</p>
 
@@ -231,41 +221,31 @@ curl -v https://api.example.com/v1/books                 # -v shows the full exc
 
 <p>Notice that several "harmless" changes are breaking. Tightening validation breaks clients that were sending sloppy-but-accepted data. Adding an enum value breaks clients that hard-coded a switch over all values — which is why clients should be written tolerantly (<b>ignore unknown fields</b>, handle unknown enum values gracefully). This mutual discipline — servers add rather than change, clients tolerate rather than assume — is what "evolvability" means in practice, and it's the constraint Part 6's versioning strategies exist to serve.</p>
 
-<h2>Checkpoint — do this before Part 3</h2>
+<h3>Checkpoint — do this before Part 3</h3>
 
 <p>Answer without looking:</p>
 
-<ol><li>Why is <code class="inline">GET /deleteUser?id=5</code> a bug rather than a style preference? Name two mechanisms that will eventually trigger it.</li></ol>
+<ol><li>Why is <code class="inline">GET /deleteUser?id=5</code> a bug rather than a style preference? Name two mechanisms that will eventually trigger it.</li><li>A client sends <code class="inline">POST /payments</code>, the network drops, and it never sees a response. What has possibly happened on the server, and why can't the client safely retry? What mechanism fixes this?</li><li>A <code class="inline">PUT</code> request omits the <code class="inline">email</code> field. What does that mean? What would the same omission mean in a <code class="inline">PATCH</code>?</li><li>Explain what statelessness forbids, and what specifically becomes possible because of it.</li><li>When should you return 401, 403, 404, 409, and 422? Give a one-line scenario for each.</li></ol><p>If any of these is shaky, reread Part 2. Everything later assumes them.</p>
 
-<ol><li>A client sends <code class="inline">POST /payments</code>, the network drops, and it never sees a response. What has possibly happened on the server, and why can't the client safely retry? What mechanism fixes this?</li></ol>
-
-<ol><li>A <code class="inline">PUT</code> request omits the <code class="inline">email</code> field. What does that mean? What would the same omission mean in a <code class="inline">PATCH</code>?</li></ol>
-
-<ol><li>Explain what statelessness forbids, and what specifically becomes possible because of it.</li></ol>
-
-<ol><li>When should you return 401, 403, 404, 409, and 422? Give a one-line scenario for each.</li></ol>
-
-<p>If any of these is shaky, reread Part 2. Everything later assumes them.</p>
-
-<div class="quiz" data-part="p2"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p2"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p1">&larr; 01 · WHERE REST CAME FROM</a><a class="next" href="#p3">03 · HTTP: THE SUBSTRATE REST IS BUILT ON &rarr;</a></div>
 </section>
 
-<section class="part" id="p3">
-  <div class="phead"><div class="pnum">03</div>
-    <div><div class="ptitle">HTTP: The Substrate REST Is Built On</div>
+<section class="part" id="p3" aria-labelledby="p3-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">03</div>
+    <div><h2 class="ptitle" id="p3-title">HTTP: The Substrate REST Is Built On</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p3">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p3">MARK COMPLETE</button></div>
   </div>
 
   <p>REST is a way of using HTTP well. So you cannot be good at REST without genuinely knowing HTTP. This part is the foundation everything else stands on.</p>
 
-<h2>3.1 The anatomy of a request and response [DEEP]</h2>
+<h3>3.1 The anatomy of a request and response [DEEP]</h3>
 
 <p>Every HTTP exchange is text (in HTTP/1.1 — later versions compress it, but the model is identical). A request:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button class="copybtn">COPY</button></div><pre><code>POST /v1/books HTTP/1.1                    ← method, path, version (the "request line")
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button type="button" class="copybtn">COPY</button></div><pre><code>POST /v1/books HTTP/1.1                    ← method, path, version (the "request line")
 Host: api.example.com                      ← headers: metadata about the request
 Authorization: Bearer eyJhbGciOi...
 Content-Type: application/json             ← what I'm SENDING
@@ -277,7 +257,7 @@ Idempotency-Key: 7f3c9a12-...
 
 <p>And a response:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button class="copybtn">COPY</button></div><pre><code>HTTP/1.1 201 Created                       ← version, status code, reason phrase
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button type="button" class="copybtn">COPY</button></div><pre><code>HTTP/1.1 201 Created                       ← version, status code, reason phrase
 Content-Type: application/json
 Location: /v1/books/1001                   ← where the new resource lives
 ETag: "a3f9c2"
@@ -287,7 +267,7 @@ Cache-Control: no-store
 
 <p>Four parts on each side: <b>start line, headers, blank line, body.</b> That's the whole protocol shape. Run <code class="inline">curl -v</code> against any API and you will see exactly this. Doing that once, deliberately, is worth more than reading three tutorials.</p>
 
-<h2>3.2 The headers that actually matter [RECOGNIZE — but know what each is *for*]</h2>
+<h3>3.2 The headers that actually matter [RECOGNIZE — but know what each is *for*]</h3>
 
 <p><b>Request headers:</b></p>
 
@@ -299,17 +279,17 @@ Cache-Control: no-store
 
 <p>The point of the table isn't memorization — it's that <b>HTTP already has a well-designed mechanism for most cross-cutting concerns.</b> People routinely reinvent caching, versioning, content negotiation, and conditional updates inside JSON bodies because they didn't know the protocol already solved it. Reaching for the existing mechanism is what "using HTTP well" means, and it's the difference between an HTTP API and an API that merely travels over HTTP.</p>
 
-<h2>3.3 Content negotiation [DEEP concept, RECOGNIZE syntax]</h2>
+<h3>3.3 Content negotiation [DEEP concept, RECOGNIZE syntax]</h3>
 
 <p>The client says what it wants; the server picks the best available representation:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button class="copybtn">COPY</button></div><pre><code>Accept: application/json                    → JSON
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button type="button" class="copybtn">COPY</button></div><pre><code>Accept: application/json                    → JSON
 Accept: text/csv                            → CSV export of the same resource
 Accept: application/json; version=2         → one legitimate versioning approach (Part 6)</code></pre></div>
 
 <p>If the server can't satisfy it: <b>406 Not Acceptable</b>. If the client *sends* a body in a format the server doesn't support: <b>415 Unsupported Media Type</b>. Those two are easy to mix up — one is about the response, the other about the request.</p>
 
-<h2>3.4 Query parameters vs path segments vs headers vs body [DEEP]</h2>
+<h3>3.4 Query parameters vs path segments vs headers vs body [DEEP]</h3>
 
 <p>Where does a piece of information belong? A rule that resolves nearly every case:</p>
 
@@ -317,33 +297,29 @@ Accept: application/json; version=2         → one legitimate versioning approa
 
 <p>Two hard rules that follow: <b>never put secrets in the query string</b> (URLs are logged by servers, proxies, browsers, and analytics — a token in a URL is a token in a dozen log files), and <b>never use a request body on <code class="inline">GET</code></b> (it's not reliably supported by intermediaries, and many clients and caches ignore it).</p>
 
-<h2>3.5 Exercises</h2>
+<h3>3.5 Exercises</h3>
 
-<ol><li><code class="inline">curl -v</code> a public API (GitHub's is ideal: <code class="inline">curl -v https://api.github.com/repos/torvalds/linux</code>). Identify every part of the request and response by name.</li></ol>
+<ol><li><code class="inline">curl -v</code> a public API (GitHub's is ideal: <code class="inline">curl -v https://api.github.com/repos/torvalds/linux</code>). Identify every part of the request and response by name.</li><li>Deliberately trigger five different status codes against a real API: 200, 401, 404, 405, and 422 or 400. Record what each response body looked like.</li><li>Send the same request with <code class="inline">Accept: application/json</code> and then <code class="inline">Accept: application/xml</code> to an API that supports both, and observe negotiation. Then send a nonsense <code class="inline">Accept</code> and get a 406.</li></ol>
 
-<ol><li>Deliberately trigger five different status codes against a real API: 200, 401, 404, 405, and 422 or 400. Record what each response body looked like.</li></ol>
-
-<ol><li>Send the same request with <code class="inline">Accept: application/json</code> and then <code class="inline">Accept: application/xml</code> to an API that supports both, and observe negotiation. Then send a nonsense <code class="inline">Accept</code> and get a 406.</li></ol>
-
-<div class="quiz" data-part="p3"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p3"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p2">&larr; 02 · THE CORE MENTAL MODEL</a><a class="next" href="#p4">04 · RESOURCES AND URL DESIGN &rarr;</a></div>
 </section>
 
-<section class="part" id="p4">
-  <div class="phead"><div class="pnum">04</div>
-    <div><div class="ptitle">Resources and URL Design</div>
+<section class="part" id="p4" aria-labelledby="p4-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">04</div>
+    <div><h2 class="ptitle" id="p4-title">Resources and URL Design</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p4">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p4">MARK COMPLETE</button></div>
   </div>
 
   <p>URL design is where most APIs reveal whether their author understood REST. It's also cheap to get right and expensive to change later, since URLs are the part clients hard-code.</p>
 
-<h2>4.1 The core rules [DEEP]</h2>
+<h3>4.1 The core rules [DEEP]</h3>
 
 <p><b>1. URLs identify nouns; HTTP methods provide the verbs.</b></p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>✗ POST /createBook          ✓ POST   /books
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div><pre><code>✗ POST /createBook          ✓ POST   /books
 ✗ GET  /getBook?id=42       ✓ GET    /books/42
 ✗ POST /updateBook          ✓ PATCH  /books/42
 ✗ GET  /deleteBook?id=42    ✓ DELETE /books/42</code></pre></div>
@@ -354,7 +330,7 @@ Accept: application/json; version=2         → one legitimate versioning approa
 
 <p><b>3. Nest to express containment, but stop at two levels.</b></p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>✓ /authors/7/books           the books belonging to author 7
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div><pre><code>✓ /authors/7/books           the books belonging to author 7
 ✗ /authors/7/books/42/reviews/9/comments/3     unreadable, brittle, and unnecessary</code></pre></div>
 
 <p>Once a resource has its own identity, give it a top-level URL: <code class="inline">/reviews/9/comments</code> or <code class="inline">/comments?review_id=9</code>. Deep nesting encodes your data model into every client's code, which is exactly the coupling you're trying to avoid.</p>
@@ -363,20 +339,20 @@ Accept: application/json; version=2         → one legitimate versioning approa
 
 <p><b>5. Conventions that reduce friction</b> [RECOGNIZE]: lowercase paths, hyphens rather than underscores in path segments (<code class="inline">/order-items</code>), no file extensions (use <code class="inline">Accept</code>), no trailing slashes (pick one and redirect the other), and no verbs anywhere in a path.</p>
 
-<h2>4.2 Actions that aren't CRUD [DEEP — the honest hard case]</h2>
+<h3>4.2 Actions that aren't CRUD [DEEP — the honest hard case]</h3>
 
 <p>Real systems have operations that don't map cleanly onto create/read/update/delete: publish an article, cancel an order, send a password reset, retry a job, transfer money. This is where dogmatic REST advice becomes unhelpful, so here are the three legitimate approaches:</p>
 
 <p><b>Option A — model the state change as a field update</b> (most RESTful):</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button class="copybtn">COPY</button></div><pre><code>PATCH /orders/42
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button type="button" class="copybtn">COPY</button></div><pre><code>PATCH /orders/42
 {"status": "cancelled"}</code></pre></div>
 
 <p>Good when the concept genuinely is a state field and any transition is permitted.</p>
 
 <p><b>Option B — model the action as a sub-resource</b> (usually best for real workflows):</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button class="copybtn">COPY</button></div><pre><code>POST /orders/42/cancellation
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button type="button" class="copybtn">COPY</button></div><pre><code>POST /orders/42/cancellation
 POST /articles/9/publication
 POST /jobs/17/retries</code></pre></div>
 
@@ -384,48 +360,36 @@ POST /jobs/17/retries</code></pre></div>
 
 <p><b>Option C — an explicit action endpoint</b> (pragmatic, widely used):</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button class="copybtn">COPY</button></div><pre><code>POST /orders/42/cancel
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button type="button" class="copybtn">COPY</button></div><pre><code>POST /orders/42/cancel
 POST /payments/88/refund</code></pre></div>
 
 <p>Not strictly RESTful. Also what Stripe, GitHub, and most successful APIs do for genuine operations. It's clear, it's discoverable, and clarity beats purity.</p>
 
 <p>The judgment to develop: <b>use A when it's really a field, B when the action has its own data or history worth recording, and C when the operation is a genuine command and A/B would be contortions.</b> Being able to defend the choice matters more than which one you pick — and "I chose C for clarity because the alternative was a fake resource nobody would understand" is a strong interview answer.</p>
 
-<h2>4.3 Common mistakes</h2>
+<h3>4.3 Common mistakes</h3>
 
-<ul><li>Verbs in URLs (<code class="inline">/api/getUsersList</code>) — the single most common tell of an RPC-shaped API.</li></ul>
-
-<ul><li>Inconsistent pluralization or casing across endpoints.</li></ul>
-
-<ul><li>Exposing database internals: <code class="inline">/tbl_users</code>, or auto-incrementing IDs that let anyone enumerate every record (consider UUIDs or opaque IDs for anything sensitive).</li></ul>
-
-<ul><li>Nesting five levels deep.</li></ul>
-
-<ul><li>Returning different response shapes from the same endpoint depending on parameters — clients can't type that.</li></ul>
-
-<ul><li>Using <code class="inline">POST</code> for everything, which throws away safety, idempotency, and caching in one move.</li></ul>
-
-<h2>4.4 Exercise</h2>
+<ul><li>Verbs in URLs (<code class="inline">/api/getUsersList</code>) — the single most common tell of an RPC-shaped API.</li><li>Inconsistent pluralization or casing across endpoints.</li><li>Exposing database internals: <code class="inline">/tbl_users</code>, or auto-incrementing IDs that let anyone enumerate every record (consider UUIDs or opaque IDs for anything sensitive).</li><li>Nesting five levels deep.</li><li>Returning different response shapes from the same endpoint depending on parameters — clients can't type that.</li><li>Using <code class="inline">POST</code> for everything, which throws away safety, idempotency, and caching in one move.</li></ul><h3>4.4 Exercise</h3>
 
 <p>Design the complete URL surface for a library system: books, authors, members, loans, reservations, and fines. Include: how to list a member's active loans, how to return a book, how to search books by title and availability, and how to pay a fine. For every action that isn't plain CRUD, write one sentence justifying which of options A/B/C you chose and why.</p>
 
-<div class="quiz" data-part="p4"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p4"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p3">&larr; 03 · HTTP: THE SUBSTRATE REST IS BUILT ON</a><a class="next" href="#p5">05 · REPRESENTATIONS, ERRORS, AND VALIDATION &rarr;</a></div>
 </section>
 
-<section class="part" id="p5">
-  <div class="phead"><div class="pnum">05</div>
-    <div><div class="ptitle">Representations, Errors, and Validation</div>
+<section class="part" id="p5" aria-labelledby="p5-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">05</div>
+    <div><h2 class="ptitle" id="p5-title">Representations, Errors, and Validation</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p5">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p5">MARK COMPLETE</button></div>
   </div>
 
-  <h2>5.1 Designing response bodies [DEEP]</h2>
+  <h3>5.1 Designing response bodies [DEEP]</h3>
 
 <p>Decisions to make once and apply everywhere — inconsistency here is what makes an API exhausting to consume:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">json</span><button class="copybtn">COPY</button></div><pre><code>{
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">json</span><button type="button" class="copybtn">COPY</button></div><pre><code>{
   "id": "bk_1001",
   "title": "Dune",
   "published_year": 1965,
@@ -438,31 +402,15 @@ POST /payments/88/refund</code></pre></div>
 
 <p>The conventions embedded above, and why:</p>
 
-<ul><li><b>One naming style everywhere.</b> <code class="inline">snake_case</code> or <code class="inline">camelCase</code> — pick one. (JSON leans <code class="inline">camelCase</code>; many backends emit <code class="inline">snake_case</code>. Either is fine; mixing is not.)</li></ul>
+<ul><li><b>One naming style everywhere.</b> <code class="inline">snake_case</code> or <code class="inline">camelCase</code> — pick one. (JSON leans <code class="inline">camelCase</code>; many backends emit <code class="inline">snake_case</code>. Either is fine; mixing is not.)</li><li><b>Timestamps in ISO 8601, UTC, with an explicit offset.</b> <code class="inline">"2026-08-11T09:12:00Z"</code>. Never a bare <code class="inline">"11/08/2026"</code> — ambiguous by locale — and never a naive local time.</li><li><b>Money as a string, or as an integer of minor units.</b> JSON numbers are IEEE-754 doubles in most parsers, so <code class="inline">12.99</code> can arrive as <code class="inline">12.989999999999998</code>. Send <code class="inline">"12.99"</code> or <code class="inline">1299</code> with the currency stated. This is a real bug that has cost real money.</li><li><b>Large integers as strings.</b> JavaScript loses precision above 2^53, so 64-bit IDs must be strings if any client is JS — which, for a public API, they will be.</li><li><b>Prefixed or opaque IDs</b> (<code class="inline">bk_1001</code>) are self-documenting in logs and prevent clients from doing arithmetic on your IDs.</li><li><b>Embed vs reference:</b> embedding the author saves a round trip; referencing (<code class="inline">"author_id": "au_42"</code>) keeps responses small. A common compromise is a small embedded summary plus an <code class="inline">?expand=author</code> parameter for the full object.</li><li><b>Return the created/updated resource</b> from <code class="inline">POST</code>/<code class="inline">PUT</code>/<code class="inline">PATCH</code>. It saves the client a follow-up <code class="inline">GET</code> and lets it see server-computed fields.</li><li><b>Avoid nulls-as-meaning.</b> Distinguish "unknown," "not applicable," and "empty" deliberately, and document it.</li></ul><p>Whether to wrap responses in an envelope (<code class="inline">{"data": {...}}</code>) is a genuine judgment call: an envelope gives you a stable place for metadata and makes collection responses uniform; skipping it is cleaner and lets HTTP carry the metadata it already has headers for. <b>Choose one and apply it universally</b> — a mixed API is the worst outcome.</p>
 
-<ul><li><b>Timestamps in ISO 8601, UTC, with an explicit offset.</b> <code class="inline">"2026-08-11T09:12:00Z"</code>. Never a bare <code class="inline">"11/08/2026"</code> — ambiguous by locale — and never a naive local time.</li></ul>
-
-<ul><li><b>Money as a string, or as an integer of minor units.</b> JSON numbers are IEEE-754 doubles in most parsers, so <code class="inline">12.99</code> can arrive as <code class="inline">12.989999999999998</code>. Send <code class="inline">"12.99"</code> or <code class="inline">1299</code> with the currency stated. This is a real bug that has cost real money.</li></ul>
-
-<ul><li><b>Large integers as strings.</b> JavaScript loses precision above 2^53, so 64-bit IDs must be strings if any client is JS — which, for a public API, they will be.</li></ul>
-
-<ul><li><b>Prefixed or opaque IDs</b> (<code class="inline">bk_1001</code>) are self-documenting in logs and prevent clients from doing arithmetic on your IDs.</li></ul>
-
-<ul><li><b>Embed vs reference:</b> embedding the author saves a round trip; referencing (<code class="inline">"author_id": "au_42"</code>) keeps responses small. A common compromise is a small embedded summary plus an <code class="inline">?expand=author</code> parameter for the full object.</li></ul>
-
-<ul><li><b>Return the created/updated resource</b> from <code class="inline">POST</code>/<code class="inline">PUT</code>/<code class="inline">PATCH</code>. It saves the client a follow-up <code class="inline">GET</code> and lets it see server-computed fields.</li></ul>
-
-<ul><li><b>Avoid nulls-as-meaning.</b> Distinguish "unknown," "not applicable," and "empty" deliberately, and document it.</li></ul>
-
-<p>Whether to wrap responses in an envelope (<code class="inline">{"data": {...}}</code>) is a genuine judgment call: an envelope gives you a stable place for metadata and makes collection responses uniform; skipping it is cleaner and lets HTTP carry the metadata it already has headers for. <b>Choose one and apply it universally</b> — a mixed API is the worst outcome.</p>
-
-<h2>5.2 Error responses [DEEP — the most neglected part of most APIs]</h2>
+<h3>5.2 Error responses [DEEP — the most neglected part of most APIs]</h3>
 
 <p>Errors are part of your contract, and consuming an API with bad errors is miserable. A good error tells the client three things: <b>what kind of failure, whether retrying helps, and what to fix.</b></p>
 
 <p>A solid shape (aligned with RFC 9457 *Problem Details for HTTP APIs*, worth adopting since it's a real standard):</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">json</span><button class="copybtn">COPY</button></div><pre><code>{
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">json</span><button type="button" class="copybtn">COPY</button></div><pre><code>{
   "type": "https://api.example.com/errors/validation-failed",
   "title": "Validation failed",
   "status": 422,
@@ -477,19 +425,7 @@ POST /payments/88/refund</code></pre></div>
 
 <p>Rules that matter:</p>
 
-<ol><li><b>Use the right status code.</b> The body is for humans and debugging; the status code is for machines. A 200 response containing <code class="inline">{"error": "not found"}</code> is a broken API — every client, cache, and monitoring system will treat it as success. This is one of the most common serious API design errors.</li></ol>
-
-<ol><li><b>Machine-readable error codes</b> (<code class="inline">"required"</code>, <code class="inline">"insufficient_funds"</code>) in addition to human messages. Clients must never parse your prose, because prose gets reworded.</li></ol>
-
-<ol><li><b>Report all validation failures at once</b>, not the first one. Otherwise a form submission takes five round trips.</li></ol>
-
-<ol><li><b>Include a request/correlation ID</b> so a user can report an error and you can find it in your logs instantly.</li></ol>
-
-<ol><li><b>Never leak internals</b> — no stack traces, SQL, file paths, or library versions. That's both a security issue and a support burden.</li></ol>
-
-<ol><li><b>Be consistent.</b> The same error shape from every endpoint, including from your gateway and framework defaults (which is easy to forget — test what a 404 on an unknown path returns, and what a malformed JSON body returns).</li></ol>
-
-<h2>5.3 Validation [DEEP]</h2>
+<ol><li><b>Use the right status code.</b> The body is for humans and debugging; the status code is for machines. A 200 response containing <code class="inline">{"error": "not found"}</code> is a broken API — every client, cache, and monitoring system will treat it as success. This is one of the most common serious API design errors.</li><li><b>Machine-readable error codes</b> (<code class="inline">"required"</code>, <code class="inline">"insufficient_funds"</code>) in addition to human messages. Clients must never parse your prose, because prose gets reworded.</li><li><b>Report all validation failures at once</b>, not the first one. Otherwise a form submission takes five round trips.</li><li><b>Include a request/correlation ID</b> so a user can report an error and you can find it in your logs instantly.</li><li><b>Never leak internals</b> — no stack traces, SQL, file paths, or library versions. That's both a security issue and a support burden.</li><li><b>Be consistent.</b> The same error shape from every endpoint, including from your gateway and framework defaults (which is easy to forget — test what a 404 on an unknown path returns, and what a malformed JSON body returns).</li></ol><h3>5.3 Validation [DEEP]</h3>
 
 <p>Validate at the boundary and reject early. Three layers, all necessary:</p>
 
@@ -499,35 +435,35 @@ POST /payments/88/refund</code></pre></div>
 
 <p>A note on the useful boundary: reject unknown fields or ignore them? Ignoring is more forgiving and better for evolvability; rejecting catches client typos early. Rejecting on write endpoints and ignoring elsewhere is a reasonable middle path — document whichever you choose.</p>
 
-<h2>5.4 Exercise</h2>
+<h3>5.4 Exercise</h3>
 
 <p>Take an API you've used and write down its error format. Now redesign it against the six rules above. Then implement both a validation error and a not-found error in a tiny endpoint and confirm with curl that the status code, body shape, and request ID all behave as designed.</p>
 
-<div class="quiz" data-part="p5"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p5"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p4">&larr; 04 · RESOURCES AND URL DESIGN</a><a class="next" href="#p6">06 · COLLECTIONS, EVOLUTION, AND VERSIONING &rarr;</a></div>
 </section>
 
-<section class="part" id="p6">
-  <div class="phead"><div class="pnum">06</div>
-    <div><div class="ptitle">Collections, Evolution, and Versioning</div>
+<section class="part" id="p6" aria-labelledby="p6-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">06</div>
+    <div><h2 class="ptitle" id="p6-title">Collections, Evolution, and Versioning</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p6">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p6">MARK COMPLETE</button></div>
   </div>
 
-  <h2>6.1 Pagination [DEEP — including why the obvious way is wrong]</h2>
+  <h3>6.1 Pagination [DEEP — including why the obvious way is wrong]</h3>
 
 <p>Never return an unbounded collection. It will be small in development and catastrophic in production.</p>
 
 <p><b>Offset pagination</b> — the intuitive approach:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button class="copybtn">COPY</button></div><pre><code>GET /books?limit=20&amp;offset=40</code></pre></div>
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button type="button" class="copybtn">COPY</button></div><pre><code>GET /books?limit=20&amp;offset=40</code></pre></div>
 
 <p>Simple, allows jumping to page N, and has two real problems: it gets <b>progressively slower</b> as the offset grows (the database must generate and discard every skipped row — the same issue covered in the SQL curriculum), and it <b>skips or duplicates items</b> when the underlying data changes between requests, because "row 41" isn't stable.</p>
 
 <p><b>Cursor (keyset) pagination</b> — the correct default for large or changing data:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button class="copybtn">COPY</button></div><pre><code>GET /books?limit=20&amp;cursor=eyJpZCI6MTAwMSwiY3JlYXRlZCI6...
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button type="button" class="copybtn">COPY</button></div><pre><code>GET /books?limit=20&amp;cursor=eyJpZCI6MTAwMSwiY3JlYXRlZCI6...
 
 {
   "data": [ ... ],
@@ -539,9 +475,9 @@ POST /payments/88/refund</code></pre></div>
 
 <p>Whichever you choose: <b>always include a default limit and a maximum limit</b>, and return enough metadata for the client to continue.</p>
 
-<h2>6.2 Filtering, sorting, and shaping [RECOGNIZE]</h2>
+<h3>6.2 Filtering, sorting, and shaping [RECOGNIZE]</h3>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button class="copybtn">COPY</button></div><pre><code>GET /books?status=available&amp;author_id=42&amp;published_year__gte=1960
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button type="button" class="copybtn">COPY</button></div><pre><code>GET /books?status=available&amp;author_id=42&amp;published_year__gte=1960
          &amp;sort=-published_year,title
          &amp;fields=id,title,author
          &amp;expand=author
@@ -551,7 +487,7 @@ POST /payments/88/refund</code></pre></div>
 
 <p>Be aware that unbounded filtering and sorting is an availability risk: every filterable field should be indexed, or a client can trivially issue a query that scans your whole table.</p>
 
-<h2>6.3 Versioning [DEEP — a real trade-off with no consensus answer]</h2>
+<h3>6.3 Versioning [DEEP — a real trade-off with no consensus answer]</h3>
 
 <p>Because breaking changes eventually become necessary (Idea 5), you need a strategy.</p>
 
@@ -561,11 +497,11 @@ POST /payments/88/refund</code></pre></div>
 
 <p>Whatever you choose, the operational discipline matters more than the mechanism: publish a <b>deprecation policy</b> (the <code class="inline">Deprecation</code> and <code class="inline">Sunset</code> headers exist for this), give long notice with real dates, monitor which clients still use the old version, and communicate directly with them. An API version you can't retire is a maintenance cost forever.</p>
 
-<h2>6.4 Documentation and contracts [DEEP]</h2>
+<h3>6.4 Documentation and contracts [DEEP]</h3>
 
 <p>An undocumented API doesn't functionally exist. The industry standard is <b>OpenAPI</b> — a machine-readable description of every endpoint, parameter, schema, and response:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">yaml</span><button class="copybtn">COPY</button></div><pre><code>paths:
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">yaml</span><button type="button" class="copybtn">COPY</button></div><pre><code>paths:
   /books/{id}:
     get:
       summary: Retrieve a book
@@ -586,58 +522,40 @@ POST /payments/88/refund</code></pre></div>
 
 <p>The rule that keeps documentation honest: <b>generate documentation from the code or validate the code against the documentation.</b> Hand-maintained docs in a separate wiki are wrong within weeks, and wrong documentation is worse than none because it's trusted.</p>
 
-<h2>6.5 Exercise</h2>
+<h3>6.5 Exercise</h3>
 
 <p>Take the library API you designed in 4.4 and write an OpenAPI document for four endpoints, including error responses. Load it into Swagger UI and click through it. Then add cursor pagination to the list endpoint and document the cursor as opaque.</p>
 
-<div class="quiz" data-part="p6"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p6"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p5">&larr; 05 · REPRESENTATIONS, ERRORS, AND VALIDATION</a><a class="next" href="#p7">07 · AUTHENTICATION, AUTHORIZATION, AND CORS &rarr;</a></div>
 </section>
 
-<section class="part" id="p7">
-  <div class="phead"><div class="pnum">07</div>
-    <div><div class="ptitle">Authentication, Authorization, and CORS</div>
+<section class="part" id="p7" aria-labelledby="p7-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">07</div>
+    <div><h2 class="ptitle" id="p7-title">Authentication, Authorization, and CORS</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p7">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p7">MARK COMPLETE</button></div>
   </div>
 
   <p>Two different questions, constantly conflated: <b>authentication</b> is *who are you*; <b>authorization</b> is *what may you do*. 401 answers the first, 403 the second (Idea 4).</p>
 
-<h2>7.1 The authentication mechanisms [DEEP on the trade-offs]</h2>
+<h3>7.1 The authentication mechanisms [DEEP on the trade-offs]</h3>
 
 <div class="tblwrap"><table><thead><tr><th>Mechanism</th><th>How it works</th><th>Right for</th><th>Watch out for</th></tr></thead><tbody><tr><td><b>API key</b></td><td>A long random string in a header: <code class="inline">Authorization: Bearer sk_live_...</code> or <code class="inline">X-API-Key:</code></td><td>Server-to-server, developer-facing APIs</td><td>Never in a URL or in client-side code. Needs rotation and per-key scoping and revocation</td></tr><tr><td><b>HTTP Basic</b></td><td><code class="inline">Authorization: Basic base64(user:pass)</code></td><td>Internal tools, quick scripts</td><td>Base64 is <b>encoding, not encryption</b> — this is plaintext credentials on every request. HTTPS mandatory</td></tr><tr><td><b>Session cookie</b></td><td>Server issues an opaque session ID; browser sends it automatically</td><td>Browser apps with a same-site backend</td><td>Automatic sending is what enables CSRF — needs <code class="inline">SameSite</code>, <code class="inline">HttpOnly</code>, <code class="inline">Secure</code></td></tr><tr><td><b>Bearer token / JWT</b></td><td>Signed token containing claims; sent on every request</td><td>SPAs, mobile apps, service-to-service</td><td>See the JWT discussion below — this is where most mistakes live</td></tr><tr><td><b>OAuth 2.0 + OIDC</b></td><td>Delegated authorization: the user grants *your app* limited access to their data on *another* service</td><td>"Sign in with Google," third-party integrations</td><td>Genuinely complex. Use a library and a provider; do not implement the flows yourself</td></tr><tr><td><b>mTLS</b></td><td>Both sides present certificates</td><td>High-security internal service meshes</td><td>Certificate lifecycle management is the hard part</td></tr></tbody></table></div>
 
-<h2>7.2 JWTs, honestly [DEEP — widely used, widely misunderstood]</h2>
+<h3>7.2 JWTs, honestly [DEEP — widely used, widely misunderstood]</h3>
 
 <p>A JWT is three base64url segments separated by dots: <code class="inline">header.payload.signature</code>.</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div><pre><code>eyJhbGciOiJIUzI1NiJ9  .  eyJzdWIiOiJ1c2VyXzQyIiwiZXhwIjoxNzY...  .  4f2Xk9...
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div><pre><code>eyJhbGciOiJIUzI1NiJ9  .  eyJzdWIiOiJ1c2VyXzQyIiwiZXhwIjoxNzY...  .  4f2Xk9...
    algorithm              claims: subject, expiry, scopes           signature</code></pre></div>
 
 <p>The critical facts, in order of how often they're gotten wrong:</p>
 
-<ol><li><b>A JWT is signed, not encrypted.</b> Anyone holding it can read the payload — paste one into any decoder. <b>Never put secrets or sensitive personal data in a JWT.</b></li></ol>
+<ol><li><b>A JWT is signed, not encrypted.</b> Anyone holding it can read the payload — paste one into any decoder. <b>Never put secrets or sensitive personal data in a JWT.</b></li><li><b>The signature proves it wasn't tampered with</b>, which is the actual value: the server can verify it with a key instead of a database lookup.</li><li><b>That statelessness is the whole point and also the whole problem: you cannot easily revoke a JWT.</b> It's valid until it expires. If a token is stolen or a user is banned, they retain access until expiry. The standard mitigation is short-lived access tokens (5–15 minutes) plus a long-lived, *revocable*, database-backed <b>refresh token</b> — and if you find yourself maintaining a token denylist, you've reintroduced the database lookup you were avoiding, which is a legitimate signal that plain sessions might have been the better choice.</li><li><b>Always validate: signature, <code class="inline">exp</code> (expiry), <code class="inline">iss</code> (issuer), and <code class="inline">aud</code> (audience).</b> And pin the expected algorithm — historically, libraries that trusted the token's own <code class="inline">alg</code> header allowed attackers to set <code class="inline">alg: none</code> or downgrade RS256 to HS256 and forge tokens. Trust your configuration, never the token's claim about itself.</li><li><b>Where you store it in a browser is a real trade-off, not a solved problem.</b> <code class="inline">localStorage</code> is readable by any XSS on your page. An <code class="inline">HttpOnly</code> cookie is not readable by JavaScript but is sent automatically, so it needs CSRF protection (<code class="inline">SameSite=Lax</code> or <code class="inline">Strict</code>, plus a token for state-changing requests). The common professional choice is <code class="inline">HttpOnly; Secure; SameSite</code> cookies plus CSRF defence, because XSS is more common than CSRF and cookies at least remove the token-theft path.</li></ol><h3>7.3 Authorization models [RECOGNIZE]</h3>
 
-<ol><li><b>The signature proves it wasn't tampered with</b>, which is the actual value: the server can verify it with a key instead of a database lookup.</li></ol>
-
-<ol><li><b>That statelessness is the whole point and also the whole problem: you cannot easily revoke a JWT.</b> It's valid until it expires. If a token is stolen or a user is banned, they retain access until expiry. The standard mitigation is short-lived access tokens (5–15 minutes) plus a long-lived, *revocable*, database-backed <b>refresh token</b> — and if you find yourself maintaining a token denylist, you've reintroduced the database lookup you were avoiding, which is a legitimate signal that plain sessions might have been the better choice.</li></ol>
-
-<ol><li><b>Always validate: signature, <code class="inline">exp</code> (expiry), <code class="inline">iss</code> (issuer), and <code class="inline">aud</code> (audience).</b> And pin the expected algorithm — historically, libraries that trusted the token's own <code class="inline">alg</code> header allowed attackers to set <code class="inline">alg: none</code> or downgrade RS256 to HS256 and forge tokens. Trust your configuration, never the token's claim about itself.</li></ol>
-
-<ol><li><b>Where you store it in a browser is a real trade-off, not a solved problem.</b> <code class="inline">localStorage</code> is readable by any XSS on your page. An <code class="inline">HttpOnly</code> cookie is not readable by JavaScript but is sent automatically, so it needs CSRF protection (<code class="inline">SameSite=Lax</code> or <code class="inline">Strict</code>, plus a token for state-changing requests). The common professional choice is <code class="inline">HttpOnly; Secure; SameSite</code> cookies plus CSRF defence, because XSS is more common than CSRF and cookies at least remove the token-theft path.</li></ol>
-
-<h2>7.3 Authorization models [RECOGNIZE]</h2>
-
-<ul><li><b>RBAC (role-based):</b> users have roles; roles have permissions. Simple, coarse, sufficient for most applications.</li></ul>
-
-<ul><li><b>ABAC / policy-based:</b> decisions from attributes (owner, department, resource state, time). Flexible, more complex.</li></ul>
-
-<ul><li><b>Scopes:</b> what a *token* is permitted to do (<code class="inline">books:read</code>, <code class="inline">books:write</code>) — this is OAuth's model and is orthogonal to what the *user* is permitted to do. Both checks are needed.</li></ul>
-
-<ul><li><b>Ownership checks:</b> the one people forget. "Is this user allowed to read *this specific* order?" Missing per-object checks is <b>Broken Object Level Authorization</b> — consistently the number one API vulnerability in the OWASP API Security Top 10, and the reason <code class="inline">/orders/1002</code> must not return someone else's order just because you're logged in. Test this explicitly for every endpoint that takes an ID.</li></ul>
-
-<h2>7.4 CORS — the thing that will confuse you at least once [DEEP]</h2>
+<ul><li><b>RBAC (role-based):</b> users have roles; roles have permissions. Simple, coarse, sufficient for most applications.</li><li><b>ABAC / policy-based:</b> decisions from attributes (owner, department, resource state, time). Flexible, more complex.</li><li><b>Scopes:</b> what a *token* is permitted to do (<code class="inline">books:read</code>, <code class="inline">books:write</code>) — this is OAuth's model and is orthogonal to what the *user* is permitted to do. Both checks are needed.</li><li><b>Ownership checks:</b> the one people forget. "Is this user allowed to read *this specific* order?" Missing per-object checks is <b>Broken Object Level Authorization</b> — consistently the number one API vulnerability in the OWASP API Security Top 10, and the reason <code class="inline">/orders/1002</code> must not return someone else's order just because you're logged in. Test this explicitly for every endpoint that takes an ID.</li></ul><h3>7.4 CORS — the thing that will confuse you at least once [DEEP]</h3>
 
 <p>CORS confuses everyone because it protects something other than what people assume.</p>
 
@@ -645,41 +563,31 @@ POST /payments/88/refund</code></pre></div>
 
 <p>Facts that resolve most confusion:</p>
 
-<ul><li><b>CORS is enforced by browsers only.</b> curl, Postman, mobile apps, and your server ignore it entirely. "It works in Postman but not in my app" is the signature CORS symptom.</li></ul>
-
-<ul><li><b>CORS is not a server-side security feature.</b> It does not protect your API — attackers don't use browsers. It protects *users* from cross-origin reads. Your API still needs authentication and authorization.</li></ul>
-
-<ul><li><b>The server grants permission with response headers</b>, not the client:</li></ul>
-
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button class="copybtn">COPY</button></div><pre><code>Access-Control-Allow-Origin: https://myapp.com
+<ul><li><b>CORS is enforced by browsers only.</b> curl, Postman, mobile apps, and your server ignore it entirely. "It works in Postman but not in my app" is the signature CORS symptom.</li><li><b>CORS is not a server-side security feature.</b> It does not protect your API — attackers don't use browsers. It protects *users* from cross-origin reads. Your API still needs authentication and authorization.</li><li><b>The server grants permission with response headers</b>, not the client:</li></ul><div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button type="button" class="copybtn">COPY</button></div><pre><code>Access-Control-Allow-Origin: https://myapp.com
 Access-Control-Allow-Methods: GET, POST, PATCH, DELETE
 Access-Control-Allow-Headers: Authorization, Content-Type
 Access-Control-Allow-Credentials: true
 Access-Control-Max-Age: 600</code></pre></div>
 
-<ul><li><b>Preflight:</b> for anything other than a "simple" request (custom headers, <code class="inline">PUT</code>/<code class="inline">PATCH</code>/<code class="inline">DELETE</code>, JSON content type), the browser first sends an <code class="inline">OPTIONS</code> request asking permission. Your API must handle <code class="inline">OPTIONS</code> and return the headers, or every non-trivial call fails before it's even sent. Seeing an unexplained <code class="inline">OPTIONS</code> in your logs is not an attack; it's this.</li></ul>
-
-<ul><li><code class="inline">Access-Control-Allow-Origin: *</code> <b>cannot be combined with credentials.</b> With <code class="inline">Allow-Credentials: true</code> you must echo a specific origin — and you must validate it against an allowlist, not reflect whatever the client sent, which would defeat the entire mechanism.</li></ul>
-
-<h2>7.5 Exercise</h2>
+<ul><li><b>Preflight:</b> for anything other than a "simple" request (custom headers, <code class="inline">PUT</code>/<code class="inline">PATCH</code>/<code class="inline">DELETE</code>, JSON content type), the browser first sends an <code class="inline">OPTIONS</code> request asking permission. Your API must handle <code class="inline">OPTIONS</code> and return the headers, or every non-trivial call fails before it's even sent. Seeing an unexplained <code class="inline">OPTIONS</code> in your logs is not an attack; it's this.</li><li><code class="inline">Access-Control-Allow-Origin: *</code> <b>cannot be combined with credentials.</b> With <code class="inline">Allow-Credentials: true</code> you must echo a specific origin — and you must validate it against an allowlist, not reflect whatever the client sent, which would defeat the entire mechanism.</li></ul><h3>7.5 Exercise</h3>
 
 <p>Build a two-endpoint API with token auth: one public, one requiring a valid token, and one object that belongs to a specific user. Then verify with curl that: no token gives 401, a valid token for the wrong user gives 403 or 404 (decide which and justify it), a malformed token gives 401 not 500, and an expired token gives 401. Then call it from a browser page on a different port and fix the CORS failure you'll get.</p>
 
-<div class="quiz" data-part="p7"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p7"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p6">&larr; 06 · COLLECTIONS, EVOLUTION, AND VERSIONING</a><a class="next" href="#p8">08 · REAL PROJECT: BUILD ONE API, CONSUME ANOTHER &rarr;</a></div>
 </section>
 
-<section class="part" id="p8">
-  <div class="phead"><div class="pnum">08</div>
-    <div><div class="ptitle">Real Project: Build One API, Consume Another</div>
+<section class="part" id="p8" aria-labelledby="p8-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">08</div>
+    <div><h2 class="ptitle" id="p8-title">Real Project: Build One API, Consume Another</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p8">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p8">MARK COMPLETE</button></div>
   </div>
 
   <p>Two halves, because designing an API and living with someone else's are different skills and each teaches what the other misses.</p>
 
-<h2>8.1 Project A — build a complete API</h2>
+<h3>8.1 Project A — build a complete API</h3>
 
 <p><b>Domain:</b> a bookshelf/reading tracker. Small enough to finish, rich enough to hit every concept.</p>
 
@@ -687,85 +595,33 @@ Access-Control-Max-Age: 600</code></pre></div>
 
 <p>Requirements, each mapping to a part of this curriculum:</p>
 
-<ol><li><b>Full CRUD</b> on books and shelves with correct methods and status codes — including 201 with a <code class="inline">Location</code> header on create and 204 on delete. *(Parts 2, 3)*</li></ol>
+<ol><li><b>Full CRUD</b> on books and shelves with correct methods and status codes — including 201 with a <code class="inline">Location</code> header on create and 204 on delete. *(Parts 2, 3)*</li><li><b>Resource-shaped URLs</b>, no verbs, at most two levels of nesting. *(Part 4)*</li><li><b>One non-CRUD action</b> — "mark book as finished" — implemented using option A, B, or C from 4.2, with a written justification. *(Part 4.2)*</li><li><b>Consistent representations:</b> ISO 8601 UTC timestamps, money or ratings handled safely, one naming convention. *(Part 5.1)*</li><li><b>RFC 9457-style errors</b> with machine-readable codes, multi-field validation reporting, and a request ID. *(Part 5.2)*</li><li><b>Schema validation</b> at the boundary (pydantic or zod), rejecting unknown fields on writes. *(Part 5.3)*</li><li><b>Cursor pagination</b>, plus filtering and sorting, on the books collection, with default and maximum limits. *(Part 6.1–6.2)*</li><li><b>Token authentication</b> with per-object ownership checks — a user must not be able to read another user's shelves. Write a test that proves it. *(Part 7)*</li><li><b>OpenAPI documentation</b>, generated, with a working interactive UI. *(Part 6.4)*</li><li><b>Idempotency key support</b> on the create endpoint, so a retried <code class="inline">POST</code> doesn't duplicate. *(Part 11.2)*</li><li><b><code class="inline">ETag</code> + <code class="inline">If-Match</code></b> on updates so two concurrent editors can't silently overwrite each other. *(Part 11.3)*</li><li><b>Rate limiting</b> with 429 and <code class="inline">Retry-After</code>. *(Part 11.4)*</li><li><b>Structured logging</b> with a correlation ID per request, and a <code class="inline">/health</code> endpoint. *(Part 11.6)*</li></ol><p><b>Definition of done:</b> every endpoint is exercised by a saved curl script or test file; someone else can use the API from the OpenAPI docs alone without asking you a question; and you can explain the status code choice for every response your API can produce.</p>
 
-<ol><li><b>Resource-shaped URLs</b>, no verbs, at most two levels of nesting. *(Part 4)*</li></ol>
-
-<ol><li><b>One non-CRUD action</b> — "mark book as finished" — implemented using option A, B, or C from 4.2, with a written justification. *(Part 4.2)*</li></ol>
-
-<ol><li><b>Consistent representations:</b> ISO 8601 UTC timestamps, money or ratings handled safely, one naming convention. *(Part 5.1)*</li></ol>
-
-<ol><li><b>RFC 9457-style errors</b> with machine-readable codes, multi-field validation reporting, and a request ID. *(Part 5.2)*</li></ol>
-
-<ol><li><b>Schema validation</b> at the boundary (pydantic or zod), rejecting unknown fields on writes. *(Part 5.3)*</li></ol>
-
-<ol><li><b>Cursor pagination</b>, plus filtering and sorting, on the books collection, with default and maximum limits. *(Part 6.1–6.2)*</li></ol>
-
-<ol><li><b>Token authentication</b> with per-object ownership checks — a user must not be able to read another user's shelves. Write a test that proves it. *(Part 7)*</li></ol>
-
-<ol><li><b>OpenAPI documentation</b>, generated, with a working interactive UI. *(Part 6.4)*</li></ol>
-
-<ol><li><b>Idempotency key support</b> on the create endpoint, so a retried <code class="inline">POST</code> doesn't duplicate. *(Part 11.2)*</li></ol>
-
-<ol><li><b><code class="inline">ETag</code> + <code class="inline">If-Match</code></b> on updates so two concurrent editors can't silently overwrite each other. *(Part 11.3)*</li></ol>
-
-<ol><li><b>Rate limiting</b> with 429 and <code class="inline">Retry-After</code>. *(Part 11.4)*</li></ol>
-
-<ol><li><b>Structured logging</b> with a correlation ID per request, and a <code class="inline">/health</code> endpoint. *(Part 11.6)*</li></ol>
-
-<p><b>Definition of done:</b> every endpoint is exercised by a saved curl script or test file; someone else can use the API from the OpenAPI docs alone without asking you a question; and you can explain the status code choice for every response your API can produce.</p>
-
-<h2>8.2 Project B — consume a real third-party API robustly</h2>
+<h3>8.2 Project B — consume a real third-party API robustly</h3>
 
 <p>Pick a public API with authentication and rate limits (GitHub, Stripe test mode, TMDB, OpenWeather). Write a client that does all of the following, because this is what production API consumption actually requires:</p>
 
-<ol><li>Reads credentials from environment variables, never hard-coded.</li></ol>
+<ol><li>Reads credentials from environment variables, never hard-coded.</li><li>Sets an explicit <b>timeout</b> on every request. (A missing timeout is the single most common production hang: a request with no timeout can wait forever.)</li><li><b>Retries with exponential backoff and jitter</b> — but only on 5xx, 429, and network errors. Never on 4xx, because a bad request will still be bad on the fourth attempt.</li><li>Honours <code class="inline">Retry-After</code> when present.</li><li><b>Paginates</b> through a large collection using the API's own scheme, handling the last page correctly.</li><li>Distinguishes and handles: network failure, timeout, 401 (bad credentials — stop and report), 403 (permission — stop), 404 (missing — may be fine), 429 (back off), and 5xx (retry).</li><li>Caches responses where the API's <code class="inline">Cache-Control</code>/<code class="inline">ETag</code> headers permit it, using conditional requests to avoid re-downloading unchanged data.</li><li>Logs each request's method, URL, status, and duration — without logging the token.</li></ol><p><b>Definition of done:</b> unplug your network mid-run and the client fails with a clear message rather than a stack trace; deliberately use a bad token and get a comprehensible error; and run it against a large collection to confirm pagination terminates.</p>
 
-<ol><li>Sets an explicit <b>timeout</b> on every request. (A missing timeout is the single most common production hang: a request with no timeout can wait forever.)</li></ol>
-
-<ol><li><b>Retries with exponential backoff and jitter</b> — but only on 5xx, 429, and network errors. Never on 4xx, because a bad request will still be bad on the fourth attempt.</li></ol>
-
-<ol><li>Honours <code class="inline">Retry-After</code> when present.</li></ol>
-
-<ol><li><b>Paginates</b> through a large collection using the API's own scheme, handling the last page correctly.</li></ol>
-
-<ol><li>Distinguishes and handles: network failure, timeout, 401 (bad credentials — stop and report), 403 (permission — stop), 404 (missing — may be fine), 429 (back off), and 5xx (retry).</li></ol>
-
-<ol><li>Caches responses where the API's <code class="inline">Cache-Control</code>/<code class="inline">ETag</code> headers permit it, using conditional requests to avoid re-downloading unchanged data.</li></ol>
-
-<ol><li>Logs each request's method, URL, status, and duration — without logging the token.</li></ol>
-
-<p><b>Definition of done:</b> unplug your network mid-run and the client fails with a clear message rather than a stack trace; deliberately use a bad token and get a comprehensible error; and run it against a large collection to confirm pagination terminates.</p>
-
-<div class="quiz" data-part="p8"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p8"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p7">&larr; 07 · AUTHENTICATION, AUTHORIZATION, AND CORS</a><a class="next" href="#p9">09 · DEBUGGING AND TESTING PLAYBOOK &rarr;</a></div>
 </section>
 
-<section class="part" id="p9">
-  <div class="phead"><div class="pnum">09</div>
-    <div><div class="ptitle">Debugging and Testing Playbook</div>
+<section class="part" id="p9" aria-labelledby="p9-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">09</div>
+    <div><h2 class="ptitle" id="p9-title">Debugging and Testing Playbook</h2>
     <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p9">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p9">MARK COMPLETE</button></div>
   </div>
 
-  <h2>9.1 The debugging decision tree</h2>
+  <h3>9.1 The debugging decision tree</h3>
 
 <p>Always establish <b>where</b> the failure is before guessing why. Work outward from the simplest thing that could be true.</p>
 
 <p><b>The request never gets a response (hangs or connection error).</b></p>
 
-<ol><li>Is the server running and listening on the port you think? (<code class="inline">curl localhost:8000/health</code>)</li></ol>
-
-<ol><li>DNS resolving? (<code class="inline">nslookup</code>/<code class="inline">dig</code>) Right host, right port, right scheme (<code class="inline">http</code> vs <code class="inline">https</code>)?</li></ol>
-
-<ol><li>Firewall, security group, or container port mapping blocking it?</li></ol>
-
-<ol><li>Is the server bound to <code class="inline">127.0.0.1</code> instead of <code class="inline">0.0.0.0</code>? (Inside a container, <code class="inline">localhost</code> means the container — the same trap as in the Docker curriculum.)</li></ol>
-
-<ol><li>Did you set a timeout? If not, you're not hanging — you're waiting forever.</li></ol>
-
-<p><b>4xx you don't expect.</b></p>
+<ol><li>Is the server running and listening on the port you think? (<code class="inline">curl localhost:8000/health</code>)</li><li>DNS resolving? (<code class="inline">nslookup</code>/<code class="inline">dig</code>) Right host, right port, right scheme (<code class="inline">http</code> vs <code class="inline">https</code>)?</li><li>Firewall, security group, or container port mapping blocking it?</li><li>Is the server bound to <code class="inline">127.0.0.1</code> instead of <code class="inline">0.0.0.0</code>? (Inside a container, <code class="inline">localhost</code> means the container — the same trap as in the Docker curriculum.)</li><li>Did you set a timeout? If not, you're not hanging — you're waiting forever.</li></ol><p><b>4xx you don't expect.</b></p>
 
 <div class="tblwrap"><table><thead><tr><th>Code</th><th>Check first</th></tr></thead><tbody><tr><td>400</td><td>Is the JSON actually valid? Print the exact bytes you're sending</td></tr><tr><td>401</td><td>Is the header spelled <code class="inline">Authorization: Bearer &lt;token&gt;</code> with the space? Token expired? Correct environment (test vs live keys)?</td></tr><tr><td>403</td><td>Authenticated but lacking permission or scope — or an ownership check failing</td></tr><tr><td>404</td><td>Typo in the path, missing <code class="inline">/v1</code>, wrong ID, trailing slash mismatch, or the object belongs to someone else and is being hidden deliberately</td></tr><tr><td>405</td><td>Right URL, wrong method. Check the <code class="inline">Allow</code> header in the response</td></tr><tr><td>415</td><td>Missing or wrong <code class="inline">Content-Type</code> — the most common cause of a "my POST doesn't work" report</td></tr><tr><td>422</td><td>Read the error body; it should tell you exactly which fields failed</td></tr><tr><td>429</td><td>You're rate limited. Read <code class="inline">Retry-After</code> and back off</td></tr></tbody></table></div>
 
@@ -777,87 +633,69 @@ Access-Control-Max-Age: 600</code></pre></div>
 
 <p><b>Intermittent failures.</b> These are the hard ones, and the causes are a short list: a timeout near the boundary of a slow dependency; only one instance in a pool misconfigured; a race condition; rate limiting kicking in under load; connection pool exhaustion; or a cache serving stale data. Correlation IDs and per-request latency logs are what make these findable — which is why Part 11.6 isn't optional.</p>
 
-<h2>9.2 The tools</h2>
+<h3>9.2 The tools</h3>
 
 <p><code class="inline">curl -v</code> (ground truth for what's on the wire), the browser <b>Network tab</b> (with "Copy as cURL" to reproduce a browser request in a terminal — an underrated trick), a GUI client for saved collections, <b><code class="inline">jq</code></b> for slicing JSON on the command line, and an HTTP-aware proxy (mitmproxy, Charles) when you need to see traffic from a client you don't control.</p>
 
-<h2>9.3 Testing an API [DEEP as a hierarchy]</h2>
+<h3>9.3 Testing an API [DEEP as a hierarchy]</h3>
 
 <div class="tblwrap"><table><thead><tr><th>Level</th><th>Tests</th><th>Value</th></tr></thead><tbody><tr><td><b>Unit</b></td><td>Business logic and validation, with no HTTP involved</td><td>Fast, plentiful, cheap</td></tr><tr><td><b>Integration / API</b></td><td>Real HTTP requests against the running app with a test database, asserting status codes, bodies, and headers</td><td><b>The highest-value tests for an API.</b> This is where contract mistakes surface</td></tr><tr><td><b>Contract</b></td><td>The implementation matches the OpenAPI spec, in both directions</td><td>Prevents silent drift between docs and reality</td></tr><tr><td><b>End-to-end</b></td><td>A few critical flows across services</td><td>Slow and brittle; keep the set small</td></tr><tr><td><b>Load</b></td><td>Behaviour under concurrency and at rate limits</td><td>Reveals timeouts, pool exhaustion, and N+1 queries</td></tr><tr><td><b>Security</b></td><td>Authentication bypass, object-level authorization, injection, mass assignment</td><td>The tests people skip, and the ones that matter most</td></tr></tbody></table></div>
 
 <p>The specific tests almost everyone omits, and should not: <b>calling every endpoint with another user's object ID</b> (broken object level authorization), calling with no token, with a malformed token, and with an expired token, and sending an unexpected extra field to see whether it's silently accepted (mass assignment — can a client set <code class="inline">"role": "admin"</code> on itself?).</p>
 
-<div class="quiz" data-part="p9"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p9"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p8">&larr; 08 · REAL PROJECT: BUILD ONE API, CONSUME ANOTHER</a><a class="next" href="#p10">10 · INTERNALS: WHAT ACTUALLY HAPPENS ON THE WIRE &rarr;</a></div>
 </section>
 
-<section class="part" id="p10">
-  <div class="phead"><div class="pnum">10</div>
-    <div><div class="ptitle">Internals: What Actually Happens on the Wire</div>
+<section class="part" id="p10" aria-labelledby="p10-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">10</div>
+    <div><h2 class="ptitle" id="p10-title">Internals: What Actually Happens on the Wire</h2>
     <div class="pmeta"><span class="m">TAG <b>ADVANCED</b></span><span class="m">★ <b>INTERVIEW GOLD</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p10">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p10">MARK COMPLETE</button></div>
   </div>
 
   <p>Return here after Part 8. This upgrades Part 3's model to mechanism.</p>
 
-<h2>10.1 The full journey of one API call</h2>
+<h3>10.1 The full journey of one API call</h3>
 
 <p><code class="inline">GET https://api.example.com/v1/books/42</code>:</p>
 
-<ol><li><b>DNS resolution.</b> <code class="inline">api.example.com</code> → an IP address, via a cascade of caches (browser/OS/resolver) up to the authoritative nameserver. Cached per its TTL, so a stale DNS cache is a real failure mode after an IP change.</li></ol>
+<ol><li><b>DNS resolution.</b> <code class="inline">api.example.com</code> → an IP address, via a cascade of caches (browser/OS/resolver) up to the authoritative nameserver. Cached per its TTL, so a stale DNS cache is a real failure mode after an IP change.</li><li><b>TCP connection.</b> A three-way handshake (SYN, SYN-ACK, ACK) — one full round trip before any data moves.</li><li><b>TLS handshake.</b> Certificate exchange and key agreement — another 1–2 round trips (one in TLS 1.3). This is why <code class="inline">https</code> has a fixed startup cost and why <b>connection reuse matters so much</b>: creating a new connection per request can easily triple your latency.</li><li><b>The HTTP request</b> is serialized and sent — exactly the text from Part 3.1.</li><li><b>Intermediaries</b> may handle it before the origin ever sees it: a CDN edge (which may serve it from cache and stop here), a load balancer choosing a backend, an API gateway doing auth and rate limiting, a reverse proxy terminating TLS. This is REST's *layered system* constraint in action — and each hop can add its own timeout, header rewriting, and failure mode, which is why "works locally, fails deployed" is so common.</li><li><b>The application</b> routes the path to a handler, authenticates, authorizes, validates, queries the database, serializes a response.</li><li><b>The response</b> travels back, possibly compressed (<code class="inline">Content-Encoding: gzip</code>) and possibly cached at each layer according to its <code class="inline">Cache-Control</code>.</li><li><b>The connection is kept alive</b> for reuse rather than closed (default since HTTP/1.1).</li></ol><p>Every one of those steps is a place latency and failure can originate. Knowing the list is what lets you answer "why is this endpoint slow?" with measurement instead of guesswork — and the answer is frequently DNS, TLS, or a proxy timeout rather than your code.</p>
 
-<ol><li><b>TCP connection.</b> A three-way handshake (SYN, SYN-ACK, ACK) — one full round trip before any data moves.</li></ol>
-
-<ol><li><b>TLS handshake.</b> Certificate exchange and key agreement — another 1–2 round trips (one in TLS 1.3). This is why <code class="inline">https</code> has a fixed startup cost and why <b>connection reuse matters so much</b>: creating a new connection per request can easily triple your latency.</li></ol>
-
-<ol><li><b>The HTTP request</b> is serialized and sent — exactly the text from Part 3.1.</li></ol>
-
-<ol><li><b>Intermediaries</b> may handle it before the origin ever sees it: a CDN edge (which may serve it from cache and stop here), a load balancer choosing a backend, an API gateway doing auth and rate limiting, a reverse proxy terminating TLS. This is REST's *layered system* constraint in action — and each hop can add its own timeout, header rewriting, and failure mode, which is why "works locally, fails deployed" is so common.</li></ol>
-
-<ol><li><b>The application</b> routes the path to a handler, authenticates, authorizes, validates, queries the database, serializes a response.</li></ol>
-
-<ol><li><b>The response</b> travels back, possibly compressed (<code class="inline">Content-Encoding: gzip</code>) and possibly cached at each layer according to its <code class="inline">Cache-Control</code>.</li></ol>
-
-<ol><li><b>The connection is kept alive</b> for reuse rather than closed (default since HTTP/1.1).</li></ol>
-
-<p>Every one of those steps is a place latency and failure can originate. Knowing the list is what lets you answer "why is this endpoint slow?" with measurement instead of guesswork — and the answer is frequently DNS, TLS, or a proxy timeout rather than your code.</p>
-
-<h2>10.2 HTTP versions and why they changed [DEEP for interviews]</h2>
+<h3>10.2 HTTP versions and why they changed [DEEP for interviews]</h3>
 
 <div class="tblwrap"><table><thead><tr><th>Version</th><th>Transport</th><th>Key change</th><th>What it fixed</th></tr></thead><tbody><tr><td><b>HTTP/1.0</b></td><td>TCP, one request per connection</td><td>—</td><td>Every request paid a full handshake</td></tr><tr><td><b>HTTP/1.1</b> (1997)</td><td>TCP, persistent connections</td><td>Keep-alive, chunked transfer, <code class="inline">Host</code> header (enabling virtual hosting), caching headers</td><td>Connection reuse. But <b>head-of-line blocking</b>: responses must come back in order on a connection, so one slow response stalls those behind it. Browsers worked around this with ~6 parallel connections per host — which is why "bundle your files" and "domain sharding" were performance advice</td></tr><tr><td><b>HTTP/2</b> (2015)</td><td>TCP, binary framing</td><td><b>Multiplexing</b> many concurrent streams over one connection, header compression (HPACK), server push (now largely abandoned)</td><td>Application-level head-of-line blocking. But <b>TCP-level</b> blocking remains: one lost packet stalls every stream, since TCP guarantees ordered delivery</td></tr><tr><td><b>HTTP/3</b> (2022)</td><td><b>QUIC over UDP</b></td><td>Streams are independent at the transport level; faster handshake (TLS built in); connection migration across networks</td><td>TCP head-of-line blocking, and mobile network switching</td></tr></tbody></table></div>
 
 <p>The through-line: each version attacked the round-trip and blocking costs of the previous one. Practical consequence for you: many old performance practices (bundling everything into one file, sharding across domains) are counterproductive on HTTP/2 and HTTP/3. And <b>connection reuse remains the biggest single client-side win</b> — use a persistent HTTP client (a <code class="inline">requests.Session</code>, a shared <code class="inline">httpx.Client</code>, a keep-alive agent) rather than creating a new connection per call. This is a very common and very cheap production fix.</p>
 
-<h2>10.3 Where the time actually goes [DEEP as a diagnostic habit]</h2>
+<h3>10.3 Where the time actually goes [DEEP as a diagnostic habit]</h3>
 
 <p>For a typical API call, latency decomposes roughly into: DNS + TCP + TLS (fixed startup cost, avoidable through reuse), network transit (bounded by geography and the speed of light — roughly 30ms round trip within a continent, 200ms+ across the world), server processing, and response transfer.</p>
 
 <p>Two consequences that shape design far more than code optimization:</p>
 
-<ul><li><b>Round trips dominate.</b> One request returning 100 items beats 100 requests returning one item, almost regardless of payload size. This is precisely the over-fetching/under-fetching pressure that produced GraphQL (Part 12).</li></ul>
+<ul><li><b>Round trips dominate.</b> One request returning 100 items beats 100 requests returning one item, almost regardless of payload size. This is precisely the over-fetching/under-fetching pressure that produced GraphQL (Part 12).</li><li><b>Geography is physics.</b> You cannot optimize your way past a 200ms round trip; you can only avoid making the round trip, which is what caching and CDNs do. This is why REST's cacheability constraint is described as the biggest reason the web scales.</li></ul>
 
-<ul><li><b>Geography is physics.</b> You cannot optimize your way past a 200ms round trip; you can only avoid making the round trip, which is what caching and CDNs do. This is why REST's cacheability constraint is described as the biggest reason the web scales.</li></ul>
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">simulator — click RUN</span></div><pre id="simOut" aria-live="polite"></pre><div class="stack-controls" style="margin:0;padding:10px 16px;border-top:1px solid var(--line)"><button type="button" class="btn sm" id="simRun">&#9654; RUN</button><button type="button" class="btn sm ok" id="simReset">RESET</button></div></div>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">simulator — click RUN</span></div><pre id="simOut"><span cl/></pre><div class="stack-controls" style="margin:0;padding:10px 16px;border-top:1px solid var(--line)"><button class="btn sm" id="simRun">&#9654; RUN</button><button class="btn sm ok" id="simReset">RESET</button></div></div>
-
-<div class="quiz" data-part="p10"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p10"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p9">&larr; 09 · DEBUGGING AND TESTING PLAYBOOK</a><a class="next" href="#p11">11 · PRODUCTION: CACHING, IDEMPOTENCY, RATE LIMITS, SECURITY, OBSERVABILITY &rarr;</a></div>
 </section>
 
-<section class="part" id="p11">
-  <div class="phead"><div class="pnum">11</div>
-    <div><div class="ptitle">Production: Caching, Idempotency, Rate Limits, Security, Observability</div>
+<section class="part" id="p11" aria-labelledby="p11-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">11</div>
+    <div><h2 class="ptitle" id="p11-title">Production: Caching, Idempotency, Rate Limits, Security, Observability</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p11">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p11">MARK COMPLETE</button></div>
   </div>
 
-  <h2>11.1 Caching [DEEP — the highest-leverage thing most APIs ignore]</h2>
+  <h3>11.1 Caching [DEEP — the highest-leverage thing most APIs ignore]</h3>
 
 <p>A cache hit is infinitely faster than any optimization, because the request doesn't happen.</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button class="copybtn">COPY</button></div><pre><code>Cache-Control: public, max-age=300           # anyone may cache for 5 minutes
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button type="button" class="copybtn">COPY</button></div><pre><code>Cache-Control: public, max-age=300           # anyone may cache for 5 minutes
 Cache-Control: private, max-age=60           # only the client, not shared proxies
 Cache-Control: no-store                      # never cache (auth responses, personal data)
 Cache-Control: no-cache                      # cache, but always revalidate before use
@@ -865,18 +703,18 @@ ETag: "a3f9c2"                               # opaque version of this representa
 
 <p><b>Conditional requests</b> are the mechanism that saves bandwidth without risking staleness:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button class="copybtn">COPY</button></div><pre><code>GET /books/42
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button type="button" class="copybtn">COPY</button></div><pre><code>GET /books/42
 If-None-Match: "a3f9c2"
 
 HTTP/1.1 304 Not Modified          ← no body at all; the client reuses what it has</code></pre></div>
 
 <p>Getting this right requires deciding, per endpoint: is this response public or per-user (<code class="inline">private</code> vs <code class="inline">public</code> — getting this wrong can leak one user's data to another via a shared cache, a serious bug), how stale may it be, and can I generate a cheap <code class="inline">ETag</code>? Anything authenticated should be <code class="inline">private</code> at minimum, and anything sensitive <code class="inline">no-store</code>.</p>
 
-<h2>11.2 Idempotency keys [DEEP — directly from Idea 2]</h2>
+<h3>11.2 Idempotency keys [DEEP — directly from Idea 2]</h3>
 
 <p><code class="inline">POST</code> isn't idempotent, but retries are unavoidable. The standard solution, popularized by Stripe:</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button class="copybtn">COPY</button></div><pre><code>POST /payments
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button type="button" class="copybtn">COPY</button></div><pre><code>POST /payments
 Idempotency-Key: 7f3c9a12-4b8e-4d21-9f77-2c1e5a9b8d34
 
 {"amount": 1299, "currency": "INR"}</code></pre></div>
@@ -885,11 +723,11 @@ Idempotency-Key: 7f3c9a12-4b8e-4d21-9f77-2c1e5a9b8d34
 
 <p>Use this on any create-or-charge operation where duplication is harmful. This one mechanism is the difference between an API that's safe to retry and one that double-charges customers.</p>
 
-<h2>11.3 Optimistic concurrency [DEEP]</h2>
+<h3>11.3 Optimistic concurrency [DEEP]</h3>
 
 <p>Two users load the same record and both save. Without protection, the second silently overwrites the first — the lost update problem, the same one covered in the SQL curriculum's isolation section, appearing here at the API layer.</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button class="copybtn">COPY</button></div><pre><code>GET /books/42          →  ETag: "v7"
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button type="button" class="copybtn">COPY</button></div><pre><code>GET /books/42          →  ETag: "v7"
 PATCH /books/42
 If-Match: "v7"                             # "only if it's still version 7"
 
@@ -897,11 +735,11 @@ HTTP/1.1 412 Precondition Failed           # someone else changed it; re-fetch a
 
 <p>This is a small amount of work that converts silent data loss into an explicit, handleable conflict.</p>
 
-<h2>11.4 Rate limiting [RECOGNIZE]</h2>
+<h3>11.4 Rate limiting [RECOGNIZE]</h3>
 
 <p>Protects you from abuse, accidental loops, and one noisy client degrading everyone else.</p>
 
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button class="copybtn">COPY</button></div><pre><code>HTTP/1.1 429 Too Many Requests
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">http</span><button type="button" class="copybtn">COPY</button></div><pre><code>HTTP/1.1 429 Too Many Requests
 Retry-After: 30
 RateLimit-Limit: 1000
 RateLimit-Remaining: 0
@@ -909,34 +747,26 @@ RateLimit-Reset: 1754902800</code></pre></div>
 
 <p>Algorithms in increasing sophistication: fixed window (simple, allows bursts at boundaries), sliding window, <b>token bucket</b> (the usual choice — allows controlled bursts while limiting the sustained rate), leaky bucket. Limit per API key or user, not per IP where possible (shared NATs mean per-IP limits punish innocent users). Always return the headers so well-behaved clients can self-regulate rather than guess.</p>
 
-<h2>11.5 Security checklist [DEEP — mapped to the OWASP API Security Top 10]</h2>
+<h3>11.5 Security checklist [DEEP — mapped to the OWASP API Security Top 10]</h3>
 
 <div class="tblwrap"><table><thead><tr><th>Risk</th><th>Concretely</th><th>Defence</th></tr></thead><tbody><tr><td><b>Broken object level authorization</b></td><td><code class="inline">/orders/1002</code> returns someone else's order</td><td>Check ownership on <b>every</b> object access. Test it explicitly</td></tr><tr><td><b>Broken authentication</b></td><td>Weak or unvalidated tokens; <code class="inline">alg: none</code> accepted</td><td>Validate signature, expiry, issuer, audience; pin the algorithm</td></tr><tr><td><b>Excessive data exposure</b></td><td>Returning the whole user row including <code class="inline">password_hash</code>, internal flags, or another user's email</td><td>Define explicit response schemas — never serialize your database model directly</td></tr><tr><td><b>Mass assignment</b></td><td>Client sends <code class="inline">{"role": "admin"}</code> and your ORM accepts it</td><td>Allowlist writable fields per endpoint. Never bind request bodies straight to models</td></tr><tr><td><b>Injection</b></td><td>SQL, NoSQL, command, or template injection through parameters</td><td>Parameterized queries always; validate and never interpolate input into any interpreter</td></tr><tr><td><b>Lack of rate limiting</b></td><td>Credential stuffing, scraping, cost-inflation on paid downstreams</td><td>Rate limit, and add stricter limits on auth endpoints</td></tr><tr><td><b>Missing transport security</b></td><td>Tokens over plain HTTP</td><td>HTTPS only; HSTS; redirect http→https</td></tr><tr><td><b>Improper inventory</b></td><td>Forgotten <code class="inline">/v1</code> still running unpatched, or a staging API exposed</td><td>Inventory every deployed API and version; retire deliberately</td></tr><tr><td><b>Secrets in logs or URLs</b></td><td>Tokens in query strings, request bodies logged verbatim</td><td>Never secrets in URLs; redact known-sensitive fields in logs</td></tr><tr><td><b>SSRF</b></td><td>Your API fetches a URL the client supplied, reaching internal services</td><td>Validate and allowlist outbound URLs; block link-local and private ranges</td></tr></tbody></table></div>
 
-<h2>11.6 Observability [DEEP as a practice]</h2>
+<h3>11.6 Observability [DEEP as a practice]</h3>
 
 <p>You cannot operate what you can't see. The minimum viable set:</p>
 
-<ul><li><b>Structured logs</b> (JSON) with a <b>correlation/request ID</b> on every line, propagated to downstream calls via a header. This is what makes a user's bug report traceable in seconds.</li></ul>
+<ul><li><b>Structured logs</b> (JSON) with a <b>correlation/request ID</b> on every line, propagated to downstream calls via a header. This is what makes a user's bug report traceable in seconds.</li><li><b>Metrics per endpoint:</b> request rate, error rate by status class, and latency as <b>percentiles</b> (p50, p95, p99 — never averages, which hide the tail where users actually suffer).</li><li><b>Health endpoints:</b> a shallow <code class="inline">/health</code> for load balancer liveness, and optionally a deeper readiness check that verifies dependencies.</li><li><b>Distributed tracing</b> for multi-service calls, so you can see which hop consumed the time. [ADVANCED]</li><li><b>Never log</b> tokens, passwords, card numbers, or personal data. Redact at the logging layer, because someone will eventually log a whole request body.</li></ul>
 
-<ul><li><b>Metrics per endpoint:</b> request rate, error rate by status class, and latency as <b>percentiles</b> (p50, p95, p99 — never averages, which hide the tail where users actually suffer).</li></ul>
-
-<ul><li><b>Health endpoints:</b> a shallow <code class="inline">/health</code> for load balancer liveness, and optionally a deeper readiness check that verifies dependencies.</li></ul>
-
-<ul><li><b>Distributed tracing</b> for multi-service calls, so you can see which hop consumed the time. [ADVANCED]</li></ul>
-
-<ul><li><b>Never log</b> tokens, passwords, card numbers, or personal data. Redact at the logging layer, because someone will eventually log a whole request body.</li></ul>
-
-<div class="quiz" data-part="p11"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p11"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p10">&larr; 10 · INTERNALS: WHAT ACTUALLY HAPPENS ON THE WIRE</a><a class="next" href="#p12">12 · WHEN REST IS AND ISN'T THE RIGHT CHOICE &rarr;</a></div>
 </section>
 
-<section class="part" id="p12">
-  <div class="phead"><div class="pnum">12</div>
-    <div><div class="ptitle">When REST Is and Isn't the Right Choice</div>
+<section class="part" id="p12" aria-labelledby="p12-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">12</div>
+    <div><h2 class="ptitle" id="p12-title">When REST Is and Isn't the Right Choice</h2>
     <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p12">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p12">MARK COMPLETE</button></div>
   </div>
 
   <p>Being able to argue against your default is a mark of real understanding.</p>
@@ -951,83 +781,27 @@ RateLimit-Reset: 1754902800</code></pre></div>
 
 <p>A pragmatic industry pattern worth knowing: <b>REST at the public edge, gRPC or events internally.</b> You get evolvability and ecosystem support where you don't control clients, and efficiency where you do.</p>
 
-<div class="quiz" data-part="p12"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p12"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
   <div class="breadcrumb"><a href="#p11">&larr; 11 · PRODUCTION: CACHING, IDEMPOTENCY, RATE LIMITS, SECURITY, OBSERVABILITY</a><a class="next" href="#p13">13 · INTERVIEW PREPARATION &rarr;</a></div>
 </section>
 
-<section class="part" id="p13">
-  <div class="phead"><div class="pnum">13</div>
-    <div><div class="ptitle">Interview Preparation</div>
+<section class="part" id="p13" aria-labelledby="p13-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">13</div>
+    <div><h2 class="ptitle" id="p13-title">Interview Preparation</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p13">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p13">MARK COMPLETE</button></div>
   </div>
 
   <p><b>Tier 1 — expected of everyone:</b></p>
 
-<ol><li>What is REST? (Part 1 — "an architectural style with constraints," not "an API that returns JSON")</li></ol>
+<ol><li>What is REST? (Part 1 — "an architectural style with constraints," not "an API that returns JSON")</li><li>Name the main HTTP methods and what each is for. (Idea 2)</li><li><code class="inline">PUT</code> vs <code class="inline">PATCH</code> vs <code class="inline">POST</code>. (Idea 2)</li><li>What do the status code families mean, and why does 4xx vs 5xx matter operationally? (Idea 4)</li><li>401 vs 403. (Idea 4)</li><li>What makes an API stateless, and why does anyone care? (Idea 3)</li><li>How would you design URLs for a blog with posts and comments? (Part 4)</li><li>What's the difference between authentication and authorization? (Part 7)</li><li>Where do query parameters belong versus path segments? (Part 3.4)</li></ol><p><b>Tier 2 — differentiators:</b></p>
 
-<ol><li>Name the main HTTP methods and what each is for. (Idea 2)</li></ol>
+<ol><li>What does idempotent mean, which methods are, and why does it matter for retries? (Idea 2)</li><li>A client times out on a <code class="inline">POST</code> and doesn't know if it succeeded. What now? (Parts 2, 11.2)</li><li>How do you paginate a large collection, and what's wrong with <code class="inline">OFFSET</code>? (Part 6.1)</li><li>How do you version an API, and what would make you avoid needing to? (Idea 5, Part 6.3)</li><li>Which changes to an API are backward compatible and which aren't? (Idea 5)</li><li>Explain CORS. Who enforces it, and what does it actually protect? (Part 7.4)</li><li>What is a JWT, what's inside it, and what's its biggest weakness? (Part 7.2)</li><li>How do you design good error responses? (Part 5.2)</li><li>How does HTTP caching work with <code class="inline">ETag</code> and <code class="inline">Cache-Control</code>? (Part 11.1)</li><li>How would you handle two users editing the same resource simultaneously? (Part 11.3)</li><li>How do you rate limit, and what do you return? (Part 11.4)</li></ol><p><b>Tier 3 — senior signal:</b></p>
 
-<ol><li><code class="inline">PUT</code> vs <code class="inline">PATCH</code> vs <code class="inline">POST</code>. (Idea 2)</li></ol>
+<ol><li>Walk me through everything that happens when a client calls your API endpoint. (Part 10.1)</li><li>What changed in HTTP/2 and HTTP/3, and what problem did each solve? (Part 10.2)</li><li>Name Fielding's REST constraints and what each one buys you. (Part 1)</li><li>Are most "REST APIs" actually RESTful? Defend your answer. (Part 1 — HATEOAS)</li><li>What is broken object level authorization and how do you prevent it? (Part 7.3, 11.5)</li><li>When would you choose GraphQL or gRPC over REST, and what do you give up? (Part 12)</li><li>How do you make a client resilient to an unreliable API? (Part 8.2 — timeouts, backoff with jitter, retry only on retryable errors)</li><li>How would you debug an API that's slow only for some users, only sometimes? (Parts 9.1, 10.3, 11.6)</li></ol><p>Answer shape that reads senior: <b>what it is → why it exists → one concrete consequence.</b></p>
 
-<ol><li>What do the status code families mean, and why does 4xx vs 5xx matter operationally? (Idea 4)</li></ol>
-
-<ol><li>401 vs 403. (Idea 4)</li></ol>
-
-<ol><li>What makes an API stateless, and why does anyone care? (Idea 3)</li></ol>
-
-<ol><li>How would you design URLs for a blog with posts and comments? (Part 4)</li></ol>
-
-<ol><li>What's the difference between authentication and authorization? (Part 7)</li></ol>
-
-<ol><li>Where do query parameters belong versus path segments? (Part 3.4)</li></ol>
-
-<p><b>Tier 2 — differentiators:</b></p>
-
-<ol><li>What does idempotent mean, which methods are, and why does it matter for retries? (Idea 2)</li></ol>
-
-<ol><li>A client times out on a <code class="inline">POST</code> and doesn't know if it succeeded. What now? (Parts 2, 11.2)</li></ol>
-
-<ol><li>How do you paginate a large collection, and what's wrong with <code class="inline">OFFSET</code>? (Part 6.1)</li></ol>
-
-<ol><li>How do you version an API, and what would make you avoid needing to? (Idea 5, Part 6.3)</li></ol>
-
-<ol><li>Which changes to an API are backward compatible and which aren't? (Idea 5)</li></ol>
-
-<ol><li>Explain CORS. Who enforces it, and what does it actually protect? (Part 7.4)</li></ol>
-
-<ol><li>What is a JWT, what's inside it, and what's its biggest weakness? (Part 7.2)</li></ol>
-
-<ol><li>How do you design good error responses? (Part 5.2)</li></ol>
-
-<ol><li>How does HTTP caching work with <code class="inline">ETag</code> and <code class="inline">Cache-Control</code>? (Part 11.1)</li></ol>
-
-<ol><li>How would you handle two users editing the same resource simultaneously? (Part 11.3)</li></ol>
-
-<ol><li>How do you rate limit, and what do you return? (Part 11.4)</li></ol>
-
-<p><b>Tier 3 — senior signal:</b></p>
-
-<ol><li>Walk me through everything that happens when a client calls your API endpoint. (Part 10.1)</li></ol>
-
-<ol><li>What changed in HTTP/2 and HTTP/3, and what problem did each solve? (Part 10.2)</li></ol>
-
-<ol><li>Name Fielding's REST constraints and what each one buys you. (Part 1)</li></ol>
-
-<ol><li>Are most "REST APIs" actually RESTful? Defend your answer. (Part 1 — HATEOAS)</li></ol>
-
-<ol><li>What is broken object level authorization and how do you prevent it? (Part 7.3, 11.5)</li></ol>
-
-<ol><li>When would you choose GraphQL or gRPC over REST, and what do you give up? (Part 12)</li></ol>
-
-<ol><li>How do you make a client resilient to an unreliable API? (Part 8.2 — timeouts, backoff with jitter, retry only on retryable errors)</li></ol>
-
-<ol><li>How would you debug an API that's slow only for some users, only sometimes? (Parts 9.1, 10.3, 11.6)</li></ol>
-
-<p>Answer shape that reads senior: <b>what it is → why it exists → one concrete consequence.</b></p>
-
-<div class="quiz" data-part="p13"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p13"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
 <p>If you can deliver these aloud — with the WHAT → WHY IT EXISTS → ONE CONCRETE CONSEQUENCE shape — you are interview-ready. Answer before flipping; nailed cards dim.</p>
 <div class="deck" id="deck"><!-- cards injected by JS --></div>
@@ -1035,11 +809,11 @@ RateLimit-Reset: 1754902800</code></pre></div>
   <div class="breadcrumb"><a href="#p12">&larr; 12 · WHEN REST IS AND ISN'T THE RIGHT CHOICE</a><a class="next" href="#p14">14 · MILESTONES AND SELF-ASSESSMENT &rarr;</a></div>
 </section>
 
-<section class="part" id="p14">
-  <div class="phead"><div class="pnum">14</div>
-    <div><div class="ptitle">Milestones and Self-Assessment</div>
+<section class="part" id="p14" aria-labelledby="p14-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">14</div>
+    <div><h2 class="ptitle" id="p14-title">Milestones and Self-Assessment</h2>
     <div class="pmeta"></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p14">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p14">MARK COMPLETE</button></div>
   </div>
 
   <p><b>Milestone 1 — Model (Parts 1–2).</b> Pass: the five checkpoint questions in Part 2, unaided; name Fielding's constraints and what statelessness buys.</p>
@@ -1058,7 +832,7 @@ RateLimit-Reset: 1754902800</code></pre></div>
 
 <p>The exercises are the curriculum. In particular, do not skip running <code class="inline">curl -v</code> by hand early on — almost everyone who finds APIs confusing has only ever seen them through a library that hid the request, and seeing the raw exchange once dissolves most of the confusion permanently.</p>
 
-<div class="quiz" data-part="p14"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p14"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
 <p>Six milestones = six layers of proof, mapped to the curriculum&#39;s day plan (~1 focused hour/day, days 1–33). When all six drop, the shipyard ships your container.</p>
 <div class="mlist" id="mlist"><!-- milestones injected by JS --></div>

@@ -1,326 +1,672 @@
 (function(){
 "use strict";
 
-"use strict";
-/* ================= DATA ================= */
-var META=(window.SHIPYARD_DATA&&SHIPYARD_DATA.meta)||{};
-var PARTS=SHIPYARD_DATA.parts||[];
-var QUIZ=SHIPYARD_DATA.quiz||{};
-var CARDS=SHIPYARD_DATA.cards||[];
-var MILES=SHIPYARD_DATA.miles||[];
-var RANKS=[[0,"SWABBIE"],[100,"DECKHAND"],[200,"BOATSWAIN"],[300,"FIRST MATE"],[420,"DOCKER CAPTAIN"],[540,"HARBOR MASTER"]];
+/* =====================================================================
+   THE SHIPYARD — shared engine
+   Reads window.SHIPYARD_DATA (see data/<tech>.js). Nothing in this file
+   may be specific to one curriculum; per-ship strings live in meta.
+   ===================================================================== */
 
-/* ================= STATE ================= */
+/* ================= DATA ================= */
+var DATA=window.SHIPYARD_DATA||{};
+var META=DATA.meta||{};
+var PARTS=DATA.parts||[];
+var QUIZ=DATA.quiz||{};
+var CARDS=DATA.cards||[];
+var MILES=DATA.miles||[];
+var SIMSTEPS=DATA.sim||[];
+
+/* parts excluding the p0 briefing — the things you actually lay down */
+var LAYERS=PARTS.slice(1);
+var LAYER_COUNT=LAYERS.length;
+var QUESTION_COUNT=(function(){var n=0;for(var k in QUIZ){if(QUIZ.hasOwnProperty(k))n+=QUIZ[k].length;}return n;})();
+
+/* ================= SCORING MODEL ================= */
+var XP_PART=25, XP_ANSWER=3, XP_MILE=10;
+var PASS_MARK=70;
+var MAX_XP=LAYER_COUNT*XP_PART + QUESTION_COUNT*XP_ANSWER + MILES.length*XP_MILE;
+
+var RANK_NAMES=META.ranks||["SWABBIE","DECKHAND","BOATSWAIN","FIRST MATE","QUARTERMASTER","HARBOR MASTER"];
+/* thresholds scale with the ship, so every curriculum is equally hard to top out */
+var RANK_BANDS=[0,0.18,0.36,0.55,0.76,0.95];
+var RANKS=RANK_NAMES.map(function(name,i){
+  return [Math.round((RANK_BANDS[i]!==undefined?RANK_BANDS[i]:1)*MAX_XP),name];
+});
+
+/* ================= STATE =================
+   v2 shape:
+     done       {pid:true}
+     quiz       {pid:{first:[1|0|null],cur:[1|0|null],best:pct}}
+                first  — the very first answer to each question, immutable, earns XP
+                cur    — the current attempt, cleared by RETAKE, drives the displayed score
+     milestones {mid:true}
+     nailed     {cardIndex:true}
+     graduated  bool
+   XP is never stored. It is derived on every render, so it cannot drift or be farmed.
+   ========================================= */
 var KEY=META.storageKey||("shipyard:"+(META.tech||"x")+":v1");
-var D=JSON.parse(localStorage.getItem(KEY)||"null");
-if(!D||typeof D!=="object"){D={done:{},quiz:{},milestones:{},nailed:{},xp:0,graduated:false};}
-function save(){localStorage.setItem(KEY,JSON.stringify(D));}
-function addXp(n){D.xp=(D.xp||0)+n;}
-function rankFor(xp){var r=RANKS[0];for(var i=0;i<RANKS.length;i++){if(xp>=RANKS[i][0])r=RANKS[i];}return r;}
-function nextRank(xp){for(var i=0;i<RANKS.length;i++){if(xp<RANKS[i][0])return RANKS[i];}return null;}
+var LEGACY_KEYS=(META.legacyStorageKeys||[]).concat(["shipyard-v1"]);
+var D=load();
+
+function blank(){return {v:2,done:{},quiz:{},milestones:{},nailed:{},graduated:false};}
+function load(){
+  var raw=null;
+  try{raw=localStorage.getItem(KEY);}catch(e){}
+  if(!raw){
+    /* one-time migration from an older key */
+    for(var i=0;i<LEGACY_KEYS.length;i++){
+      if(LEGACY_KEYS[i]===KEY)continue;
+      var old=null;
+      try{old=localStorage.getItem(LEGACY_KEYS[i]);}catch(e){}
+      if(old){raw=old;break;}
+    }
+  }
+  var d=null;
+  try{d=JSON.parse(raw||"null");}catch(e){d=null;}
+  if(!d||typeof d!=="object")return blank();
+  return migrate(d);
+}
+function migrate(d){
+  var out=blank();
+  out.done=d.done||{};
+  out.milestones=d.milestones||{};
+  out.nailed=d.nailed||{};
+  out.graduated=!!d.graduated;
+  var q=d.quiz||{};
+  for(var pid in q){
+    if(!q.hasOwnProperty(pid))continue;
+    var old=q[pid]||{};
+    if(old.v===2||(old.cur&&old.first)){out.quiz[pid]={first:old.first||[],cur:old.cur||[],best:old.best||0};continue;}
+    /* v1: `first` held 1/0 for (in practice) only the first question answered */
+    var first=(old.first||[]).map(function(x){return x===1?1:(x===0?0:null);});
+    out.quiz[pid]={first:first,cur:first.slice(),best:old.best||0};
+  }
+  return out;
+}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}
+}
+
+/* ================= DERIVED PROGRESS ================= */
+function qstate(pid){
+  var q=D.quiz[pid];
+  if(!q){q={first:[],cur:[],best:0};D.quiz[pid]=q;}
+  if(!q.first)q.first=[];
+  if(!q.cur)q.cur=[];
+  return q;
+}
+function answeredCount(pid){
+  var q=qstate(pid),n=0;
+  for(var i=0;i<q.cur.length;i++){if(q.cur[i]===0||q.cur[i]===1)n++;}
+  return n;
+}
+function correctCount(pid){
+  var q=qstate(pid),n=0;
+  for(var i=0;i<q.cur.length;i++){if(q.cur[i]===1)n++;}
+  return n;
+}
+function pctFor(pid){
+  var qs=QUIZ[pid];if(!qs||!qs.length)return 0;
+  return Math.round(correctCount(pid)/qs.length*100);
+}
+function quizComplete(pid){
+  var qs=QUIZ[pid];return !!qs&&answeredCount(pid)>=qs.length;
+}
+function clearedPart(id){
+  var q=D.quiz[id];
+  return !!q&&q.best>=PASS_MARK;
+}
+function clearedCount(){
+  var n=0;for(var k in QUIZ){if(QUIZ.hasOwnProperty(k)&&clearedPart(k))n++;}
+  return n;
+}
+function quizCount(){return Object.keys(QUIZ).length;}
+function allQuizzesCleared(){return quizCount()>0&&clearedCount()>=quizCount();}
+function allDone(){return LAYER_COUNT>0&&LAYERS.every(function(p){return D.done[p.id];});}
+function doneCount(){return LAYERS.filter(function(p){return D.done[p.id];}).length;}
+function mileCount(){return MILES.filter(function(m){return D.milestones[m.id];}).length;}
+
+/* XP is a pure function of progress — toggling anything off gives the XP back */
+function xp(){
+  var total=doneCount()*XP_PART + mileCount()*XP_MILE;
+  for(var pid in D.quiz){
+    if(!D.quiz.hasOwnProperty(pid))continue;
+    var f=D.quiz[pid].first||[];
+    for(var i=0;i<f.length;i++){if(f[i]===1)total+=XP_ANSWER;}
+  }
+  return total;
+}
+function rankFor(v){var r=RANKS[0];for(var i=0;i<RANKS.length;i++){if(v>=RANKS[i][0])r=RANKS[i];}return r;}
+function nextRank(v){for(var i=0;i<RANKS.length;i++){if(v<RANKS[i][0])return RANKS[i];}return null;}
+
 function refreshAll(){renderStack();renderNav();renderVoyage();renderHero();renderQuizzes();renderDeck();renderMilestones();}
+
+/* ================= SMALL DOM HELPERS ================= */
+function byId(id){return document.getElementById(id);}
+function setText(id,txt){var el=byId(id);if(el)el.textContent=txt;}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+/* Enter/Space on anything we had to make interactive without a real button */
+function keyActivate(el,fn){
+  el.addEventListener("keydown",function(ev){
+    if(ev.key==="Enter"||ev.key===" "||ev.key==="Spacebar"){ev.preventDefault();fn(ev);}
+  });
+}
 
 /* ================= RENDER: STACK ================= */
 function renderStack(){
-  var el=document.getElementById("stackMini");if(!el)return;
-  var h="";
-  for(var i=1;i<PARTS.length;i++){
-    var p=PARTS[i],cls="layer"+(D.done[p.id]?" done":"")+(clearedPart(p.id)?" cleared":"");
-    if(D.done[p.id]&&clearedPart(p.id))cls="layer cleared";
-    h+='<div class="'+cls+'" data-nav="'+p.id+'"><span class="ltip">PART '+p.num+' · '+p.title+'</span></div>';
+  var el=byId("stackMini");
+  if(el){
+    var h='<div class="layer writable'+(allDone()?" live":"")+'" aria-hidden="true"></div>';
+    LAYERS.forEach(function(p){
+      var done=!!D.done[p.id],cleared=clearedPart(p.id);
+      var cls="layer"+(done?" done":"")+(cleared?" cleared":"");
+      var label="Part "+p.num+" — "+p.title+(done?" (complete)":"")+(cleared?" (checkpoint cleared)":"");
+      h+='<button type="button" class="'+cls+'" data-nav="'+p.id+'" aria-label="'+esc(label)+'">'
+        +'<span class="ltip" aria-hidden="true">PART '+p.num+' · '+esc(p.title)+'</span></button>';
+    });
+    el.innerHTML=h;
+    el.querySelectorAll(".layer[data-nav]").forEach(function(l){
+      l.addEventListener("click",function(){goto(l.getAttribute("data-nav"));});
+    });
   }
-  el.innerHTML=h;
-  el.querySelectorAll(".layer[data-nav]").forEach(function(l){l.addEventListener("click",function(){goto(l.getAttribute("data-nav"));});});
-  var w=el.querySelector(".writable");if(!w){var wd=document.createElement("div");wd.className="layer writable";el.insertBefore(wd,el.firstChild);}
-  var wr=el.querySelector(".writable");
-  if(allDone()){wr.classList.add("live");}
-  document.getElementById("stackCount").textContent=doneCount()+"/14";
-  var ps=document.getElementById("psRow");
-  if(D.graduated){ps.style.display="block";document.getElementById("psRow2").textContent="web  RUNNING  0.0.0.0:80→80   uptime ∞   (yours — every layer earned)";}
-  else ps.style.display="none";
+  setText("stackCount",doneCount()+"/"+LAYER_COUNT);
+
+  var ps=byId("psRow");
+  if(ps){
+    if(D.graduated){
+      ps.style.display="block";
+      var cmd=byId("psRowCmd");if(cmd)cmd.textContent=(META.console&&META.console.cmd)||"$ shipyard status";
+      setText("psRow2",(META.console&&META.console.line)||"all parts laid · every layer earned");
+    }else{
+      ps.style.display="none";
+    }
+  }
 }
-function allDone(){return PARTS.slice(1).every(function(p){return D.done[p.id];});}
-function doneCount(){return PARTS.slice(1).filter(function(p){return D.done[p.id];}).length;}
-function clearedPart(id){var q=D.quiz[id];return q&&q.best>=70;}
 
 /* ================= RENDER: NAV ================= */
 function renderNav(){
-  var nav=document.getElementById("docknav");if(!nav)return;
-  var h='<div class="docksec">Curriculum</div>';
-  for(var i=0;i<PARTS.length;i++){
-    var p=PARTS[i];
-    var st=D.done[p.id]?"done":(D.quiz[p.id]&&D.quiz[p.id].best>=70?"cleared":"");
-    h+='<div class="navitem" data-nav="'+p.id+'"><span class="n">'+p.num+'</span><span class="nt">'+p.title+'</span><span class="st '+st+'"></span>'+(D.quiz[p.id]&&D.quiz[p.id].best>=0?'<span class="qbadge">★'+D.quiz[p.id].best+'</span>':'')+'</div>';
-  }
+  var nav=byId("docknav");if(!nav)return;
+  var h='<div class="docksec" id="docknav-label">Curriculum</div>';
+  PARTS.forEach(function(p){
+    var cleared=clearedPart(p.id);
+    var st=D.done[p.id]?"done":(cleared?"cleared":"");
+    var badge=(D.quiz[p.id]&&D.quiz[p.id].best>0)?'<span class="qbadge">★'+D.quiz[p.id].best+'</span>':'';
+    h+='<a class="navitem" href="#'+p.id+'" data-nav="'+p.id+'">'
+      +'<span class="n" aria-hidden="true">'+p.num+'</span>'
+      +'<span class="nt">'+esc(p.title)+'</span>'
+      +'<span class="st '+st+'" aria-hidden="true"></span>'+badge+'</a>';
+  });
   nav.innerHTML=h;
-  nav.querySelectorAll(".navitem").forEach(function(n){n.addEventListener("click",function(){goto(n.getAttribute("data-nav"));});});
+  nav.querySelectorAll(".navitem").forEach(function(n){
+    n.addEventListener("click",function(ev){ev.preventDefault();goto(n.getAttribute("data-nav"));});
+  });
 }
 
 /* ================= RENDER: VOYAGE ================= */
 function renderVoyage(){
-  var v=document.getElementById("voyage");if(!v)return;
+  var v=byId("voyage");if(!v)return;
   var h="";
-  for(var i=0;i<PARTS.length;i++){
-    var p=PARTS[i];
-    var t=p.tag?"<span class='wtag wtag-"+p.tag.toLowerCase()+"'>"+p.tag+"</span>":"";
-    h+='<div class="waypoint'+(D.done[p.id]?" done":"")+'" data-nav="'+p.id+'"><span class="wn">'+p.num+'</span><span class="wt"><b>'+p.title+'</b>'+(p.tag?'<span style="color:var(--faint);font-size:10.5px">'+p.tag+' · learning path waypoint</span>':'<span style="color:var(--faint);font-size:10.5px">mission briefing</span>')+'</span>'+t+'</div>';
-  }
+  PARTS.forEach(function(p){
+    var t=p.tag?"<span class='wtag wtag-"+p.tag.toLowerCase()+"'>"+esc(p.tag)+"</span>":"";
+    var sub=p.tag?esc(p.tag)+" · learning path waypoint":"mission briefing";
+    h+='<a class="waypoint'+(D.done[p.id]?" done":"")+'" href="#'+p.id+'" data-nav="'+p.id+'">'
+      +'<span class="wn" aria-hidden="true">'+p.num+'</span>'
+      +'<span class="wt"><b>'+esc(p.title)+'</b><span class="wsub">'+sub+'</span></span>'+t+'</a>';
+  });
   v.innerHTML=h;
-  v.querySelectorAll(".waypoint").forEach(function(w){w.addEventListener("click",function(){goto(w.getAttribute("data-nav"));});});
+  v.querySelectorAll(".waypoint").forEach(function(w){
+    w.addEventListener("click",function(ev){ev.preventDefault();goto(w.getAttribute("data-nav"));});
+  });
 }
 
 /* ================= RENDER: HERO STATUS ================= */
 function renderHero(){
-  var r=rankFor(D.xp),nr=nextRank(D.xp);
-  var el=document.getElementById("rankNow");if(el)el.textContent=r[1];
-  var e2=document.getElementById("hRank");if(e2)e2.textContent=r[1];
-  var e3=document.getElementById("hXp");if(e3)e3.textContent=D.xp;
-  document.getElementById("hLayers").textContent=doneCount()+"/14";
-  var qc=0;for(var k in QUIZ){if(D.quiz[k]&&D.quiz[k].best>=70)qc++;}
-  document.getElementById("hQuizzes").textContent=qc;
-  var rx=document.getElementById("rankXp");
-  if(nr){var lo=r[0],hi=nr[0];rx.textContent=D.xp+" XP · "+Math.round((D.xp-lo)/(hi-lo)*100)+"% of the way to "+nr[1];var bar=document.getElementById("rankBar");if(bar)bar.style.width=Math.min(100,Math.round((D.xp-lo)/(hi-lo)*100))+"%";}
-  else{rx.textContent=D.xp+" XP · MAX RANK · the yard is yours";var bar2=document.getElementById("rankBar");if(bar2)bar2.style.width="100%";}
-  var foot=document.getElementById("dockfoot");
-  foot.innerHTML="layers laid: <b style='color:var(--accent)'>"+doneCount()+"/14</b><br>quizzes ★≥70%: <b style='color:var(--ok)'>"+qc+"/"+Object.keys(QUIZ).length+"</b><br>milestones: <b style='color:var(--ok)'>"+Object.keys(D.milestones).length+"/6</b><br>"+(D.graduated?"<span style='color:var(--ok)'>SHIPPED "+(new Date()).getFullYear()+"</span>":"awaiting launch");
+  var v=xp(),r=rankFor(v),nr=nextRank(v);
+  setText("rankNow",r[1]);
+  setText("hRank",r[1]);
+  setText("hXp",v);
+  setText("hLayers",doneCount()+"/"+LAYER_COUNT);
+  setText("hQuizzes",clearedCount());
+
+  var rx=byId("rankXp"),bar=byId("rankBar");
+  var pct;
+  if(nr){
+    var lo=r[0],hi=nr[0];
+    pct=hi>lo?Math.round((v-lo)/(hi-lo)*100):100;
+    if(rx)rx.textContent=v+" XP · "+pct+"% of the way to "+nr[1];
+  }else{
+    pct=100;
+    if(rx)rx.textContent=v+" XP · MAX RANK · the yard is yours";
+  }
+  if(bar){
+    bar.style.width=Math.max(0,Math.min(100,pct))+"%";
+    var pb=bar.parentNode;
+    if(pb&&pb.setAttribute){
+      pb.setAttribute("role","progressbar");
+      pb.setAttribute("aria-valuenow",String(Math.max(0,Math.min(100,pct))));
+      pb.setAttribute("aria-valuemin","0");
+      pb.setAttribute("aria-valuemax","100");
+      pb.setAttribute("aria-label","Progress to next rank");
+    }
+  }
+
+  var foot=byId("dockfoot");
+  if(foot){
+    foot.innerHTML="layers laid: <b style='color:var(--accent)'>"+doneCount()+"/"+LAYER_COUNT+"</b><br>"
+      +"quizzes ★≥"+PASS_MARK+"%: <b style='color:var(--ok)'>"+clearedCount()+"/"+quizCount()+"</b><br>"
+      +"milestones: <b style='color:var(--ok)'>"+mileCount()+"/"+MILES.length+"</b><br>"
+      +(D.graduated?"<span style='color:var(--ok)'>SHIPPED "+(new Date()).getFullYear()+"</span>":"awaiting launch");
+  }
 }
 
 /* ================= QUIZZES ================= */
-function renderQuizzes(){
+function renderQuizzes(force){
   document.querySelectorAll(".quiz").forEach(function(qz){
     var pid=qz.getAttribute("data-part");
-    var wrap=qz.querySelector(".qwrap");
-    if(qz._rendered===pid){updateQuizScore(qz,pid);return;}
+    var qs=QUIZ[pid];if(!qs)return;
+    var wrap=qz.querySelector(".qwrap");if(!wrap)return;
+
+    if(qz._rendered===pid&&!force){updateQuizScore(qz,pid);return;}
     qz._rendered=pid;
-    var qs=QUIZZES()[pid];if(!qs){return;}
+
+    var q=qstate(pid);
     var h="";
     qs.forEach(function(qu,i){
-      var st=D.quiz[pid]&&D.quiz[pid].first&&D.quiz[pid].first[i];
-      var ow="",cls="";
-      if(st===true||st===false){
-        qu.o.forEach(function(o,j){
-          if(j===qu.a){cls="opt right";}else if(st===false){cls="opt wrong";}else{cls="";}
-          ow+='<button class="opt '+cls+'" disabled>'+o+'</button>';
-        });
-      }else{
-        qu.o.forEach(function(o,j){ow+='<button class="opt" data-q="'+i+'" data-o="'+j+'">'+o+'</button>';});
-      }
-      h+='<div class="q"><p class="qt"><span class="qn">Q'+(i+1)+'.</span> '+qu.q+'</p><div class="opts">'+ow+'</div><p class="qe'+(st===true||st===false?' show':'')+'">'+qu.e+'</p></div>';
+      var st=q.cur[i];
+      var answered=(st===0||st===1);
+      var ow="";
+      qu.o.forEach(function(o,j){
+        var cls="opt";
+        var attrs='data-q="'+i+'" data-o="'+j+'"';
+        if(answered){
+          attrs='disabled';
+          if(j===qu.a)cls+=" right";
+          else if(st===0&&q.picked&&q.picked[i]===j)cls+=" wrong";
+        }
+        ow+='<button type="button" class="'+cls+'" '+attrs+'>'+o+'</button>';
+      });
+      h+='<div class="q"><p class="qt"><span class="qn">Q'+(i+1)+'.</span> '+qu.q+'</p>'
+        +'<div class="opts" role="group" aria-label="Question '+(i+1)+' options">'+ow+'</div>'
+        +'<p class="qe'+(answered?" show":"")+'">'+qu.e+'</p></div>';
     });
     wrap.innerHTML=h;
     wrap.querySelectorAll(".opt[data-q]").forEach(function(btn){
-      btn.addEventListener("click",function(){answer(pid,parseInt(btn.getAttribute("data-q")),parseInt(btn.getAttribute("data-o")),btn);});
+      btn.addEventListener("click",function(){
+        answer(pid,parseInt(btn.getAttribute("data-q"),10),parseInt(btn.getAttribute("data-o"),10),btn);
+      });
     });
+
+    var res=qz.querySelector(".qres");
+    if(res){
+      res.setAttribute("role","status");
+      res.setAttribute("aria-live","polite");
+    }
+    if(quizComplete(pid))showResult(qz,pid);
     updateQuizScore(qz,pid);
   });
 }
-function QUIZZES(){return QUIZ;}
+
 function answer(pid,qi,oi,btn){
-  var qs=QUIZZES()[pid],q=qs[qi];
-  var first=!D.quiz[pid]||!D.quiz[pid].tried;
-  var qd=D.quiz[pid]||{first:[],correct:0,total:qs.length,tried:false,best:0};
-  if(!qd.tried)qd.tried=true;
-  var right=(oi===q.a);
-  if(first){qd.first[qi]=(right?1:0);if(right){addXp(3);}}
-  if(first&&right){qd.correct=(qd.correct||0)+1;}
-  var qz=btn.closest(".quiz");
-  btn.closest(".opts").querySelectorAll(".opt").forEach(function(o){o.disabled=true;if(o===btn)o.classList.add(right?"right":"wrong");else if(o.getAttribute("data-o")==q.a)o.classList.add("right");});
-  var qe=btn.closest(".q").querySelector(".qe");qe.classList.add("show");
-  if(first){
-    D.quiz[pid]=qd;
-    save();renderHero();renderStack();renderNav();
-  }else{
-    D.quiz[pid]=qd;save();
+  var qs=QUIZ[pid];if(!qs)return;
+  var qu=qs[qi];
+  var q=qstate(pid);
+  if(q.cur[qi]===0||q.cur[qi]===1)return;      /* already answered this attempt */
+
+  var right=(oi===qu.a);
+
+  /* first ever answer to this question is the one that earns XP — retakes never do */
+  if(q.first[qi]!==0&&q.first[qi]!==1)q.first[qi]=right?1:0;
+  q.cur[qi]=right?1:0;
+  if(!q.picked)q.picked=[];
+  q.picked[qi]=oi;
+
+  var opts=btn.closest(".opts");
+  if(opts){
+    opts.querySelectorAll(".opt").forEach(function(o){
+      o.disabled=true;
+      var idx=parseInt(o.getAttribute("data-o"),10);
+      if(idx===qu.a)o.classList.add("right");
+      else if(o===btn)o.classList.add("wrong");
+    });
   }
-  var answered=qd.first.filter(function(x){return x===0||x===1;}).length;
-  var correctNow=qd.first.reduce(function(s,v){return s+(v===1?1:0);},0);
-  var pct=Math.round(correctNow/qs.length*100);
-  if(pct>qd.best)qd.best=pct;
-  updateQuizScore(qz,pid);
-  if(answered>=qs.length){finishQuiz(qz,pid,qd,pct,first);}
+  var qbox=btn.closest(".q");
+  var qe=qbox&&qbox.querySelector(".qe");
+  if(qe)qe.classList.add("show");
+
+  var pct=pctFor(pid);
+  if(pct>q.best)q.best=pct;                     /* update before the save, not after */
+  save();
+
+  var qz=btn.closest(".quiz");
+  if(quizComplete(pid))showResult(qz,pid);
   refreshAll();
 }
+
 function updateQuizScore(qz,pid){
-  var qd=D.quiz[pid];var qs=QUIZZES()[pid];
-  var sc=qz.querySelector(".qscore b");if(sc){if(qd&&qd.best>=0&&qs){sc.textContent=qd.best+"%";}else{sc.textContent="—";}}
+  var sc=qz.querySelector(".qscore b");if(!sc)return;
+  var q=D.quiz[pid];
+  sc.textContent=(q&&q.best>0)?q.best+"%":"—";
 }
-function finishQuiz(qz,pid,qd,pct,first){
-  var res=qz.querySelector(".qres");
-  var pass=pct>=70;
-  var xpGain=first?qd.correct*3:0;
+
+/* XP banked on this part — the sum of every question answered correctly the
+   first time, not just whatever the last click happened to earn. */
+function earnedXp(pid){
+  var f=qstate(pid).first,n=0;
+  for(var i=0;i<f.length;i++){if(f[i]===1)n+=XP_ANSWER;}
+  return n;
+}
+function showResult(qz,pid){
+  if(!qz)return;
+  var res=qz.querySelector(".qres");if(!res)return;
+  var q=qstate(pid);
+  var pct=pctFor(pid);
+  var pass=pct>=PASS_MARK;
+  var banked=earnedXp(pid);
   res.className="qres show "+(pass?"pass":"fail");
-  res.innerHTML=(pass?"✔ CHECKPOINT CLEARED — "+pct+"%":"✘ "+pct+"% — re-read the section, then re-run the quiz")
-  +" · best "+qd.best+"%"+(xpGain>0?" · <b>+"+xpGain+" XP</b>":"");
-  renderHero();renderStack();renderNav();
-  if(pass&&!qz._celebrated){qz._celebrated=true;}
+  res.innerHTML='<span class="qresmsg">'
+    +(pass?"✔ CHECKPOINT CLEARED — "+pct+"%":"✘ "+pct+"% — re-read the section, then re-run the quiz")
+    +" · best "+q.best+"%"+(banked>0?" · <b>"+banked+" XP banked</b>":"")+"</span>"
+    +'<button type="button" class="btn sm retake">RETAKE</button>';
+  var rb=res.querySelector(".retake");
+  if(rb)rb.addEventListener("click",function(){retake(pid);});
+}
+
+function retake(pid){
+  var q=qstate(pid);
+  q.cur=[];
+  q.picked=[];
+  save();
+  document.querySelectorAll('.quiz[data-part="'+pid+'"]').forEach(function(qz){
+    qz._rendered=null;
+    var res=qz.querySelector(".qres");
+    if(res){res.className="qres";res.innerHTML="";}
+  });
+  renderQuizzes(true);
+  refreshAll();
+  var first=document.querySelector('.quiz[data-part="'+pid+'"] .opt[data-q="0"]');
+  if(first)first.focus();
 }
 
 /* ================= FLASHCARDS ================= */
 function renderDeck(){
-  var deck=document.getElementById("deck");if(!deck||deck._rendered)return;
+  var deck=byId("deck");if(!deck||deck._rendered)return;
   deck._rendered=true;
   var h="";
   CARDS.forEach(function(c,i){
     var nailed=!!D.nailed[i];
-    h+='<div class="card'+(nailed?" nailed":"")+'" data-c="'+i+'">'
-       +'<div class="inner"><div class="face front"><span class="cardtier">'+c.t+'</span><div class="qtext">'+c.q+'</div><span class="flip-hint">CLICK TO REVEAL</span></div>'
-       +'<div class="face back"><span class="cardtier" style="color:var(--ok)">answer</span><div class="qtext">'+c.a+'</div><button class="nailedbtn'+(nailed?" n":"")+'">'+(nailed?"✓ NAILED":"NAIL IT")+'</button></div></div></div>';
+    h+='<div class="card'+(nailed?" nailed":"")+'" data-c="'+i+'" role="button" tabindex="0"'
+      +' aria-expanded="false" aria-label="Idea card '+(i+1)+' of '+CARDS.length+'. Reveal answer.">'
+      +'<div class="inner">'
+      +'<div class="face front"><span class="cardtier">'+c.t+'</span><div class="qtext">'+c.q+'</div>'
+      +'<span class="flip-hint">CLICK TO REVEAL</span></div>'
+      +'<div class="face back"><span class="cardtier" style="color:var(--ok)">answer</span>'
+      +'<div class="qtext">'+c.a+'</div>'
+      +'<button type="button" class="nailedbtn'+(nailed?" n":"")+'" aria-pressed="'+(nailed?"true":"false")+'">'
+      +(nailed?"✓ NAILED":"NAIL IT")+'</button></div></div></div>';
   });
   deck.innerHTML=h;
   deck.querySelectorAll(".card").forEach(function(cd){
+    var flip=function(){
+      var open=cd.classList.toggle("flip");
+      cd.setAttribute("aria-expanded",open?"true":"false");
+    };
     cd.addEventListener("click",function(ev){
-      if(ev.target.classList.contains("nailedbtn")){
-        var i=parseInt(cd.getAttribute("data-c"));
-        D.nailed[i]=!D.nailed[i];save();
-        cd.classList.toggle("nailed");cd.querySelector(".nailedbtn").classList.toggle("n");
-        return;
-      }
-      cd.classList.toggle("flip");
+      if(ev.target.closest(".nailedbtn"))return;
+      flip();
+    });
+    keyActivate(cd,flip);
+    var nb=cd.querySelector(".nailedbtn");
+    if(nb)nb.addEventListener("click",function(ev){
+      ev.stopPropagation();
+      var i=parseInt(cd.getAttribute("data-c"),10);
+      D.nailed[i]=!D.nailed[i];
+      save();
+      var on=!!D.nailed[i];
+      cd.classList.toggle("nailed",on);
+      nb.classList.toggle("n",on);
+      nb.setAttribute("aria-pressed",on?"true":"false");
+      nb.textContent=on?"✓ NAILED":"NAIL IT";
     });
   });
 }
 
 /* ================= MILESTONES ================= */
 function renderMilestones(){
-  var ml=document.getElementById("mlist");if(!ml||ml._rendered)return;
-  ml._rendered=true;
-  var h="";
-  MILES.forEach(function(m){
-    var done=!!D.milestones[m.id];
-    h+='<div class="mile'+(done?" done":"")+'" data-m="'+m.id+'"><div class="mbox">✓</div><div><div class="mtitle"><b>'+m.title+'</b></div><div class="mpass">'+m.pass+'</div></div></div>';
-  });
-  ml.innerHTML=h;
-  ml.querySelectorAll(".mile").forEach(function(mi){
-    mi.addEventListener("click",function(){
-      var id=mi.getAttribute("data-m");
-      if(D.milestones[id]){
-        delete D.milestones[id];
-      }else{
-        D.milestones[id]=true;addXp(10);
-      }
-      save();renderMilestones();renderHero();renderStack();renderNav();
-      checkGraduation();
+  var ml=byId("mlist");
+  if(ml&&!ml._rendered){
+    ml._rendered=true;
+    var h="";
+    MILES.forEach(function(m){
+      var done=!!D.milestones[m.id];
+      h+='<div class="mile'+(done?" done":"")+'" id="mile-'+m.id+'" data-m="'+m.id+'" role="checkbox" tabindex="0"'
+        +' aria-checked="'+(done?"true":"false")+'">'
+        +'<div class="mbox" aria-hidden="true">✓</div>'
+        +'<div><div class="mtitle"><b>'+m.title+'</b></div><div class="mpass">'+m.pass+'</div></div></div>';
     });
+    ml.innerHTML=h;
+    ml.querySelectorAll(".mile").forEach(function(mi){
+      var toggle=function(){
+        var id=mi.getAttribute("data-m");
+        if(D.milestones[id])delete D.milestones[id];
+        else D.milestones[id]=true;
+        var on=!!D.milestones[id];
+        mi.classList.toggle("done",on);
+        mi.setAttribute("aria-checked",on?"true":"false");
+        save();
+        renderHero();renderStack();renderNav();renderMileMini();
+        checkGraduation();
+      };
+      mi.addEventListener("click",toggle);
+      keyActivate(mi,toggle);
+    });
+  }
+  renderMileMini();
+}
+
+/* Sidebar milestone tracker — same idea as #stackMini for parts: always
+   visible, click jumps to the full milestone (with its pass criteria) instead
+   of duplicating the toggle interaction in two places. */
+function renderMileMini(){
+  var box=byId("mileMini");if(!box)return;
+  if(!box._rendered){
+    box._rendered=true;
+    var h="";
+    MILES.forEach(function(m){
+      h+='<button type="button" class="mmini" data-mile="'+m.id+'">'
+        +'<span class="mdot" aria-hidden="true"></span><span class="mlabel">'+esc(m.title)+'</span></button>';
+    });
+    box.innerHTML=h;
+    box.querySelectorAll(".mmini").forEach(function(btn){
+      btn.addEventListener("click",function(){gotoMile(btn.getAttribute("data-mile"));});
+    });
+  }
+  /* update in place — a full re-render here would drop focus/hover on a row
+     every time anything else on the page refreshes, not just when a milestone
+     itself changes */
+  box.querySelectorAll(".mmini").forEach(function(btn){
+    var m=findMile(btn.getAttribute("data-mile"));
+    var done=!!D.milestones[btn.getAttribute("data-mile")];
+    btn.classList.toggle("done",done);
+    btn.setAttribute("aria-label",(m?m.title:"")+(done?" (crossed)":""));
   });
+  setText("mileCount",mileCount()+"/"+MILES.length);
+}
+function findMile(id){for(var i=0;i<MILES.length;i++){if(MILES[i].id===id)return MILES[i];}return null;}
+function gotoMile(id){
+  var el=byId("mile-"+id);if(!el)return;
+  suppressSpy=true;
+  el.scrollIntoView({behavior:"smooth",block:"center"});
+  closeDock();
+  el.classList.add("jumped");
+  setTimeout(function(){el.classList.remove("jumped");},1600);
+  if(!el.hasAttribute("tabindex"))el.setAttribute("tabindex","-1");
+  el.focus({preventScroll:true});
+  setTimeout(function(){suppressSpy=false;},700);
+}
+
+/* ================= GRADUATION ================= */
+/* Earned, not asserted: every part complete, every checkpoint cleared, every milestone crossed. */
+function graduationReady(){
+  return MILES.length>0
+    && MILES.every(function(m){return D.milestones[m.id];})
+    && allDone()
+    && allQuizzesCleared();
 }
 function checkGraduation(){
-  if(!MILES.length)return;
-  if(MILES.every(function(m){return D.milestones[m.id];})&&!D.graduated){
+  if(graduationReady()&&!D.graduated){
     D.graduated=true;save();
     setTimeout(graduation,600);
   }
 }
-
-/* ================= GRADUATION ================= */
 function graduation(){
-  var g=document.getElementById("grad");
-  var lines=[
-    "> verifying layer p1 ... OK","> verifying layer p2 ... OK","> verifying layer p3 ... OK",
-    "> verifying layer p4 ... OK","> verifying layer p5 ... OK","> verifying layer p6 ... OK",
-    "> verifying layer p7 ... OK","> verifying layer p8 ... OK","> verifying layer p9 ... OK",
-    "> verifying layer p10 ... OK","> verifying layer p11 ... OK","> verifying layer p12 ... OK",
-    "> verifying layer p13 ... OK","> verifying layer p14 ... OK",
-    "> mounting writable layer ... OK","> attaching bridge network ... OK",
-    "> running PID 1 ... OK",""
-  ];
-  var body=g.querySelector(".gbody");
+  var g=byId("grad");if(!g)return;
+  var body=g.querySelector(".gbody");if(!body)return;
+
+  var grad=META.grad||{};
+  var lines=(grad.lines||[]).slice();
+  if(!lines.length){
+    LAYERS.forEach(function(p){lines.push("> verifying "+p.id+" ("+p.title+") ... OK");});
+    lines.push("> all checkpoints cleared ... OK");
+    lines.push("> all milestones crossed ... OK");
+  }
+  lines.push("");
+
   body.innerHTML="";
-  var rank=rankFor(D.xp)[1];
+  var rank=rankFor(xp())[1];
+  var step=Math.min(0.22,6/Math.max(lines.length,1));
   lines.forEach(function(l,i){
-    var div=document.createElement("div");div.className="gl";div.style.animationDelay=(i*0.22)+"s";
+    var div=document.createElement("div");
+    div.className="gl";div.style.animationDelay=(i*step)+"s";
     div.textContent=l;body.appendChild(div);
   });
-  var title=document.createElement("div");title.className="gtitle gl";title.style.animationDelay=(lines.length*0.22)+"s";
-  title.textContent="CONTAINER DEPLOYED 🐳";
+
+  var title=document.createElement("div");
+  title.className="gtitle gl";title.style.animationDelay=(lines.length*step)+"s";
+  title.textContent=grad.title||"SHIPPED";
   body.appendChild(title);
-  var sub=document.createElement("div");sub.className="gl";sub.style.animationDelay=(lines.length*0.22+0.3)+"s";
-  sub.innerHTML="RANK: <b>"+rank+"</b> · all "+doneCount()+" layers laid · every milestone crossed. The shipyard ships what you built."
-  +"<br><br><i>Remember the one rule: a container is just a process.</i>";
+
+  var sub=document.createElement("div");
+  sub.className="gl";sub.style.animationDelay=(lines.length*step+0.3)+"s";
+  sub.innerHTML="RANK: <b>"+esc(rank)+"</b> · all "+doneCount()+" parts laid · "
+    +clearedCount()+" checkpoints cleared · every milestone crossed. "
+    +"The shipyard ships what you built."
+    +(grad.rule?"<br><br><i>"+grad.rule+"</i>":"");
   body.appendChild(sub);
-  var btn=document.createElement("button");btn.className="btn ok gbtn gl";btn.style.animationDelay=(lines.length*0.22+0.8)+"s";
-  btn.textContent="BACK TO THE DECK";btn.addEventListener("click",function(){g.classList.remove("open");});
+
+  var btn=document.createElement("button");
+  btn.type="button";btn.className="btn ok gbtn gl";
+  btn.style.animationDelay=(lines.length*step+0.8)+"s";
+  btn.textContent="BACK TO THE DECK";
+  btn.addEventListener("click",closeGrad);
   body.appendChild(btn);
+
   g.classList.add("open");
+  g.setAttribute("role","dialog");
+  g.setAttribute("aria-modal","true");
+  g.setAttribute("aria-label","Graduation");
   confetti();
+  setTimeout(function(){btn.focus();},lines.length*step*1000+900);
   renderStack();renderHero();
 }
+function closeGrad(){
+  var g=byId("grad");if(!g)return;
+  g.classList.remove("open");
+  g.querySelectorAll(".ptcl").forEach(function(p){p.remove();});
+}
 function confetti(){
-  var g=document.getElementById("grad");
-  var colors=["#ffb000","#39d98a","#57d9ff","#ff5d5d"];
+  var g=byId("grad");if(!g)return;
+  if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  var colors=[META.accent||"#ffb000","#39d98a","#57d9ff","#ff5d5d"];
   for(var i=0;i<46;i++){
     var p=document.createElement("span");p.className="ptcl";
     p.style.left=Math.random()*100+"%";p.style.top="-10px";
     p.style.background=colors[i%colors.length];
     p.style.animationDuration=(2.4+Math.random()*2.6)+"s";
     p.style.animationDelay=(Math.random()*1.4)+"s";
-    p.style.width=(4+Math.random()*5)+"px";p.style.height=(4+Math.random()*8)+"px";
+    p.style.width=(4+Math.random()*5)+"px";
+    p.style.height=(4+Math.random()*8)+"px";
     g.appendChild(p);
-    setTimeout(function(el){el.remove();},9000);
+    (function(el){setTimeout(function(){el.remove();},9000);})(p);
   }
 }
 
-/* ================= SIMULATOR (Part 3.1) ================= */
-var SIMSTEPS=SHIPYARD_DATA.sim||[];
-var simTimer=null;
+/* ================= SIMULATOR ================= */
+var simTimers=[];
 function simLine(text){
-  var out=document.getElementById("simOut");
-  var div=document.createElement("div");div.innerHTML=text;
+  var out=byId("simOut");if(!out)return;
+  var div=document.createElement("div");
+  div.innerHTML=text;
   div.style.opacity=0;div.style.animation="bli .2s forwards";
   out.appendChild(div);
   out.scrollTop=out.scrollHeight;
 }
 function simClear(){
-  var out=document.getElementById("simOut");
-  out.innerHTML='<code style="color:var(--faint)"># docker run -d -p 8080:80 --name web nginx</code>';
+  var out=byId("simOut");if(!out)return;
+  var prompt=(META.sim&&META.sim.prompt)||"# run the simulation";
+  out.innerHTML='<code style="color:var(--faint)">'+esc(prompt)+'</code>';
+}
+function simStop(){
+  simTimers.forEach(function(t){clearTimeout(t);});
+  simTimers=[];
 }
 function simRun(){
-  if(simTimer||!SIMSTEPS.length)return;
+  if(simTimers.length||!SIMSTEPS.length)return;
   simClear();
-  var i=0;
-  simTimer=setInterval(function(){
-    if(i>=SIMSTEPS.length){clearInterval(simTimer);simTimer=null;return;}
-    var s=SIMSTEPS[i];simLine(s.l);i++;
-  },Math.min.apply(null,[700]));
   var t=0;
-  SIMSTEPS.forEach(function(s,idx){t+=s.t;setTimeout(simLine.bind(null,s.l),t);});
-  simTimer=setTimeout(function(){simTimer=null;},t+300);
+  SIMSTEPS.forEach(function(s){
+    t+=s.t;
+    simTimers.push(setTimeout(function(){simLine(s.l);},t));
+  });
+  simTimers.push(setTimeout(function(){simTimers=[];},t+300));
 }
 
-/* ================= INTERACTIVE STACK (Part 2) ================= */
+/* ================= INTERACTIVE STACK (ships that ship one) ================= */
 function setupBigStack(){
-  var big=document.getElementById("stackBig");if(!big||big._bound)return;
+  var big=byId("stackBig");if(!big||big._bound)return;
   big._bound=true;
-  var disc=document.getElementById("sbdisc");
-  var info=SHIPYARD_DATA.stackInfo||{};
+  var disc=byId("sbdisc");
+  var info=DATA.stackInfo||{};
+  var labels=(META.stackSim&&META.stackSim.labels)||{};
   big.querySelectorAll(".sblayer").forEach(function(ly){
-    ly.addEventListener("click",function(){
+    ly.setAttribute("tabindex","0");
+    ly.setAttribute("role","button");
+    var pick=function(){
       big.querySelectorAll(".sblayer").forEach(function(x){x.classList.remove("selected");});
       ly.classList.add("selected");
-      disc.innerHTML=info[ly.getAttribute("data-layer")]||"That layer is sealed in the image. Read the part to unlock its story.";
-    });
+      if(disc)disc.innerHTML=info[ly.getAttribute("data-layer")]||"That layer is sealed in the image. Read the part to unlock its story.";
+    };
+    ly.addEventListener("click",pick);
+    keyActivate(ly,pick);
   });
+
   var running=false,writes=0;
-  var log=document.getElementById("sbLog");
+  var log=byId("sbLog");
   var wr=big.querySelector(".writ");
-  var btnStart=document.getElementById("sbStart"),btnWrite=document.getElementById("sbWrite"),btnRm=document.getElementById("sbRm");
+  var btnStart=byId("sbStart"),btnWrite=byId("sbWrite"),btnRm=byId("sbRm");
+  if(!btnStart||!btnWrite||!btnRm)return;
+  if(log){log.setAttribute("role","status");log.setAttribute("aria-live","polite");}
+  var say=function(k,fallback,extra){
+    var s=labels[k]||fallback;
+    if(log)log.textContent=extra?s.replace("{n}",extra):s;
+  };
   btnStart.addEventListener("click",function(){
-    if(running){log.textContent="already running";return;}
+    if(running){say("already","already running");return;}
     running=true;writes=0;
-    wr.classList.add("live");
-    log.textContent="PID 1 started · container RUNNING";
+    if(wr)wr.classList.add("live");
+    say("start","PID 1 started · RUNNING");
     btnWrite.disabled=false;
   });
   btnWrite.addEventListener("click",function(){
-    if(!running){log.textContent="start the container first";return;}
+    if(!running){say("notrunning","start it first");return;}
     writes++;
-    wr.style.animation="none";wr.offsetHeight;wr.style.animation="layerin .3s";
-    log.textContent="write #"+writes+" → writable layer ("+(writes*40)+"KB)";
+    if(wr){wr.style.animation="none";void wr.offsetHeight;wr.style.animation="layerin .3s";}
+    say("write","write #{n} → writable layer ({n}0KB)",writes);
   });
   btnRm.addEventListener("click",function(){
-    if(!running){log.textContent="nothing to remove";return;}
+    if(!running){say("nothing","nothing to remove");return;}
     running=false;
-    wr.classList.remove("live");
-    log.textContent="docker rm → writable layer destroyed · "+writes+" file(s) gone. forever.";
+    if(wr)wr.classList.remove("live");
+    say("remove","removed → writable layer destroyed · {n} file(s) gone. forever.",writes);
     btnWrite.disabled=true;
   });
 }
@@ -329,104 +675,259 @@ function setupBigStack(){
 function setupCopy(){
   document.querySelectorAll(".copybtn").forEach(function(btn){
     if(btn._bound)return;btn._bound=true;
+    btn.setAttribute("type","button");
     btn.addEventListener("click",function(){
-      var pre=btn.closest(".term").querySelector("pre");
+      var host=btn.closest(".term");
+      var pre=host&&host.querySelector("pre");
       var txt=pre?pre.textContent:"";
-      var done=function(){btn.textContent="COPIED ✓";btn.classList.add("copied");setTimeout(function(){btn.textContent="COPY";btn.classList.remove("copied");},1500);};
-      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,function(){fallback(txt,done);});}
-      else{fallback(txt,done);}
+      var done=function(){
+        btn.textContent="COPIED ✓";btn.classList.add("copied");
+        setTimeout(function(){btn.textContent="COPY";btn.classList.remove("copied");},1500);
+      };
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(txt).then(done,function(){fallbackCopy(txt,done);});
+      }else{fallbackCopy(txt,done);}
     });
   });
 }
-function fallback(txt,done){
-  var ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";
-  document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e){}
+function fallbackCopy(txt,done){
+  var ta=document.createElement("textarea");
+  ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand("copy");}catch(e){}
   ta.remove();done();
 }
 
-/* ================= NAV / SCROLLSPY ================= */
+/* ================= NAV / SCROLLSPY / ROUTING ================= */
+var suppressSpy=false;
 function goto(id){
-  var el=document.getElementById(id);
-  if(!el)return;
+  var el=byId(id);if(!el)return;
+  suppressSpy=true;
   el.scrollIntoView({behavior:"smooth",block:"start"});
+  if(history&&history.replaceState)history.replaceState(null,"","#"+id);
+  else location.hash=id;
+  markActive(id);
   closeDock();
-  var nav=document.querySelectorAll(".navitem");
-  nav.forEach(function(n){n.classList.toggle("active",n.getAttribute("data-nav")===id);});
+  /* make the destination focusable so keyboard users actually land there */
+  if(!el.hasAttribute("tabindex"))el.setAttribute("tabindex","-1");
+  el.focus({preventScroll:true});
+  setTimeout(function(){suppressSpy=false;},700);
+}
+function markActive(id){
+  document.querySelectorAll(".navitem").forEach(function(n){
+    var on=n.getAttribute("data-nav")===id;
+    n.classList.toggle("active",on);
+    if(on)n.setAttribute("aria-current","true");else n.removeAttribute("aria-current");
+  });
 }
 function closeDock(){
-  document.getElementById("dock").classList.remove("open");
-  document.getElementById("backdrop").classList.remove("open");
+  var d=byId("dock"),b=byId("backdrop"),burger=byId("burger");
+  if(d)d.classList.remove("open");
+  if(b)b.classList.remove("open");
+  if(burger)burger.setAttribute("aria-expanded","false");
 }
 function setupScrollspy(){
-  var nav=document.getElementById("docknav");
+  if(!window.IntersectionObserver)return;
   var obs=new IntersectionObserver(function(entries){
-    entries.forEach(function(en){
-      if(en.isIntersecting){
-        nav.querySelectorAll(".navitem").forEach(function(n){n.classList.toggle("active",n.getAttribute("data-nav")===en.target.id);});
-      }
-    });
+    if(suppressSpy)return;
+    entries.forEach(function(en){if(en.isIntersecting)markActive(en.target.id);});
   },{rootMargin:"-20% 0px -60% 0px"});
   document.querySelectorAll(".part").forEach(function(p){obs.observe(p);});
 }
 
-/* ================= BRANDING / EASTER EGG ================= */
-var konami=[38,38,40,40,37,39,37,39,66,65],kpos=0;
-var whaleCount=0;
-function whaleMode(){
-  var w=document.createElementNS("http://www.w3.org/2000/svg","svg");
-  w.setAttribute("id","whaleSwim");w.setAttribute("width","110");w.setAttribute("height","55");w.setAttribute("viewBox","0 0 24 24");
-  w.innerHTML='<path fill="none" stroke="#57d9ff" stroke-width="1.4" d="M4 12c0-4 2.5-7 6-8 3.5 1 6 4 6 8 1.5-1 3-1.5 5-1-1 3-3 5-6 5H6c-1 0-1.5.5-2 1z" stroke-linejoin="round"/><circle cx="8" cy="10" r=".7" fill="#57d9ff"/><path d="M6 20l7-3" stroke="#57d9ff" stroke-width="1" stroke-linecap="round"/>';
-  document.body.appendChild(w);
-  whaleCount++;
-  setTimeout(function(){w.remove();},16000);
+/* ================= PROGRESS: RESET / EXPORT / IMPORT ================= */
+function setupProgressTools(){
+  var host=byId("dockfoot");if(!host||byId("progtools"))return;
+  var box=document.createElement("div");
+  box.id="progtools";
+  box.innerHTML='<div class="ptrow">'
+    +'<button type="button" class="ptbtn" id="ptExport" title="Download your progress as JSON">EXPORT</button>'
+    +'<button type="button" class="ptbtn" id="ptImport" title="Restore progress from a JSON file">IMPORT</button>'
+    +'<button type="button" class="ptbtn danger" id="ptReset" title="Erase all progress on this ship">RESET</button>'
+    +'</div><input type="file" id="ptFile" accept="application/json,.json" hidden>'
+    +'<div class="ptmsg" id="ptMsg" role="status" aria-live="polite"></div>';
+  host.parentNode.insertBefore(box,host.nextSibling);
+
+  var msg=function(t){var m=byId("ptMsg");if(!m)return;m.textContent=t;setTimeout(function(){if(m.textContent===t)m.textContent="";},4000);};
+
+  byId("ptExport").addEventListener("click",function(){
+    var payload={shipyard:META.tech||"unknown",contract:2,exported:new Date().toISOString(),progress:D};
+    var blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement("a");
+    a.href=url;a.download="shipyard-"+(META.tech||"progress")+".json";
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(url);},1000);
+    msg("progress exported");
+  });
+
+  byId("ptImport").addEventListener("click",function(){byId("ptFile").click();});
+  byId("ptFile").addEventListener("change",function(ev){
+    var f=ev.target.files&&ev.target.files[0];if(!f)return;
+    var rd=new FileReader();
+    rd.onload=function(){
+      try{
+        var parsed=JSON.parse(rd.result);
+        var prog=parsed.progress||parsed;
+        if(parsed.shipyard&&META.tech&&parsed.shipyard!==META.tech){
+          if(!confirm("That file is progress for the "+parsed.shipyard+" ship, not "+META.tech+". Import anyway?"))return;
+        }
+        D=migrate(prog);
+        save();
+        resetRenderCaches();
+        refreshAll();
+        msg("progress imported");
+      }catch(e){msg("could not read that file");}
+    };
+    rd.readAsText(f);
+    ev.target.value="";
+  });
+
+  byId("ptReset").addEventListener("click",function(){
+    if(!confirm("Erase all progress on this ship? This cannot be undone — export first if you want a copy."))return;
+    D=blank();save();
+    resetRenderCaches();
+    refreshAll();
+    msg("progress reset");
+  });
+}
+function resetRenderCaches(){
+  var deck=byId("deck");if(deck)deck._rendered=false;
+  var ml=byId("mlist");if(ml)ml._rendered=false;
+  document.querySelectorAll(".quiz").forEach(function(qz){
+    qz._rendered=null;
+    var res=qz.querySelector(".qres");
+    if(res){res.className="qres";res.innerHTML="";}
+  });
+  document.querySelectorAll("[data-done]").forEach(function(btn){
+    var pid=btn.getAttribute("data-done");
+    var part=byId(pid);
+    if(part)part.classList.toggle("done",!!D.done[pid]);
+    syncDoneBtn(btn,pid);
+  });
+  renderQuizzes(true);
+}
+
+/* ================= DISPLAY: SCANLINE TOGGLE ================= */
+var FXKEY="shipyard:fx";
+function setupFx(){
+  var off=false;
+  try{off=localStorage.getItem(FXKEY)==="off";}catch(e){}
+  applyFx(off);
+  var host=byId("dock");if(!host||byId("fxToggle"))return;
+  var b=document.createElement("button");
+  b.type="button";b.id="fxToggle";b.className="ptbtn wide";
+  b.textContent=off?"CRT EFFECTS: OFF":"CRT EFFECTS: ON";
+  b.setAttribute("aria-pressed",off?"false":"true");
+  b.addEventListener("click",function(){
+    off=!off;
+    try{localStorage.setItem(FXKEY,off?"off":"on");}catch(e){}
+    applyFx(off);
+    b.textContent=off?"CRT EFFECTS: OFF":"CRT EFFECTS: ON";
+    b.setAttribute("aria-pressed",off?"false":"true");
+  });
+  var pt=byId("progtools");
+  if(pt)pt.appendChild(b);else host.appendChild(b);
+}
+function applyFx(off){
+  document.documentElement.classList.toggle("nofx",!!off);
+}
+
+/* ================= EASTER EGG ================= */
+var konami=["arrowup","arrowup","arrowdown","arrowdown","arrowleft","arrowright","arrowleft","arrowright","b","a"];
+var kpos=0;
+function eggSwim(){
+  var egg=META.egg||{};
+  var svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.setAttribute("id","eggSwim");
+  svg.setAttribute("width","110");svg.setAttribute("height","55");
+  svg.setAttribute("viewBox","0 0 24 24");
+  svg.setAttribute("aria-hidden","true");
+  var col=egg.color||META.accent||"#57d9ff";
+  svg.innerHTML=(egg.svg||'<path fill="none" stroke="COL" stroke-width="1.4" stroke-linejoin="round" d="M3 17h18l-2 3H5zM12 3v11M12 6l6 3-6 3"/>').replace(/COL/g,col);
+  document.body.appendChild(svg);
+  setTimeout(function(){svg.remove();},16000);
 }
 document.addEventListener("keydown",function(ev){
-  if(ev.key==="ArrowUp"&&konami[kpos]===38)kpos++;
-  else if(ev.key==="ArrowDown"&&konami[kpos]===40)kpos++;
-  else if(ev.key==="ArrowLeft"&&konami[kpos]===37)kpos++;
-  else if(ev.key==="ArrowRight"&&konami[kpos]===39)kpos++;
-  else if(ev.key.toLowerCase()==="b"&&konami[kpos]===66)kpos++;
-  else if(ev.key.toLowerCase()==="a"&&konami[kpos]===65)kpos++;
-  else kpos=0;
-  if(kpos===konami.length){kpos=0;whaleMode();whaleMode();var t=document.createElement("div");t.textContent="WHALE MODE ENGAGED";t.style.cssText="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;font-family:var(--mono);color:#57d9ff;border:1px solid #57d9ff;background:rgba(10,14,22,.9);padding:8px 16px;border-radius:4px;letter-spacing:2px;font-size:12px;";document.body.appendChild(t);setTimeout(function(){t.remove();},2200);}
+  if(!ev.key)return;
+  var k=ev.key.toLowerCase();
+  if(k===konami[kpos])kpos++;else kpos=(k===konami[0])?1:0;
+  if(kpos===konami.length){
+    kpos=0;
+    eggSwim();eggSwim();
+    var egg=META.egg||{};
+    var t=document.createElement("div");
+    t.className="eggtoast";
+    t.textContent=egg.label||"FULL SAIL ENGAGED";
+    t.style.color=egg.color||META.accent||"#57d9ff";
+    t.style.borderColor=egg.color||META.accent||"#57d9ff";
+    document.body.appendChild(t);
+    setTimeout(function(){t.remove();},2200);
+  }
 });
 
 /* ================= DONE BUTTONS ================= */
+function syncDoneBtn(btn,pid){
+  var on=!!D.done[pid];
+  btn.textContent=on?"✔ COMPLETE":"MARK COMPLETE";
+  btn.classList.toggle("ok",on);
+  btn.setAttribute("aria-pressed",on?"true":"false");
+}
 function setupDone(){
   document.querySelectorAll("[data-done]").forEach(function(btn){
     if(btn._bound)return;btn._bound=true;
     var pid=btn.getAttribute("data-done");
-    btn.textContent=D.done[pid]?"✔ COMPLETE":"MARK COMPLETE";
-    btn.classList.toggle("ok",!!D.done[pid]);
+    btn.setAttribute("type","button");
+    syncDoneBtn(btn,pid);
     btn.addEventListener("click",function(){
-      if(D.done[pid]){delete D.done[pid];}
-      else{D.done[pid]=true;addXp(25);
-        var part=document.getElementById(pid);if(part)part.classList.add("done");
-      }
-      save();refreshAll();
-      btn.textContent=D.done[pid]?"✔ COMPLETE":"MARK COMPLETE";
-      btn.classList.toggle("ok",!!D.done[pid]);
+      if(D.done[pid])delete D.done[pid];
+      else D.done[pid]=true;
+      var part=byId(pid);
+      if(part)part.classList.toggle("done",!!D.done[pid]);
+      save();
+      syncDoneBtn(btn,pid);
+      refreshAll();
+      checkGraduation();
     });
   });
   PARTS.forEach(function(p){
-    var el=document.getElementById(p.id);
-    if(el&&D.done[p.id])el.classList.add("done");
+    var el=byId(p.id);
+    if(el)el.classList.toggle("done",!!D.done[p.id]);
   });
 }
 
 /* ================= BURGER ================= */
-document.getElementById("burger").addEventListener("click",function(){
-  var d=document.getElementById("dock");
-  var open=d.classList.toggle("open");
-  document.getElementById("backdrop").classList.toggle("open",open);
-});
-document.getElementById("backdrop").addEventListener("click",closeDock);
+function setupBurger(){
+  var burger=byId("burger"),dock=byId("dock"),backdrop=byId("backdrop");
+  if(burger&&dock){
+    burger.setAttribute("type","button");
+    burger.setAttribute("aria-controls","dock");
+    burger.setAttribute("aria-expanded","false");
+    burger.addEventListener("click",function(){
+      var open=dock.classList.toggle("open");
+      if(backdrop)backdrop.classList.toggle("open",open);
+      burger.setAttribute("aria-expanded",open?"true":"false");
+    });
+  }
+  if(backdrop)backdrop.addEventListener("click",closeDock);
+  document.addEventListener("keydown",function(ev){
+    if(ev.key!=="Escape")return;
+    var g=byId("grad");
+    if(g&&g.classList.contains("open")){closeGrad();return;}
+    closeDock();
+  });
+}
 
 /* ================= BOOT ================= */
 function applyMeta(){
-  var t=document.querySelector("title");if(t&&META.title)t.textContent=META.title;
-  var bn=document.querySelector(".bname");if(bn&&META.brand)bn.textContent=META.brand;
-  var bs=document.querySelector(".bsub");if(bs&&META.tagline)bs.textContent=META.tagline;
+  var t=document.querySelector("title");
+  if(t&&META.title)t.textContent=META.title;
+  var bn=document.querySelector(".bname");
+  if(bn&&META.brand)bn.textContent=META.brand;
+  var bs=document.querySelector(".bsub");
+  if(bs&&META.tagline)bs.textContent=META.tagline;
+  var vh=byId("voyageHead");
+  if(vh)vh.textContent="THE VOYAGE — "+LAYER_COUNT+" WAYPOINTS";
   if(META.accent){
     var h=META.accent.replace("#","");
     var r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
@@ -434,18 +935,48 @@ function applyMeta(){
     var st=document.documentElement.style;
     st.setProperty("--accent",META.accent);
     st.setProperty("--accent-soft","rgb("+m(r)+","+m(g)+","+m(b)+")");
+    st.setProperty("--accent-rgb",r+","+g+","+b);
   }
 }
-window.addEventListener("load",function(){
+function boot(){
   applyMeta();
   refreshAll();
   setupBigStack();
   setupCopy();
   setupDone();
   setupScrollspy();
-  var simBtn=document.getElementById("simRun");if(simBtn){simBtn.addEventListener("click",simRun);}
-  var simRst=document.getElementById("simReset");if(simRst){simRst.addEventListener("click",function(){if(simTimer){clearTimeout(simTimer);simTimer=null;}simClear();});}
+  setupBurger();
+  setupProgressTools();
+  setupFx();
+  simClear();
+  var simBtn=byId("simRun");
+  if(simBtn){simBtn.setAttribute("type","button");simBtn.addEventListener("click",simRun);}
+  var simRst=byId("simReset");
+  if(simRst){simRst.setAttribute("type","button");simRst.addEventListener("click",function(){simStop();simClear();});}
+  if(location.hash&&byId(location.hash.slice(1)))markActive(location.hash.slice(1));
+  if(D.graduated&&!graduationReady())D.graduated=false;   /* progress was reset or imported */
   checkGraduation();
-});
+}
+if(document.readyState==="complete")boot();
+else window.addEventListener("load",boot);
+
+/* test seam — harmless in the browser, used by build/test.mjs */
+window.__SHIPYARD_ENGINE__={
+  state:function(){return D;},
+  xp:xp,
+  answer:function(pid,qi,oi){
+    var q=qstate(pid),qu=QUIZ[pid][qi];
+    if(q.cur[qi]===0||q.cur[qi]===1)return;
+    var right=(oi===qu.a);
+    if(q.first[qi]!==0&&q.first[qi]!==1)q.first[qi]=right?1:0;
+    q.cur[qi]=right?1:0;
+    var p=pctFor(pid);if(p>q.best)q.best=p;
+  },
+  pct:pctFor,
+  cleared:clearedPart,
+  maxXp:function(){return MAX_XP;},
+  ranks:function(){return RANKS;},
+  graduationReady:graduationReady
+};
 
 })();

@@ -4,6 +4,9 @@ export default {
   brand: 'THE REST-API SHIPYARD',
   tagline: 'REST \u00b7 resources & representations \u00b7 HTTP \u00b7 idempotency',
   storageKey: 'shipyard:rest-api:v1',
+  legacyStorageKeys: [],
+  stackLabel: 'THE STACK — your resource model',
+  ranks: ['SWABBIE', 'DECKHAND', 'BOATSWAIN', 'FIRST MATE', 'RESOURCE CAPTAIN', 'HARBOR MASTER'],
   accent: '#14b8a6',
 
   boot: [
@@ -20,6 +23,18 @@ export default {
     rule: 'express state through representations, never through verbs in URLs. Hold that, and every \u201cwhy does this API feel wrong?\u201d answers itself.',
   },
   chips: { p2: ['<span class="m">\u2605 <b>INTERVIEW GOLD</b></span>'], p10: ['<span class="m">\u2605 <b>INTERVIEW GOLD</b></span>'] },
+  grad: {
+    title: 'API SHIPPED 🛰',
+    rule: 'express state through representations, never through verbs in URLs. Hold that, and every \u201cwhy does this API feel wrong?\u201d answers itself.',
+  },
+  console: {
+    cmd: '$ curl -sS -o /dev/null -w "%{http_code}" /health',
+    line: '200  ·  idempotent  ·  cacheable  ·  (yours — every layer earned)',
+  },
+  simPrompt: '$ curl -i -X PUT https://api.example.com/orders/42 -H "If-Match: a1b2"',
+  egg: { label: 'HATEOAS ENGAGED' },
+  deckIn: 'p13',
+  milesIn: 'p14',
   simIn: 'p10',
   deckNote: 'If you can deliver these aloud \u2014 with the WHAT \u2192 WHY IT EXISTS \u2192 ONE CONCRETE CONSEQUENCE shape \u2014 you are interview-ready. Answer before flipping; nailed cards dim.',
   milesNote: 'Six milestones = six layers of proof, mapped to the curriculum&#39;s day plan (~1 focused hour/day, days 1\u201333). When all six drop, the shipyard ships your container.',

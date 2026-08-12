@@ -1,36 +1,33 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-render="img">
 <head>
 <meta charset="UTF-8">
-    <meta property="og:type" content="article">
-    <meta property="og:title" content="The Container Shipyard - Docker First-Principles Curriculum">
-    <meta property="og:description" content="Docker - first-principles curriculum - an interactive, one-file, offline curriculum.">
-    <meta property="og:image" content="assets/og/docker.png">
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%23ffb000%22 d=%22M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z%22/%3E%3C/svg%3E">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Container Shipyard — Docker First-Principles Curriculum</title>
-<!-- HERO: THE STACK — your learning progress physically builds a container, layer by layer, in the sidebar; completing all 14 parts ships it (animated deployment + rank-up) -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffb000' d='M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z'/%3E%3Crect x='7' y='11' width='2' height='2' fill='%230b0e14'/%3E%3Crect x='12' y='11' width='2' height='2' fill='%230b0e14'/%3E%3Crect x='17' y='11' width='2' height='2' fill='%230b0e14'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Docker - first-principles curriculum — a first-principles interactive curriculum. One portable HTML file, 14 parts, checkpoint quizzes and idea cards. Runs offline; progress stays in your browser.">
+<meta name="color-scheme" content="dark">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The Container Shipyard - Docker: A First-Principles Curriculum">
+<meta property="og:description" content="Docker - first-principles curriculum — a first-principles interactive curriculum. One portable HTML file, 14 parts, checkpoint quizzes and idea cards. Runs offline; progress stays in your browser.">
+<meta property="og:image" content="https://amanhasnonamee.github.io/shipyard/assets/og/docker.png">
+<meta property="og:url" content="https://amanhasnonamee.github.io/shipyard/docker.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%23ffb000%22 d=%22M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z%22/%3E%3C/svg%3E">
+<meta name="contract" content="shipyard-docker@2">
+<title>The Container Shipyard - Docker: A First-Principles Curriculum</title>
 <link rel="stylesheet" href="assets/shipyard.css">
 </head>
 <body>
-<div id="scanlines"></div>
-<div id="vignette"></div>
-<button id="burger">☰ MAP</button>
-<div id="backdrop"></div>
-
+<a href="#part0" class="skiplink">Skip to content</a>
+<div id="scanlines" aria-hidden="true"></div><div id="vignette" aria-hidden="true"></div>
+<button type="button" id="burger" aria-controls="dock" aria-expanded="false">&#9776; MAP</button><div id="backdrop"></div>
 <div id="app">
-
-<aside id="dock">
+<aside id="dock" aria-label="Curriculum navigation">
   <div class="brand">
     <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
       <path fill="var(--accent)" d="M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z"/>
       <rect x="7" y="11" width="2" height="2" fill="var(--bg)"/><rect x="12" y="11" width="2" height="2" fill="var(--bg)"/><rect x="17" y="11" width="2" height="2" fill="var(--bg)"/>
     </svg>
-    <div><div class="bname">THE CONTAINER SHIPYARD</div><div class="bsub">Docker · first-principles curriculum</div></div>
+    <div><div class="bname">THE CONTAINER SHIPYARD</div><div class="bsub">Docker - first-principles curriculum</div></div>
   </div>
 
   <div class="rankbox">
@@ -42,10 +39,15 @@
   <div class="stackbox">
     <div class="st"><span>THE STACK — your container</span><span id="stackCount">0/14</span></div>
     <div id="stackMini"></div>
-    <div id="psRow"><b>$ docker ps</b><br><span id="psRow2">—</span></div>
+    <div id="psRow"><b id="psRowCmd">$ shipyard status</b><br><span id="psRow2">—</span></div>
   </div>
 
-  <nav class="docknav" id="docknav"></nav>
+  <div class="milebox">
+    <div class="st"><span>MILESTONES</span><span id="mileCount">0/6</span></div>
+    <div id="mileMini"></div>
+  </div>
+
+  <nav class="docknav" id="docknav" aria-label="Parts"></nav>
 
   <div class="legend">
     <div class="lt">Depth legend</div>
@@ -58,53 +60,9 @@
   <div class="dockfoot" id="dockfoot"></div>
 </aside>
 
-<main>
-
-<div id="scanlines"></div>
-<div id="vignette"></div>
-<button id="burger">☰ MAP</button>
-<div id="backdrop"></div>
-
-<div id="app">
-
-<aside id="dock">
-  <div class="brand">
-    <svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="var(--accent)" d="M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z"/>
-      <rect x="7" y="11" width="2" height="2" fill="var(--bg)"/><rect x="12" y="11" width="2" height="2" fill="var(--bg)"/><rect x="17" y="11" width="2" height="2" fill="var(--bg)"/>
-    </svg>
-    <div><div class="bname">THE CONTAINER SHIPYARD</div><div class="bsub">Docker · first-principles curriculum</div></div>
-  </div>
-
-  <div class="rankbox">
-    <div class="rk" id="rankNow">SWABBIE</div>
-    <div class="rkxp" id="rankXp"></div>
-    <div class="prbar"><i id="rankBar"></i></div>
-  </div>
-
-  <div class="stackbox">
-    <div class="st"><span>THE STACK — your container</span><span id="stackCount">0/14</span></div>
-    <div id="stackMini"><!-- layers injected by JS --></div>
-    <div id="psRow"><b>$ docker ps</b><br><span id="psRow2">—</span></div>
-  </div>
-
-  <nav class="docknav" id="docknav"><!-- nav injected by JS --></nav>
-
-  <div class="legend">
-    <div class="lt">Depth legend</div>
-    <div class="lg"><span class="sw" style="background:var(--deep);box-shadow:0 0 6px rgba(255,93,93,.6)"></span><span><b style="color:var(--deep)">DEEP</b> — core mental model. Prove it out loud.</span></div>
-    <div class="lg"><span class="sw" style="background:var(--recog)"></span><span><b style="color:var(--recog)">RECOGNIZE</b> — read fluently; write with docs open.</span></div>
-    <div class="lg"><span class="sw" style="background:var(--ref)"></span><span><b style="color:var(--ref)">REFERENCE</b> — know it exists. Never memorize.</span></div>
-    <div class="lg"><span class="sw" style="background:var(--adv)"></span><span><b style="color:var(--adv)">ADVANCED</b> — return after Part 8.</span></div>
-  </div>
-
-  <div class="dockfoot" id="dockfoot"></div>
-</aside>
-
-<main>
+<main id="main">
 <section class="hero" id="part0">
-  <div class="boot">
-    <div class="bl">$ shipyard boot --curriculum docker-first-principles</div>
+  <div class="boot" aria-hidden="true"><div class="bl">$ shipyard boot --curriculum docker-first-principles</div>
     <div class="bl">STAGE 1: LOADING PARTS 0–14 ......... <span style="color:var(--ok)">OK</span></div>
     <div class="bl">STAGE 2: MOUNTING DEPTH TAGS .......... <span style="color:var(--ok)">OK</span></div>
     <div class="bl"><span class="warn">WARNING: the exercises ARE the curriculum. Skipping them is not allowed.</span></div>
@@ -118,17 +76,18 @@
     <div class="hchip">LAYERS <b id="hLayers">0/14</b></div>
     <div class="hchip">QUIZZES CLEARED <b class="ok" id="hQuizzes">0</b></div>
   </div>
-  <div id="voyageHead">THE VOYAGE — 14 WAYPOINTS</div>
-  <div class="voyage" id="voyage"><!-- injected by JS --></div>
+  <h2 id="voyageHead">THE VOYAGE — 14 WAYPOINTS</h2>
+  <div class="voyage" id="voyage"></div>
 </section>
 
-<section class="part" id="p0">
-  <div class="phead"><div class="pnum">00</div>
-    <div><div class="ptitle">How to Use This Curriculum</div></div>
-    <div class="pactions"><button class="btn sm" data-done="p0">MARK COMPLETE</button></div>
+<section class="part" id="p0" aria-labelledby="p0-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">00</div>
+    <div><h2 class="ptitle" id="p0-title">How to Use This Curriculum</h2>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p0">MARK COMPLETE</button></div>
   </div>
 
-  <h2>Briefing</h2>
+  <h3>Briefing</h3>
   <p>You are the <b>captain of a container shipyard</b>. Every part you complete drops one layer onto the stack beside you. Every quiz you pass earns XP. The central question of this whole voyage: <i>"What do I actually need to memorize?"</i></p>
   <p><b style="color:var(--accent)">Answer: almost nothing.</b> You need to <i>understand</i> a small core and <i>reference</i> the rest. Four tags label every concept in the curriculum — this is your map legend:</p>
 
@@ -142,7 +101,7 @@
     </tbody>
   </table></div>
 
-  <h2>The Rules of the Voyage</h2>
+  <h3>The Rules of the Voyage</h3>
   <div class="tblwrap"><table>
     <thead><tr><th>Rule</th><th>Why</th></tr></thead>
     <tbody>
@@ -155,20 +114,22 @@
 
   <div class="note"><span class="lbl">Pace</span>
   <p>At ~1 focused hour/day: <b>M1 in days 1–3, M2 days 4–6, M3 days 7–9, M4 days 10–15, M5 days 16–20, M6 ongoing review.</b> Faster is fine; skipping exercises is not.</p></div>
+
+  <div class="breadcrumb"><a class="next" href="#p1">01 · THE PROBLEM DOCKER SOLVES &rarr;</a></div>
 </section>
 
-<section class="part" id="p1">
-  <div class="phead"><div class="pnum">01</div>
-    <div><div class="ptitle">The Problem Docker Solves</div>
+<section class="part" id="p1" aria-labelledby="p1-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">01</div>
+    <div><h2 class="ptitle" id="p1-title">The Problem Docker Solves</h2>
     <div class="pmeta"><span class="m">TAG <b>DEEP</b></span><span class="m">MODE <b>READ</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p1">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p1">MARK COMPLETE</button></div>
   </div>
 
   <p>You cannot understand a tool without understanding the pain that created it. Docker exists because of <b>three chronic problems</b> in shipping software.</p>
 
-  <h2>Problem 1: "Works on my machine"</h2>
+  <h3>Problem 1: "Works on my machine"</h3>
   <p>An application is never just your code. It is:</p>
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">the-real-app.sh</span><button class="copybtn">COPY</button></div>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">the-real-app.sh</span><button type="button" class="copybtn">COPY</button></div>
   <pre><code><span class="c"># your code</span>
   + language runtime <span class="a">(Python 3.11, Node 20...)</span>
   + system libraries <span class="a">(libpq, openssl, glibc...)</span>
@@ -179,12 +140,12 @@
   <div class="idea"><span class="lbl">Docker's answer</span>
   <p>Package the code <b>and its entire environment</b> into one artifact (an image) that runs identically everywhere.</p></div>
 
-  <h2>Problem 2: Dependency conflicts on shared machines</h2>
+  <h3>Problem 2: Dependency conflicts on shared machines</h3>
   <p>App A needs Python 3.8 + library X v1. App B needs Python 3.12 + library X v3. Same server. Before containers you had fragile workarounds (virtualenvs solve Python packages but not system libraries; separate servers solve everything but waste money).</p>
   <div class="idea"><span class="lbl">Docker's answer</span>
   <p>Each app runs in its own <b>isolated filesystem</b> with its own dependencies. They share the machine but never see each other's files.</p></div>
 
-  <h2>Problem 3: Virtual machines are too heavy</h2>
+  <h3>Problem 3: Virtual machines are too heavy</h3>
   <p>VMs solved both problems above — full isolation, reproducible environments — but at brutal cost:</p>
   <div class="tblwrap"><table>
     <thead><tr><th></th><th>Virtual Machine</th><th>Container</th></tr></thead>
@@ -199,28 +160,28 @@
   <div class="warn"><span class="lbl">The single most common interview question in existence</span>
   <p><b>This table IS the question.</b> Understand the "why" column, not just the numbers. The reason containers are light is the entire secret of Docker: <i>a container is not a small VM — it is a normal process that the kernel has been told to lie to.</i> More in Part 2.</p></div>
 
-  <h2>What Docker is NOT solving</h2>
+  <h3>What Docker is NOT solving</h3>
   <ul>
     <li>It does not make your code faster (slight overhead, if anything).</li>
     <li>It does not replace configuration management or CI/CD — it plugs into them.</li>
     <li>It does not give VM-grade security isolation (shared kernel).</li>
   </ul>
 
-  <div class="quiz" data-part="p1"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p1"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p0">← 00 · HOW TO</a><a class="next" href="#p2">02 · THE CORE MENTAL MODEL →</a></div>
+  <div class="breadcrumb"><a href="#p0">&larr; 00 · HOW TO USE THIS CURRICULUM</a><a class="next" href="#p2">02 · THE CORE MENTAL MODEL &rarr;</a></div>
 </section>
 
-<section class="part" id="p2">
-  <div class="phead"><div class="pnum">02</div>
-    <div><div class="ptitle">The Core Mental Model</div>
+<section class="part" id="p2" aria-labelledby="p2-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">02</div>
+    <div><h2 class="ptitle" id="p2-title">The Core Mental Model</h2>
     <div class="pmeta"><span class="m">TAG <b>DEEP</b></span><span class="m">MODE <b>READ</b></span><span class="m">★ <b>MOST IMPORTANT PART</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p2">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p2">MARK COMPLETE</button></div>
   </div>
 
   <p>This is the most important section in the document. Everything else is detail on top of these <b>four ideas</b>.</p>
 
-  <h2>Idea 1: A container is just a process</h2>
+  <h3>Idea 1: A container is just a process</h3>
   <p>Not a VM. Not a "lightweight OS." When you run a container, the host's Linux kernel starts an ordinary process — same as running <code class="inline">python app.py</code> directly — but wraps it in three kernel features:</p>
   <ol>
     <li><b style="color:var(--recog)">Namespaces</b> — control what the process can <i>see</i>. It gets its own view of the process tree (it thinks it's PID 1), its own network stack, its own hostname, its own filesystem root. Other processes on the host are invisible to it.</li>
@@ -232,7 +193,7 @@
   <div class="idea"><span class="lbl">Consequence you'll rely on constantly</span>
   <p><b>When the main process (PID 1) inside a container exits, the container stops.</b> A container is alive exactly as long as its process is. This explains 80% of "my container keeps exiting" confusion.</p></div>
 
-  <h2>Idea 2: An image is a frozen filesystem, built in layers</h2>
+  <h3>Idea 2: An image is a frozen filesystem, built in layers</h3>
   <p>An image is: a stack of <b>read-only filesystem layers</b> (each layer = the file changes made by one Dockerfile instruction), plus <b>metadata</b>: what command to run, env vars, exposed ports, working directory.</p>
   <p>Think of it as a class; containers are instances. One image → many containers, <b>cheaply</b>, because containers don't copy the image. Instead:</p>
 
@@ -243,14 +204,14 @@
     <div class="sblayer" data-layer="base"><span class="sbn">LAYER 1</span><span class="sbt">Ubuntu base files</span><span class="sbd">read-only · SHARED</span></div>
     <div class="sbdisc" id="sbdisc">Hover or click a layer. Then press <b>▶ START</b> to run the container.</div>
     <div class="stack-controls">
-      <button class="btn sm" id="sbStart">▶ START CONTAINER</button>
-      <button class="btn sm ok" id="sbWrite">✎ WRITE A FILE</button>
-      <button class="btn sm" id="sbRm">docker rm</button>
+      <button type="button" class="btn sm" id="sbStart">▶ START CONTAINER</button>
+      <button type="button" class="btn sm ok" id="sbWrite">✎ WRITE A FILE</button>
+      <button type="button" class="btn sm" id="sbRm">docker rm</button>
       <span id="sbLog" style="font-family:var(--mono);font-size:11px;color:var(--dim);align-self:center;margin-left:6px"></span>
     </div>
   </div>
 
-  <h3>Consequences that fall out of this model</h3>
+  <h4>Consequences that fall out of this model</h4>
   <ul>
     <li><b>Starting a container is instant</b> — no copying, just add an empty writable layer on top.</li>
     <li><b>Deleting a container deletes its writable layer.</b> Anything written inside a container is lost when the container is removed. This is why volumes exist (Part 5).</li>
@@ -258,7 +219,7 @@
     <li><b>Layer ordering in a Dockerfile determines build speed</b> (Part 4's cache section).</li>
   </ul>
 
-  <h2>Idea 3: The architecture — client, daemon, registry</h2>
+  <h3>Idea 3: The architecture — client, daemon, registry</h3>
   <p><code class="inline">docker</code> the command you type is not Docker. It's a thin client.</p>
   <div class="pipeline">
     <div class="pnode"><div class="pn1">you</div><div class="pn2">human</div></div>
@@ -289,7 +250,7 @@
   <div class="warn"><span class="lbl">Why this matters practically</span>
   <p>Because CLI and daemon talk over an API, the daemon can be remote — and it also explains why <b>everything you do requires the daemon to be running</b>. "Cannot connect to the Docker daemon" = the service isn't up — the #1 beginner error.</p></div>
 
-  <h2>Idea 4: The three nouns and their verbs</h2>
+  <h3>Idea 4: The three nouns and their verbs</h3>
   <p>Almost all Docker usage is manipulating three object types:</p>
   <div class="tblwrap"><table>
     <thead><tr><th>Noun</th><th>What it is</th><th>Analogy</th></tr></thead>
@@ -300,7 +261,7 @@
     </tbody>
   </table></div>
   <p>And the core lifecycle:</p>
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">lifecycle.dot</span><button class="copybtn">COPY</button></div>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">lifecycle.dot</span><button type="button" class="copybtn">COPY</button></div>
   <pre><code>Dockerfile ──<span class="a">build</span>──▶ Image ──<span class="a">run</span>──▶ Container
                         │▲
                      <span class="a">push</span>│<span class="a">pull</span>
@@ -322,34 +283,28 @@
   </ol></details>
   <p style="margin-top:10px"><b style="color:var(--deep)">If you can't answer all three crisply, reread Part 2. Nothing later will stick without it.</b></p></div>
 
-  <div class="quiz" data-part="p2"><span class="qlbl">Checkpoint quiz — prove it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p2"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p1">← 01 · THE PROBLEM</a><a class="next" href="#p3">03 · CONTAINERS IN PRACTICE →</a></div>
+  <div class="breadcrumb"><a href="#p1">&larr; 01 · THE PROBLEM DOCKER SOLVES</a><a class="next" href="#p3">03 · CONTAINERS IN PRACTICE &rarr;</a></div>
 </section>
 
-<section class="part" id="p3">
-  <div class="phead"><div class="pnum">03</div>
-    <div><div class="ptitle">Containers in Practice</div>
+<section class="part" id="p3" aria-labelledby="p3-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">03</div>
+    <div><h2 class="ptitle" id="p3-title">Containers in Practice</h2>
     <div class="pmeta"><span class="m">MODE <b>HANDS-ON</b></span><span class="m">REQUIRES <b>DOCKER INSTALLED</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p3">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p3">MARK COMPLETE</button></div>
   </div>
 
   <p>Install Docker Desktop (Win/Mac) or Docker Engine (Linux), verify with <code class="inline">docker version</code> (should show both Client and Server — if Server errors, the daemon isn't running).</p>
 
-  <h2>3.1 <code class="inline">docker run</code> — the most important command <span class="tag tag-deep">DEEP</span></h2>
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div>
+  <h3>3.1 <code class="inline">docker run</code> — the most important command <span class="tag tag-deep">DEEP</span></h3>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div>
   <pre><code><span class="p">$</span> docker run -d -p 8080:80 --name web nginx</code></pre></div>
 
   <p><b>What happens internally when you press Enter</b> — memorize this sequence. It's a classic interview question and the key to debugging. Watch it play out:</p>
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">simulator — click RUN</span><button class="copybtn" data-sim-copy>COPY</button></div>
-  <pre id="simOut"><code><span class="c"># docker run -d -p 8080:80 --name web nginx</span>
-<span class="r">▮ press ▶ RUN to see the 6 internal steps</span></code></pre>
-  <div class="stack-controls" style="margin:0;padding:10px 16px;border-top:1px solid var(--line)">
-    <button class="btn sm" id="simRun">▶ RUN</button>
-    <button class="btn sm ok" id="simReset">RESET</button>
-  </div></div>
+  
 
-  <h3>Flags worth understanding deeply — not memorizing</h3>
+  <h4>Flags worth understanding deeply — not memorizing</h4>
   <p><i>Understand what <b>category of problem</b> each solves:</i></p>
   <div class="tblwrap"><table>
     <thead><tr><th>Flag</th><th>Why it exists</th><th>Depth</th></tr></thead>
@@ -369,7 +324,7 @@
   <div class="warn"><span class="lbl">The classic "it's broken" moment</span>
   <p><code class="inline">docker run ubuntu</code> exits instantly and beginners think it's broken. It isn't — <code class="inline">ubuntu</code>'s default command is <code class="inline">bash</code>, bash sees no attached terminal, exits, and per Idea 1 the container dies with its process. <b>Containers run <i>a process</i>, not "an OS".</b></p></div>
 
-  <h2>3.2 The container lifecycle <span class="tag tag-deep">DEEP CONCEPT</span> / <span class="tag tag-ref">REFERENCE SYNTAX</span></h2>
+  <h3>3.2 The container lifecycle <span class="tag tag-deep">DEEP CONCEPT</span> / <span class="tag tag-ref">REFERENCE SYNTAX</span></h3>
   <div class="life">
     <span class="lstate">created</span>
     <span class="larrow">—start→</span>
@@ -392,9 +347,9 @@
   </table></div>
   <p>Understand deeply the difference between <b>stopped</b> (process dead, filesystem layer still there — can restart, data intact) and <b>removed</b> (gone forever). Everything else here is <span class="tag tag-ref">REFERENCE</span>.</p>
 
-  <h2>3.3 Inspecting running containers <span class="tag tag-deep">DEEP — YOUR DEBUGGING TOOLKIT</span></h2>
+  <h3>3.3 Inspecting running containers <span class="tag tag-deep">DEEP — YOUR DEBUGGING TOOLKIT</span></h3>
   <p>Four commands cover 90% of all Docker debugging. Learn these cold:</p>
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div>
   <pre><code><span class="p">$</span> docker logs -f web          <span class="c"># what the process wrote to stdout/stderr</span>
 <span class="p">$</span> docker exec -it web bash    <span class="c"># open a shell INSIDE the running container</span>
 <span class="p">$</span> docker inspect web          <span class="c"># full JSON: config, IP, mounts, state, exit code</span>
@@ -411,22 +366,24 @@
     <li>Run <code class="inline">docker run -d ubuntu</code> and explain why <code class="inline">docker ps</code> doesn't show it (then find it with <code class="inline">-a</code> and read its exit state in <code class="inline">inspect</code>).</li>
   </ol></div>
 
-  <div class="quiz" data-part="p3"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">simulator — click RUN</span></div><pre id="simOut" aria-live="polite"></pre><div class="stack-controls" style="margin:0;padding:10px 16px;border-top:1px solid var(--line)"><button type="button" class="btn sm" id="simRun">&#9654; RUN</button><button type="button" class="btn sm ok" id="simReset">RESET</button></div></div>
 
-  <div class="breadcrumb"><a href="#p2">← 02 · MENTAL MODEL</a><a class="next" href="#p4">04 · IMAGES & DOCKERFILES →</a></div>
+<div class="quiz" data-part="p3"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
+
+  <div class="breadcrumb"><a href="#p2">&larr; 02 · THE CORE MENTAL MODEL</a><a class="next" href="#p4">04 · IMAGES &amp; DOCKERFILES &rarr;</a></div>
 </section>
 
-<section class="part" id="p4">
-  <div class="phead"><div class="pnum">04</div>
-    <div><div class="ptitle">Images &amp; Dockerfiles</div>
+<section class="part" id="p4" aria-labelledby="p4-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">04</div>
+    <div><h2 class="ptitle" id="p4-title">Images &amp; Dockerfiles</h2>
     <div class="pmeta"><span class="m">MODE <b>HANDS-ON</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p4">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p4">MARK COMPLETE</button></div>
   </div>
 
-  <h2>4.1 What a Dockerfile is <span class="tag tag-deep">DEEP</span></h2>
+  <h3>4.1 What a Dockerfile is <span class="tag tag-deep">DEEP</span></h3>
   <p>A Dockerfile is a build script: a sequence of instructions, each producing one image layer. <code class="inline">docker build</code> executes it top-to-bottom, snapshotting the filesystem after each step.</p>
   <p>The canonical example — read every comment:</p>
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">Dockerfile</span><button class="copybtn">COPY</button></div>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">Dockerfile</span><button type="button" class="copybtn">COPY</button></div>
   <pre><code><span class="c"># Every image starts FROM a base image (OS files + often a runtime).</span>
 <span class="b">FROM</span> python:3.12-slim
 
@@ -447,10 +404,10 @@
 
 <span class="c"># What to execute AT RUN TIME when a container starts. Exactly one CMD.</span>
 <span class="b">CMD</span> [<span class="a">"python"</span>, <span class="a">"manage.py"</span>, <span class="a">"runserver"</span>, <span class="a">"0.0.0.0:8000"</span>]</code></pre></div>
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div>
   <pre><code><span class="p">$</span> docker build -t myapp:1.0 .     <span class="c"># -t = name:tag;  . = build context (dir sent to daemon)</span></code></pre></div>
 
-  <h2>4.2 The instruction set — what to know at what depth</h2>
+  <h3>4.2 The instruction set — what to know at what depth</h3>
   <div class="tblwrap"><table>
     <thead><tr><th>Instruction</th><th>Purpose</th><th>Depth</th></tr></thead>
     <tbody>
@@ -471,14 +428,14 @@
   <div class="warn"><span class="lbl">RUN vs CMD is the classic confusion</span>
   <p><b>RUN</b> happens once, during <code class="inline">docker build</code>, and bakes its result into the image. <b>CMD</b> happens every time a container starts, and bakes nothing. <code class="inline">RUN pip install</code> ✔ ; <code class="inline">CMD pip install</code> ✘ (would reinstall on every start).</p></div>
 
-  <h3>ENTRYPOINT vs CMD <span class="tag tag-recog">RECOGNIZE NOW</span> <span class="tag tag-deep">DEEP BY INTERVIEW TIME</span></h3>
+  <h4>ENTRYPOINT vs CMD <span class="tag tag-recog">RECOGNIZE NOW</span> <span class="tag tag-deep">DEEP BY INTERVIEW TIME</span></h4>
   <ul>
     <li><code class="inline">CMD ["python", "app.py"]</code> — fully overridable: <code class="inline">docker run img bash</code> replaces it entirely.</li>
     <li><code class="inline">ENTRYPOINT ["python"]</code> + <code class="inline">CMD ["app.py"]</code> — ENTRYPOINT is fixed; anything after <code class="inline">docker run img</code> replaces only CMD (the args). Pattern for CLI-tool images.</li>
     <li>Always prefer the JSON/"exec" form <code class="inline">["a","b"]</code> over shell form <code class="inline">a b</code> — shell form wraps your process in <code class="inline">/bin/sh -c</code>, which then becomes PID 1 and <b>swallows SIGTERM</b>, breaking graceful shutdown. This detail is a strong interview signal.</li>
   </ul>
 
-  <h2>4.3 Layer caching — the concept that makes builds fast or slow <span class="tag tag-deep">DEEP</span></h2>
+  <h3>4.3 Layer caching — the concept that makes builds fast or slow <span class="tag tag-deep">DEEP</span></h3>
   <p>Rule: each instruction's layer is reused from cache <b>if the instruction is unchanged AND all previous layers were cache hits</b>. For <code class="inline">COPY</code>, "unchanged" means the copied files' checksums are identical. <b style="color:var(--deep)">First cache miss invalidates every layer after it.</b></p>
   <p>This is why the canonical Dockerfile copies <code class="inline">requirements.txt</code> before the source code:</p>
   <div class="tblwrap"><table>
@@ -498,14 +455,14 @@
   <p><b>Order instructions from least-frequently-changing to most-frequently-changing.</b> This one idea is the difference between 3-second and 5-minute rebuild loops, and interviewers probe it.</p></div>
   <p>Related <span class="tag tag-recog">RECOGNIZE</span>: <code class="inline">.dockerignore</code> — like <code class="inline">.gitignore</code>, excludes files from the build context. Always exclude <code class="inline">.git</code>, <code class="inline">node_modules</code>, <code class="inline">venv</code>, <code class="inline">__pycache__</code>, <code class="inline">.env</code>. Two reasons: smaller/faster context upload, and prevents junk (or secrets) from busting <code class="inline">COPY . .</code>'s cache or landing in the image.</p>
 
-  <h2>4.4 Image size &amp; multi-stage builds</h2>
+  <h3>4.4 Image size &amp; multi-stage builds</h3>
   <p>Why size matters: pull time on every deploy, disk, and <b>attack surface</b> (every binary in the image is exploitable surface).</p>
   <p>Levers, in order of impact:</p>
   <ol>
     <li><b>Small base image</b> <span class="tag tag-deep">DEEP</span>: <code class="inline">python:3.12</code> (~1GB, full Debian) vs <code class="inline">python:3.12-slim</code> (~150MB) vs <code class="inline">alpine</code> (~50MB, but musl-libc causes subtle breakage with compiled Python wheels — for Python, slim is the pragmatic default; alpine shines for Go/static binaries).</li>
     <li><b>Multi-stage builds</b> <span class="tag tag-deep">DEEP CONCEPT</span> <span class="tag tag-recog">RECOGNIZE SYNTAX</span>: build with heavy tooling, ship only the output.</li>
   </ol>
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">Dockerfile.multistage</span><button class="copybtn">COPY</button></div>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">Dockerfile.multistage</span><button type="button" class="copybtn">COPY</button></div>
   <pre><code><span class="c"># Stage 1: has compilers, dev headers — huge, and that's fine</span>
 <span class="b">FROM</span> node:20 <span class="b">AS</span> build
 <span class="b">WORKDIR</span> /app
@@ -522,9 +479,9 @@
     <li><b>Chain related RUNs</b> (<code class="inline">RUN apt-get update &amp;&amp; apt-get install -y X &amp;&amp; rm -rf /var/lib/apt/lists/*</code>) — because layers are additive: deleting a file in a later layer doesn't shrink the image, it just hides the file. <span class="tag tag-recog">RECOGNIZE</span></li>
   </ol>
 
-  <h2>4.5 Tags and registries <span class="tag tag-deep">DEEP CONCEPT</span></h2>
+  <h3>4.5 Tags and registries <span class="tag tag-deep">DEEP CONCEPT</span></h3>
   <p><code class="inline">python:3.12-slim</code> = repository <code class="inline">python</code>, tag <code class="inline">3.12-slim</code>. A tag is a <b>movable pointer</b> to an image, exactly like a Git branch name — <b>not</b> a version guarantee. <code class="inline">latest</code> is just the default tag name; it is not "newest" and it <i>moves</i>, which is why production pins specific tags (or digests).</p>
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div>
   <pre><code><span class="p">$</span> docker pull redis:7           <span class="c"># registry → local</span>
 <span class="p">$</span> docker tag myapp:1.0 username/myapp:1.0
 <span class="p">$</span> docker push username/myapp:1.0   <span class="c"># local → registry (needs docker login)</span></code></pre></div>
@@ -537,22 +494,22 @@
     <li>Compare <code class="inline">docker images</code> sizes: same app on <code class="inline">python:3.12</code> vs <code class="inline">3.12-slim</code>.</li>
   </ol></div>
 
-  <div class="quiz" data-part="p4"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p4"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p3">← 03 · CONTAINERS</a><a class="next" href="#p5">05 · STORAGE →</a></div>
+  <div class="breadcrumb"><a href="#p3">&larr; 03 · CONTAINERS IN PRACTICE</a><a class="next" href="#p5">05 · STORAGE &rarr;</a></div>
 </section>
 
-<section class="part" id="p5">
-  <div class="phead"><div class="pnum">05</div>
-    <div><div class="ptitle">Storage</div>
+<section class="part" id="p5" aria-labelledby="p5-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">05</div>
+    <div><h2 class="ptitle" id="p5-title">Storage</h2>
     <div class="pmeta"><span class="m">MODE <b>HANDS-ON</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p5">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p5">MARK COMPLETE</button></div>
   </div>
 
-  <h2>5.1 The problem <span class="tag tag-deep">DEEP</span></h2>
+  <h3>5.1 The problem <span class="tag tag-deep">DEEP</span></h3>
   <p>From Idea 2: <b>the container's writable layer dies with the container.</b> So how does a Postgres container keep data across upgrades? Answer: mount storage that lives <i>outside</i> the container's layer stack.</p>
 
-  <h2>5.2 The three mount types</h2>
+  <h3>5.2 The three mount types</h3>
   <div class="tblwrap"><table>
     <thead><tr><th></th><th>Volume</th><th>Bind mount</th><th>tmpfs</th></tr></thead>
     <tbody>
@@ -567,8 +524,8 @@
   <p>A mount <b>shadows</b> whatever the image had at that path — like mounting a USB drive over a directory. Writes to that path go to the volume/host, bypassing the writable layer entirely.</p></div>
   <p>Named volumes survive <code class="inline">docker rm</code>; list with <code class="inline">docker volume ls</code>, delete with <code class="inline">docker volume rm</code>. <span class="tag tag-ref">REFERENCE</span></p>
 
-  <h2>5.3 The two workflows you'll actually use</h2>
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div>
+  <h3>5.3 The two workflows you'll actually use</h3>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div>
   <pre><code><span class="c"># 1. Persistent database (volume)</span>
 <span class="p">$</span> docker run -d -v pgdata:/var/lib/postgresql/data \
     -e POSTGRES_PASSWORD=dev postgres:16
@@ -586,19 +543,19 @@
   <div class="lab"><span class="lbl">Exercise</span>
   <p>Run Postgres with a named volume, create a table, <code class="inline">docker rm -f</code> the container, start a fresh one with the same volume, and confirm the table survived. Then repeat without a volume and watch the data vanish. <b>Feeling that loss once is worth ten explanations.</b></p></div>
 
-  <div class="quiz" data-part="p5"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p5"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p4">← 04 · IMAGES</a><a class="next" href="#p6">06 · NETWORKING →</a></div>
+  <div class="breadcrumb"><a href="#p4">&larr; 04 · IMAGES &amp; DOCKERFILES</a><a class="next" href="#p6">06 · NETWORKING &rarr;</a></div>
 </section>
 
-<section class="part" id="p6">
-  <div class="phead"><div class="pnum">06</div>
-    <div><div class="ptitle">Networking</div>
+<section class="part" id="p6" aria-labelledby="p6-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">06</div>
+    <div><h2 class="ptitle" id="p6-title">Networking</h2>
     <div class="pmeta"><span class="m">MODE <b>HANDS-ON</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p6">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p6">MARK COMPLETE</button></div>
   </div>
 
-  <h2>6.1 The model <span class="tag tag-deep">DEEP</span></h2>
+  <h3>6.1 The model <span class="tag tag-deep">DEEP</span></h3>
   <p>Each container gets its own <b>network namespace</b>: its own interfaces, its own IP, its own <code class="inline">localhost</code>. Three consequences that explain nearly every networking bug:</p>
   <ol>
     <li><b><code class="inline">localhost</code> inside a container is <i>that container</i></b>, not your machine, not other containers. <span style="color:var(--deep)">This is the #1 networking bug.</span></li>
@@ -606,13 +563,13 @@
     <li>Containers can't be reached from the host without explicit port publishing.</li>
   </ol>
 
-  <h2>6.2 Bridge networks and DNS <span class="tag tag-deep">DEEP</span></h2>
+  <h3>6.2 Bridge networks and DNS <span class="tag tag-deep">DEEP</span></h3>
   <p>By default, containers attach to Docker's default <code class="inline">bridge</code> network — a virtual switch on the host. Containers on the same bridge can reach each other by IP.</p>
   <div class="bridge">
     <div style="text-align:center">
       <span style="font-family:var(--mono);font-size:11px;color:var(--faint)">your machine — port publishing punches in from here</span>
     </div>
-    <div class="bnet">
+    <div class="bnet" data-label="bridge network — docker0 (virtual switch)">
       <span class="bcontainer hosted"><span class="bn">web · nginx</span><span class="bi">172.17.0.2 · :80</span></span>
       <span class="bcontainer"><span class="bn">db · postgres</span><span class="bi">172.17.0.3 · :5432</span></span>
       <span class="bcontainer"><span class="bn">api · myapp</span><span class="bi">172.17.0.4 · :8000</span></span>
@@ -620,7 +577,7 @@
     </div>
     <div class="bdns-note">But IPs change. The real mechanism you'll use: <b style="color:var(--fg)">on any user-created network, Docker runs an embedded DNS server, and container names become hostnames.</b> That's why your Django settings will say <code class="inline">HOST=db</code>.</div>
   </div>
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div>
   <pre><code><span class="p">$</span> docker network create appnet
 <span class="p">$</span> docker run -d --network appnet --name db postgres:16
 <span class="p">$</span> docker run -d --network appnet --name api myapp
@@ -629,7 +586,7 @@
   <div class="note"><span class="lbl">Gotcha</span>
   <p>Name-based DNS works only on <b>user-defined</b> networks, not the default bridge — a classic gotcha. In practice this doesn't hurt you because Docker Compose creates a user network automatically — Part 7.</p></div>
 
-  <h2>6.3 Port publishing <span class="tag tag-deep">DEEP</span></h2>
+  <h3>6.3 Port publishing <span class="tag tag-deep">DEEP</span></h3>
   <p><code class="inline">-p 8080:80</code> = "host's 8080 forwards to this container's 80" (implemented as NAT/iptables rules). Distinctions to keep straight:</p>
   <ul>
     <li>Container↔container traffic on a shared network <b>does not need <code class="inline">-p</code> at all</b> — they talk directly. <code class="inline">-p</code> is only for reaching a container <i>from the host/outside world</i>.</li>
@@ -637,31 +594,31 @@
     <li><code class="inline">-p 8080:80</code> vs <code class="inline">-p 80:80</code>: left number is arbitrary and just has to be free on the host.</li>
   </ul>
 
-  <h2>6.4 Other network drivers <span class="tag tag-ref">REFERENCE</span> <span class="tag tag-adv">ADVANCED</span></h2>
+  <h3>6.4 Other network drivers <span class="tag tag-ref">REFERENCE</span> <span class="tag tag-adv">ADVANCED</span></h3>
   <p><code class="inline">host</code> (no isolation — container shares host's network stack; Linux-only, niche perf cases), <code class="inline">none</code> (no networking), <code class="inline">overlay</code> (multi-host — Swarm/K8s territory). Know they exist; bridge covers everything until orchestration.</p>
 
   <div class="lab"><span class="lbl">Exercise</span>
   <p>Create a network, run two containers on it (<code class="inline">nginx</code> named <code class="inline">web</code>, and <code class="inline">alpine</code> with <code class="inline">sleep 3000</code> named <code class="inline">probe</code>). <code class="inline">docker exec</code> into probe and <code class="inline">wget -qO- http://web</code> — you just used container DNS. Then try the same from a container on the <i>default</i> bridge and watch name resolution fail.</p></div>
 
-  <div class="quiz" data-part="p6"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p6"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p5">← 05 · STORAGE</a><a class="next" href="#p7">07 · DOCKER COMPOSE →</a></div>
+  <div class="breadcrumb"><a href="#p5">&larr; 05 · STORAGE</a><a class="next" href="#p7">07 · DOCKER COMPOSE &rarr;</a></div>
 </section>
 
-<section class="part" id="p7">
-  <div class="phead"><div class="pnum">07</div>
-    <div><div class="ptitle">Docker Compose</div>
+<section class="part" id="p7" aria-labelledby="p7-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">07</div>
+    <div><h2 class="ptitle" id="p7-title">Docker Compose</h2>
     <div class="pmeta"><span class="m">MODE <b>HANDS-ON</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p7">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p7">MARK COMPLETE</button></div>
   </div>
 
-  <h2>7.1 What and why <span class="tag tag-deep">DEEP</span></h2>
+  <h3>7.1 What and why <span class="tag tag-deep">DEEP</span></h3>
   <p>A real app is several containers (app + db + cache + proxy) plus networks, volumes, env vars, and startup order. Managing that with <code class="inline">docker run</code> commands is unmaintainable. Compose = <b>declare the whole stack in one YAML file; one command brings it up or down.</b> It's also <i>the</i> format for communicating "here's how to run this project" to other developers.</p>
   <div class="idea"><span class="lbl">The key insight</span>
   <p>Compose does nothing Docker can't — it's <b>orchestration sugar over the same API</b>. Every Compose key maps to a <code class="inline">docker run</code> flag you already know. That mapping is how you should read every Compose file.</p></div>
 
-  <h2>7.2 The canonical file, annotated <span class="tag tag-deep">DEEP STRUCTURE</span> <span class="tag tag-recog">RECOGNIZE KEYS</span></h2>
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">docker-compose.yml</span><button class="copybtn">COPY</button></div>
+  <h3>7.2 The canonical file, annotated <span class="tag tag-deep">DEEP STRUCTURE</span> <span class="tag tag-recog">RECOGNIZE KEYS</span></h3>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">docker-compose.yml</span><button type="button" class="copybtn">COPY</button></div>
   <pre><code><span class="c"># docker-compose.yml</span>
 services:                      <span class="c"># each service = one container definition</span>
   web:
@@ -691,8 +648,8 @@ volumes:
   pgdata:                      <span class="c"># declare named volumes here</span></code></pre></div>
   <p>Compose automatically creates a <b>user-defined network</b> for the project and attaches all services — which is why <code class="inline">DATABASE_HOST=db</code> just works with zero network config.</p>
 
-  <h2>7.3 Commands <span class="tag tag-recog">RECOGNIZE</span></h2>
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button class="copybtn">COPY</button></div>
+  <h3>7.3 Commands <span class="tag tag-recog">RECOGNIZE</span></h3>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">terminal</span><button type="button" class="copybtn">COPY</button></div>
   <pre><code><span class="p">$</span> docker compose up -d          <span class="c"># build if needed, create network/volumes, start all</span>
 <span class="p">$</span> docker compose up -d --build  <span class="c"># force rebuild (after Dockerfile/dependency changes)</span>
 <span class="p">$</span> docker compose logs -f web
@@ -701,28 +658,28 @@ volumes:
 <span class="p">$</span> docker compose down           <span class="c"># stop + remove containers &amp; network (volumes SURVIVE)</span>
 <span class="p">$</span> docker compose down -v        <span class="c"># ...and delete volumes (⚠ deletes your database)</span></code></pre></div>
 
-  <h2>7.4 The depends_on trap <span class="tag tag-deep">DEEP — EVERYONE HITS THIS</span></h2>
+  <h3>7.4 The depends_on trap <span class="tag tag-deep">DEEP — EVERYONE HITS THIS</span></h3>
   <p>Plain <code class="inline">depends_on: [db]</code> waits for the db <i>container to start</i>, not for Postgres to be <i>ready to accept connections</i>. Your app boots in 1s, Postgres initializes in 5s, app crashes with "connection refused."</p>
   <p>Fixes, best-first: <b>(1)</b> healthcheck + <code class="inline">condition: service_healthy</code> as above; <b>(2)</b> retry logic in the app (what production-grade apps do anyway); <b>(3)</b> wait-for-it scripts (legacy).</p>
 
   <div class="lab"><span class="lbl">Exercise</span>
   <p>Convert Part 6's exercise into a compose file (nginx + an alpine sleeper on one network), then extend it: app service that reads an env var, db with volume + healthcheck. Bring it up, kill it, bring it back, verify persistence.</p></div>
 
-  <div class="quiz" data-part="p7"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p7"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p6">← 06 · NETWORKING</a><a class="next" href="#p8">08 · REAL PROJECT →</a></div>
+  <div class="breadcrumb"><a href="#p6">&larr; 06 · NETWORKING</a><a class="next" href="#p8">08 · REAL PROJECT: DJANGO + POSTGRESQL + REDIS + NGINX &rarr;</a></div>
 </section>
 
-<section class="part" id="p8">
-  <div class="phead"><div class="pnum">08</div>
-    <div><div class="ptitle">Real Project: Django + PostgreSQL + Redis + Nginx</div>
+<section class="part" id="p8" aria-labelledby="p8-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">08</div>
+    <div><h2 class="ptitle" id="p8-title">Real Project: Django + PostgreSQL + Redis + Nginx</h2>
     <div class="pmeta"><span class="m">MODE <b>HANDS-ON</b></span><span class="m">★ <b>THE PAYOFF</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p8">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p8">MARK COMPLETE</button></div>
   </div>
 
   <p>This part is the payoff. It exercises <b>every prior concept</b> in a stack you named. Build it yourself; the annotated reference below is for checking your work and for reuse.</p>
 
-  <h2>8.1 Architecture</h2>
+  <h3>8.1 Architecture</h3>
   <div class="arch">
     <div class="anode edge"><div class="an1">browser</div><div class="an2">port 80</div></div>
     <div class="parrow" style="align-self:center"></div>
@@ -742,8 +699,8 @@ volumes:
   <div class="note"><span class="lbl">Why Nginx in front at all?</span>
   <p>gunicorn is an application server — it <b>shouldn't</b> serve static files, terminate TLS, or absorb slow clients. This split is itself an interview question ("why not just gunicorn?").</p></div>
 
-  <h2>8.2 The Dockerfile (production-shaped)</h2>
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">Dockerfile</span><button class="copybtn">COPY</button></div>
+  <h3>8.2 The Dockerfile (production-shaped)</h3>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">Dockerfile</span><button type="button" class="copybtn">COPY</button></div>
   <pre><code><span class="b">FROM</span> python:3.12-slim
 
 <span class="c"># Python hygiene in containers:</span>
@@ -770,8 +727,8 @@ volumes:
 <span class="b">CMD</span> [<span class="a">"gunicorn"</span>, <span class="a">"config.wsgi:application"</span>, <span class="a">"--bind"</span>, <span class="a">"0.0.0.0:8000"</span>, <span class="a">"--workers"</span>, <span class="a">"3"</span>]</code></pre></div>
   <p>Note what's applied: slim base, layer ordering, same-layer cleanup, 0.0.0.0 binding, exec-form CMD, non-root. <b>Every line traces back to a concept from Parts 4–6.</b></p>
 
-  <h2>8.3 docker-compose.yml</h2>
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">docker-compose.yml</span><button class="copybtn">COPY</button></div>
+  <h3>8.3 docker-compose.yml</h3>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">docker-compose.yml</span><button type="button" class="copybtn">COPY</button></div>
   <pre><code>services:
   web:
     build: .
@@ -813,7 +770,7 @@ volumes:
 volumes:
   pgdata:
   static:</code></pre></div>
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">nginx.conf</span><button class="copybtn">COPY</button></div>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">nginx.conf</span><button type="button" class="copybtn">COPY</button></div>
   <pre><code>server {
     listen 80;
     location /static/ { alias /staticfiles/; }
@@ -825,37 +782,37 @@ volumes:
 }</code></pre></div>
   <p>Django settings changes (the ones people forget): <code class="inline">ALLOWED_HOSTS</code> must include your host; DB <code class="inline">HOST</code> comes from <code class="inline">DATABASE_HOST</code> env var; <code class="inline">STATIC_ROOT=/app/staticfiles</code>. Run migrations/collectstatic explicitly: <code class="inline">docker compose exec web python manage.py migrate</code> (or an entrypoint script in real deployments).</p>
 
-  <h2>8.4 The dev/prod split <span class="tag tag-recog">RECOGNIZE</span></h2>
+  <h3>8.4 The dev/prod split <span class="tag tag-recog">RECOGNIZE</span></h3>
   <p>The file above is production-shaped. For development you overlay differences (bind-mounted code, runserver, exposed ports) in a <code class="inline">docker-compose.override.yml</code>, which <code class="inline">docker compose up</code> merges automatically. <b>Same images, different wiring</b> — this pattern is standard in real teams.</p>
 
-  <h2>8.5 Node.js variant — what changes</h2>
+  <h3>8.5 Node.js variant — what changes</h3>
   <p>Same skeleton; the deltas: <code class="inline">FROM node:20-slim</code>, copy <code class="inline">package*.json</code> → <code class="inline">RUN npm ci --omit=dev</code> → <code class="inline">COPY . .</code>, and in dev the <code class="inline">node_modules</code> hole-punch volume from Part 5.3. If there's a frontend build step, use the multi-stage pattern from Part 4.4 verbatim.</p>
 
   <div class="ck"><span class="lbl">Definition of done</span>
   <p>You can: bring the stack up from a clean machine with one command; explain the path of a request from browser to Django and back; destroy and recreate everything without losing DB data; explain why <code class="inline">web</code> has no <code class="inline">ports:</code> and why <code class="inline">DATABASE_HOST=db</code> resolves.</p></div>
 
-  <div class="quiz" data-part="p8"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p8"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p7">← 07 · COMPOSE</a><a class="next" href="#p9">09 · DEBUGGING PLAYBOOK →</a></div>
+  <div class="breadcrumb"><a href="#p7">&larr; 07 · DOCKER COMPOSE</a><a class="next" href="#p9">09 · THE DEBUGGING PLAYBOOK &rarr;</a></div>
 </section>
 
-<section class="part" id="p9">
-  <div class="phead"><div class="pnum">09</div>
-    <div><div class="ptitle">The Debugging Playbook</div>
+<section class="part" id="p9" aria-labelledby="p9-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">09</div>
+    <div><h2 class="ptitle" id="p9-title">The Debugging Playbook</h2>
     <div class="pmeta"><span class="m">TAG <b>DEEP</b></span><span class="m">MODE <b>REFERENCE</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p9">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p9">MARK COMPLETE</button></div>
   </div>
 
   <p>Debugging Docker is <b>systematic, not magical</b>. The two mental models doing the work: <i>a container is a process</i> (Part 2) and <i>the request path</i> (Part 6).</p>
 
-  <h2>Container exits immediately / restart loops</h2>
+  <h3>Container exits immediately / restart loops</h3>
   <ol>
     <li><code class="inline">docker ps -a</code> → read the <b>exit code</b>. <code class="inline">0</code> = process finished normally (did you give it a long-running command?). <code class="inline">1</code>/nonzero = app crashed. <code class="inline">137</code> = SIGKILL — either OOM-killed (check <code class="inline">docker inspect</code> → <code class="inline">OOMKilled: true</code>) or <code class="inline">docker kill</code>. <code class="inline">126/127</code> = command not executable / not found (typo in CMD, missing binary, wrong architecture).</li>
     <li><code class="inline">docker logs &lt;id&gt;</code> → the app's dying words. This solves most cases.</li>
     <li>Still opaque? Override the entrypoint to get a shell in the same image and run the command by hand: <code class="inline">docker run -it --entrypoint bash myimg</code>.</li>
   </ol>
 
-  <h2>Can't reach the app from the browser</h2>
+  <h3>Can't reach the app from the browser</h3>
   <p>Walk the path outside-in; test each hop:</p>
   <ol>
     <li>Is the container running and is the port published? (<code class="inline">docker ps</code> shows <code class="inline">0.0.0.0:8080-&gt;80</code>.)</li>
@@ -864,7 +821,7 @@ volumes:
     <li>From inside the container itself, does <code class="inline">curl localhost:8000</code> work? If yes, the app is fine and the problem is wiring; if no, it's the app.</li>
   </ol>
 
-  <h2>Container A can't reach container B</h2>
+  <h3>Container A can't reach container B</h3>
   <ol>
     <li>Same network? <code class="inline">docker network inspect &lt;net&gt;</code> lists members.</li>
     <li>Using the <i>service/container name</i> as hostname, not localhost? (<code class="inline">localhost</code> bug again.)</li>
@@ -872,35 +829,35 @@ volumes:
     <li>Test resolution from inside A: <code class="inline">docker exec -it A sh</code> → <code class="inline">ping b</code> / <code class="inline">nc -zv b 5432</code>.</li>
   </ol>
 
-  <h2>Build fails / behaves stale</h2>
+  <h3>Build fails / behaves stale</h3>
   <ul>
     <li>Read <b>which STEP failed</b> — the error is about that instruction's layer.</li>
     <li>"Works on rebuild but changes don't appear" → stale cache or you edited a file excluded by <code class="inline">.dockerignore</code>; <code class="inline">docker compose up --build</code> or <code class="inline">docker build --no-cache</code> to prove/disprove.</li>
     <li>File-not-found during COPY → path is relative to build context, and check <code class="inline">.dockerignore</code>.</li>
   </ul>
 
-  <h2>Disk full <span class="tag tag-ref">REFERENCE</span></h2>
+  <h3>Disk full <span class="tag tag-ref">REFERENCE</span></h3>
   <p><code class="inline">docker system df</code> to see usage; <code class="inline">docker system prune</code> (add <code class="inline">-a</code> to also drop unused images; add <code class="inline">--volumes</code> only if you mean it).</p>
 
   <div class="idea"><span class="lbl">The debugging habit</span>
   <p>Before Googling, always run these three: <code class="inline">docker ps -a</code> (state + exit code), <code class="inline">docker logs</code> (why), <code class="inline">docker inspect</code> (config reality vs your assumption). Most "Docker bugs" are one of five things: <b>localhost confusion, 127.0.0.1 binding, missing volume, race with the DB, stale cache</b>. You now know all five.</p></div>
 
-  <div class="quiz" data-part="p9"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p9"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p8">← 08 · REAL PROJECT</a><a class="next" href="#p10">10 · INTERNALS →</a></div>
+  <div class="breadcrumb"><a href="#p8">&larr; 08 · REAL PROJECT: DJANGO + POSTGRESQL + REDIS + NGINX</a><a class="next" href="#p10">10 · INTERNALS: WHAT'S ACTUALLY HAPPENING &rarr;</a></div>
 </section>
 
-<section class="part" id="p10">
-  <div class="phead"><div class="pnum">10</div>
-    <div><div class="ptitle">Internals: What's Actually Happening</div>
+<section class="part" id="p10" aria-labelledby="p10-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">10</div>
+    <div><h2 class="ptitle" id="p10-title">Internals: What's Actually Happening</h2>
     <div class="pmeta"><span class="m">TAG <b>ADVANCED</b></span><span class="m">★ <b>INTERVIEW GOLD</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p10">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p10">MARK COMPLETE</button></div>
   </div>
 
   <div class="note"><span class="lbl">When to return</span>
   <p>Return here <b>after Part 8</b>. This section upgrades Part 2's mental model to the mechanism level. Nothing here is needed to <i>use</i> Docker; all of it is what separates "I use Docker" from "I understand Docker" in a senior interview.</p></div>
 
-  <h2>10.1 Namespaces — the isolation mechanism</h2>
+  <h3>10.1 Namespaces — the isolation mechanism</h3>
   <p>A namespace is a kernel feature that gives a process a private view of one global resource. Docker uses six:</p>
   <div class="tblwrap"><table>
     <thead><tr><th>Namespace</th><th>Isolates</th><th>Effect in a container</th></tr></thead>
@@ -915,10 +872,10 @@ volumes:
   </table></div>
   <p><b>Proof it's "just a process"</b>: on a Linux host, <code class="inline">docker inspect -f '{{.State.Pid}}' c</code> gives a host PID; <code class="inline">ls /proc/&lt;pid&gt;/ns/</code> shows its namespace handles. <code class="inline">docker exec</code> literally means "start a process and <i>join</i> these namespaces" (the <code class="inline">setns</code> syscall).</p>
 
-  <h2>10.2 Cgroups — the resource mechanism</h2>
+  <h3>10.2 Cgroups — the resource mechanism</h3>
   <p>Namespaces control <b>visibility</b>; cgroups control <b>consumption</b>. <code class="inline">--memory=512m --cpus=1.5</code> writes limits into the cgroup filesystem (<code class="inline">/sys/fs/cgroup/...</code>), and the kernel enforces them. Exceed the memory limit → kernel OOM-killer terminates the process → <b>exit code 137</b>. That's the whole story behind Part 9's 137.</p>
 
-  <h2>10.3 OverlayFS — the image mechanism</h2>
+  <h3>10.3 OverlayFS — the image mechanism</h3>
   <p>The union filesystem implementing Part 2's layer diagram. Mechanics worth knowing:</p>
   <ul>
     <li><b>lowerdir</b> = image layers (read-only, stacked), <b>upperdir</b> = container's writable layer, presented <b>merged</b>.</li>
@@ -927,15 +884,15 @@ volumes:
     <li>Deleting a lower-layer file creates a "whiteout" marker in upperdir — the file is hidden, not removed. This is the mechanical reason deleting files in a later Dockerfile layer doesn't shrink the image (Part 4.4).</li>
   </ul>
 
-  <h2>10.4 The runtime stack: dockerd → containerd → runc</h2>
+  <h3>10.4 The runtime stack: dockerd → containerd → runc</h3>
   <ul>
     <li><b style="color:var(--accent)">dockerd</b>: API server + the high-level features (builds, networks, volumes).</li>
     <li><b style="color:var(--accent)">containerd</b>: container lifecycle supervisor (also used directly by Kubernetes — this is why "Kubernetes dropped Docker" headlines didn't mean what people thought: K8s dropped dockerd as a middleman and talks to containerd directly; your Docker-built images run unchanged).</li>
     <li><b style="color:var(--accent)">runc</b>: small CLI that makes the actual syscalls — <code class="inline">clone()</code> with namespace flags, cgroup writes, <code class="inline">pivot_root</code> into the overlay mount, then <code class="inline">exec()</code> your CMD. Then it <i>exits</i>; a tiny shim keeps the container's stdio alive. runc implements the <b>OCI runtime spec</b>, and images follow the <b>OCI image spec</b> — which is why images are portable across Docker/Podman/Kubernetes/cloud runtimes.</li>
   </ul>
 
-  <h2>10.5 <code class="inline">docker run</code>, the full internal answer</h2>
-  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">interview-brain.txt</span><button class="copybtn">COPY</button></div>
+  <h3>10.5 <code class="inline">docker run</code>, the full internal answer</h3>
+  <div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">interview-brain.txt</span><button type="button" class="copybtn">COPY</button></div>
   <pre><code>CLI → REST API → dockerd resolves image (pull layers if missing, verify
 digests) → containerd creates container metadata → prepares overlay mount
 (image layers as lowerdirs + fresh upperdir) → allocates network namespace,
@@ -947,16 +904,16 @@ stdout. When PID 1 exits, the container is "exited" with that code.</code></pre>
   <div class="idea"><span class="lbl">Senior bar</span>
   <p>If you can deliver that paragraph <b>unprompted</b> and unpack any step on request, you're past most interview bars.</p></div>
 
-  <div class="quiz" data-part="p10"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p10"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p9">← 09 · DEBUGGING</a><a class="next" href="#p11">11 · PRODUCTION & SECURITY →</a></div>
+  <div class="breadcrumb"><a href="#p9">&larr; 09 · THE DEBUGGING PLAYBOOK</a><a class="next" href="#p11">11 · PRODUCTION &amp; SECURITY &rarr;</a></div>
 </section>
 
-<section class="part" id="p11">
-  <div class="phead"><div class="pnum">11</div>
-    <div><div class="ptitle">Production &amp; Security</div>
-    <div class="pmeta"><span class="m">TAG <b>SELECTIVELY DEEP</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p11">MARK COMPLETE</button></div>
+<section class="part" id="p11" aria-labelledby="p11-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">11</div>
+    <div><h2 class="ptitle" id="p11-title">Production &amp; Security</h2>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p11">MARK COMPLETE</button></div>
   </div>
 
   <p>The subset that's actually expected of a developer (ops teams own the rest):</p>
@@ -970,16 +927,16 @@ stdout. When PID 1 exits, the container is "exited" with that code.</code></pre>
     <li>Image scanning (<code class="inline">docker scout</code>, trivy), read-only root fs, dropped capabilities — <span class="tag tag-ref">REFERENCE/ADVANCED</span>: know the terms.</li>
   </ol>
 
-  <div class="quiz" data-part="p11"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p11"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p10">← 10 · INTERNALS</a><a class="next" href="#p12">12 · WHEN NOT TO USE DOCKER →</a></div>
+  <div class="breadcrumb"><a href="#p10">&larr; 10 · INTERNALS: WHAT'S ACTUALLY HAPPENING</a><a class="next" href="#p12">12 · WHEN DOCKER IS AND ISN'T THE RIGHT TOOL &rarr;</a></div>
 </section>
 
-<section class="part" id="p12">
-  <div class="phead"><div class="pnum">12</div>
-    <div><div class="ptitle">When Docker Is and Isn't the Right Tool</div>
+<section class="part" id="p12" aria-labelledby="p12-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">12</div>
+    <div><h2 class="ptitle" id="p12-title">When Docker Is and Isn't the Right Tool</h2>
     <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p12">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p12">MARK COMPLETE</button></div>
   </div>
 
   <p>Genuinely strong candidates can argue <b>against</b> the tool.</p>
@@ -1009,16 +966,16 @@ stdout. When PID 1 exits, the container is "exited" with that code.</code></pre>
   </div>
   <p>Also honest to know: <b>Compose is single-host.</b> Multi-host scheduling, autoscaling, rolling deploys = orchestrators (Kubernetes). Docker is the packaging + runtime; K8s is fleet management of the same containers.</p>
 
-  <div class="quiz" data-part="p12"><span class="qlbl">Checkpoint quiz</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres"></div></div>
+<div class="quiz" data-part="p12"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
-  <div class="breadcrumb"><a href="#p11">← 11 · PROD & SEC</a><a class="next" href="#p13">13 · INTERVIEW PREP →</a></div>
+  <div class="breadcrumb"><a href="#p11">&larr; 11 · PRODUCTION &amp; SECURITY</a><a class="next" href="#p13">13 · INTERVIEW PREPARATION &rarr;</a></div>
 </section>
 
-<section class="part" id="p13">
-  <div class="phead"><div class="pnum">13</div>
-    <div><div class="ptitle">Interview Preparation</div>
+<section class="part" id="p13" aria-labelledby="p13-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">13</div>
+    <div><h2 class="ptitle" id="p13-title">Interview Preparation</h2>
     <div class="pmeta"><span class="m">MODE <b>FLIP-CARDS</b></span><span class="m">★ <b>ANSWER ALOUD</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p13">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p13">MARK COMPLETE</button></div>
   </div>
 
   <p>You've already built the answers; this consolidates them. <b>Answer each question aloud before flipping the card.</b> Nail a card and it dims. Every card maps to the section where you built the answer.</p>
@@ -1026,35 +983,32 @@ stdout. When PID 1 exits, the container is "exited" with that code.</code></pre>
   <div class="note"><span class="lbl">Format tip</span>
   <p>For each concept answer in the shape <b style="color:var(--accent)">WHAT → WHY IT EXISTS → ONE CONCRETE CONSEQUENCE</b>. That structure alone sounds senior.</p></div>
 
-  <div class="deck" id="deck"><!-- cards injected by JS --></div>
+<p>You&#39;ve already built the answers; this consolidates them. <b>Answer each question aloud before flipping the card.</b> Nail a card and it dims. Every card maps to the section where you built the answer.</p>
+<div class="deck" id="deck"><!-- cards injected by JS --></div>
 
-  <div class="breadcrumb"><a href="#p12">← 12 · NO-DOCKER</a><a class="next" href="#p14">14 · MILESTONES & GRADUATION →</a></div>
+  <div class="breadcrumb"><a href="#p12">&larr; 12 · WHEN DOCKER IS AND ISN'T THE RIGHT TOOL</a><a class="next" href="#p14">14 · MILESTONES &amp; SELF-ASSESSMENT &rarr;</a></div>
 </section>
 
-<section class="part" id="p14">
-  <div class="phead"><div class="pnum">14</div>
-    <div><div class="ptitle">Milestones &amp; Self-Assessment</div>
+<section class="part" id="p14" aria-labelledby="p14-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">14</div>
+    <div><h2 class="ptitle" id="p14-title">Milestones &amp; Self-Assessment</h2>
     <div class="pmeta"><span class="m">MODE <b>CHECKLIST</b></span><span class="m">★ <b>GRADUATION</b></span></div></div>
-    <div class="pactions"><button class="btn sm" data-done="p14">MARK COMPLETE</button></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p14">MARK COMPLETE</button></div>
   </div>
 
-  <p>Six milestones = six layers of proof. Check each off honestly — when all six drop, <b>the shipyard ships your container</b>.</p>
-
-  <div class="mlist" id="mlist"><!-- milestones injected by JS --></div>
-
   <div class="breadcrumb" style="margin-top:0"><a href="#p13">← 13 · INTERVIEW PREP</a></div>
-</section>
 
-<footer>
+<p>Six milestones = six layers of proof. Check each off honestly — when all six drop, <b>the shipyard ships your container</b>.</p>
+<div class="mlist" id="mlist"><!-- milestones injected by JS --></div>
+
+  <div class="breadcrumb"><a href="#p13">&larr; 13 · INTERVIEW PREPARATION</a></div>
+</section><footer>
   <b>ABOUT THIS BUILD:</b> The Container Shipyard is a faithful interactive conversion of the first-principles Docker curriculum — every concept, table, code block, exercise and interview question preserved. Progress lives in your browser (localStorage). Built as a single file — copy it anywhere, it runs offline.<br>
   <b>THE ONE RULE:</b> a container is just a process. Remember that and you'll never drown.
 </footer>
-
-
 </main>
 </div>
-<div id="grad"><div class="gterm"><div class="ghead">▲ SHIPYARD DEPLOYMENT — ALL MILESTONES CROSSED</div><div class="gbody"></div></div></div>
-
+<div id="grad"><div class="gterm"><div class="ghead">&#9650; SHIPYARD DEPLOYMENT — ALL MILESTONES CROSSED</div><div class="gbody"></div></div></div>
 <script src="data/docker.js"></script>
 <script src="assets/shipyard.js"></script>
 </body>
