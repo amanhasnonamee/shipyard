@@ -10,7 +10,20 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const reg = JSON.parse(readFileSync(join(ROOT, 'registry.json'), 'utf8')).techs;
+let reg;
+try {
+  reg = JSON.parse(readFileSync(join(ROOT, 'registry.json'), 'utf8')).techs;
+} catch (e) {
+  throw new Error('hub.mjs: could not read/parse registry.json — run node build/build.mjs --all first (' + e.message + ')');
+}
+const REQUIRED_FIELDS = ['id', 'brand', 'title', 'tagline', 'accent', 'layers', 'questions', 'cards', 'miles', 'file'];
+for (const e of reg) {
+  for (const field of REQUIRED_FIELDS) {
+    if (e[field] === undefined || e[field] === null) {
+      throw new Error(`hub.mjs: registry.json entry "${e.id || '?'}" is missing required field "${field}"`);
+    }
+  }
+}
 const site = (() => {
   try { return JSON.parse(readFileSync(join(ROOT, 'site.json'), 'utf8')); } catch { return { url: '' }; }
 })();

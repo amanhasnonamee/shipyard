@@ -26,8 +26,14 @@ export function parse(md) {
   // list items are buffered so a run of them becomes ONE list. Emitting a fresh
   // <ol> per item made every ordered list restart at "1." — lab steps read as 1,1,1,1.
   let listBuf = []; let listType = null;
+  // true right after a list-item line, so the very next line — if it isn't a
+  // fresh block of its own — is a lazy continuation of that item's text rather
+  // than a new paragraph. Cleared by a blank line or any other block boundary,
+  // matching CommonMark's lazy-continuation rule.
+  let listContinues = false;
 
   function flushList() {
+    listContinues = false;
     if (!listBuf.length) return;
     const tag = listType;
     cur.body.push('<' + tag + '>' + listBuf.map(i => '<li>' + inline(i) + '</li>').join('') + '</' + tag + '>');
@@ -37,6 +43,7 @@ export function parse(md) {
     if (listType && listType !== type) flushList();
     listType = type;
     listBuf.push(text);
+    listContinues = true;
   }
 
   function flushTable() {
@@ -99,9 +106,18 @@ export function parse(md) {
     if (/^[-*] /.test(hl)) { flushQuote(); pushListItem('ul', hl.replace(/^[-*] /, '')); continue; }
     if (/^\d+\. /.test(hl)) { flushQuote(); pushListItem('ol', hl.replace(/^\d+\. /, '')); continue; }
     // a blank line ends a paragraph but NOT a list — markdown lists survive the
-    // blank lines authors put between items
-    if (hl === '') { flushQuote(); continue; }
-    if (hl.length) { flushAll(); cur.body.push('<p>' + inline(hl) + '</p>'); }
+    // blank lines authors put between items. It DOES end lazy continuation,
+    // though: a plain line after a blank line starts fresh, not mid-item.
+    if (hl === '') { flushQuote(); listContinues = false; continue; }
+    if (hl.length) {
+      // a soft-wrapped line straight after a list item, with no blank line and
+      // no other block in between, continues that item's text instead of
+      // silently truncating it into an orphaned paragraph (see gotcha in
+      // HANDOFF.md — this used to fragment lists whenever authors wrapped a
+      // list item across two source lines).
+      if (listContinues && listBuf.length) { listBuf[listBuf.length - 1] += ' ' + hl; }
+      else { flushAll(); cur.body.push('<p>' + inline(hl) + '</p>'); }
+    }
   }
   flushAll();
   return parts;

@@ -142,7 +142,10 @@ for (const tech of SHIPS) {
   check(`${tech}: part titles are headings, not divs`, () => {
     assert(!/<div class="ptitle"/.test(html), 'ptitle is still a div — screen readers cannot navigate parts');
     const n = (html.match(/<h2 class="ptitle"/g) || []).length;
-    assert(n >= 15, `only ${n} part-title headings`);
+    // one heading per part including p0 — not a fixed floor, so this holds for
+    // any ship regardless of how many parts it actually has
+    const expected = readData(tech).parts.length;
+    assert(n === expected, `expected ${expected} part-title headings (one per part, incl. p0), found ${n}`);
     return `${n} parts`;
   });
 

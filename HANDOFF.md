@@ -293,6 +293,39 @@ See gotcha #10 for the full rationale.
     command for any content or quiz edit on any ship** — it's unaffected by
     this, it just no longer also writes a slim copy.
 
+11. **`mdparse.mjs`'s `parse()` used to truncate soft-wrapped list items,
+    silently.** Found via the throwaway chess-curriculum pipeline test: a list
+    item whose text wraps onto a continuation line (valid, ordinary Markdown —
+    e.g. `3. foo\n   bar`) got cut at `foo`; `bar` became an orphaned `<p>`
+    that split the list into two mis-numbered `<ol>`/`<ul>` fragments. The
+    existing "ordered lists are not fragmented" test in `test.mjs` didn't
+    catch it, because that check only matches the literal adjacent pattern
+    `</ol>\s*<ol>` with nothing in between — the stray `<p>` defeats it.
+    **Fixed**: `parse()` now tracks a `listContinues` flag, true right after a
+    list-item line and cleared by a blank line or any other block boundary
+    (headings, tables, quotes, fences, a fresh flush) — matching CommonMark's
+    lazy-continuation rule. A plain line while the flag is set appends to the
+    *previous* item's text instead of starting a new paragraph. Verified
+    against all six real ships' `extractParts()` output (unaffected — they
+    never ran `parse()` in the first place, see gotcha #1) and against a
+    reproduction case directly.
+
+    While auditing for that bug, also hardened four related spots the same
+    session: `test.mjs`'s "part titles are headings" check hardcoded `n >= 15`
+    (assumed every ship has 14+ parts — now compares against the ship's actual
+    `data/<tech>.js` part count); `lint-quiz.mjs`'s `auditQuiz()` dereferenced
+    `q.o[q.a]` with no bounds check (now throws a clear "which ship/part/
+    question" error instead of a raw `TypeError`) and `writeReport()`'s
+    `out.splice(9, 0, ...)` assumed an exactly-9-line preamble (now derives the
+    insertion point from the preamble's actual length); `hub.mjs` read
+    `registry.json` with no try/catch (inconsistent with the adjacent
+    `site.json` read) and trusted every registry entry's fields to exist (now
+    validates required fields per entry, failing loudly instead of emitting
+    literal `undefined` into HTML/CSS); `repair.mjs`'s `extractParts()`
+    chained `indexOf` calls with no `-1` checks (now throws a clear error
+    naming the part id) and had no sanity check on the extracted parts (now
+    asserts extracted ids are unique).
+
 ## Command cheat sheet
 
 ```bash

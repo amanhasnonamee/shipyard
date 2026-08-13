@@ -47,7 +47,10 @@ export function auditQuiz(quiz) {
   const offenders = [];
 
   for (const it of items) {
-    const { q } = it;
+    const { pid, i, q } = it;
+    if (!Number.isInteger(q.a) || q.a < 0 || q.a >= q.o.length) {
+      throw new Error(`${pid} Q${i + 1}: answer index ${q.a} is out of range for ${q.o.length} options — "${q.q}"`);
+    }
     posCount[q.a] = (posCount[q.a] || 0) + 1;
 
     let longest = 0;
@@ -111,6 +114,7 @@ function writeReport(techs) {
     'correct option is much longer than its distractors or a distractor is a',
     'placeholder. A good distractor states a *plausible wrong mental model* at the',
     'same length and confidence as the true answer.', ''];
+  const summaryAt = out.length; // insert the totals line right after the preamble, however long it is
 
   let total = 0;
   for (const tech of techs) {
@@ -130,7 +134,7 @@ function writeReport(techs) {
       out.push('');
     }
   }
-  out.splice(9, 0, `**${total} questions need attention.**`, '');
+  out.splice(summaryAt, 0, `**${total} questions need attention.**`, '');
   const file = path.join(ROOT, 'QUIZ-REWRITES.md');
   fs.writeFileSync(file, out.join('\n'));
   console.log(`\nwrote ${path.basename(file)} — ${total} questions queued for rewriting`);

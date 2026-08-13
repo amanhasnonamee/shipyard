@@ -36,12 +36,23 @@ export function extractParts(html) {
 
     // body = everything between the end of the part header and the breadcrumb.
     // Some hand-written parts have no breadcrumb, so fall back to end-of-section.
-    const headEnd = inner.indexOf('</div>', inner.indexOf('<div class="pactions">'));
-    const afterHead = inner.indexOf('</div>', headEnd + 6) + 6;
+    const pactionsIdx = inner.indexOf('<div class="pactions">');
+    if (pactionsIdx === -1) {
+      throw new Error(`extractParts: part ${id} has no <div class="pactions"> — page markup doesn't match the expected shell() template`);
+    }
+    const headEnd = inner.indexOf('</div>', pactionsIdx);
+    if (headEnd === -1) throw new Error(`extractParts: part ${id}'s pactions div is never closed`);
+    const afterHeadIdx = inner.indexOf('</div>', headEnd + 6);
+    if (afterHeadIdx === -1) throw new Error(`extractParts: part ${id} has no closing </div> after the part header`);
+    const afterHead = afterHeadIdx + 6;
     const crumb = inner.indexOf('<div class="breadcrumb">');
     let body = inner.slice(afterHead, crumb === -1 ? undefined : crumb).trim();
     body = stripGenerated(body);
     parts.push({ id, num, title: decode(title.trim()), tag, body: [body.trim()] });
+  }
+  const ids = parts.map(p => p.id);
+  if (new Set(ids).size !== ids.length) {
+    throw new Error('extractParts: duplicate part ids extracted (' + ids.join(',') + ') — the section-matching regex likely tripped over nested <section> tags');
   }
   return parts;
 }
