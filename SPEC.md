@@ -1,26 +1,4 @@
-# Shipyard — Image Contract & Build Docs
-
-A `<tech>.slim.html` is the **image-source contract** for its curriculum: one self-contained file that any renderer (headless Chrome, screenshot service, LLM image pipeline) can open and turn into a faithful image of the shipped UI.
-
-## Contract checklist — what a Shipyard slim file must satisfy
-
-1. **Zero external assets.** All CSS inline in the head. No images, no icon fonts, no CDN JS. Type is embedded as base64 woff2 subsets — no Google Fonts request, so the render is identical online and off. (Before v2 the fonts were merely *named*: nothing loaded them and every page silently fell back to Courier New.)
-2. **No network JS dependencies.** Engine + data inline; boot on `load`; runs identically from `file://`.
-3. **Deterministic boot paint.** All interactive chrome (stack, nav, quizzes, deck, miles, voyage) renders from data on `load` — the painted surface IS the final state; no contentful paint after interaction.
-4. **`data-render="img"` on `<html>`** + `<meta name="contract" content="shipyard-<tech>@2">` — marks the file as an image-source contract; versioned for renderer-side logic.
-5. **UTF-8, `<html lang="en">`, no BOM.** Size budget: **≤ 260 KB** per slim file. The old ≤160 KB budget predated SQL and REST (which exceeded it at 192 KB and 201 KB while the doc still claimed compliance) and predated embedded fonts, which add ~39 KB.
-6. **Deterministic rebuild.** Rebuilding must not change rendered pixels. Quiz option order is permuted by `build/shuffle.mjs` from a seed of `tech:part:index:question`, so it is stable across builds.
-
-### Current sizes
-
-| File | Size | Budget |
-|---|---|---|
-| `javascript.slim.html` | 199.5 KB | ok |
-| `python.slim.html` | 200.4 KB | ok |
-| `htmlcss.slim.html` | 203.0 KB | ok |
-| `docker.slim.html` | 215.7 KB | ok |
-| `sql.slim.html` | 244.0 KB | ok |
-| `rest-api.slim.html` | 252.5 KB | ok |
+# Shipyard — Build Docs
 
 ## Data contract
 
@@ -72,7 +50,6 @@ content/<tech>-curriculum.md
         │
    build.mjs  ──►  <tech>.html          page assembly (shell + sections)
         │          data/<tech>.js       SHIPYARD_DATA, quiz shuffled
-        │          <tech>.slim.html     css + data + engine inlined
         │          registry.json        counted from the data, not regexed
         │
    hub.mjs    ──►  index.html           every string from the registry
@@ -84,23 +61,22 @@ it to the same `renderPage()`.
 
 ## Verification
 
-`node build/test.mjs --dom` — 131 assertions across six ships. Each one maps to a
+`node build/test.mjs` — static assertions across six ships. Each one maps to a
 bug that shipped:
 
 | Assertion | The bug it guards |
 |---|---|
-| a perfect quiz scores 100% | scored 25%: only Q1 of each part was ever recorded |
-| a wrong answer is scored as wrong | — |
-| answered questions survive a reload | restore compared stored `1`/`0` against `true`/`false` |
-| retake keeps best and XP | there was no retake, though the UI told you to re-run |
-| XP cannot be farmed by toggling | untoggling never refunded, so 20 clicks = max rank |
-| graduation is not reachable by checking boxes | six self-checked boxes graduated you |
-| rank ladder tops out within reach | fixed thresholds vs per-ship XP ceilings (551 vs 614) |
 | answers are not clustered on one option | javascript/htmlcss: 100% of answers at index 0 |
-| simulator prompt is this ship's | every ship reset to `docker run -d -p 8080:80` |
 | ordered lists are not fragmented | one `<ol>` per item — every list restarted at "1." |
 | heading levels do not skip | part titles were `<div>`; h1 → h2 with no part heading |
 | no docker leakage | engine hardcoded whale, rank and graduation copy |
+
+These are static/regex checks against the built HTML and data modules — no
+browser is booted. The suite used to also boot each page in jsdom (via a
+generated `.slim.html`) to click through quizzes, milestones and reload
+persistence; that layer was dropped along with slim-file generation, so those
+behaviors (quiz scoring, XP-farming resistance, graduation gating, reload
+persistence) are exercised by manual testing in a real browser, not this suite.
 
 ## Deferred / known
 

@@ -180,7 +180,7 @@ async function main() {
   const techs = args.includes('--all') ? SHIPS : args.filter(a => !a.startsWith('--'));
   if (!techs.length) { console.error('usage: node build/repair.mjs <tech> | --all'); process.exit(1); }
   for (const t of techs) await repair(t);
-  console.log('\nnow run: node build/build.mjs --all --reslim');
+  console.log('\nnow run: node build/build.mjs <tech> --v2   (one ship at a time, --v2 rejects --all)');
 }
 // guarded like build.mjs — otherwise importing extractParts() (as build.mjs's
 // --v2 path does) would run this file's own CLI against whatever argv the

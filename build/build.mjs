@@ -3,12 +3,12 @@
 // usage: node build/build.mjs <tech>        build one ship from markdown + pedagogy
 //        node build/build.mjs --all         build every ship in the registry
 //        node build/build.mjs <tech> --reslim
-//              regenerate <tech>.slim.html and data/<tech>.js from the existing
-//              page, without needing the source markdown. Use this when the
-//              engine, CSS or pedagogy changed but the prose did not.
+//              regenerate data/<tech>.js from the existing page, without needing
+//              the source markdown. Use this when the engine, CSS or pedagogy
+//              changed but the prose did not.
 //
 // reads   content/<tech>-curriculum.md + build/pedagogy/<tech>.mjs
-// writes  <tech>.html, <tech>.slim.html, data/<tech>.js, registry.json
+// writes  <tech>.html, data/<tech>.js, registry.json
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
@@ -33,7 +33,6 @@ const SHIPS = ['docker', 'python', 'javascript', 'htmlcss', 'sql', 'rest-api'];
 function outFor(tech) {
   return {
     page: path.join(ROOT, tech + '.html'),
-    slim: path.join(ROOT, tech + '.slim.html'),
     data: path.join(ROOT, 'data', tech + '.js'),
   };
 }
@@ -224,31 +223,6 @@ export function renderPageV2(tech, ped, parts) {
   return shellV2(meta, ped, parts).replace('#SECTIONS#', sections);
 }
 
-// ================= slim contractor =================
-function slimify(page, tech) {
-  const css = fs.readFileSync(path.join(ROOT, 'assets', 'shipyard.css'), 'utf8');
-  const data = fs.readFileSync(path.join(ROOT, 'data', tech + '.js'), 'utf8');
-  const eng = fs.readFileSync(path.join(ROOT, 'assets', 'shipyard.js'), 'utf8');
-  let out = page
-    .replace(/<link rel="stylesheet" href="assets\/shipyard\.css">/, '<style>\n' + css + '\n</style>')
-    .replace('<script src="data/' + tech + '.js"></script>', '<script>\n' + data + '\n</script>')
-    .replace('<script src="assets/shipyard.js"></script>', '<script>\n' + eng + '\n</script>');
-  if (!/<html[^>]*data-render/.test(out)) out = out.replace(/<html lang="en">/, '<html lang="en" data-render="img">');
-  return out;
-}
-
-function slimifyV2(page, tech) {
-  const css = fs.readFileSync(path.join(ROOT, 'assets', 'shipyard-v2.css'), 'utf8');
-  const data = fs.readFileSync(path.join(ROOT, 'data', tech + '.js'), 'utf8');
-  const eng = fs.readFileSync(path.join(ROOT, 'assets', 'shipyard-v2.js'), 'utf8');
-  let out = page
-    .replace(/<link rel="stylesheet" href="assets\/shipyard-v2\.css">/, '<style>\n' + css + '\n</style>')
-    .replace('<script src="data/' + tech + '.js"></script>', '<script>\n' + data + '\n</script>')
-    .replace('<script src="assets/shipyard-v2.js"></script>', '<script>\n' + eng + '\n</script>');
-  if (!/<html[^>]*data-render/.test(out)) out = out.replace(/<html lang="en">/, '<html lang="en" data-render="img">');
-  return out;
-}
-
 // ================= data contract =================
 function buildMeta(tech, ped) {
   return {
@@ -329,11 +303,9 @@ async function buildTech(tech, { reslim = false, v2 = false } = {}) {
     page = fs.readFileSync(OUT.page, 'utf8');
   }
 
-  fs.writeFileSync(OUT.slim, v2 ? slimifyV2(page, tech) : slimify(page, tech));
-
   const qn = Object.values(quiz).reduce((s, a) => s + a.length, 0);
   console.log(`${tech.padEnd(11)} parts=${parts.length} questions=${qn} cards=${(ped.cards || []).length} ` +
-    `miles=${(ped.miles || []).length} | page=${page.length}b slim=${fs.statSync(OUT.slim).size}b` +
+    `miles=${(ped.miles || []).length} | page=${page.length}b` +
     (v2 ? ' (v2)' : (haveMd && !reslim ? '' : ' (reslim)')));
 }
 

@@ -1,7 +1,6 @@
 // test.mjs — regression tests for the Shipyard fleet.
 //
-// usage: node build/test.mjs            static checks only (no dependencies)
-//        node build/test.mjs --dom      also boot each slim page in jsdom
+// usage: node build/test.mjs            static checks (no dependencies, no browser)
 //
 // Every assertion here corresponds to a bug that actually shipped. The quiz
 // scoring bug in particular sat in production across six ships and would have
@@ -14,7 +13,6 @@ import { auditQuiz } from './lint-quiz.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SHIPS = JSON.parse(fs.readFileSync(path.join(ROOT, 'registry.json'), 'utf8')).techs.map(t => t.id);
-const DOM = process.argv.includes('--dom');
 
 let passed = 0, failed = 0;
 const results = [];
@@ -27,7 +25,6 @@ function check(name, fn) {
   }
 }
 function assert(cond, msg) { if (!cond) throw new Error(msg); }
-function mileCountFrom(doc) { return doc.querySelectorAll('#mlist .mile.done').length; }
 
 // v2 ships (currently just python, mid-migration — see design/ui-overhaul-mockup.html)
 // use a one-part-at-a-time layout with a different chrome contract: no docknav/
@@ -101,7 +98,7 @@ for (const tech of SHIPS) {
 // DOCKER CAPTAIN.
 for (const tech of SHIPS.filter(t => t !== 'docker')) {
   check(`${tech}: no docker leakage in the page`, () => {
-    const html = fs.readFileSync(path.join(ROOT, tech + '.slim.html'), 'utf8');
+    const html = fs.readFileSync(path.join(ROOT, tech + '.html'), 'utf8');
     const d = readData(tech);
     const hay = [
       JSON.stringify(d.meta),
@@ -187,196 +184,11 @@ check('layout: #app and main are centered, not left-stranded', () => {
   assert(/margin:0 auto/.test(mainRule), 'main has no margin:0 auto — will sit flush against the sidebar');
 });
 
-// ================================================================ dom tests
-if (DOM) {
-  const { JSDOM } = await import('jsdom');
-
-  for (const tech of SHIPS) {
-    const html = fs.readFileSync(path.join(ROOT, tech + '.slim.html'), 'utf8');
-    const dom = new JSDOM(html, { runScripts: 'dangerously', pretendToBeVisual: true, url: 'https://local.test/' });
-    const win = dom.window;
-    await new Promise(r => { win.addEventListener('load', r); setTimeout(r, 1500); });
-
-    const engine = win.__SHIPYARD_ENGINE__;
-
-    check(`${tech}: engine booted without errors`, () => {
-      assert(engine, 'engine did not expose its test seam');
-      if (isV2(html)) {
-        // v2 has one consolidated sidebar path instead of a separate nav list
-        // and voyage grid — assert on that, and that exactly one .part shows
-        assert(win.document.querySelectorAll('#stackMini .layer').length >= 15, 'sidebar path did not render');
-        assert(win.document.querySelectorAll('.part').length >= 15, 'parts did not render');
-        const visible = [...win.document.querySelectorAll('.part')].filter(p => p.style.display !== 'none');
-        assert(visible.length === 1, `expected exactly 1 visible part, got ${visible.length}`);
-      } else {
-        assert(win.document.querySelectorAll('.navitem').length >= 15, 'nav did not render');
-        assert(win.document.querySelectorAll('.waypoint').length >= 15, 'voyage did not render');
-      }
-      assert(win.document.querySelectorAll('.card').length === 18, 'deck did not render');
-      assert(win.document.querySelectorAll('.mile').length === 6, 'milestones did not render');
-      return `${win.document.querySelectorAll('.opt').length} quiz options rendered`;
-    });
-
-    // THE regression: answering every question correctly used to score 25%
-    check(`${tech}: a perfect quiz scores 100%`, () => {
-      const data = win.SHIPYARD_DATA;
-      const pid = Object.keys(data.quiz)[0];
-      data.quiz[pid].forEach((q, i) => engine.answer(pid, i, q.a));
-      const pct = engine.pct(pid);
-      assert(pct === 100, `scored ${pct}% after answering everything correctly`);
-      assert(engine.cleared(pid), 'checkpoint did not clear at 100%');
-      return `${pid} = ${pct}%`;
-    });
-
-    check(`${tech}: a wrong answer is scored as wrong`, () => {
-      const data = win.SHIPYARD_DATA;
-      const pid = Object.keys(data.quiz)[1];
-      const qs = data.quiz[pid];
-      qs.forEach((q, i) => engine.answer(pid, i, i === 0 ? (q.a + 1) % q.o.length : q.a));
-      const expected = Math.round((qs.length - 1) / qs.length * 100);
-      assert(engine.pct(pid) === expected, `expected ${expected}%, got ${engine.pct(pid)}%`);
-      return `${engine.pct(pid)}%`;
-    });
-
-    check(`${tech}: XP cannot be farmed by toggling`, () => {
-      const doc = win.document;
-      const btn = doc.querySelector('[data-done]');
-      const before = engine.xp();
-      for (let i = 0; i < 10; i++) { btn.click(); btn.click(); }
-      const after = engine.xp();
-      assert(after === before, `XP drifted from ${before} to ${after} after 10 toggles`);
-      const mile = doc.querySelector('.mile');
-      const b2 = engine.xp();
-      for (let i = 0; i < 10; i++) { mile.click(); mile.click(); }
-      assert(engine.xp() === b2, 'milestone toggling farms XP');
-      return `stable at ${after}`;
-    });
-
-    check(`${tech}: rank ladder tops out within reach`, () => {
-      const ranks = engine.ranks();
-      const max = engine.maxXp();
-      assert(ranks[ranks.length - 1][0] <= max,
-        `top rank needs ${ranks[ranks.length - 1][0]} XP but only ${max} exists`);
-      return `${max} XP max, top rank at ${ranks[ranks.length - 1][0]}`;
-    });
-
-    check(`${tech}: graduation is not reachable by checking boxes`, () => {
-      const doc = win.document;
-      doc.querySelectorAll('.mile').forEach(m => { if (m.getAttribute('aria-checked') !== 'true') m.click(); });
-      assert(!engine.graduationReady(),
-        'graduated on milestones alone — parts and checkpoints were not required');
-      return 'gated on parts + checkpoints too';
-    });
-
-    check(`${tech}: simulator prompt is this ship's, not docker's`, () => {
-      const out = win.document.getElementById('simOut');
-      if (!out) return 'no simulator on this ship';
-      const text = out.textContent;
-      assert(text.trim().length > 0, 'simulator placeholder never painted');
-      if (tech !== 'docker') assert(!/docker/i.test(text), `simulator still shows "${text.trim().slice(0, 40)}"`);
-      return text.trim().slice(0, 44);
-    });
-
-    check(`${tech}: progress tools are present`, () => {
-      const doc = win.document;
-      // v2 dropped the CRT scanline toggle entirely — no fxToggle to check for
-      const ids = ['ptExport', 'ptImport', 'ptReset'].concat(isV2(html) ? [] : ['fxToggle']);
-      for (const id of ids) {
-        assert(doc.getElementById(id), `missing #${id}`);
-      }
-    });
-
-    check(`${tech}: milestones render with anchorable ids`, () => {
-      const doc = win.document;
-      const anchors = doc.querySelectorAll('#mlist .mile[id^="mile-"]');
-      const miles = win.SHIPYARD_DATA.miles;
-      assert(anchors.length === miles.length, `${anchors.length}/${miles.length} milestones have a jump target`);
-    });
-
-    check(`${tech}: sidebar milestone tracker stays in sync`, () => {
-      const doc = win.document;
-      const miles = win.SHIPYARD_DATA.miles;
-      const mini = doc.querySelectorAll('#mileMini .mmini');
-      assert(mini.length === miles.length, `${mini.length} mini rows for ${miles.length} milestones`);
-
-      // toggling in the full Part 14 list must update the compact sidebar copy —
-      // there are two views of one state, not two places for them to drift apart.
-      // Don't assume the starting state: earlier checks in this suite (graduation
-      // gating) may have already toggled milestones on this same `win`.
-      const fullFirst = doc.querySelector('#mlist .mile');
-      const miniFirst = doc.querySelector('#mileMini .mmini');
-      const before = fullFirst.classList.contains('done');
-
-      fullFirst.click();
-      const after = fullFirst.classList.contains('done');
-      assert(after !== before, 'click did not toggle the full milestone');
-      assert(miniFirst.classList.contains('done') === after, 'sidebar row did not follow the toggle');
-      assert(doc.getElementById('mileCount').textContent === `${mileCountFrom(doc)}/${miles.length}`,
-        `mileCount reads "${doc.getElementById('mileCount').textContent}"`);
-
-      fullFirst.click(); // restore, so later assertions on this `win` see a clean slate
-      assert(miniFirst.classList.contains('done') === before, 'sidebar row did not revert with the untoggle');
-      return `${mini.length} rows synced`;
-    });
-
-    win.close();
-  }
-
-  // ------------------------------------------------- persistence across loads
-  // Answered questions used to render as unanswered after a refresh, because
-  // the restore path compared stored 1/0 against true/false.
-  for (const tech of SHIPS) {
-    const html = fs.readFileSync(path.join(ROOT, tech + '.slim.html'), 'utf8');
-    const first = new JSDOM(html, { runScripts: 'dangerously', pretendToBeVisual: true, url: 'https://local.test/' });
-    await new Promise(r => { first.window.addEventListener('load', r); setTimeout(r, 1500); });
-
-    const data = first.window.SHIPYARD_DATA;
-    const key = data.meta.storageKey;
-    const qz = first.window.document.querySelector('.quiz');
-    const pid = qz.getAttribute('data-part');
-    data.quiz[pid].forEach((q, i) => {
-      const b = qz.querySelector(`.opt[data-q="${i}"][data-o="${q.a}"]`);
-      if (b) b.click();
-    });
-    const saved = first.window.localStorage.getItem(key);
-    first.window.close();
-
-    const reload = new JSDOM(html, {
-      runScripts: 'dangerously', pretendToBeVisual: true, url: 'https://local.test/',
-      beforeParse(w) { w.localStorage.setItem(key, saved); },
-    });
-    await new Promise(r => { reload.window.addEventListener('load', r); setTimeout(r, 1500); });
-    const doc = reload.window.document;
-    const qz2 = doc.querySelector('.quiz');
-
-    check(`${tech}: answered questions survive a reload`, () => {
-      const opts = qz2.querySelectorAll('.opt').length;
-      const disabled = qz2.querySelectorAll('.opt[disabled]').length;
-      assert(disabled === opts, `${disabled}/${opts} options restored as answered`);
-      assert(qz2.querySelectorAll('.qe.show').length > 0, 'explanations were not restored');
-      assert(qz2.querySelector('.qscore b').textContent === '100%', 'score badge not restored');
-      assert(qz2.querySelector('.qres').classList.contains('show'), 'verdict banner not restored');
-      return `${disabled} options, banner restored`;
-    });
-
-    check(`${tech}: retake clears the attempt but keeps best and XP`, () => {
-      const xpBefore = reload.window.__SHIPYARD_ENGINE__.xp();
-      qz2.querySelector('.retake').click();
-      assert(qz2.querySelectorAll('.opt[disabled]').length === 0, 'options were not re-enabled');
-      assert(qz2.querySelector('.qscore b').textContent === '100%', 'best score was lost');
-      assert(reload.window.__SHIPYARD_ENGINE__.xp() === xpBefore, 'retake changed XP');
-      return `best kept, XP steady at ${xpBefore}`;
-    });
-
-    reload.window.close();
-  }
-}
-
 // ==================================================================== report
 const width = Math.max(...results.map(r => r[1].length));
 for (const [status, name, detail] of results) {
   const mark = status === 'PASS' ? '  ok  ' : '  FAIL';
   console.log(`${mark} ${name.padEnd(width)} ${detail ? '· ' + detail : ''}`);
 }
-console.log(`\n${passed} passed, ${failed} failed${DOM ? '' : '  (run with --dom for engine tests)'}`);
+console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

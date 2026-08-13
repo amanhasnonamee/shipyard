@@ -4,18 +4,18 @@ Interactive, offline, single-file programming curricula. Each ship is one portab
 
 | Ship | Parts | Questions | File |
 |---|---|---|---|
-| **The Container Shipyard** — Docker | 14 | 47 | [`docker.slim.html`](docker.slim.html) |
-| **The Python Shipyard** | 14 | 49 | [`python.slim.html`](python.slim.html) |
-| **The JavaScript Shipyard** | 14 | 48 | [`javascript.slim.html`](javascript.slim.html) |
-| **The HTML/CSS Shipyard** | 14 | 48 | [`htmlcss.slim.html`](htmlcss.slim.html) |
-| **The SQL Shipyard** | 14 | 68 | [`sql.slim.html`](sql.slim.html) |
-| **The REST-API Shipyard** | 14 | 59 | [`rest-api.slim.html`](rest-api.slim.html) |
+| **The Container Shipyard** — Docker | 14 | 47 | [`docker.html`](docker.html) |
+| **The Python Shipyard** | 14 | 49 | [`python.html`](python.html) |
+| **The JavaScript Shipyard** | 14 | 48 | [`javascript.html`](javascript.html) |
+| **The HTML/CSS Shipyard** | 14 | 48 | [`htmlcss.html`](htmlcss.html) |
+| **The SQL Shipyard** | 14 | 68 | [`sql.html`](sql.html) |
+| **The REST-API Shipyard** | 14 | 59 | [`rest-api.html`](rest-api.html) |
 
 Fleet index: [`index.html`](index.html) — generated from `registry.json`.
 
 ## Why single files
 
-A curriculum should be as easy to share as a screenshot. No accounts, no servers, no install — open the file, study, close it, your progress is still there next time. Type is embedded as subsetted woff2, so a `.slim.html` renders identically with no network at all.
+A curriculum should be as easy to share as a screenshot. No accounts, no servers, no install — open the file, study, close it, your progress is still there next time.
 
 ## Structure of a ship
 
@@ -44,12 +44,12 @@ Each ship stores progress under `shipyard:<tech>:v1`. Use **EXPORT** in the side
 
 ```
 node build/draft.mjs <tech>          # md -> pedagogy skeleton with per-part hints
-node build/build.mjs <tech>          # md + pedagogy -> page + slim + data + registry
+node build/build.mjs <tech>          # md + pedagogy -> page + data + registry
 node build/build.mjs --all           # every ship
-node build/build.mjs --all --reslim  # re-emit slim + data only (prose untouched)
+node build/build.mjs --all --reslim  # re-emit data only (prose untouched)
 node build/hub.mjs                   # registry.json -> index.html
 node build/lint-quiz.mjs --report    # audit quizzes, write QUIZ-REWRITES.md
-node build/test.mjs --dom            # regression suite (needs `npm i jsdom`)
+node build/test.mjs                  # regression suite
 ```
 
 ### Source content
@@ -65,7 +65,7 @@ node build/repair.mjs --all && node build/build.mjs --all --reslim
 ### Files
 
 - `build/mdparse.mjs` — shared markdown parser (used by draft, build and repair)
-- `build/build.mjs` — parts parser, chrome assembler, slim contractor, registry writer
+- `build/build.mjs` — parts parser, chrome assembler, registry writer
 - `build/shuffle.mjs` — seeded, deterministic quiz-option permutation
 - `build/lint-quiz.mjs` — fails quizzes that can be passed without reading
 - `build/repair.mjs` — one-time page recovery while the markdown is missing
