@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en" data-render="img">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="TBD — 3-4 keywords separated by · — a first-principles interactive curriculum. One portable HTML file, 14 parts, checkpoint quizzes and idea cards. Runs offline; progress stays in your browser.">
+<meta name="color-scheme" content="dark">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The LANGCHAIN Shipyard - LANGCHAIN: A First-Principles Curriculum">
+<meta property="og:description" content="TBD — 3-4 keywords separated by · — a first-principles interactive curriculum. One portable HTML file, 14 parts, checkpoint quizzes and idea cards. Runs offline; progress stays in your browser.">
+<meta property="og:image" content="https://amanhasnonamee.github.io/shipyard/assets/og/langchain.png">
+<meta property="og:url" content="https://amanhasnonamee.github.io/shipyard/langchain.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%23ffb000%22 d=%22M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z%22/%3E%3C/svg%3E">
+<meta name="contract" content="shipyard-langchain@3">
+<title>The LANGCHAIN Shipyard - LANGCHAIN: A First-Principles Curriculum</title>
+<link rel="stylesheet" href="assets/shipyard-v2.css">
+</head>
+<body>
+<a href="#p0" class="skiplink">Skip to content</a>
+<button type="button" id="burger" aria-controls="dock" aria-expanded="false">&#9776; MENU</button><div id="backdrop"></div>
+<div id="app">
+<aside id="dock" aria-label="Curriculum navigation">
+  <div class="brand">
+    <svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="var(--accent)" d="M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z"/>
+      <rect x="7" y="11" width="2" height="2" fill="var(--bg)"/><rect x="12" y="11" width="2" height="2" fill="var(--bg)"/><rect x="17" y="11" width="2" height="2" fill="var(--bg)"/>
+    </svg>
+    <div><h1 class="bname">THE LANGCHAIN SHIPYARD</h1><div class="bsub">TBD — 3-4 keywords separated by ·</div></div>
+  </div>
+
+  <div class="rankbox">
+    <div class="rk" id="rankNow">SWABBIE</div>
+    <div class="rkxp" id="rankXp"></div>
+    <div class="prbar"><i id="rankBar"></i></div>
+  </div>
+
+  <div class="progress-dash">
+    <div class="dhead"><span>Course</span><span id="stackCount">0/14</span></div>
+    <div id="stackMini"></div>
+    <div id="psRow"><b id="psRowCmd">$ shipyard status</b><br><span id="psRow2">—</span></div>
+    <div class="milegroup">
+      <div class="dhead"><span>Milestones</span><span id="mileCount">0/6</span></div>
+      <div id="mileMini"></div>
+    </div>
+  </div>
+
+  <div class="sidefoot" id="sidefoot"></div>
+</aside>
+
+<main>
+  <div class="topbar">
+    <div class="crumbs">
+      <div class="crumb-l">PART <b id="pnum"></b> / <span id="ptotal"></span> <span class="tag-pill" id="tagPill" style="display:none"></span></div>
+      <div class="navbtns"><button type="button" class="navbtn" id="btnPrev">&larr; PREV</button><button type="button" class="navbtn" id="btnNext">NEXT &rarr;</button></div>
+    </div>
+    <div class="readbar"><i id="readbar"></i></div>
+    <div class="toc" id="toc"></div>
+  </div>
+
+<section class="part" id="p0" aria-labelledby="p0-title">
+  <div class="phead"><div class="pnum" aria-hidden="true">00</div>
+    <div><h2 class="ptitle" id="p0-title">Briefing</h2>
+    <div class="pmeta"></div></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p0">MARK COMPLETE</button></div>
+  </div>
+
+  
+
+</section>
+
+<section class="part" id="p1" aria-labelledby="p1-title" style="display:none">
+  <div class="phead"><div class="pnum" aria-hidden="true">01</div>
+    <div><h2 class="ptitle" id="p1-title">The LLM Primitive</h2>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p1">MARK COMPLETE</button></div>
+  </div>
+
+  <h3>What it is</h3>
+
+<p>The standard interface for wrapping and interacting with Large Language Models (LLMs). LangChain provides base classes like <code class="inline">BaseLLM</code> (for older text-in/text-out models) and <code class="inline">BaseChatModel</code> (for modern messages-in/message-out models).</p>
+
+<h3>Why it exists &amp; What problem it solves</h3>
+
+<p>Every AI provider (OpenAI, Anthropic, Google, Cohere) has a different REST API, authentication method, and payload structure. LangChain's model wrappers standardize these differences so you can swap out <code class="inline">ChatOpenAI</code> for <code class="inline">ChatAnthropic</code> by changing just one line of code, without rewriting the rest of your application.</p>
+
+<h3>How it works &amp; What happens internally</h3>
+
+<p>When you call <code class="inline">.invoke()</code>, LangChain translates its internal <code class="inline">SystemMessage</code> and <code class="inline">HumanMessage</code> objects into the exact JSON payload expected by the specific provider. It then makes an HTTP POST request, awaits the response, parses the JSON payload back, and returns an <code class="inline">AIMessage</code>.</p>
+
+<h3>How it relates to other concepts</h3>
+
+<p>It is the core reasoning engine. It takes formulated queries from <b>Prompt Templates</b> and outputs raw text that gets passed to <b>Output Parsers</b>.</p>
+
+<h3>When I would actually use it</h3>
+
+<p>Always. You will never call the OpenAI or Anthropic SDKs directly if you are using LangChain.</p>
+
+<h3>Common mistakes</h3>
+
+<ul><li><b>Using <code class="inline">LLM</code> instead of <code class="inline">ChatModel</code>:</b> Modern models expect message arrays. Using the legacy <code class="inline">LLM</code> string interface on a modern model leads to hallucinated system prompts.</li><li><b>Forgetting API costs:</b> Calling <code class="inline">.invoke()</code> inside a loop rapidly consumes tokens and money.</li></ul>
+
+<h3>Practical example &amp; Syntax</h3>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button type="button" class="copybtn">COPY</button></div><pre><code>from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, SystemMessage
+
+<span class="c"># Initialize the standardized wrapper</span>
+model = ChatOpenAI(model="gpt-4o", temperature=0)
+
+messages = [
+    SystemMessage(content="You are a helpful assistant."),
+    HumanMessage(content="Explain quantum computing in one sentence.")
+]
+
+<span class="c"># The internal HTTP request happens here</span>
+response = model.invoke(messages)
+print(response.content)</code></pre></div>
+
+<h3>The framing that reads senior</h3>
+
+<p><b>"Treat the LLM as a stateless reasoning engine, not a database. Every invocation is completely independent. The LangChain model wrapper simply standardizes the HTTP payload so you can swap Claude for GPT-4 without rewriting your core logic."</b></p>
+
+<div class="quiz" data-part="p1"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
+
+</section>
+
+<section class="part" id="p2" aria-labelledby="p2-title" style="display:none">
+  <div class="phead"><div class="pnum" aria-hidden="true">02</div>
+    <div><h2 class="ptitle" id="p2-title">Prompt Templates</h2>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p2">MARK COMPLETE</button></div>
+  </div>
+
+  <h3>What it is</h3>
+
+<p>A templating system for strings and message arrays that allows dynamic insertion of variables at runtime.</p>
+
+<h3>Why it exists &amp; What problem it solves</h3>
+
+<p>Hardcoding string prompts (e.g., <code class="inline">f"Translate this: {text}"</code>) does not scale in a real application. Prompt templates separate the "instructions" from the "data". They also automatically handle escaping special characters.</p>
+
+<h3>How it works &amp; What happens internally</h3>
+
+<p>Templates use Python's native string formatting syntax (<code class="inline">{variable}</code>). When you call <code class="inline">.format()</code> or <code class="inline">.invoke()</code> on a <code class="inline">ChatPromptTemplate</code>, it replaces the placeholders with your kwargs and constructs a strict list of <code class="inline">BaseMessage</code> objects (<code class="inline">SystemMessage</code>, <code class="inline">HumanMessage</code>, etc.).</p>
+
+<h3>How it relates to other concepts</h3>
+
+<p>Prompts are the very first step in <b>LCEL pipelines</b>. They format the raw user input before it hits the <b>LLM Primitive</b>.</p>
+
+<h3>When I would actually use it</h3>
+
+<p>You should use a <code class="inline">ChatPromptTemplate</code> for every single LLM call that takes user-provided data.</p>
+
+<h3>Common mistakes</h3>
+
+<ul><li><b>Prompt Injection:</b> Passing raw user input directly into a system prompt without sandboxing it inside a specific <code class="inline">{user_input}</code> variable.</li><li><b>Putting logic in the prompt:</b> Telling the LLM "If the user says X, do Y" when a simple Python <code class="inline">if</code> statement would be 100x faster and 100% reliable.</li></ul>
+
+<h3>Practical example &amp; Syntax</h3>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button type="button" class="copybtn">COPY</button></div><pre><code>from langchain_core.prompts import ChatPromptTemplate
+
+<span class="c"># Create a parameterized template</span>
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are an expert in {topic}."),
+    ("human", "Explain {concept} to a beginner.")
+])
+
+<span class="c"># Under the hood, this creates: [SystemMessage(...), HumanMessage(...)]</span>
+messages = prompt.format_messages(topic="physics", concept="gravity")</code></pre></div>
+
+<h3>The framing that reads senior</h3>
+
+<p><b>"Prompts are code, not configuration. They should be version-controlled, tested, and kept as minimal as possible. Never ask an LLM to do control-flow routing if you can accomplish it with an if-statement."</b></p>
+
+<div class="quiz" data-part="p2"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
+
+</section>
+
+<section class="part" id="p3" aria-labelledby="p3-title" style="display:none">
+  <div class="phead"><div class="pnum" aria-hidden="true">03</div>
+    <div><h2 class="ptitle" id="p3-title">Output Parsers</h2>
+    <div class="pmeta"><span class="m">TAG <b>RECOGNIZE</b></span></div></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p3">MARK COMPLETE</button></div>
+  </div>
+
+  <h3>What it is</h3>
+
+<p>Classes that take the raw text output from an LLM and convert it into structured Python objects (lists, dictionaries, Pydantic models).</p>
+
+<h3>Why it exists &amp; What problem it solves</h3>
+
+<p>LLMs return unstructured text. Software applications expect structured data. Output parsers bridge this gap by enforcing schemas and automatically injecting format instructions into the prompt.</p>
+
+<h3>How it works &amp; What happens internally</h3>
+
+<p>A <code class="inline">PydanticOutputParser</code> takes a Pydantic schema and generates a string of instructions (e.g., "Return your answer as a JSON block with keys X and Y"). It exposes a <code class="inline">.get_format_instructions()</code> method that you append to your prompt. When the LLM responds, the parser uses regex to find the JSON block and passes it to <code class="inline">pydantic.parse_raw()</code>.</p>
+
+<h3>How it relates to other concepts</h3>
+
+<p>It is typically the final step in an <b>LCEL</b> chain, occurring immediately after the <b>LLM</b>.</p>
+
+<h3>When I would actually use it</h3>
+
+<p>Use it when you need the LLM to return data that will be processed by another system (e.g., extracting entities, classifying sentiment, or generating a SQL query).</p>
+
+<h3>Common mistakes</h3>
+
+<ul><li><b>Ignoring Tool Calling:</b> Modern models support native "Tool Calling" which guarantees JSON structure at the API level. Text-based output parsers are outdated for advanced models like GPT-4, but still necessary for smaller open-source models.</li></ul>
+
+<h3>Practical example &amp; Syntax</h3>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button type="button" class="copybtn">COPY</button></div><pre><code>from langchain_core.output_parsers import PydanticOutputParser
+from pydantic import BaseModel, Field
+
+class Person(BaseModel):
+    name: str = Field(description="The person's full name")
+    age: int = Field(description="The person's age")
+
+parser = PydanticOutputParser(pydantic_object=Person)
+
+<span class="c"># You must manually inject these instructions into your prompt!</span>
+format_instructions = parser.get_format_instructions()</code></pre></div>
+
+<h3>The framing that reads senior</h3>
+
+<p><b>"Regex and string-matching parsers are brittle. In modern applications, always use native tool-calling/function-calling if the model supports it. Use text-based Output Parsers only as a fallback for older models or deeply customized string formats."</b></p>
+
+<div class="quiz" data-part="p3"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
+
+</section>
+
+<section class="part" id="p4" aria-labelledby="p4-title" style="display:none">
+  <div class="phead"><div class="pnum" aria-hidden="true">04</div>
+    <div><h2 class="ptitle" id="p4-title">LCEL (LangChain Expression Language)</h2>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p4">MARK COMPLETE</button></div>
+  </div>
+
+  <h3>What it is</h3>
+
+<p>A declarative composition system that uses Python's bitwise OR operator (<code class="inline">|</code>) to chain together prompts, models, and parsers into a single, unified <code class="inline">Runnable</code> pipeline.</p>
+
+<h3>Why it exists &amp; What problem it solves</h3>
+
+<p>Before LCEL, you had to use heavy, black-box OOP classes (like <code class="inline">LLMChain</code>). These chains hid the exact prompts being sent and made it incredibly difficult to support streaming (sending tokens to a UI as they arrive) or batching. LCEL solves this by forcing every component to implement a unified <code class="inline">Runnable</code> interface.</p>
+
+<h3>How it works &amp; What happens internally</h3>
+
+<p>When you write <code class="inline">chain = prompt | model</code>, Python invokes the <code class="inline">__or__</code> dunder method on the <code class="inline">Runnable</code> class. Internally, LangChain wraps these objects in a <code class="inline">RunnableSequence</code>. When you call <code class="inline">chain.invoke()</code>, the output of the prompt is passed exactly as the input to the model. When you call <code class="inline">chain.stream()</code>, it creates a generator that yields chunks from the model and passes them sequentially through the parser, without waiting for the full response to finish.</p>
+
+<h3>How it relates to other concepts</h3>
+
+<p>LCEL is the glue. It takes the <b>Prompt Templates</b> (Part 2), feeds them into the <b>LLM Primitive</b> (Part 1), and pipes the output into the <b>Output Parsers</b> (Part 3).</p>
+
+<h3>When I would actually use it</h3>
+
+<p>You use LCEL for almost all linear LLM workflows. If you have a straightforward pipeline (Input -&gt; Retrieve Context -&gt; Prompt -&gt; Model -&gt; JSON), LCEL is the perfect tool.</p>
+
+<h3>Common mistakes</h3>
+
+<ul><li><b>Overcomplicating the chain:</b> Trying to build massive <code class="inline">RunnableBranch</code> logic inside LCEL instead of just writing standard Python <code class="inline">if/else</code> statements.</li><li><b>Ignoring the stack trace:</b> LCEL creates deeply nested internal function calls. When a parser fails, the stack trace is hundreds of lines long.</li></ul>
+
+<h3>Practical example &amp; Syntax</h3>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button type="button" class="copybtn">COPY</button></div><pre><code>from langchain_core.output_parsers import StrOutputParser
+
+<span class="c"># 1. Define components</span>
+prompt = ChatPromptTemplate.from_template("Tell me a joke about {topic}")
+model = ChatOpenAI()
+parser = StrOutputParser() # Extracts just the string from the AIMessage
+
+<span class="c"># 2. Compose with LCEL (The magic happens here)</span>
+chain = prompt | model | parser
+
+<span class="c"># 3. Invoke: The dict goes to the prompt, which goes to the model, which goes to the parser.</span>
+result = chain.invoke({"topic": "bears"})</code></pre></div>
+
+<h3>The framing that reads senior</h3>
+
+<p><b>"LCEL is brilliant for unifying sync, async, and streaming under one interface. But it comes at the cost of debuggability. I use LCEL for linear data flows, but the moment the logic requires complex conditional routing or cycles, I drop it and use LangGraph or native Python."</b></p>
+
+<div class="quiz" data-part="p4"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
+
+</section>
+
+<section class="part" id="p5" aria-labelledby="p5-title" style="display:none">
+  <div class="phead"><div class="pnum" aria-hidden="true">05</div>
+    <div><h2 class="ptitle" id="p5-title">Chains (Legacy vs LCEL)</h2>
+    <div class="pmeta"><span class="m">TAG <b>REFERENCE</b></span></div></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p5">MARK COMPLETE</button></div>
+  </div>
+
+  <h3>What it is</h3>
+
+<p>Pre-built Python classes (like <code class="inline">ConversationalRetrievalChain</code>, <code class="inline">LLMMathChain</code>, <code class="inline">SQLDatabaseChain</code>) that bundle prompts, models, and custom logic together.</p>
+
+<h3>Why it exists &amp; What problem it solves</h3>
+
+<p>In early LangChain (v0.0.x), this was the only way to build complex behavior. They were designed to abstract away the repetitive code of passing inputs between a retriever and an LLM.</p>
+
+<h3>How it works &amp; What happens internally</h3>
+
+<p>These are standard Python OOP classes overriding a <code class="inline">_call</code> method. Internally, they contain hardcoded prompts hidden in the source code, which they format and send to the LLM.</p>
+
+<h3>How it relates to other concepts</h3>
+
+<p>They are the obsolete predecessors to <b>LCEL</b>. Anything a Legacy Chain does can be built explicitly and transparently using LCEL.</p>
+
+<h3>When I would actually use it</h3>
+
+<p>Never, in a new project. You only need to recognize these classes when maintaining older codebases.</p>
+
+<h3>Common mistakes</h3>
+
+<ul><li><b>Using a legacy chain in modern code:</b> It prevents you from easily customizing the internal prompt and breaks compatibility with modern streaming features.</li></ul>
+
+<h3>Practical example &amp; Syntax</h3>
+
+<p>&lt;div class="tblwrap"&gt;&lt;table&gt;</p>
+
+<p>&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Legacy Chain&lt;/th&gt;&lt;th&gt;Modern LCEL Equivalent&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</p>
+
+<p>&lt;tbody&gt;</p>
+
+<p>&lt;tr&gt;&lt;td&gt;&lt;code class="inline"&gt;LLMChain&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code class="inline"&gt;prompt | model | parser&lt;/code&gt;&lt;/td&gt;&lt;/tr&gt;</p>
+
+<p>&lt;tr&gt;&lt;td&gt;&lt;code class="inline"&gt;SequentialChain&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code class="inline"&gt;chain1 | chain2 | chain3&lt;/code&gt;&lt;/td&gt;&lt;/tr&gt;</p>
+
+<p>&lt;tr&gt;&lt;td&gt;&lt;code class="inline"&gt;RouterChain&lt;/code&gt;&lt;/td&gt;&lt;td&gt;&lt;code class="inline"&gt;RunnableBranch&lt;/code&gt;&lt;/td&gt;&lt;/tr&gt;</p>
+
+<p>&lt;/tbody&gt;</p>
+
+<p>&lt;/table&gt;&lt;/div&gt;</p>
+
+<h3>The framing that reads senior</h3>
+
+<p><b>"Avoid legacy subclassed chains completely. They hide the actual prompt being sent and execute 'magic' behavior behind the scenes. LCEL makes the data flow explicit, which is exactly what you want when debugging non-deterministic LLMs."</b></p>
+
+<div class="quiz" data-part="p5"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
+
+</section>
+
+<section class="part" id="p6" aria-labelledby="p6-title" style="display:none">
+  <div class="phead"><div class="pnum" aria-hidden="true">06</div>
+    <div><h2 class="ptitle" id="p6-title">Memory &amp; State</h2>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p6">MARK COMPLETE</button></div>
+  </div>
+
+  <h3>What it is</h3>
+
+<p>Tools like <code class="inline">ChatMessageHistory</code> and <code class="inline">RunnableWithMessageHistory</code> that allow an LLM to "remember" past interactions.</p>
+
+<h3>Why it exists &amp; What problem it solves</h3>
+
+<p>LLMs are purely stateless APIs. If you send "What is my name?", the model has no idea who you are unless you literally include the previous messages ("Hi, my name is Alice") in the current prompt payload. Memory solves this by automating the injection of past chat history.</p>
+
+<h3>How it works &amp; What happens internally</h3>
+
+<p>Memory is not a database inside the LLM. Internally, a <code class="inline">ChatMessageHistory</code> object stores messages in RAM (or Redis). When you use <code class="inline">RunnableWithMessageHistory</code>, it intercepts the incoming request, fetches the past 10 messages from the store, appends the new user input, sends the massive array to the LLM, and then saves the LLM's new response back to the store.</p>
+
+<h3>How it relates to other concepts</h3>
+
+<p>Memory modifies the input to the <b>LLM Primitive</b> (Part 1). It is essentially dynamic <b>Prompt Templating</b> (Part 2) that grows on every turn.</p>
+
+<h3>When I would actually use it</h3>
+
+<p>Whenever building a chatbot or conversational agent where the user expects context to carry over between messages.</p>
+
+<h3>Common mistakes</h3>
+
+<ul><li><b>Infinite context growth:</b> Naively appending every message eventually exceeds the model's context window limit (e.g., 128k tokens) and costs a fortune in API fees per request.</li><li><b>Assuming the model "remembers":</b> Forgetting that the model's attention gets diluted. The longer the history injected, the more likely the model is to ignore instructions in the middle.</li></ul>
+
+<h3>Practical example &amp; Syntax</h3>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button type="button" class="copybtn">COPY</button></div><pre><code>from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_community.chat_message_histories import ChatMessageHistory
+
+store = {}
+
+def get_session_history(session_id: str):
+    if session_id not in store:
+        store[session_id] = ChatMessageHistory()
+    return store[session_id]
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful bot."),
+    ("placeholder", "{chat_history}"), # The massive history array gets injected here
+    ("human", "{input}")
+])
+
+chain = prompt | model
+<span class="c"># Automatically handles reading from and writing to the history store</span>
+with_history = RunnableWithMessageHistory(chain, get_session_history)</code></pre></div>
+
+<h3>The framing that reads senior</h3>
+
+<p><b>"Memory is an illusion created by appending to the context window. It scales poorly in production. True state management requires explicit summarization pipelines or vector-database lookups for past interactions, rather than blind array concatenation."</b></p>
+
+<div class="quiz" data-part="p6"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
+
+</section>
+
+<section class="part" id="p7" aria-labelledby="p7-title" style="display:none">
+  <div class="phead"><div class="pnum" aria-hidden="true">07</div>
+    <div><h2 class="ptitle" id="p7-title">Document Loaders</h2>
+    <div class="pmeta"><span class="m">TAG <b>RECOGNIZE</b></span></div></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p7">MARK COMPLETE</button></div>
+  </div>
+
+  <h3>What it is</h3>
+
+<p>Utility classes (<code class="inline">PyPDFLoader</code>, <code class="inline">WebBaseLoader</code>, etc.) that read unstructured data from external sources and convert them into LangChain <code class="inline">Document</code> objects.</p>
+
+<h3>Why it exists &amp; What problem it solves</h3>
+
+<p>To give an LLM context about private company data, you must ingest that data. Loaders standardize the ingestion process across hundreds of file types and APIs.</p>
+
+<h3>How it works &amp; What happens internally</h3>
+
+<p>A loader connects to a source (like a local PDF), parses the text (often using underlying libraries like <code class="inline">pypdf</code> or <code class="inline">BeautifulSoup</code>), and returns an array of <code class="inline">Document</code> objects. Every <code class="inline">Document</code> has two fields: <code class="inline">page_content</code> (a giant string) and <code class="inline">metadata</code> (a dictionary of source info, page numbers, etc.).</p>
+
+<h3>How it relates to other concepts</h3>
+
+<p>Loaders are step 1 of the RAG pipeline. Their output is immediately passed to <b>Text Splitters</b> (Part 8).</p>
+
+<h3>When I would actually use it</h3>
+
+<p>When prototyping a RAG system to quickly ingest a few files or URLs.</p>
+
+<h3>Common mistakes</h3>
+
+<ul><li><b>Trusting loaders in production:</b> Built-in loaders are often brittle. The <code class="inline">WebBaseLoader</code> will grab HTML navbars and footer junk, ruining your LLM's context.</li></ul>
+
+<h3>Practical example &amp; Syntax</h3>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button type="button" class="copybtn">COPY</button></div><pre><code>from langchain_community.document_loaders import PyPDFLoader
+
+loader = PyPDFLoader("financial_report_2023.pdf")
+docs = loader.load()
+
+print(docs[0].page_content) # The raw text of page 1
+print(docs[0].metadata)     # {'source': '...', 'page': 1}</code></pre></div>
+
+<h3>The framing that reads senior</h3>
+
+<p><b>"Loaders are commodities. Use LangChain's built-in loaders to prototype quickly. But for production, you will inevitably rip them out and write your own robust, fault-tolerant ingest pipeline to handle malformed PDFs, rate limits, and custom sanitization."</b></p>
+
+<div class="quiz" data-part="p7"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
+
+</section>
+
+<section class="part" id="p8" aria-labelledby="p8-title" style="display:none">
+  <div class="phead"><div class="pnum" aria-hidden="true">08</div>
+    <div><h2 class="ptitle" id="p8-title">Text Splitters</h2>
+    <div class="pmeta"><span class="m">TAG <b>RECOGNIZE</b></span></div></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p8">MARK COMPLETE</button></div>
+  </div>
+
+  <h3>What it is</h3>
+
+<p>Algorithms that break massive <code class="inline">Document</code> objects into smaller, bite-sized chunks.</p>
+
+<h3>Why it exists &amp; What problem it solves</h3>
+
+<p>You cannot stuff a 500-page manual into an LLM prompt. You must chunk it into smaller pieces so they can be individually embedded, searched, and injected into a prompt without hitting the token limit.</p>
+
+<h3>How it works &amp; What happens internally</h3>
+
+<p>The <code class="inline">RecursiveCharacterTextSplitter</code> takes a massive string and tries to split it based on a hierarchy of separators: <code class="inline">["\n\n", "\n", " ", ""]</code>. It tries to split by paragraphs first. If a paragraph is still too large (exceeds <code class="inline">chunk_size</code>), it falls back to splitting by sentences, then words, to ensure no chunk exceeds the limit. It also creates <code class="inline">chunk_overlap</code> so that a sentence isn't abruptly cut in half without context.</p>
+
+<h3>How it relates to other concepts</h3>
+
+<p>They sit between <b>Document Loaders</b> (Part 7) and <b>Vector Stores</b> (Part 9).</p>
+
+<h3>When I would actually use it</h3>
+
+<p>Mandatory for any Retrieval-Augmented Generation (RAG) system processing large documents.</p>
+
+<h3>Common mistakes</h3>
+
+<ul><li><b>Splitting blindly by character count:</b> Slicing a document exactly every 1000 characters often cuts a critical sentence or code block in half, rendering it useless for semantic search.</li></ul>
+
+<h3>Practical example &amp; Syntax</h3>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button type="button" class="copybtn">COPY</button></div><pre><code>from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=1000,
+    chunk_overlap=200,
+    separators=["\n\n", "\n", " ", ""]
+)
+chunks = splitter.split_documents(docs)</code></pre></div>
+
+<h3>The framing that reads senior</h3>
+
+<p><b>"Chunking strategy is the biggest single driver of RAG quality. Blind character splitting destroys context. You must split semantically—by markdown headers, paragraphs, or logical sections—so that the retrieved chunk actually makes sense on its own when the LLM reads it."</b></p>
+
+<div class="quiz" data-part="p8"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
+
+</section>
+
+<section class="part" id="p9" aria-labelledby="p9-title" style="display:none">
+  <div class="phead"><div class="pnum" aria-hidden="true">09</div>
+    <div><h2 class="ptitle" id="p9-title">Vector Stores &amp; Embeddings</h2>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p9">MARK COMPLETE</button></div>
+  </div>
+
+  <h3>What it is</h3>
+
+<p><b>Embeddings</b> are models that convert text into dense arrays of floats. <b>Vector Stores</b> are databases (like Chroma, Pinecone, or pgvector) optimized for storing and querying these arrays.</p>
+
+<h3>Why it exists &amp; What problem it solves</h3>
+
+<p>Traditional database search relies on exact keyword matches. If a user asks for "felines", a keyword search won't find a document about "cats". Embeddings map semantically similar concepts to locations close together in high-dimensional space, solving the synonym problem.</p>
+
+<h3>How it works &amp; What happens internally</h3>
+
+<ol><li>Text is sent to an embedding API (e.g., OpenAI's <code class="inline">text-embedding-3-small</code>).</li><li>The API returns a vector (an array of 1536 floats).</li><li>The Vector Store saves this array alongside the text payload.</li><li>At query time, the user's question is also embedded into a vector.</li><li>The database calculates the mathematical distance (usually Cosine Similarity) between the query vector and all stored vectors, returning the closest matches.</li></ol>
+
+<h3>How it relates to other concepts</h3>
+
+<p>It consumes chunks from <b>Text Splitters</b> (Part 8) and is queried by <b>Retrievers</b> (Part 10).</p>
+
+<h3>When I would actually use it</h3>
+
+<p>For any application that needs to search unstructured text based on meaning rather than exact words.</p>
+
+<h3>Common mistakes</h3>
+
+<ul><li><b>Embedding tables or IDs:</b> Embeddings are terrible at exact matches. If you ask for "Invoice #8849", the embedding might return "Invoice #8848" because they are semantically identical, just one number off.</li></ul>
+
+<h3>Practical example &amp; Syntax</h3>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button type="button" class="copybtn">COPY</button></div><pre><code>from langchain_openai import OpenAIEmbeddings
+from langchain_chroma import Chroma
+
+embeddings = OpenAIEmbeddings()
+
+<span class="c"># Under the hood: chunks -&gt; OpenAI API -&gt; 1536-dim vectors -&gt; saved to Chroma DB</span>
+vectorstore = Chroma.from_documents(chunks, embeddings)
+
+<span class="c"># Search</span>
+results = vectorstore.similarity_search("What is the company revenue?", k=3)</code></pre></div>
+
+<h3>The framing that reads senior</h3>
+
+<p><b>"Embeddings capture semantic similarity, not factual relevance. A query for '2023 Q3 earnings' will pull '2022 Q3 earnings' because the sentence structure is identical. Always use Hybrid Search in production—combining Vector Search for concepts with BM25 Keyword Search for exact names and IDs."</b></p>
+
+<div class="quiz" data-part="p9"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
+
+</section>
+
+<section class="part" id="p10" aria-labelledby="p10-title" style="display:none">
+  <div class="phead"><div class="pnum" aria-hidden="true">10</div>
+    <div><h2 class="ptitle" id="p10-title">Retrievers</h2>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p10">MARK COMPLETE</button></div>
+  </div>
+
+  <h3>What it is</h3>
+
+<p>An abstract interface in LangChain that exposes a single method: <code class="inline">get_relevant_documents(query)</code>.</p>
+
+<h3>Why it exists &amp; What problem it solves</h3>
+
+<p>Your application chain shouldn't care if data comes from a Vector Store, Wikipedia, or a SQL database. The Retriever interface abstracts the data source away, allowing you to swap storage backends without rewriting your LCEL chain.</p>
+
+<h3>How it works &amp; What happens internally</h3>
+
+<p>Usually, a retriever is just a wrapper around <code class="inline">vectorstore.similarity_search()</code>. However, advanced retrievers inject logic *before* or *after* the search.</p>
+
+<ul><li><b>MultiQueryRetriever:</b> Uses an LLM to rewrite the user's query into 3 different synonyms, runs 3 separate searches, and merges the results.</li><li><b>ParentDocumentRetriever:</b> Searches over highly granular embedded sentences, but returns the entire parent chapter to the LLM.</li></ul>
+
+<h3>How it relates to other concepts</h3>
+
+<p>It sits between the <b>Vector Store</b> (Part 9) and the <b>LCEL Pipeline</b> (Part 4).</p>
+
+<h3>When I would actually use it</h3>
+
+<p>Anytime you need to fetch context to answer a user's question dynamically (RAG).</p>
+
+<h3>Common mistakes</h3>
+
+<ul><li><b>Returning too much context:</b> Returning 20 chunks to the LLM usually causes "Lost in the Middle" syndrome, where the LLM ignores the facts in the center of the prompt.</li><li><b>Returning naked chunks:</b> Returning a chunk that says "He was the CEO" is useless without the context of *who* "He" is.</li></ul>
+
+<h3>Practical example &amp; Syntax</h3>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button type="button" class="copybtn">COPY</button></div><pre><code><span class="c"># Convert a vector store into a standard retriever interface</span>
+retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
+
+<span class="c"># LCEL integration</span>
+rag_chain = (
+    {"context": retriever, "question": RunnablePassthrough()}
+    | prompt
+    | model
+    | parser
+)</code></pre></div>
+
+<h3>The framing that reads senior</h3>
+
+<p><b>"A naive retriever returns chunks. An advanced retriever returns context. Don't just return what mathematically matched the query—return the whole section it belonged to. The LLM needs the surrounding text to synthesize a factually accurate answer."</b></p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">simulator — click RUN</span></div><pre id="simOut" aria-live="polite"></pre><div class="stack-controls" style="margin:0;padding:10px 16px;border-top:1px solid var(--line)"><button type="button" class="btn sm" id="simRun">&#9654; RUN</button><button type="button" class="btn sm ok" id="simReset">RESET</button></div></div>
+
+<div class="quiz" data-part="p10"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
+
+</section>
+
+<section class="part" id="p11" aria-labelledby="p11-title" style="display:none">
+  <div class="phead"><div class="pnum" aria-hidden="true">11</div>
+    <div><h2 class="ptitle" id="p11-title">Tools &amp; Toolkits</h2>
+    <div class="pmeta"><span class="m">TAG <b>RECOGNIZE</b></span></div></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p11">MARK COMPLETE</button></div>
+  </div>
+
+  <h3>What it is</h3>
+
+<p>Python functions that you explicitly authorize the LLM to trigger. LangChain provides the <code class="inline">@tool</code> decorator to convert standard functions into schemas the LLM understands.</p>
+
+<h3>Why it exists &amp; What problem it solves</h3>
+
+<p>LLMs are frozen in time and cannot interact with the outside world natively. They cannot check the weather, run a SQL query, or execute code. Tools give them hands.</p>
+
+<h3>How it works &amp; What happens internally</h3>
+
+<ol><li>You bind a <code class="inline">@tool</code> to the model.</li><li>LangChain uses Python's <code class="inline">inspect</code> module to parse the function's arguments and docstring.</li><li>LangChain generates a JSON Schema representing the function and sends it to the LLM (e.g., via OpenAI's <code class="inline">tools</code> payload).</li><li>If the LLM decides to use it, it responds with an <code class="inline">AIMessage</code> containing a <code class="inline">tool_calls</code> block (e.g., <code class="inline">call_math(a=5, b=2)</code>).</li><li>LangChain intercepts this, runs your actual Python function <code class="inline">math(5,2)</code>, and sends a <code class="inline">ToolMessage</code> with the result back to the LLM.</li></ol>
+
+<h3>How it relates to other concepts</h3>
+
+<p>Tools are the foundational building blocks for <b>Agents</b> (Part 12).</p>
+
+<h3>When I would actually use it</h3>
+
+<p>Anytime your AI needs to query live data (APIs, databases) or take action (sending an email).</p>
+
+<h3>Common mistakes</h3>
+
+<ul><li><b>Poor Docstrings:</b> The LLM does not read your python code. It reads the docstring. If the docstring doesn't explicitly explain *when* to use the tool and *what* the arguments mean, the LLM will fail to use it.</li></ul>
+
+<h3>Practical example &amp; Syntax</h3>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button type="button" class="copybtn">COPY</button></div><pre><code>from langchain_core.tools import tool
+
+@tool
+def get_weather(city: str) -&gt; str:
+    """Returns the current weather in a given city. Use this when the user asks about weather."""
+    return f"It is sunny in {city}"
+
+<span class="c"># Bind the JSON schema of the tool to the model</span>
+model_with_tools = model.bind_tools([get_weather])</code></pre></div>
+
+<h3>The framing that reads senior</h3>
+
+<p><b>"In the era of Tool Calling, prompt engineering has shifted from system prompts to function docstrings. If your LLM isn't calling a tool correctly, don't fix the model—fix the Pydantic typing and the docstring descriptions of the tool's parameters."</b></p>
+
+<div class="quiz" data-part="p11"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
+
+</section>
+
+<section class="part" id="p12" aria-labelledby="p12-title" style="display:none">
+  <div class="phead"><div class="pnum" aria-hidden="true">12</div>
+    <div><h2 class="ptitle" id="p12-title">Agents</h2>
+    <div class="pmeta"><span class="m">TAG <b>DEEP</b></span></div></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p12">MARK COMPLETE</button></div>
+  </div>
+
+  <h3>What it is</h3>
+
+<p>An LLM running inside a <code class="inline">while</code> loop, acting as an autonomous reasoning engine. Instead of following a hardcoded path, the Agent observes user input, decides which <b>Tools</b> to use, executes them, observes the result, and decides what to do next.</p>
+
+<h3>Why it exists &amp; What problem it solves</h3>
+
+<p>Standard LCEL chains are deterministic state machines (Step 1 -&gt; Step 2 -&gt; Step 3). If a user asks a complex question ("Who is the CEO of Apple, and what is their age multiplied by 2?"), a static chain cannot plan the multi-step execution (Search CEO -&gt; Search Age -&gt; Use Math Tool). Agents dynamically plan and execute.</p>
+
+<h3>How it works &amp; What happens internally</h3>
+
+<p>Agents run a <code class="inline">ReAct</code> (Reason + Act) loop:</p>
+
+<ol><li><b>Thought:</b> "I need to find the CEO of Apple."</li><li><b>Action:</b> <code class="inline">SearchTool("Apple CEO")</code></li><li><b>Observation:</b> "Tim Cook."</li><li><b>Thought:</b> "Now I need his age." ... The <code class="inline">AgentExecutor</code> manages this loop, parsing the LLM's text to execute tools, and catching exceptions if the LLM hallucinates a tool.</li></ol>
+
+<h3>How it relates to other concepts</h3>
+
+<p>Agents combine the <b>LLM Primitive</b> (Part 1), <b>Memory</b> (Part 6), and <b>Tools</b> (Part 11) into an autonomous loop.</p>
+
+<h3>When I would actually use it</h3>
+
+<p>Only when the execution path is completely unknown and highly variable based on user input (e.g., a generic coding assistant).</p>
+
+<h3>Common mistakes</h3>
+
+<ul><li><b>Using an agent for a static workflow:</b> If you know the steps are always "Extract Entity -&gt; Search DB -&gt; Generate Response", DO NOT use an Agent. Write a static LCEL chain. Agents are slow and expensive.</li></ul>
+
+<h3>Practical example &amp; Syntax</h3>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button type="button" class="copybtn">COPY</button></div><pre><code>from langchain.agents import create_tool_calling_agent, AgentExecutor
+
+<span class="c"># 1. Create the agent (the reasoning engine)</span>
+agent = create_tool_calling_agent(model, tools, prompt)
+
+<span class="c"># 2. Create the executor (the while loop that runs the agent and tools)</span>
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+
+agent_executor.invoke({"input": "What is the weather in Tokyo?"})</code></pre></div>
+
+<h3>The framing that reads senior</h3>
+
+<p><b>"Agents demo incredibly well but fail spectacularly in production. They are non-deterministic, prone to infinite loops, and highly latent. Only use an agent if the task genuinely requires on-the-fly planning. If the steps are known, write a rigid state machine."</b></p>
+
+<div class="quiz" data-part="p12"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
+
+</section>
+
+<section class="part" id="p13" aria-labelledby="p13-title" style="display:none">
+  <div class="phead"><div class="pnum" aria-hidden="true">13</div>
+    <div><h2 class="ptitle" id="p13-title">Callbacks &amp; Tracing</h2>
+    <div class="pmeta"><span class="m">TAG <b>REFERENCE</b></span></div></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p13">MARK COMPLETE</button></div>
+  </div>
+
+  <h3>What it is</h3>
+
+<p>A system for hooking into the execution steps of a LangChain application to log, monitor, or stream events. LangSmith is the commercial tracing platform built on top of this.</p>
+
+<h3>Why it exists &amp; What problem it solves</h3>
+
+<p>When you ask an Agent a question, it might run 15 internal steps, rewrite prompts, and execute 3 tools. If it returns a bad answer, you have no idea *where* it failed. Callbacks allow you to see exactly what string went into the LLM at every step.</p>
+
+<h3>How it works &amp; What happens internally</h3>
+
+<p>Every <code class="inline">Runnable</code> in LangChain accepts a <code class="inline">callbacks</code> array. When a component starts, it fires <code class="inline">on_llm_start</code> or <code class="inline">on_chain_start</code>. When it finishes, it fires <code class="inline">on_llm_end</code>. Tracers listen to these events and stream them to the console or an external database (like LangSmith).</p>
+
+<h3>How it relates to other concepts</h3>
+
+<p>Callbacks provide visibility into the black box of <b>LCEL Pipelines</b> and <b>Agents</b>.</p>
+
+<h3>When I would actually use it</h3>
+
+<p>In every single production application.</p>
+
+<h3>Common mistakes</h3>
+
+<ul><li><b>Debugging via <code class="inline">print()</code>:</b> Trying to print variables in the middle of a complex LCEL pipeline is impossible. You must use tracers.</li></ul>
+
+<h3>Practical example &amp; Syntax</h3>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button type="button" class="copybtn">COPY</button></div><pre><code>from langchain.callbacks import ConsoleCallbackHandler
+
+<span class="c"># Prints the exact prompts, token usage, and latencies to the terminal</span>
+chain.invoke({"topic": "bears"}, config={"callbacks": [ConsoleCallbackHandler()]})</code></pre></div>
+
+<h3>The framing that reads senior</h3>
+
+<p><b>"If you aren't logging the exact prompt payload, completion, token count, and latency for every LLM call in production, you are flying blind. Tracing is not an optional nice-to-have; it is a fundamental requirement for operating LLM applications."</b></p>
+
+<div class="quiz" data-part="p13"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
+
+</section>
+
+<section class="part" id="p14" aria-labelledby="p14-title" style="display:none">
+  <div class="phead"><div class="pnum" aria-hidden="true">14</div>
+    <div><h2 class="ptitle" id="p14-title">LangGraph (The Future)</h2>
+    <div class="pmeta"><span class="m">TAG <b>ADVANCED</b></span></div></div>
+    <div class="pactions"><button type="button" class="btn sm" data-done="p14">MARK COMPLETE</button></div>
+  </div>
+
+  <h3>What it is</h3>
+
+<p>A separate library from the core LangChain team for building stateful, multi-actor applications with cyclic graphs.</p>
+
+<h3>Why it exists &amp; What problem it solves</h3>
+
+<p>Standard LangChain LCEL pipelines are Directed Acyclic Graphs (DAGs)—they cannot loop. LangChain <b>Agents</b> (Part 12) *can* loop, but their loops are completely unconstrained and handled by a black-box <code class="inline">AgentExecutor</code>. LangGraph solves this by letting you explicitly model workflows as state machines (graphs) where you control exactly how and when loops happen.</p>
+
+<h3>How it works &amp; What happens internally</h3>
+
+<p>You define <b>Nodes</b> (Python functions that take a State object, modify it, and return it) and <b>Edges</b> (conditional logic dictating which node runs next). LangGraph executes this graph, managing the state persistence automatically. If a node fails, the state is preserved, and you can resume execution exactly where it left off (Human-in-the-loop).</p>
+
+<h3>How it relates to other concepts</h3>
+
+<p>It is the modern, production-ready replacement for <b>Agents</b> (Part 12) and <b>Memory</b> (Part 6).</p>
+
+<h3>When I would actually use it</h3>
+
+<p>When building robust AI applications that require loops, self-correction, or human approval before taking action.</p>
+
+<h3>Common mistakes</h3>
+
+<ul><li><b>Putting too much logic in a single node:</b> Nodes should be small and atomic. Let the graph structure handle the routing.</li></ul>
+
+<h3>Practical example &amp; Syntax</h3>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">python</span><button type="button" class="copybtn">COPY</button></div><pre><code>from langgraph.graph import StateGraph, END
+from typing import TypedDict
+
+class State(TypedDict):
+    input: str
+    result: str
+
+def node_a(state):
+    return {"result": "processed " + state["input"]}
+
+workflow = StateGraph(State)
+workflow.add_node("step_1", node_a)
+workflow.set_entry_point("step_1")
+workflow.add_edge("step_1", END)
+
+app = workflow.compile()
+app.invoke({"input": "test"})</code></pre></div>
+
+<h3>The framing that reads senior</h3>
+
+<p><b>"LangGraph is the tacit admission that 'just let the agent figure it out' does not work in production. Real, reliable LLM engineering requires explicit state machines where the developer controls the transitions, and the LLM just performs targeted text processing at the nodes."</b></p>
+
+<div class="quiz" data-part="p14"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
+
+</section>
+  <div class="footnav"><button type="button" class="fnbtn" id="fnPrev"></button><button type="button" class="fnbtn next" id="fnNext"></button></div>
+</main>
+</div>
+<div id="grad"><div class="gterm"><div class="ghead">&#9650; SHIPYARD DEPLOYMENT — ALL MILESTONES CROSSED</div><div class="gbody"></div></div></div>
+<script src="data/langchain.js"></script>
+<script src="assets/shipyard-v2.js"></script>
+</body>
+</html>

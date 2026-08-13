@@ -9,13 +9,13 @@ import { parse } from './mdparse.mjs';
 
 const __dir = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dir, '..');
-const ARCH = path.resolve(ROOT, '..');
+const CONTENT = path.join(ROOT, 'content');
 const TECH = process.argv[2];
 if (!TECH) { console.error('usage: node build/draft.mjs <tech>'); process.exit(1); }
 const outArg = process.argv.indexOf('--out');
 const OUT = outArg > -1 ? process.argv[outArg + 1] : path.join(__dir, 'pedagogy', TECH + '.mjs');
 
-const mdPath = path.join(ARCH, TECH + '-curriculum.md');
+const mdPath = path.join(CONTENT, TECH + '-curriculum.md');
 if (!fs.existsSync(mdPath)) { console.error('missing ' + mdPath); process.exit(1); }
 const md = fs.readFileSync(mdPath, 'utf8');
 const parts = parse(md).filter(p => p.id !== 'p0');

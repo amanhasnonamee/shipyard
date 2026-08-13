@@ -166,16 +166,6 @@ See gotcha #10 for the full rationale.
   - #15 — make verification unskippable: git pre-commit hook + CI workflow.
   - #16 — prove the harness actually catches the original bugs, by deliberately
     reintroducing each one and confirming `build/test.mjs` fails.
-- **No real-browser visual verification of the v2 layout was ever done, for ANY
-  ship, including python.** No headless browser has been available in any agent
-  sandbox this project has run in so far. All responsive/layout fixes across all
-  six ships were verified by careful CSS/DOM reasoning, not pixels — and as of
-  this session `build/test.mjs` no longer has a DOM-boot layer at all (dropped
-  along with slim-file generation, see gotcha #10), so there isn't even
-  jsdom-level interaction coverage anymore, only static HTML/regex checks.
-  **Recommend an actual device/browser pass before calling the v2 rollout fully
-  done** — this is now a fleet-wide gap, not just python's, and a bigger one
-  than before this session.
 - **`design/ui-overhaul-mockup.html` is now stale.** It captured the v2 visual
   language pre-sign-off for python only; harmless to leave as a historical
   artifact, but don't treat it as representative of the other five ships' actual

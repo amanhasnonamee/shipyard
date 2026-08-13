@@ -28,7 +28,7 @@ const argv = process.argv.slice(2);
 const FLAGS = new Set(argv.filter(a => a.startsWith('--')));
 const NAMED = argv.filter(a => !a.startsWith('--'));
 
-const SHIPS = ['docker', 'python', 'javascript', 'htmlcss', 'sql', 'rest-api'];
+const SHIPS = ['docker', 'python', 'javascript', 'htmlcss', 'sql', 'rest-api', 'langchain'];
 
 function outFor(tech) {
   return {

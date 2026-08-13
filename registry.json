@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-13T08:05:50.971Z",
+ "generated": "2026-08-13T14:19:03.258Z",
  "techs": [
   {
    "id": "docker",
@@ -84,6 +84,20 @@
    "cards": 18,
    "miles": 6,
    "file": "rest-api.html"
+  },
+  {
+   "id": "langchain",
+   "brand": "THE LANGCHAIN SHIPYARD",
+   "title": "The LANGCHAIN Shipyard - LANGCHAIN: A First-Principles Curriculum",
+   "tagline": "TBD — 3-4 keywords separated by ·",
+   "accent": "#ffb000",
+   "parts": 15,
+   "layers": 14,
+   "questions": 56,
+   "checkpoints": 14,
+   "cards": 18,
+   "miles": 6,
+   "file": "langchain.html"
   }
  ]
 }
