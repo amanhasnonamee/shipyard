@@ -4,7 +4,22 @@ export default {
   brand: 'THE LANGCHAIN SHIPYARD',
   tagline: 'LCEL \u00b7 Prompts \u00b7 RAG \u00b7 Agents',
   storageKey: 'shipyard:langchain:v1',
+  legacyStorageKeys: [],
   accent: '#16b981', // emerald
+  stackLabel: 'THE STACK — your pipeline',
+  ranks: ['SWABBIE', 'DECKHAND', 'BOATSWAIN', 'FIRST MATE', 'CHAIN ARCHITECT', 'HARBOR MASTER'],
+  grad: {
+    title: 'PIPELINE DEPLOYED 🦜🔗',
+    rule: 'LangChain is just string manipulation and HTTP calls. Do not use its abstractions to hide complexity you don\'t understand natively.',
+  },
+  console: {
+    cmd: '$ python -m uvicorn main:app',
+    line: 'serving  ·  no magic left  ·  (yours — every layer earned)',
+  },
+  simPrompt: '>>> chain = prompt | model | parser; chain.invoke({"topic": "bears"})',
+  egg: { label: 'LCEL MODE ENGAGED', color: '#16b981', svg: '<path fill="none" stroke="COL" stroke-width="1.4" stroke-linejoin="round" d="M4 12c0-4 2.5-7 6-8 3.5 1 6 4 6 8 1.5-1 3-1.5 5-1-1 3-3 5-6 5H6c-1 0-1.5.5-2 1z"/><circle cx="8" cy="10" r=".7" fill="COL"/><path d="M6 20l7-3" stroke="COL" stroke-width="1" stroke-linecap="round"/>' },
+  deckIn: 'p13',
+  milesIn: 'p14',
 
   boot: [
     '<div class="bl">$ shipyard boot --curriculum langchain-first-principles</div>',

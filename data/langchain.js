@@ -10,27 +10,31 @@ meta:{
  "storageKey": "shipyard:langchain:v1",
  "legacyStorageKeys": [],
  "accent": "#16b981",
- "stackLabel": "THE STACK — your build",
+ "stackLabel": "THE STACK — your pipeline",
  "ranks": [
   "SWABBIE",
   "DECKHAND",
   "BOATSWAIN",
   "FIRST MATE",
-  "QUARTERMASTER",
+  "CHAIN ARCHITECT",
   "HARBOR MASTER"
  ],
  "grad": {
-  "title": "SHIPPED",
-  "rule": "LangChain is just string manipulation and HTTP calls. Do not use its abstractions to hide complexity you don’t understand natively."
+  "title": "PIPELINE DEPLOYED 🦜🔗",
+  "rule": "LangChain is just string manipulation and HTTP calls. Do not use its abstractions to hide complexity you don't understand natively."
  },
  "sim": {
-  "prompt": "# run the simulation"
+  "prompt": ">>> chain = prompt | model | parser; chain.invoke({\"topic\": \"bears\"})"
  },
  "console": {
-  "cmd": "$ shipyard status",
-  "line": "all parts laid · every layer earned"
+  "cmd": "$ python -m uvicorn main:app",
+  "line": "serving  ·  no magic left  ·  (yours — every layer earned)"
  },
- "egg": null,
+ "egg": {
+  "label": "LCEL MODE ENGAGED",
+  "color": "#16b981",
+  "svg": "<path fill=\"none\" stroke=\"COL\" stroke-width=\"1.4\" stroke-linejoin=\"round\" d=\"M4 12c0-4 2.5-7 6-8 3.5 1 6 4 6 8 1.5-1 3-1.5 5-1-1 3-3 5-6 5H6c-1 0-1.5.5-2 1z\"/><circle cx=\"8\" cy=\"10\" r=\".7\" fill=\"COL\"/><path d=\"M6 20l7-3\" stroke=\"COL\" stroke-width=\"1\" stroke-linecap=\"round\"/>"
+ },
  "stackSim": null
 },
 parts:[
