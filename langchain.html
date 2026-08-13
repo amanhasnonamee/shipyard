@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="TBD — 3-4 keywords separated by · — a first-principles interactive curriculum. One portable HTML file, 14 parts, checkpoint quizzes and idea cards. Runs offline; progress stays in your browser.">
+<meta name="description" content="LCEL · Prompts · RAG · Agents — a first-principles interactive curriculum. One portable HTML file, 14 parts, checkpoint quizzes and idea cards. Runs offline; progress stays in your browser.">
 <meta name="color-scheme" content="dark">
 <meta property="og:type" content="article">
 <meta property="og:title" content="The LANGCHAIN Shipyard - LANGCHAIN: A First-Principles Curriculum">
-<meta property="og:description" content="TBD — 3-4 keywords separated by · — a first-principles interactive curriculum. One portable HTML file, 14 parts, checkpoint quizzes and idea cards. Runs offline; progress stays in your browser.">
+<meta property="og:description" content="LCEL · Prompts · RAG · Agents — a first-principles interactive curriculum. One portable HTML file, 14 parts, checkpoint quizzes and idea cards. Runs offline; progress stays in your browser.">
 <meta property="og:image" content="https://amanhasnonamee.github.io/shipyard/assets/og/langchain.png">
 <meta property="og:url" content="https://amanhasnonamee.github.io/shipyard/langchain.html">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%23ffb000%22 d=%22M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z%22/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Cpath fill=%22%2316b981%22 d=%22M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z%22/%3E%3C/svg%3E">
 <meta name="contract" content="shipyard-langchain@3">
 <title>The LANGCHAIN Shipyard - LANGCHAIN: A First-Principles Curriculum</title>
 <link rel="stylesheet" href="assets/shipyard-v2.css">
@@ -26,7 +26,7 @@
       <path fill="var(--accent)" d="M12 3c4 0 7 2.5 9 8-.3 3-1.2 5.5-2 7.5-.6 1.4-1 2-2.5 2h-9c-1.5 0-1.9-.6-2.5-2C4.2 16.5 3.3 14 3 11c2-5.5 5-8 9-8z"/>
       <rect x="7" y="11" width="2" height="2" fill="var(--bg)"/><rect x="12" y="11" width="2" height="2" fill="var(--bg)"/><rect x="17" y="11" width="2" height="2" fill="var(--bg)"/>
     </svg>
-    <div><h1 class="bname">THE LANGCHAIN SHIPYARD</h1><div class="bsub">TBD — 3-4 keywords separated by ·</div></div>
+    <div><h1 class="bname">THE LANGCHAIN SHIPYARD</h1><div class="bsub">LCEL · Prompts · RAG · Agents</div></div>
   </div>
 
   <div class="rankbox">
@@ -279,6 +279,8 @@ result = chain.invoke({"topic": "bears"})</code></pre></div>
 <h3>The framing that reads senior</h3>
 
 <p><b>"LCEL is brilliant for unifying sync, async, and streaming under one interface. But it comes at the cost of debuggability. I use LCEL for linear data flows, but the moment the logic requires complex conditional routing or cycles, I drop it and use LangGraph or native Python."</b></p>
+
+<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">simulator — click RUN</span></div><pre id="simOut" aria-live="polite"></pre><div class="stack-controls" style="margin:0;padding:10px 16px;border-top:1px solid var(--line)"><button type="button" class="btn sm" id="simRun">&#9654; RUN</button><button type="button" class="btn sm ok" id="simReset">RESET</button></div></div>
 
 <div class="quiz" data-part="p4"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 
@@ -602,8 +604,6 @@ rag_chain = (
 <h3>The framing that reads senior</h3>
 
 <p><b>"A naive retriever returns chunks. An advanced retriever returns context. Don't just return what mathematically matched the query—return the whole section it belonged to. The LLM needs the surrounding text to synthesize a factually accurate answer."</b></p>
-
-<div class="term"><div class="termhead"><span class="td td1"></span><span class="td td2"></span><span class="td td3"></span><span class="tname">simulator — click RUN</span></div><pre id="simOut" aria-live="polite"></pre><div class="stack-controls" style="margin:0;padding:10px 16px;border-top:1px solid var(--line)"><button type="button" class="btn sm" id="simRun">&#9654; RUN</button><button type="button" class="btn sm ok" id="simReset">RESET</button></div></div>
 
 <div class="quiz" data-part="p10"><span class="qlbl">Checkpoint — hold yourself to it</span><div class="qscore">SCORE <b>—</b></div><div class="qwrap"></div><div class="qres" role="status" aria-live="polite"></div></div>
 

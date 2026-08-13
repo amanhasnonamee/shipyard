@@ -6,10 +6,10 @@ meta:{
  "tech": "langchain",
  "title": "The LANGCHAIN Shipyard - LANGCHAIN: A First-Principles Curriculum",
  "brand": "THE LANGCHAIN SHIPYARD",
- "tagline": "TBD — 3-4 keywords separated by ·",
+ "tagline": "LCEL · Prompts · RAG · Agents",
  "storageKey": "shipyard:langchain:v1",
  "legacyStorageKeys": [],
- "accent": "#ffb000",
+ "accent": "#16b981",
  "stackLabel": "THE STACK — your build",
  "ranks": [
   "SWABBIE",
@@ -21,7 +21,7 @@ meta:{
  ],
  "grad": {
   "title": "SHIPPED",
-  "rule": "TBD — THE ONE RULE: the sentence that collapses the whole topic."
+  "rule": "LangChain is just string manipulation and HTTP calls. Do not use its abstractions to hide complexity you don’t understand natively."
  },
  "sim": {
   "prompt": "# run the simulation"
@@ -128,805 +128,805 @@ parts:[
 quiz:{
  "p1": [
   {
-   "q": "TBD",
+   "q": "Why should you use BaseChatModel instead of BaseLLM for modern AI models?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "BaseLLM only supports open-source models, not commercial ones.",
+    "Chat models are specifically optimized to execute code faster.",
+    "Chat models accept message arrays with roles, which is what modern APIs require.",
+    "Chat models automatically manage long-term memory for you."
    ],
-   "a": 1,
-   "e": ""
+   "a": 2,
+   "e": "Modern models (GPT-4, Claude) are fine-tuned for chat and expect a strict array of messages, not a single raw string."
   },
   {
-   "q": "TBD",
+   "q": "What actually happens internally when you call model.invoke()?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "LangChain downloads the model weights locally and executes the inference on your CPU.",
+    "The prompt is sent to a LangChain cloud server which proxies it to OpenAI.",
+    "LangChain standardizes your input, makes an HTTP POST request to the provider, and parses the JSON response.",
+    "A WebSocket connection is kept open indefinitely to stream tokens as fast as possible."
    ],
-   "a": 3,
-   "e": ""
+   "a": 2,
+   "e": "The model wrapper is just an HTTP client that abstracts away the specific provider API schema."
   },
   {
-   "q": "TBD",
+   "q": "Which statement represents a \"first principles\" understanding of the LLM primitive?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "LangChain models are fundamentally different from OpenAI models.",
+    "The LLM automatically remembers the conversation context.",
+    "Every invocation is stateless and completely independent.",
+    "You should pass memory objects directly into the invoke method."
    ],
-   "a": 3,
-   "e": ""
+   "a": 2,
+   "e": "LLMs are stateless reasoning engines. They do not have built-in memory; every call starts fresh."
   },
   {
-   "q": "TBD",
+   "q": "What is a major risk of calling .invoke() inside a loop?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "You will rapidly consume tokens and incur massive API costs.",
+    "The model will get confused by previous iterations of the loop.",
+    "LangChain will throw a recursion depth exceeded error.",
+    "It causes memory leaks in the local Python garbage collector."
    ],
-   "a": 1,
-   "e": ""
+   "a": 0,
+   "e": "Each invoke() is a separate API call. Doing this in a loop can drain your API budget instantly."
   }
  ],
  "p2": [
   {
-   "q": "TBD",
+   "q": "Why is ChatPromptTemplate preferred over hardcoding f-strings?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "It forces the LLM to reply faster by compiling the string in C.",
+    "It automatically connects to a vector database for context injection.",
+    "It separates logic from data and automatically handles escaping special characters safely.",
+    "F-strings cannot be used in Python 3.10 and above."
    ],
    "a": 2,
-   "e": ""
+   "e": "Templates keep your code clean, prevent prompt injection vulnerabilities, and explicitly manage message roles."
   },
   {
-   "q": "TBD",
+   "q": "What does a ChatPromptTemplate return when formatted?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "A single concatenated string with line breaks.",
+    "A Pydantic object ready for database insertion.",
+    "A JSON object containing the model hyperparameters.",
+    "A strict list of BaseMessage objects (SystemMessage, HumanMessage)."
    ],
    "a": 3,
-   "e": ""
+   "e": "It formats the inputs and constructs the exact message array that modern ChatModels require."
   },
   {
-   "q": "TBD",
+   "q": "Which of the following is a dangerous prompt anti-pattern?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "Passing a dictionary of keyword arguments to the template.",
+    "Versioning your prompts in source control.",
+    "Writing complex control-flow routing instructions in the prompt instead of Python.",
+    "Using a SystemMessage to define the assistant’s persona."
    ],
-   "a": 3,
-   "e": ""
+   "a": 2,
+   "e": "Never ask an LLM to do control-flow (if/else) if you can just write a Python if-statement."
   },
   {
-   "q": "TBD",
+   "q": "How does prompt templating relate to LCEL?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "It replaces the need for an Output Parser entirely.",
+    "It is usually the very first component in an LCEL pipeline.",
+    "It disables LCEL streaming capabilities automatically.",
+    "It must be placed after the model in the chain."
    ],
-   "a": 0,
-   "e": ""
+   "a": 1,
+   "e": "The prompt formats the user input before it hits the model, acting as the start of the chain."
   }
  ],
  "p3": [
   {
-   "q": "TBD",
+   "q": "What is the primary purpose of an Output Parser?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "To convert raw, unstructured LLM text into structured Python objects.",
+    "To translate English output into other languages.",
+    "To compress the output tokens to save API costs.",
+    "To automatically fix factual errors made by the LLM."
    ],
    "a": 0,
-   "e": ""
+   "e": "Software needs objects, not strings. Parsers enforce schemas."
   },
   {
-   "q": "TBD",
+   "q": "How does PydanticOutputParser enforce its schema on the LLM?",
    "o": [
-    "",
-    "",
-    "",
-    ""
-   ],
-   "a": 0,
-   "e": ""
-  },
-  {
-   "q": "TBD",
-   "o": [
-    "",
-    "",
-    "",
-    ""
+    "It trains a smaller model to correct the output of the larger model.",
+    "It generates explicit format instructions that you must append to your prompt.",
+    "It throws an error before the LLM is even called.",
+    "It hacks the LLM API to only return valid JSON bytes."
    ],
    "a": 1,
-   "e": ""
+   "e": "The parser creates a string of instructions (e.g., \"Return JSON with keys X and Y\"), which guides the model."
   },
   {
-   "q": "TBD",
+   "q": "When should you avoid using a text-matching Output Parser?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "When you are using an older, smaller open-source model.",
+    "When you want to stream the output to the console.",
+    "When the output needs to be a Python dictionary.",
+    "When the model natively supports Tool Calling (Function Calling)."
+   ],
+   "a": 3,
+   "e": "Tool Calling is guaranteed at the API level and is far more robust than regex-based text parsing."
+  },
+  {
+   "q": "What happens internally if the LLM returns malformed JSON to a Pydantic parser?",
+   "o": [
+    "The parser automatically guesses the missing fields.",
+    "The parser throws a validation exception that must be handled.",
+    "The LLM is automatically retried up to 10 times.",
+    "LangChain silently returns an empty dictionary."
    ],
    "a": 1,
-   "e": ""
+   "e": "It raises an OutputParserException. You must catch this or use a RetryOutputParser."
   }
  ],
  "p4": [
   {
-   "q": "TBD",
+   "q": "What is the primary technical advantage of using LCEL?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "It unifies sync, async, streaming, and batching under one Runnable interface.",
+    "It makes the LLM execute code natively without external tools.",
+    "It hides stack traces to make debugging easier.",
+    "It compresses prompts so they cost fewer tokens."
+   ],
+   "a": 0,
+   "e": "Every LCEL chain instantly gets .stream(), .batch(), and .ainvoke() for free because of the unified interface."
+  },
+  {
+   "q": "What happens internally when you use the | operator in LCEL?",
+   "o": [
+    "It launches a separate parallel thread for each component.",
+    "It tells the LLM to separate its outputs with a pipe character.",
+    "Python invokes the __or__ dunder method, wrapping components in a RunnableSequence.",
+    "It executes a bash pipe command on the underlying operating system."
+   ],
+   "a": 2,
+   "e": "LangChain overrides the bitwise OR operator to construct a sequential pipeline of runnables."
+  },
+  {
+   "q": "When does LCEL become a poor architectural choice?",
+   "o": [
+    "When you are building a simple linear Retrieval-Augmented Generation chain.",
+    "When your workflow requires complex conditional routing or cyclic loops.",
+    "When you want to batch process a list of inputs.",
+    "When you need to stream tokens directly to a UI frontend."
    ],
    "a": 1,
-   "e": ""
+   "e": "LCEL is terrible for complex branching logic. Use LangGraph or native Python if-statements instead."
   },
   {
-   "q": "TBD",
+   "q": "Why are LCEL stack traces notoriously difficult to read?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "It relies on deeply nested internal function calls and generators.",
+    "LangChain encrypts the stack trace for security reasons.",
+    "The stack trace is returned in JSON format instead of text.",
+    "Python does not support stack traces for the | operator."
    ],
    "a": 0,
-   "e": ""
-  },
-  {
-   "q": "TBD",
-   "o": [
-    "",
-    "",
-    "",
-    ""
-   ],
-   "a": 3,
-   "e": ""
-  },
-  {
-   "q": "TBD",
-   "o": [
-    "",
-    "",
-    "",
-    ""
-   ],
-   "a": 0,
-   "e": ""
+   "e": "The abstractions create massive call stacks, making it hard to see where your actual code failed."
   }
  ],
  "p5": [
   {
-   "q": "TBD",
+   "q": "Why should you avoid legacy chains like LLMChain in new projects?",
    "o": [
-    "",
-    "",
-    "",
-    ""
-   ],
-   "a": 2,
-   "e": ""
-  },
-  {
-   "q": "TBD",
-   "o": [
-    "",
-    "",
-    "",
-    ""
-   ],
-   "a": 0,
-   "e": ""
-  },
-  {
-   "q": "TBD",
-   "o": [
-    "",
-    "",
-    "",
-    ""
-   ],
-   "a": 2,
-   "e": ""
-  },
-  {
-   "q": "TBD",
-   "o": [
-    "",
-    "",
-    "",
-    ""
+    "They are incompatible with OpenAI models.",
+    "They hide the actual prompt and execute opaque \"magic\" behavior.",
+    "They cost more money to execute per token.",
+    "They require a local GPU to run efficiently."
    ],
    "a": 1,
-   "e": ""
+   "e": "Legacy chains obscure the data flow. LCEL makes everything explicit and transparent."
+  },
+  {
+   "q": "What is the modern LCEL equivalent to the legacy LLMChain?",
+   "o": [
+    "ConversationalRetrievalChain",
+    "prompt | model | parser",
+    "RunnableBranch",
+    "AgentExecutor"
+   ],
+   "a": 1,
+   "e": "The simplest pipe sequence replicates exactly what LLMChain used to do under the hood."
+  },
+  {
+   "q": "How did legacy chains handle passing inputs to multiple components?",
+   "o": [
+    "By using the | operator exclusively.",
+    "By storing all variables in a global Redis database.",
+    "By relying on bloated object-oriented classes with custom _call methods.",
+    "By executing components simultaneously and merging the results."
+   ],
+   "a": 2,
+   "e": "They were heavy OOP classes that lacked standard streaming and batching interfaces."
+  },
+  {
+   "q": "If you encounter a RouterChain in an old codebase, what should you replace it with?",
+   "o": [
+    "RunnableBranch or standard Python if-statements.",
+    "A new LLMChain.",
+    "A vector database.",
+    "A PydanticOutputParser."
+   ],
+   "a": 0,
+   "e": "RunnableBranch handles conditional logic in LCEL, replacing the old router chains."
   }
  ],
  "p6": [
   {
-   "q": "TBD",
+   "q": "How does LangChain memory actually work internally?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "It writes the messages directly to the LLMs internal neural network weights.",
+    "It uses a special API endpoint that remembers previous calls automatically.",
+    "It intercepts the request, appends past messages to the prompt array, and sends it to the LLM.",
+    "It creates a fine-tuned model for every single user session."
+   ],
+   "a": 2,
+   "e": "Memory is an illusion created by dynamically expanding the context window payload on every request."
+  },
+  {
+   "q": "What is a major production risk of naively appending all chat history?",
+   "o": [
+    "It causes the LLM to output responses in the wrong language.",
+    "It corrupts the local Redis instance with malformed JSON.",
+    "It prevents the use of Output Parsers later in the chain.",
+    "It eventually exceeds the context window and costs a fortune in API fees."
    ],
    "a": 3,
-   "e": ""
+   "e": "Context windows are finite. Sending 50 past messages on every turn is extremely expensive and causes truncation."
   },
   {
-   "q": "TBD",
+   "q": "What does RunnableWithMessageHistory do?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "It summarizes the entire history into a single word.",
+    "It prevents the LLM from hallucinating facts about the past.",
+    "It automatically fetches history from a store and saves the new response back to it.",
+    "It deletes the history after every 5 messages to save space."
    ],
-   "a": 1,
-   "e": ""
+   "a": 2,
+   "e": "It acts as a middleware, managing the read/write lifecycle of the message history object."
   },
   {
-   "q": "TBD",
+   "q": "What is the \"senior\" alternative to blind array concatenation for state?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "Increasing the context window to 1 million tokens.",
+    "Switching from OpenAI to an open-source model.",
+    "Using an Agent to decide which messages to keep.",
+    "Explicit summarization pipelines or vector-database lookups for past interactions."
    ],
    "a": 3,
-   "e": ""
-  },
-  {
-   "q": "TBD",
-   "o": [
-    "",
-    "",
-    "",
-    ""
-   ],
-   "a": 1,
-   "e": ""
+   "e": "True state management requires pruning or semantic retrieval to keep the prompt focused and cheap."
   }
  ],
  "p7": [
   {
-   "q": "TBD",
+   "q": "What is the exact output format of a LangChain Document Loader?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "An array of Document objects containing page_content and metadata.",
+    "A list of embedded vector coordinates.",
+    "A single massive string of raw text.",
+    "A JSON object ready for the LLM."
    ],
    "a": 0,
-   "e": ""
+   "e": "Loaders standardize external data into a strict Document format with content and source metadata."
   },
   {
-   "q": "TBD",
+   "q": "Why are built-in loaders like WebBaseLoader risky for production use?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "They automatically send your private data to OpenAI for training.",
+    "They often blindly grab HTML navbars and footer junk, ruining the LLM context.",
+    "They are not open source and require a paid license.",
+    "They crash if the website uses HTTPS."
+   ],
+   "a": 1,
+   "e": "They lack robust sanitization. In production, you must write custom ingest pipelines."
+  },
+  {
+   "q": "What is the next immediate step in a RAG pipeline after using a Loader?",
+   "o": [
+    "Creating an Output Parser to format the text.",
+    "Passing the output to a Text Splitter to chunk the documents.",
+    "Sending the raw documents directly to the LLM.",
+    "Storing the documents in a relational SQL database."
+   ],
+   "a": 1,
+   "e": "Loaded documents are almost always too large; they must be chunked before embedding."
+  },
+  {
+   "q": "How does a loader relate to the LLM primitive?",
+   "o": [
+    "It fetches the context that will eventually be injected into the LLMs prompt.",
+    "It replaces the LLM for simple factual queries.",
+    "It validates the LLMs final response against the source material.",
+    "It directly trains the LLM on the new data."
    ],
    "a": 0,
-   "e": ""
-  },
-  {
-   "q": "TBD",
-   "o": [
-    "",
-    "",
-    "",
-    ""
-   ],
-   "a": 2,
-   "e": ""
-  },
-  {
-   "q": "TBD",
-   "o": [
-    "",
-    "",
-    "",
-    ""
-   ],
-   "a": 0,
-   "e": ""
+   "e": "Loaders gather the raw material. It must be chunked and retrieved before reaching the model."
   }
  ],
  "p8": [
   {
-   "q": "TBD",
+   "q": "Why is blind character splitting (e.g., exactly every 1000 characters) a terrible strategy?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "It takes too much CPU power to calculate character counts.",
+    "It causes the LLM to hallucinate new characters.",
+    "It often cuts critical sentences or code blocks in half, destroying semantic meaning.",
+    "Vector databases only accept chunks of exactly 512 characters."
    ],
    "a": 2,
-   "e": ""
+   "e": "If a sentence is cut in half, the resulting vector embedding will be garbage, ruining retrieval."
   },
   {
-   "q": "TBD",
+   "q": "How does RecursiveCharacterTextSplitter attempt to preserve meaning?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "It splits by paragraphs first, falling back to sentences and words only if the chunk is too large.",
+    "It uses a small LLM to summarize each chunk before splitting.",
+    "It asks the user to manually define where the splits should occur.",
+    "It explicitly searches for nouns and verbs to keep them together."
+   ],
+   "a": 0,
+   "e": "By respecting natural language boundaries (paragraphs, newlines), it keeps related concepts grouped."
+  },
+  {
+   "q": "What is the purpose of chunk_overlap?",
+   "o": [
+    "To ensure that a concept split across a boundary retains context from the previous chunk.",
+    "To create duplicate documents to increase search volume.",
+    "To force the LLM to read the most important parts twice.",
+    "To test the vector database for redundancy."
+   ],
+   "a": 0,
+   "e": "Overlap prevents a sentence from being abruptly orphaned without its surrounding context."
+  },
+  {
+   "q": "What is the single biggest driver of RAG quality?",
+   "o": [
+    "Using LCEL instead of legacy chains.",
+    "The chunking strategy, because the retrieved chunk must make sense on its own.",
+    "The temperature setting of the LLM.",
+    "The choice of Output Parser."
    ],
    "a": 1,
-   "e": ""
-  },
-  {
-   "q": "TBD",
-   "o": [
-    "",
-    "",
-    "",
-    ""
-   ],
-   "a": 3,
-   "e": ""
-  },
-  {
-   "q": "TBD",
-   "o": [
-    "",
-    "",
-    "",
-    ""
-   ],
-   "a": 1,
-   "e": ""
+   "e": "If the text chunk doesn't contain the full answer, the LLM cannot magically invent it."
   }
  ],
  "p9": [
   {
-   "q": "TBD",
+   "q": "What exactly does an Embedding model do?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "It compresses text into a zip file for faster database storage.",
+    "It translates English text into Python code.",
+    "It generates the final answer based on the retrieved documents.",
+    "It converts text into a dense array of floats in high-dimensional space."
    ],
-   "a": 1,
-   "e": ""
+   "a": 3,
+   "e": "Embeddings map semantic meaning into mathematical coordinates (vectors)."
   },
   {
-   "q": "TBD",
+   "q": "Why does Vector Search struggle with queries for exact IDs or SKUs?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "SKUs are automatically filtered out by the embedding model.",
+    "Vector search only works on paragraphs longer than 50 words.",
+    "Vector databases are too slow to index exact numbers.",
+    "Embeddings capture semantic similarity, not exact character matches."
    ],
-   "a": 1,
-   "e": ""
+   "a": 3,
+   "e": "Vector search looks for related concepts. If you need an exact invoice number, you need keyword search."
   },
   {
-   "q": "TBD",
+   "q": "What is the standard mathematical method used to find the closest vectors?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "Linear Regression.",
+    "Cosine Similarity.",
+    "Standard Deviation.",
+    "Boolean Logic."
    ],
    "a": 1,
-   "e": ""
+   "e": "Cosine similarity measures the angle between two vectors to determine how closely their meanings align."
   },
   {
-   "q": "TBD",
+   "q": "What is Hybrid Search, and why is it recommended for production?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "Searching the internet and the local database at the same time.",
+    "Using two different LLMs simultaneously.",
+    "Storing data in both a Vector Store and a local text file.",
+    "Combining Vector Search for concepts with BM25 Keyword Search for exact matches."
    ],
-   "a": 0,
-   "e": ""
+   "a": 3,
+   "e": "Hybrid search gives you the best of both worlds: semantic understanding and exact keyword precision."
   }
  ],
  "p10": [
   {
-   "q": "TBD",
+   "q": "What is the primary interface abstraction provided by a Retriever?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "embed_and_store()",
+    "similarity_search_with_score()",
+    "get_relevant_documents(query)",
+    "invoke_llm_chain()"
    ],
    "a": 2,
-   "e": ""
+   "e": "It exposes a single method to fetch documents, hiding the underlying database implementation."
   },
   {
-   "q": "TBD",
+   "q": "How does a MultiQueryRetriever improve search results?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "It asks the user the same question multiple times to confirm intent.",
+    "It searches multiple different vector databases at the same time.",
+    "It uses an LLM to rewrite the user query into multiple synonyms to catch more hits.",
+    "It automatically translates the query into 5 different languages."
+   ],
+   "a": 2,
+   "e": "Query expansion overcomes the limitation of a user asking a poorly phrased question."
+  },
+  {
+   "q": "What problem does the ParentDocumentRetriever solve?",
+   "o": [
+    "It embeds small chunks for precise search, but returns the larger parent document to preserve context.",
+    "It summarizes the parent document into a single sentence.",
+    "It prevents child documents from being deleted from the vector store.",
+    "It traces the origin of the document back to the original author."
    ],
    "a": 0,
-   "e": ""
+   "e": "Small chunks yield accurate search results, but the LLM needs the large parent context to synthesize a good answer."
   },
   {
-   "q": "TBD",
+   "q": "What is \"Lost in the Middle\" syndrome?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "When the vector store fails to index the middle pages of a PDF.",
+    "When too many retrieved chunks are provided, the LLM ignores facts located in the center of the prompt.",
+    "When LCEL drops variables mid-chain.",
+    "When the Output Parser fails to parse the middle of a JSON block."
    ],
    "a": 1,
-   "e": ""
-  },
-  {
-   "q": "TBD",
-   "o": [
-    "",
-    "",
-    "",
-    ""
-   ],
-   "a": 0,
-   "e": ""
+   "e": "LLMs suffer from attention degradation. Stuffing 20 chunks into a prompt guarantees the middle ones will be ignored."
   }
  ],
  "p11": [
   {
-   "q": "TBD",
+   "q": "How does LangChain describe your Python function (Tool) to the LLM?",
    "o": [
-    "",
-    "",
-    "",
-    ""
-   ],
-   "a": 0,
-   "e": ""
-  },
-  {
-   "q": "TBD",
-   "o": [
-    "",
-    "",
-    "",
-    ""
+    "It executes the function once and sends the result as an example.",
+    "It relies on the LLM to guess the function arguments based on the name.",
+    "It sends the raw Python source code to the LLM to read.",
+    "It parses the function arguments and docstring to generate a JSON Schema payload."
    ],
    "a": 3,
-   "e": ""
+   "e": "The @tool decorator uses reflection to build a strict JSON schema that the LLM API understands."
   },
   {
-   "q": "TBD",
+   "q": "Why is the Python docstring critical when writing a Tool?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "It prevents the tool from timing out during execution.",
+    "The LLM literally reads the docstring to figure out when and how to use the tool.",
+    "It is required by the Python interpreter for type checking.",
+    "LangChain uses it to generate automatic documentation for your website."
    ],
-   "a": 2,
-   "e": ""
+   "a": 1,
+   "e": "If your docstring is vague, the LLM will hallucinate arguments or fail to call the tool entirely."
   },
   {
-   "q": "TBD",
+   "q": "What happens immediately after the LLM decides to call a tool?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "LangChain throws an error because the chain is complete.",
+    "The application pauses and waits for user approval.",
+    "The LLM connects directly to the internet to execute the function.",
+    "LangChain intercepts the request, executes the Python function locally, and sends the result back to the LLM."
    ],
-   "a": 2,
-   "e": ""
+   "a": 3,
+   "e": "LangChain handles the execution loop automatically, passing the ToolMessage back so the LLM can continue reasoning."
+  },
+  {
+   "q": "Which statement reflects senior-level thinking regarding Tool Calling?",
+   "o": [
+    "You should write complex regex parsers instead of relying on native tool calling.",
+    "Tools should only be used when LCEL chains are not available.",
+    "Tools should always execute asynchronously to avoid blocking the LLM.",
+    "Prompt engineering has shifted from system prompts to function docstrings and Pydantic types."
+   ],
+   "a": 3,
+   "e": "The schema and description of the tool are the new \"prompt engineering\" for modern models."
   }
  ],
  "p12": [
   {
-   "q": "TBD",
+   "q": "What is the fundamental difference between an Agent and a standard LCEL chain?",
    "o": [
-    "",
-    "",
-    "",
-    ""
-   ],
-   "a": 1,
-   "e": ""
-  },
-  {
-   "q": "TBD",
-   "o": [
-    "",
-    "",
-    "",
-    ""
-   ],
-   "a": 1,
-   "e": ""
-  },
-  {
-   "q": "TBD",
-   "o": [
-    "",
-    "",
-    "",
-    ""
-   ],
-   "a": 3,
-   "e": ""
-  },
-  {
-   "q": "TBD",
-   "o": [
-    "",
-    "",
-    "",
-    ""
+    "An Agent uses the LLM to dynamically decide the execution path in a loop; a chain is a static state machine.",
+    "An Agent cannot use Tools; a chain can.",
+    "An Agent only works with OpenAI models.",
+    "An Agent is written in Python; a chain is written in JSON."
    ],
    "a": 0,
-   "e": ""
+   "e": "Chains execute exactly the steps you coded. Agents plan their own steps on the fly."
+  },
+  {
+   "q": "What does the ReAct (Reason + Act) loop refer to in Agent architecture?",
+   "o": [
+    "A frontend framework used to build LangChain UIs.",
+    "The process of retrying failed LLM calls.",
+    "A specific database optimized for agent memory.",
+    "The cycle where the LLM outputs a Thought, executes an Action (Tool), and observes the result."
+   ],
+   "a": 3,
+   "e": "ReAct is the foundational prompting strategy that allows models to plan and execute tools autonomously."
+  },
+  {
+   "q": "Why do Agents often fail in production environments?",
+   "o": [
+    "They cannot connect to vector databases.",
+    "They ignore system prompts entirely.",
+    "They are highly non-deterministic, prone to infinite loops, and inherently slow.",
+    "They require too much RAM to run locally."
+   ],
+   "a": 2,
+   "e": "The freedom that makes Agents powerful also makes them unpredictable and difficult to test reliably."
+  },
+  {
+   "q": "When is the only time you should actually use an Agent?",
+   "o": [
+    "When the execution path is completely unknown and highly variable based on user input.",
+    "When you are batch processing a thousand documents.",
+    "When you need to parse a strict JSON object from text.",
+    "When you want to build a simple RAG pipeline."
+   ],
+   "a": 0,
+   "e": "If you know the exact steps, write a static chain. Only use Agents for truly dynamic planning."
   }
  ],
  "p13": [
   {
-   "q": "TBD",
+   "q": "Why is tracing (e.g., via LangSmith) considered mandatory for LLM apps?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "It makes the LLM execute 10x faster.",
+    "LCEL is a black box. You must see the exact prompt sent and the tokens used at every step to debug failures.",
+    "OpenAI requires it in their Terms of Service.",
+    "It automatically fixes hallucinated responses."
    ],
    "a": 1,
-   "e": ""
+   "e": "Without a tracer, you have no visibility into what the LLM is actually seeing or doing."
   },
   {
-   "q": "TBD",
+   "q": "How do callbacks hook into the execution of a LangChain application?",
    "o": [
-    "",
-    "",
-    "",
-    ""
-   ],
-   "a": 1,
-   "e": ""
-  },
-  {
-   "q": "TBD",
-   "o": [
-    "",
-    "",
-    "",
-    ""
+    "By overriding the print() function globally.",
+    "By injecting malicious code into the Python interpreter.",
+    "By listening to events like on_llm_start and on_chain_end emitted by every Runnable.",
+    "By reading the log files generated by the operating system."
    ],
    "a": 2,
-   "e": ""
+   "e": "The CallbackManager fires specific events at every lifecycle stage of a Runnable."
   },
   {
-   "q": "TBD",
+   "q": "What is the ConsoleCallbackHandler used for?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "Printing exact prompts, token usage, and latencies directly to the terminal.",
+    "Uploading logs securely to AWS S3.",
+    "Sending alert emails when the chain fails.",
+    "Displaying a graphical UI in the browser."
+   ],
+   "a": 0,
+   "e": "It provides immediate local visibility into the execution steps of an agent or chain."
+  },
+  {
+   "q": "Why is debugging via print() ineffective for LangChain?",
+   "o": [
+    "It causes the vector database to crash.",
+    "LLMs do not output strings that can be printed.",
+    "Deeply nested LCEL pipelines and streaming generators make it impossible to intercept variables cleanly.",
+    "The print() function is disabled by the LangChain framework."
    ],
    "a": 2,
-   "e": ""
+   "e": "The abstractions of LCEL mean the data is flowing through generators and wrappers, requiring a proper callback system to inspect."
   }
  ],
  "p14": [
   {
-   "q": "TBD",
+   "q": "What critical limitation of standard LangChain LCEL does LangGraph solve?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "LangGraph is required to use open-source models.",
+    "LCEL cannot connect to databases; LangGraph can.",
+    "LangGraph compresses the context window automatically.",
+    "Standard LCEL creates Directed Acyclic Graphs (DAGs) which cannot loop; LangGraph allows controlled cycles."
    ],
    "a": 3,
-   "e": ""
+   "e": "Loops are essential for self-correction and reflection, which static LCEL pipelines cannot do."
   },
   {
-   "q": "TBD",
+   "q": "How does LangGraph differ from standard LangChain Agents (AgentExecutor)?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "LangGraph is purely for visualization and doesn’t execute code.",
+    "LangGraph models the workflow as an explicit state machine you control, rather than an unconstrained black-box loop.",
+    "Agents are much faster and more reliable than LangGraph.",
+    "LangGraph does not support Tool Calling."
    ],
    "a": 1,
-   "e": ""
+   "e": "LangGraph gives the developer control over the transitions, solving the unpredictability of naked Agents."
   },
   {
-   "q": "TBD",
+   "q": "In LangGraph, what is the role of a \"Node\"?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "A server cluster hosting the LLM.",
+    "A specific document in the vector store.",
+    "A callback handler for tracing logs.",
+    "A Python function that receives the current State object, modifies it, and returns the updates."
    ],
    "a": 3,
-   "e": ""
+   "e": "Nodes perform the actual work (calling an LLM, searching an API) and update the global state dictionary."
   },
   {
-   "q": "TBD",
+   "q": "What is a major advantage of LangGraph’s state persistence?",
    "o": [
-    "",
-    "",
-    "",
-    ""
+    "It reduces the API cost of the LLM by 50%.",
+    "It translates the state into 10 different languages.",
+    "It allows human-in-the-loop approval by preserving state and resuming execution exactly where it paused.",
+    "It prevents the LLM from hallucinating completely."
    ],
-   "a": 3,
-   "e": ""
+   "a": 2,
+   "e": "Because the state machine is explicit, you can interrupt it, wait for human input, and resume seamlessly."
   }
  ]
 },
 cards:[
  {
   "t": "TIER 1 - EXPECTED OF EVERYONE",
-  "q": "1 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "1 ▶ What is the difference between an LLM and a ChatModel?",
+  "a": "LLMs take a single string. ChatModels take an array of structured messages (System, Human, AI)."
  },
  {
   "t": "TIER 1 - EXPECTED OF EVERYONE",
-  "q": "2 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "2 ▶ What is the primary purpose of LCEL?",
+  "a": "To chain components using the | operator into a single Runnable, providing streaming and batching for free."
  },
  {
   "t": "TIER 1 - EXPECTED OF EVERYONE",
-  "q": "3 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "3 ▶ Why use a Prompt Template instead of an f-string?",
+  "a": "To separate logic from data, handle escaping safely, and easily construct message arrays."
  },
  {
   "t": "TIER 1 - EXPECTED OF EVERYONE",
-  "q": "4 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "4 ▶ What problem does an Output Parser solve?",
+  "a": "It forces unstructured LLM text into strict Python objects like JSON or Pydantic models."
  },
  {
   "t": "TIER 1 - EXPECTED OF EVERYONE",
-  "q": "5 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "5 ▶ What is RAG?",
+  "a": "Retrieval-Augmented Generation. Injecting retrieved database context into the prompt so the LLM can answer accurately."
  },
  {
   "t": "TIER 1 - EXPECTED OF EVERYONE",
-  "q": "6 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "6 ▶ What does a Document Loader output?",
+  "a": "An array of Document objects, each with page_content and metadata."
  },
  {
   "t": "TIER 1 - EXPECTED OF EVERYONE",
-  "q": "7 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "7 ▶ What is the purpose of a Text Splitter?",
+  "a": "To break massive documents into smaller chunks that fit inside the LLM context window."
  },
  {
   "t": "TIER 1 - EXPECTED OF EVERYONE",
-  "q": "8 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "8 ▶ What do Embeddings do?",
+  "a": "Convert semantic meaning into dense mathematical vectors (arrays of floats) for similarity search."
  },
  {
   "t": "TIER 2 - DIFFERENTIATORS",
-  "q": "9 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "9 ▶ Why is blind character splitting dangerous?",
+  "a": "It cuts sentences in half, destroying the semantic meaning of the chunk and ruining retrieval accuracy."
  },
  {
   "t": "TIER 2 - DIFFERENTIATORS",
-  "q": "10 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "10 ▶ Why is Hybrid Search recommended over pure Vector Search?",
+  "a": "Vector search finds similar concepts but fails at exact keyword/ID matching. Hybrid search combines both."
  },
  {
   "t": "TIER 2 - DIFFERENTIATORS",
-  "q": "11 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "11 ▶ How does Memory work under the hood?",
+  "a": "It does not alter the model. It simply intercepts the request and appends past messages to the context window array."
  },
  {
   "t": "TIER 2 - DIFFERENTIATORS",
-  "q": "12 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "12 ▶ What is the danger of naively appending all chat history?",
+  "a": "It blows up the context window limit, costs a fortune in tokens, and causes the LLM to lose focus on the middle facts."
  },
  {
   "t": "TIER 2 - DIFFERENTIATORS",
-  "q": "13 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "13 ▶ How does the LLM know how to use a Python Tool?",
+  "a": "LangChain converts the Python docstring and type hints into a strict JSON Schema sent to the LLM."
  },
  {
   "t": "TIER 2 - DIFFERENTIATORS",
-  "q": "14 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "14 ▶ What is the difference between a Chain and an Agent?",
+  "a": "A chain is a rigid, hardcoded path. An Agent uses the LLM to dynamically plan and decide which tools to execute in a loop."
  },
  {
   "t": "TIER 3 - SENIOR SIGNAL",
-  "q": "15 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "15 ▶ Why avoid legacy chains like LLMChain?",
+  "a": "They hide the actual prompts being sent and execute opaque magic. LCEL makes data flow explicit."
  },
  {
   "t": "TIER 3 - SENIOR SIGNAL",
-  "q": "16 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "16 ▶ When should you NOT use LCEL?",
+  "a": "When your logic requires complex conditional routing or cyclic loops. Use native Python or LangGraph instead."
  },
  {
   "t": "TIER 3 - SENIOR SIGNAL",
-  "q": "17 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "17 ▶ Why is LangGraph replacing Agents in production?",
+  "a": "Agents are non-deterministic and prone to infinite loops. LangGraph enforces explicit state machine control over the workflow."
  },
  {
   "t": "TIER 3 - SENIOR SIGNAL",
-  "q": "18 ▶ TBD — write the question",
-  "a": "TBD — model answer (cite part)"
+  "q": "18 ▶ What is ParentDocumentRetriever?",
+  "a": "It searches over granular, highly-specific embedded sentences, but returns the larger parent document to preserve context for the LLM."
  }
 ],
 miles:[
  {
   "id": "m1",
-  "title": "Milestone 1 ▶ TBD",
-  "pass": "Pass: TBD. <b>(parts; days)</b>"
+  "title": "Milestone 1 ▶ The Primitive Pipeline",
+  "pass": "Pass: Build an LCEL chain with a PromptTemplate, ChatOpenAI, and StrOutputParser. <b>(parts 1-4; 1 day)</b>"
  },
  {
   "id": "m2",
-  "title": "Milestone 2 ▶ TBD",
-  "pass": "Pass: TBD. <b>(parts; days)</b>"
+  "title": "Milestone 2 ▶ Structured Output",
+  "pass": "Pass: Force the model to return a complex nested JSON object using PydanticOutputParser. <b>(parts 3-5; 1 day)</b>"
  },
  {
   "id": "m3",
-  "title": "Milestone 3 ▶ TBD",
-  "pass": "Pass: TBD. <b>(parts; days)</b>"
+  "title": "Milestone 3 ▶ State Management",
+  "pass": "Pass: Implement RunnableWithMessageHistory using a local SQLite database for session storage. <b>(part 6; 1 day)</b>"
  },
  {
   "id": "m4",
-  "title": "Milestone 4 ▶ TBD",
-  "pass": "Pass: TBD. <b>(parts; days)</b>"
+  "title": "Milestone 4 ▶ RAG Pipeline",
+  "pass": "Pass: Load a PDF, split it semantically, embed it in Chroma, and query it via LCEL. <b>(parts 7-10; 2 days)</b>"
  },
  {
   "id": "m5",
-  "title": "Milestone 5 ▶ TBD",
-  "pass": "Pass: TBD. <b>(parts; days)</b>"
+  "title": "Milestone 5 ▶ Tool Calling",
+  "pass": "Pass: Write three Python tools with perfect docstrings and have the model execute them autonomously. <b>(parts 11-12; 2 days)</b>"
  },
  {
   "id": "m6",
-  "title": "Milestone 6 ▶ TBD",
-  "pass": "Pass: TBD. <b>(parts; days)</b>"
+  "title": "Milestone 6 ▶ State Machine",
+  "pass": "Pass: Replace an unpredictable Agent with a robust, explicit LangGraph state machine. <b>(parts 13-14; 2 days)</b>"
  }
 ],
 sim:[
  {
   "t": 800,
-  "l": "<span class=\"a\">step1</span> TBD — one staged line of the idea, ending <span class=\"ok\">OK</span>"
+  "l": "<span class=\"a\">step1</span> pip install langchain langchain-openai langchain-chroma <span class=\"ok\">OK</span>"
  },
  {
   "t": 1200,
-  "l": "<span class=\"a\">step2</span> TBD — one staged line of the idea, ending <span class=\"ok\">OK</span>"
+  "l": "<span class=\"a\">step2</span> Initializing ChatOpenAI(model='gpt-4o') <span class=\"ok\">OK</span>"
  },
  {
   "t": 1400,
-  "l": "<span class=\"a\">step3</span> TBD — one staged line of the idea, ending <span class=\"ok\">OK</span>"
+  "l": "<span class=\"a\">step3</span> Compiling LCEL Pipeline: prompt | model | parser <span class=\"ok\">OK</span>"
  },
  {
   "t": 1200,
-  "l": "<span class=\"a\">step4</span> TBD — one staged line of the idea, ending <span class=\"ok\">OK</span>"
+  "l": "<span class=\"a\">step4</span> Loading documents via PyPDFLoader <span class=\"ok\">OK</span>"
  },
  {
   "t": 1300,
-  "l": "<span class=\"a\">step5</span> TBD — one staged line of the idea, ending <span class=\"ok\">OK</span>"
+  "l": "<span class=\"a\">step5</span> Chunking with RecursiveCharacterTextSplitter <span class=\"ok\">OK</span>"
  },
  {
   "t": 1000,
-  "l": "<span class=\"a\">step6</span> TBD — one staged line of the idea, ending <span class=\"ok\">OK</span>"
+  "l": "<span class=\"a\">step6</span> Embedding vectors into Chroma DB <span class=\"ok\">OK</span>"
  },
  {
   "t": 1200,
-  "l": "<span class=\"a\">step7</span> TBD — one staged line of the idea, ending <span class=\"ok\">OK</span>"
+  "l": "<span class=\"a\">step7</span> Binding @tool functions to reasoning engine <span class=\"ok\">OK</span>"
  },
  {
   "t": 900,
-  "l": "<span class=\"a\">step8</span> TBD — one staged line of the idea, ending <span class=\"ok\">OK</span>"
+  "l": "<span class=\"a\">step8</span> Executing LangGraph state machine workflow <span class=\"ok\">OK</span>"
  }
 ]
 };

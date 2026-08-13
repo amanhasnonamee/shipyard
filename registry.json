@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-13T14:19:03.258Z",
+ "generated": "2026-08-13T15:09:33.418Z",
  "techs": [
   {
    "id": "docker",
@@ -89,8 +89,8 @@
    "id": "langchain",
    "brand": "THE LANGCHAIN SHIPYARD",
    "title": "The LANGCHAIN Shipyard - LANGCHAIN: A First-Principles Curriculum",
-   "tagline": "TBD — 3-4 keywords separated by ·",
-   "accent": "#ffb000",
+   "tagline": "LCEL · Prompts · RAG · Agents",
+   "accent": "#16b981",
    "parts": 15,
    "layers": 14,
    "questions": 56,
