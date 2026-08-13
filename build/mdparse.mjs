@@ -93,7 +93,7 @@ export function parse(md) {
       parts.push(cur); continue;
     }
     if (!cur) continue;
-    if (cur.id === 'p0') continue; // p0 prose is chrome; not rendered
+    // if (cur.id === 'p0') continue; // p0 prose is chrome; not rendered
     // the part title itself is the page's h2 (emitted by build.mjs), so section
     // headings start at h3 — no level is skipped
     if (/^#### /.test(hl)) { flushAll(); cur.body.push('<h4>' + inline(hl.replace(/^#### /, '')) + '</h4>'); continue; }
